@@ -75,7 +75,6 @@ public class EpisodesService {
             if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                 HttpClient httpClientAllEps = getHttpClient();
 
-                //this is causing the issues.
                 MyEpisodeConstants.EXTENDED_EPISODES_XML =
                         downloadFullUnwatched(httpClientAllEps, user, true).toString();
 
@@ -92,11 +91,12 @@ public class EpisodesService {
             if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                 HttpClient httpClientAllEps = getHttpClient();
 
-                //this is causing the issues.
                 MyEpisodeConstants.EXTENDED_EPISODES_XML =
-                        downloadFullUnwatched(httpClientAllEps, user, false).toString();
-
+                       downloadFullUnwatched(httpClientAllEps, user, false).toString();
                 feedUrl = new URL("http://127.0.0.1"); //this is used in the parse to confirm that this has been run.
+
+               // RSS backup comment out above two method calls, uncomment below
+               // feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
             } else {
                 //if not enabling the extended functions
                 feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
@@ -129,11 +129,14 @@ public class EpisodesService {
                     String airDateString = episodeInfo[3].trim();
                     episode.setType(episodesType);
 
+                    Log.d(LOG_TAG, "airDateString: " + airDateString);
+
                     airDate = DateUtil.convertToDate(airDateString);
 
                     episode.setAirDate(airDate);
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
-                    episode.setTVRageWebSite(item.getLink());
+                    //episode.setTVRageWebSite(item.getLink());
+                    episode.setTVRageWebSite("Link to episode description coming soon");
 
                     Log.d(LOG_TAG,
                             "Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" +
@@ -142,7 +145,8 @@ public class EpisodesService {
                     //Solves problem mentioned in Issue 20
                     episode.setName(episodeInfo[2].trim() + "...");
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
-                    episode.setTVRageWebSite(item.getLink());
+                    //episode.setTVRageWebSite(item.getLink());
+                    episode.setTVRageWebSite("Link to episode description coming soon");
                 } else {
                     String message = "Problem parsing a feed item. Feed details: " + item.toString();
                     Log.e(LOG_TAG, message);
@@ -259,7 +263,7 @@ public class EpisodesService {
     private StringWriter downloadFullUnwatched(HttpClient httpClient, User user, boolean isWatched)
             throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException,
             UnsupportedHttpPostEncodingException {
-        String urlRep = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING;
+        String urlRep = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
         //login to myepisodes
         userService.login(httpClient, user.getUsername(), user.getPassword());
 
@@ -275,7 +279,7 @@ public class EpisodesService {
             setDaysBack(controlPanelSettings, httpClient, false);
 
             // set the filter to only show eps that have not yet been watched
-            setViewFilters(true, isWatched, httpClient);
+            //setViewFilters(true, isWatched, httpClient);
 
             Log.d(LOG_TAG, "DOWNLOADING FULL LIST");
             //get request to download the myviews.php for processing to xml
@@ -304,7 +308,7 @@ public class EpisodesService {
                 //read html file.
                 int startTable = HTMLtoDecode.indexOf(
                         "<table class=\"mylist\" width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">") +
-                        78 + 202;
+                        78;
                 HTMLtoDecode = HTMLtoDecode.substring(startTable);
 
                 int endTable = HTMLtoDecode.indexOf("</table>") - 8;
@@ -333,22 +337,40 @@ public class EpisodesService {
                     //split each column into a array
                     if (a.equals("")) {
                         Log.d(LOG_TAG, "No Episodes found.");
-                    } else {
+                    }
+                    if(a.contains("class=\"header\"")){
+                        //		Log.d(LOG_TAG,"Header row processed");
+                    }else {
                         String[] rowProcess = a.split("</td>");
 
                         //name of show
-                        int indexName = rowProcess[2].indexOf("showname\">") + 10;
-                        String showPart = rowProcess[2].substring(indexName);
-                        indexName = showPart.indexOf(">") + 1;
+                        int indexName = rowProcess[2].indexOf("show/id-");
+                        String showPart = rowProcess[2].substring(indexName + 9);
+                        indexName = showPart.indexOf("\">") + 2;
                         int indexNameEndTag = showPart.indexOf("</a>");
                         String show = showPart.substring(indexName, indexNameEndTag);
 
                         // get Series and Episode
-                        String seriesEps = rowProcess[3].substring(28);
+                        String seriesEp;
+                        if( rowProcess[3].indexOf("longnumber firstep") == -1 ) {
+                            seriesEp = rowProcess[3].substring(27);
+                            //			Log.d(LOG_TAG,"S0xE0 First: " + rowProcess[3].toString());
+                        }else{
+                            seriesEp = rowProcess[3].substring(35);
+                            //			Log.d(LOG_TAG,"S0xE0 Second: " + rowProcess[3].toString());
+                        }
+                        //		Log.d(LOG_TAG," SeriesEp: " + SeriesEp);
 
                         //Get episode name
-                        int indexEp = rowProcess[4].indexOf("epname\">") + 8;
+                        int indexEp;
+                        if( rowProcess[4].indexOf("epname firstep") == -1 ) {
+                            indexEp = rowProcess[4].indexOf("epname") + 7;
+                        }else{
+                            indexEp = rowProcess[4].indexOf("epname firstep") + 15;
+                        }
                         String episodeName = rowProcess[4].substring(indexEp);
+                        episodeName = episodeName.substring(1, episodeName.length());
+                        //	Log.d(LOG_TAG, "EpisodeName: " + rowProcess[4].toString());
 
                         //Get episode link - doesn't work yet.
                         int indexEpLink = rowProcess[4].indexOf("a href=") + 8;
@@ -366,38 +388,72 @@ public class EpisodesService {
                         String guid = rowProcess[5].substring(indexGUID);
                         int indexGUID1 = guid.indexOf("\"");
                         guid = guid.substring(0, indexGUID1);
+                        if(isWatched) {
+                            if (rowProcess[5].contains("checked") && !rowProcess[6].contains("checked")) {
 
-                        String headerRow =
-                                "[ " + show + " ]" + "[ " + seriesEps + " ]" + "[ " + episodeName + " ]" + "[ " +
-                                        airDate + " ]";
+                                String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
 
-                        xs.startTag(null, "item");
-                        xs.startTag(null, "guid");
-                        xs.text(guid);
-                        xs.endTag(null, "guid");
+                                xs.startTag(null, "item");
+                                xs.startTag(null, "guid");
+                                xs.text(guid);
+                                xs.endTag(null, "guid");
 
-                        xs.startTag(null, "title");
-                        xs.text(headerRow);
-                        xs.endTag(null, "title");
+                                xs.startTag(null, "title");
+                                xs.text(headerRow);
+                                xs.endTag(null, "title");
 
-                        xs.startTag(null, "link");
-                        xs.text(episodeLink);
-                        xs.endTag(null, "link");
+                                xs.startTag(null, "link");
+                                xs.text(episodeLink);
+                                xs.endTag(null, "link");
 
-                        xs.startTag(null, "description");
-                        xs.endTag(null, "description");
+                                xs.startTag(null, "description");
+                                xs.endTag(null, "description");
 
-                        xs.endTag(null, "item");
+                                xs.endTag(null, "item");
+                            } else {
+                                //Log.d(LOG_TAG, "Already watched or Not Acquired not adding to rss: [ " + Show + " ]" + "[ " + SeriesEp + " ]" + "[ " + EpisodeName + " ]" + "[ " + AirDate + " ]");
+                            }
+                        }
+                        if(!isWatched){
+                            Log.d(LOG_TAG, "Setting 200+ acquire list");
+                            Log.d(LOG_TAG,"5: " + rowProcess[5].toString());
+                            Log.d(LOG_TAG,"6: " + rowProcess[6].toString());
+
+                            if(!rowProcess[5].contains("checked")) {
+
+                                String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
+
+                                xs.startTag(null, "item");
+                                xs.startTag(null, "guid");
+                                xs.text(guid);
+                                xs.endTag(null, "guid");
+
+                                xs.startTag(null, "title");
+                                xs.text(headerRow);
+                                xs.endTag(null, "title");
+
+                                xs.startTag(null, "link");
+                                xs.text(episodeLink);
+                                xs.endTag(null, "link");
+
+                                xs.startTag(null, "description");
+                                xs.endTag(null, "description");
+
+                                xs.endTag(null, "item");
+
+                                Log.d(LOG_TAG, "Not acquired adding to rss: [ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]");
+                            }
+                        }
                     }
                 }
 
                 xs.endTag(null, "channel");
                 xs.endDocument();
                 Log.d(LOG_TAG, "Finished Download and RSS built");
-                Log.d(LOG_TAG, "Resetting webview controlpanel settings and views.php filters");
+            Log.d(LOG_TAG, "Resetting  controlpanel settings");
                 //set the days back to what they are in the settigns
                 setDaysBack(controlPanelSettings, httpClient, true);
-                setViewFilters(false, false, httpClient);
+               // setViewFilters(false, false, httpClient);
             }
         } catch (UnknownHostException e) {
             String message = "Could not connect to host.";
@@ -711,8 +767,6 @@ public class EpisodesService {
             String message = "Error setting days back";
             Log.e(LOG_TAG, message, e);
         }
-
-
     }
 
     private Date parseDate(String date) {

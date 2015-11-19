@@ -84,7 +84,8 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 	        case EPISODES_TO_ACQUIRE:
 	        	break;
 	        case EPISODES_COMING:
-	        	markAsAcquiredButton.setVisibility(View.GONE);
+			// show the acquired button on the "Coming" Screen
+	        //	markAsAcquiredButton.setVisibility(View.GONE);
 	        	break;
         }
         

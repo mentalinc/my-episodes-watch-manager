@@ -55,6 +55,7 @@ public class MyEpisodeConstants {
     public static final String MYEPISODES_UPDATE_PAGE_EPISODE_REPLACEMENT = "[E]";
     
     public static final String MYEPISODES_FULL_UNWATCHED_LISTING = "http://www.myepisodes.com/views.php";
+    public static final String MYEPISODES_FULL_UNWATCHED_LISTING_TABLE = "http://www.myepisodes.com/ajax/service.php?mode=view_privatelist";
     public static final String MYEPISODES_CONTROL_PANEL = "http://www.myepisodes.com/cp.php";
     
     
