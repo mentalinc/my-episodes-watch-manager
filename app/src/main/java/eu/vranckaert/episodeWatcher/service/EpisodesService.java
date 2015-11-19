@@ -415,9 +415,9 @@ public class EpisodesService {
                             }
                         }
                         if(!isWatched){
-                            Log.d(LOG_TAG, "Setting 200+ acquire list");
-                            Log.d(LOG_TAG,"5: " + rowProcess[5].toString());
-                            Log.d(LOG_TAG,"6: " + rowProcess[6].toString());
+                          //  Log.d(LOG_TAG, "Setting 200+ acquire list");
+                          // Log.d(LOG_TAG,"5: " + rowProcess[5].toString());
+                          //  Log.d(LOG_TAG,"6: " + rowProcess[6].toString());
 
                             if(!rowProcess[5].contains("checked")) {
 
@@ -722,6 +722,7 @@ public class EpisodesService {
 
     private void setViewFilters(Boolean setForDownload, Boolean isWatched, HttpClient httpClient) {
         HttpPost httppost = new HttpPost(MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING);
+        Log.e(LOG_TAG, "setViewFilters has been called");
         try {
             if (setForDownload) {
                 //send POST request to only show episodes with the filter Watch
