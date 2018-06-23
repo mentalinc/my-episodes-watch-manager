@@ -80,7 +80,7 @@ public class HomeActivity extends Activity {
         res.updateConfiguration(conf, null);
         openLoginActivity();
         
-    	setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+    	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
     	super.onCreate(savedInstanceState);
     	this.service = new EpisodesService();
     	
@@ -338,7 +338,7 @@ public class HomeActivity extends Activity {
         Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false);
     }
     
-    private void openPreferencesActivity() {
+    public void openPreferencesActivity() {
         Intent preferencesActivity = new Intent(this.getApplicationContext(), PreferencesActivity.class);
         startActivityForResult(preferencesActivity, SETTINGS_RESULT);
     }

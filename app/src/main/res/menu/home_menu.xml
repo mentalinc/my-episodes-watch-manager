@@ -1,3 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/preferences" android:title="@string/preferences" android:enabled="true" android:visible="true" android:icon="@android:drawable/ic_menu_preferences"/>
+    <item android:id="@+id/preferences"
+        android:title="@string/preferences"
+        android:enabled="true"
+        android:visible="true"
+        android:showAsAction="ifRoom|withText"
+        android:icon="@android:drawable/ic_menu_preferences"/>
 </menu>

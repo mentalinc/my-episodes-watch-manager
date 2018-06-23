@@ -1,6 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/episodeMenuDetails" android:title="@string/menuEpisodeDetails"/>
-    <item android:id="@+id/episodeMenuAcquired" android:title="@string/menuEpisodeMarkAcquired"/>
-    <item android:id="@+id/episodeMenuWatched" android:title="@string/menuEpisodeMarkWatched" />
-    <item android:id="@+id/episodeTweet" android:title="@string/menuTweet" />
+	<item android:id="@+id/episodeMenuDetails" android:showAsAction="ifRoom|withText" android:title="@string/menuEpisodeDetails"/>
+    <item android:id="@+id/episodeMenuAcquired" android:showAsAction="ifRoom|withText" android:title="@string/menuEpisodeMarkAcquired"/>
+    <item android:id="@+id/episodeMenuWatched" android:showAsAction="ifRoom|withText"  android:title="@string/menuEpisodeMarkWatched" />
+    <item android:id="@+id/episodeTweet" android:showAsAction="ifRoom|withText" android:title="@string/menuTweet" />
+
 </menu>

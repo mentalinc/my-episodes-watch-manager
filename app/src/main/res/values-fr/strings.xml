@@ -197,7 +197,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Veuillez remplir tous les champs !</string>
     <string name="exceptionDialogTitle">Erreur...</string>
-    <string name="defaultExceptionMessage">Un problème est survenu dans l\'application. Veuillez redémarrer celle-ci et vérifier votre connexion Internet. Si le problème persiste, merci de faire un rapport sur http://code.google.com/p/my-episodes-watch-manager/.</string>
+    <string name="defaultExceptionMessage">Un problème est survenu dans l\'application. Veuillez redémarrer celle-ci et vérifier votre connexion Internet. Si le problème persiste, merci de faire un rapport sur https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Impossible d\'établir une connexion à Internet. Veuillez réessayer !</string>
     <string name="internetConnectionFailureReload">Impossible d\'établir une connexion à Internet. Utilisez l\'option menu pour essayer de nouveau.</string>
     <string name="networkIssues">Erreur réseau !\nVérifiez votre configuration réseau et essayez à nouveau.</string>

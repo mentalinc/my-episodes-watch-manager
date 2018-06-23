@@ -197,7 +197,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Tutti i dati devono essere inseriti!</string>
     <string name="exceptionDialogTitle">Errore...</string>
-    <string name="defaultExceptionMessage">E avvenuto un errore! Provi a riavviare l\'applicazione ed a controllare il collegamento a Internet. Se il problema rimane bisogna comunicare un difetto (rapporto bug) tramite la pagina web http://code.google.com/p/my-episodes-watch-manager/.</string>
+    <string name="defaultExceptionMessage">E avvenuto un errore! Provi a riavviare l\'applicazione ed a controllare il collegamento a Internet. Se il problema rimane bisogna comunicare un difetto (rapporto bug) tramite la pagina web https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Impossibile stabilire il collegamento a Internet. Ripristina!</string>
     <string name="internetConnectionFailureReload">Impossibile stabilire il collegamento a Internet. Usi l\'opzione del menu per ripristinare.</string>
     <string name="networkIssues">Errore rete !\nVerificare la configurazione rete e ripristinare.</string>

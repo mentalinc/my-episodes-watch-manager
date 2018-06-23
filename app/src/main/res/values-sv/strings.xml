@@ -195,7 +195,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Alla fält måste fyllas i!</string>
     <string name="exceptionDialogTitle">Oj...</string>
-    <string name="defaultExceptionMessage">Någonting gick fel. Försök starta om applikationen och kontrollera uppkopplingen. Om problemet kvarstår, rapportera buggen på http://code.google.com/p/my-episodes-watch-manager/.</string>
+    <string name="defaultExceptionMessage">Någonting gick fel. Försök starta om applikationen och kontrollera uppkopplingen. Om problemet kvarstår, rapportera buggen på https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Internetkoppling misslyckades. Var vänlig försök igen!</string>
     <string name="internetConnectionFailureReload">Internetkoppling misslyckades. Uppdatera via menyn och försök igen.</string>
     <string name="networkIssues">Nätverksfel!\nKontrollera nätveksinställningarna och försök uppdatera manuellt.</string>

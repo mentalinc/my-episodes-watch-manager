@@ -1,15 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 8
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 26
+    buildToolsVersion '28.0.0'
+    useLibrary  'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "eu.vranckaert.episodeWatcher"
-        minSdkVersion 4
-        targetSdkVersion 8
+        minSdkVersion 23
+        targetSdkVersion 28
         versionCode 37
-        versionName "1.8.5"
+        versionName "1.8.6"
     }
     signingConfigs {
         debug {
@@ -37,5 +38,6 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
 }

@@ -195,7 +195,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Minden mezőt ki kell tölteni!</string>
     <string name="exceptionDialogTitle">Hoppá...</string>
-    <string name="defaultExceptionMessage">Valami bibi van. Próbáld újraindítani az alkalmazást és ellenőrizd az internet kapcsolatot! Ha a probléma továbbra is fennáll, kérlek jelentsd a http://code.google.com/p/my-episodes-watch-manager/ oldalon!</string>
+    <string name="defaultExceptionMessage">Valami bibi van. Próbáld újraindítani az alkalmazást és ellenőrizd az internet kapcsolatot! Ha a probléma továbbra is fennáll, kérlek jelentsd a https://github.com/mentalinc/my-episodes-watch-manager/ oldalon!</string>
     <string name="internetConnectionFailureTryAgain">Nem sikerült kapcsolódni az internetre. Próbáld újra, kérlek!</string>
     <string name="internetConnectionFailureReload">Nem sikerült kapcsolódni az internetre. Frissíts menüből és próbáld újra!</string>
     <string name="networkIssues">Hálózati hiba!\nEllenőrizd a hálózati beállításokat és próbálj frissíteni!</string>
