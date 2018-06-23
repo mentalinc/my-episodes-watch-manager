@@ -195,7 +195,11 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">All fields should be filled in!</string>
     <string name="exceptionDialogTitle">Ooops...</string>
+<<<<<<< HEAD
     <string name="defaultExceptionMessage">Something went wrong. Try to restart the application and check your internet connection. If you keep having this issue report a bug at https://github.com/dirkvranckaert/my-episodes-watch-manager.</string>
+=======
+    <string name="defaultExceptionMessage">Something went wrong. Try to restart the application and check your internet connection. If you keep having this issue report a bug at https://github.com/mentalinc/my-episodes-watch-manager.</string>
+>>>>>>> master
     <string name="internetConnectionFailureTryAgain">Could not establish internet connection. Please try again!</string>
     <string name="internetConnectionFailureReload">Could not establish internet connection. Use the menu option to reload and try again.</string>
     <string name="networkIssues">Network error!\nCheck you network settings and try refreshing manually.</string>
@@ -210,9 +214,15 @@
     <!-- About Dialog -->
     <string name="aboutLicenseValue">GNU GPL V3 License</string>
     <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
+<<<<<<< HEAD
     <string name="aboutProgrammerValue">Ivo Janssen\nDirk Vranckaert</string>
     <string name="aboutWebsiteValue">https://github.com/dirkvranckaert/my-episodes-watch-manager</string>
     <string name="aboutEmailValue">dirkvranckaert@gmail.com</string>
+=======
+    <string name="aboutProgrammerValue">mentalinc\nIvo Janssen\nDirk Vranckaert</string>
+    <string name="aboutWebsiteValue">https://github.com/mentalinc/my-episodes-watch-manager</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+>>>>>>> master
     <!-- What's new Dialog -->
     <string name="whatsNewListPrefix">-</string>
     <!-- Preferences -->

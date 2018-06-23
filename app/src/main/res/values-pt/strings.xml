@@ -148,7 +148,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Todos os campos precisam ser preenchidos!</string>
     <string name="exceptionDialogTitle">Ooops...</string>
-    <string name="defaultExceptionMessage">Algo deu errado. Tente reiniciar a aplicação e verifique sua conexão com a Internet. Se você continuar a ter esse problema, preencha um relatório de erro em http://code.google.com/p/my-episodes-watch-manager/.</string>
+    <string name="defaultExceptionMessage">Algo deu errado. Tente reiniciar a aplicação e verifique sua conexão com a Internet. Se você continuar a ter esse problema, preencha um relatório de erro em https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Não foi possível estabelecer uma conexão com a Internet. Por favor, tente novamente!</string>
     <string name="internetConnectionFailureReload">Não foi possível estabelecer uma conexão com a Internet. Use a opção de Recarregar no Menu para tentar novamente.</string>
     <string name="networkIssues">Erro de Rede!\nVerifique suas opções de rede e tente recarregar manualmente.</string>

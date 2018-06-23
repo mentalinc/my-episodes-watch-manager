@@ -33,11 +33,15 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-            <Button android:id="@+id/btn_coming"
+
+            <Button
+                android:id="@+id/btn_coming"
                 style="@style/HomeButton"
-                android:text="@string/randompicker"
+                android:layout_width="wrap_content"
                 android:drawableTop="@drawable/btn_random"
-                android:onClick="onRandomClick"/>
+                android:onClick="onRandomClick"
+                android:text="@string/randompicker" />
         </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

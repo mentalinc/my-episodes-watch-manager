@@ -164,7 +164,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Alle felt må være fylt inn!</string>
     <string name="exceptionDialogTitle">Ooops...</string>
-    <string name="defaultExceptionMessage">Noe gikk feil. Prøv å restart appen og sjekk din internettforbindelse. Om denne buggen oppstår flere ganger rapporter buggen her http://code.google.com/p/my-episodes-watch-manager/.</string>
+    <string name="defaultExceptionMessage">Noe gikk feil. Prøv å restart appen og sjekk din internettforbindelse. Om denne buggen oppstår flere ganger rapporter buggen her https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Kunne ikke opprette internettforbindelse. Vennligst prøv igjen!</string>
     <string name="internetConnectionFailureReload">Kunne ikke opprette internettforbindelse. Trykk refresh og prøv igjen.</string>
     <string name="networkIssues">Nettverk error!\nSjekk din internettforbindelse og prøv å refreshe manuelt.</string>

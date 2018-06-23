@@ -35,7 +35,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     private ListPreference showComingOrderingPref;
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu)  {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.preferences_menu, menu);
 		return true;
@@ -53,7 +53,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
     @Override
     public void onCreate(Bundle savedInstance) {
-    	setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+    	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
     	super.onCreate(savedInstance);
     	
     	setContentView(R.layout.preferences);

@@ -148,7 +148,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Visiem laukiem ir jābūt aizpildītiem!</string>
     <string name="exceptionDialogTitle">Vai vai vai...</string>
-    <string name="defaultExceptionMessage">Kaut kas nogāja greizi. Mēģini pārstartēt programmu un pārbaudi vai strādā internets. Ja atkārtoti redzi šo kļūdu, ziņo par to: http://code.google.com/p/my-episodes-watch-manager/.</string>
+    <string name="defaultExceptionMessage">Kaut kas nogāja greizi. Mēģini pārstartēt programmu un pārbaudi vai strādā internets. Ja atkārtoti redzi šo kļūdu, ziņo par to: https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Neveiksmīgs interneta savienojums. Mēģini vēlreiz!</string>
     <string name="internetConnectionFailureReload">Neveiksmīgs interneta savienojums. Izmanto izvēlni, lai atjauninātu un mēģinātu vēlreiz.</string>
     <string name="networkIssues">Savienojuma kļūda!\nPārbaudi sava savienojuma iestatījumus un mēģini atjaunināt manuāli.</string>

@@ -195,7 +195,7 @@
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Alle Felder sollten ausgefüllt werden!</string>
     <string name="exceptionDialogTitle">Nanu...</string>
-    <string name="defaultExceptionMessage">Ein Fehler ist aufgetreten. Starte das Programm erneut und prüfe deine Internet Verbindung. Wenn du diesen Fehler wiederholt bekommst, melde ihn auf http://code.google.com/p/my-episodes-watch-manager/.</string>
+    <string name="defaultExceptionMessage">Ein Fehler ist aufgetreten. Starte das Programm erneut und prüfe deine Internet Verbindung. Wenn du diesen Fehler wiederholt bekommst, melde ihn auf https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Konnte keine Internet Verbindung aufbauen. Bitte nochmal versuchen!</string>
     <string name="internetConnectionFailureReload">Konnte keine Internet Verbindung aufbauen. Benutze das Menü zum Aktualisieren und versuche es nochmal.</string>
     <string name="networkIssues">Netzwerk Fehler!\nPrüfe deine Netzwerk Einstellungen und versuche manuell zu aktualisieren.</string>
