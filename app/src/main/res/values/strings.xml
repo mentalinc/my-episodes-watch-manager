@@ -210,9 +210,9 @@
     <!-- About Dialog -->
     <string name="aboutLicenseValue">GNU GPL V3 License</string>
     <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
-    <string name="aboutProgrammerValue">Ivo Janssen\nDirk Vranckaert</string>
-    <string name="aboutWebsiteValue">http://code.google.com/p/my-episodes-watch-manager</string>
-    <string name="aboutEmailValue">dirkvranckaert@gmail.com</string>
+    <string name="aboutProgrammerValue">mentalinc\nIvo Janssen\nDirk Vranckaert</string>
+    <string name="aboutWebsiteValue">https://github.com/mentalinc/my-episodes-watch-manager</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
     <!-- What's new Dialog -->
     <string name="whatsNewListPrefix">-</string>
     <!-- Preferences -->
