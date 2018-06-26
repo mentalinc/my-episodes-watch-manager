@@ -54,7 +54,7 @@ public class EpisodesService {
     public HttpClient getHttpClient() {
         DefaultHttpClient httpClient = new DefaultHttpClient();
         httpClient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
-                "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
         return httpClient;
     }
 
@@ -129,6 +129,9 @@ public class EpisodesService {
                     String airDateString = episodeInfo[3].trim();
                     episode.setType(episodesType);
 
+                    Log.d(LOG_TAG, "airDateString: " + airDateString);
+
+                   // airDateString = airDateString.replace("-","/");
                     Log.d(LOG_TAG, "airDateString: " + airDateString);
 
                     airDate = DateUtil.convertToDate(airDateString);

@@ -21,6 +21,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import java.io.BufferedReader;
+import org.json.JSONObject;
+import org.json.JSONException;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.io.InputStreamReader;
+import java.io.InputStream;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -240,10 +249,108 @@ public class ShowService {
             Show show = new Show(values[1].trim(), values[0].trim());
             shows.add(show);
             Log.d(LOG_TAG, "Show found: " + show.getShowName() + "(" + show.getMyEpisodeID() + ")");
+
+
+            ShowsRuntime(values[1].trim());
+
+
+
+
         }
 
         return shows;
     }
+
+
+    public void  ShowsRuntime(String show){
+
+        //code needed to download the JSON
+
+        HttpURLConnection connection = null;
+        BufferedReader reader = null;
+
+        String tvMazeAPIURL =" http://api.tvmaze.com/singlesearch/shows?q=";
+        //Add the show to the end of the URL
+        //need to pull the show out of the list one at a time may?
+
+       // for (int i = 0; i < show.size(); i++) {
+        //for now just work with the first item will build to work with all in time.
+
+            System.out.println(show);
+        Log.d("Response: ", "> " + show);
+        tvMazeAPIURL += show;
+
+        try {
+            URL url = new URL(tvMazeAPIURL);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+
+
+            InputStream stream = connection.getInputStream();
+
+            reader = new BufferedReader(new InputStreamReader(stream));
+
+            StringBuffer buffer = new StringBuffer();
+            String line = "";
+
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line+"\n");
+                Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
+
+            }
+
+
+            String jsonString = buffer.toString();
+            JSONObject jObj;
+            String showNameString = "";
+            String showRuntimeString = "";
+            String tvmazeShowID = "";
+
+            try
+            {
+                jObj = new JSONObject(jsonString);
+                showNameString = jObj.getJSONArray("name").toString();
+                showRuntimeString = jObj.getJSONArray("runtime").toString();
+                tvmazeShowID = jObj.getJSONArray("id").toString();
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+            //u change this to be a log.d outpu
+            Log.d("showNameString: ", "> " + showNameString);
+            Log.d("showRuntimeString: ", "> " + showRuntimeString);
+            Log.d("showMyepsID: ", "> " + tvmazeShowID);
+
+
+            //now put the three values into a database....
+
+            
+
+
+
+
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
     public List<Show> markShow(User user, Show show, ShowAction showAction, ShowType showType) throws LoginFailedException, InternetConnectivityException, UnsupportedHttpPostEncodingException {
         HttpClient httpClient = new DefaultHttpClient();

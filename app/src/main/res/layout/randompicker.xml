@@ -31,15 +31,16 @@
 		
 	<TextView android:text="@string/randompickertext" android:id="@+id/randomtexttitle" android:layout_margin="10sp" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content"></TextView>
 
-	<TextView android:textSize="23px"
-	  	android:id="@+id/episodeDetShowName"
+	<TextView
+		android:textStyle="bold"
+		android:id="@+id/episodeDetShowName"
 		android:layout_width="fill_parent"
 		android:paddingTop="10px"
 		android:layout_height="wrap_content"
 		android:gravity="center_horizontal"
 	/>
 	
-	<TextView android:textSize="17px"
+	<TextView
 		android:id="@+id/episodeDetName"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
