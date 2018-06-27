@@ -43,9 +43,12 @@ import eu.vranckaert.episodeWatcher.exception.ShowUpdateFailedException;
 import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
 
+
+
 public class EpisodesService {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
     private UserService userService;
+
 
     public EpisodesService() {
         userService = new UserService();

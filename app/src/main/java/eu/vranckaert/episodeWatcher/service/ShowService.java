@@ -1,7 +1,14 @@
 package eu.vranckaert.episodeWatcher.service;
 
+import android.arch.persistence.room.Room;
 import android.util.Log;
+import android.widget.Toast;
+
+import eu.vranckaert.episodeWatcher.MyEpisodes;
+import eu.vranckaert.episodeWatcher.activities.HomeActivity;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
+import eu.vranckaert.episodeWatcher.database.SeriesDAO;
+import eu.vranckaert.episodeWatcher.domain.Episode;
 import eu.vranckaert.episodeWatcher.domain.Show;
 import eu.vranckaert.episodeWatcher.domain.User;
 import eu.vranckaert.episodeWatcher.enums.ShowAction;
@@ -11,6 +18,9 @@ import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.ShowAddFailedException;
 import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.utils.StringUtils;
+
+
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -21,6 +31,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
+import eu.vranckaert.episodeWatcher.database.AppDatabase;
+
+
+
 import java.io.BufferedReader;
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -37,10 +52,13 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext;
+
 public class ShowService {
     private static final String LOG_TAG = ShowService.class.getSimpleName();
 
     private UserService userService;
+
 
     public ShowService() {
         userService = new UserService();
@@ -230,6 +248,12 @@ public class ShowService {
         int endPosition = selectTag.indexOf(endTag);
         selectTag = selectTag.substring(0, endPosition);
 
+        AppDatabase database =  Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .build();
+
+        int ep = 1;
+
         while(selectTag.length() > 0) {
             int startPosistionOption = selectTag.indexOf(optionStartTag);
             int endPositionOption = selectTag.indexOf(optionEndTag);
@@ -248,23 +272,37 @@ public class ShowService {
 
             Show show = new Show(values[1].trim(), values[0].trim());
             shows.add(show);
-            Log.d(LOG_TAG, "Show found: " + show.getShowName() + "(" + show.getMyEpisodeID() + ")");
+            Log.d(LOG_TAG, "Show found: " + show.getShowName() + " (" + show.getMyEpisodeID() + ")");
+
+            //only run the api once during testing
+            //TODO Remove the first check don't need to check if already in data base will remove all the webstuff and database work for no reason
+            //if(ep < 3) {
+
+                //check if the show runtime is already in the database
+                // if not then go and get the runtime
+
+                SeriesDAO seriesDAO = database.getSeriesDAO();
+                EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
 
 
-            ShowsRuntime(values[1].trim());
+                //TODO - this is causing null pointer error
+                if(showRuntime == null ){
+                    Log.d(LOG_TAG, "Show NOT found in Database");
+                    ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
 
-
-
-
+                }else {
+                    //do nothing as already exists no need to add
+                    Log.d(LOG_TAG, "Show ID found in Database: " + showRuntime.showName + "(" + showRuntime.showMyEpsID + ")");
+                }
+                ep++;
+           // }
         }
 
         return shows;
     }
 
 
-    public void  ShowsRuntime(String show){
-
-        //code needed to download the JSON
+    public void  ShowsRuntime(String show, String myEpsID, AppDatabase database){
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
@@ -276,14 +314,24 @@ public class ShowService {
        // for (int i = 0; i < show.size(); i++) {
         //for now just work with the first item will build to work with all in time.
 
-            System.out.println(show);
-        Log.d("Response: ", "> " + show);
+        System.out.println(show);
+       // Log.d("Response: ", "> " + show);
+        show = show.replace("#","");
         tvMazeAPIURL += show;
 
         try {
             URL url = new URL(tvMazeAPIURL);
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
+            int code = connection.getResponseCode();
+            Log.d(LOG_TAG, "API HTTP Status Code: " + code);
+
+            if(code == 429){
+                Thread.sleep(10000);
+                //wait 10 seconds then try again
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+            }
 
 
             InputStream stream = connection.getInputStream();
@@ -295,7 +343,7 @@ public class ShowService {
 
             while ((line = reader.readLine()) != null) {
                 buffer.append(line+"\n");
-                Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
+            //    Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
 
             }
 
@@ -309,32 +357,37 @@ public class ShowService {
             try
             {
                 jObj = new JSONObject(jsonString);
-                showNameString = jObj.getJSONArray("name").toString();
-                showRuntimeString = jObj.getJSONArray("runtime").toString();
-                tvmazeShowID = jObj.getJSONArray("id").toString();
+                showNameString = jObj.getString("name").toString();
+                showRuntimeString = jObj.getString("runtime").toString();
+                tvmazeShowID = jObj.getString("id").toString();
+
             }
             catch (JSONException e)
             {
                 e.printStackTrace();
             }
 
-            //u change this to be a log.d outpu
-            Log.d("showNameString: ", "> " + showNameString);
-            Log.d("showRuntimeString: ", "> " + showRuntimeString);
-            Log.d("showMyepsID: ", "> " + tvmazeShowID);
-
+        //    Log.d("showNameString: ", "> " + showNameString);
+        //    Log.d("showRuntimeString: ", "> " + showRuntimeString);
+        //    Log.d("showTVmazeID: ", "> " + tvmazeShowID);
 
             //now put the three values into a database....
+            SeriesDAO seriesDAO = database.getSeriesDAO();
 
-            
+            //Inserting an episodeRuntime
+            EpisodeRuntime epsRunTime = new EpisodeRuntime();
+            epsRunTime.setshowMyepsID(myEpsID);
+            epsRunTime.setShowName(showNameString);
+            epsRunTime.setShowTVMazeID(tvmazeShowID);
+            epsRunTime.setShowRuntime(showRuntimeString);
 
-
-
-
+            seriesDAO.insert(epsRunTime);
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException  e) {
             e.printStackTrace();
         } finally {
             if (connection != null) {
@@ -348,7 +401,6 @@ public class ShowService {
                 e.printStackTrace();
             }
         }
-
     }
 
 

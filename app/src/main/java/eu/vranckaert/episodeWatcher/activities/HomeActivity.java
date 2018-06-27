@@ -1,10 +1,15 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import java.util.List;
 import java.util.Locale;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
+import eu.vranckaert.episodeWatcher.database.AppDatabase;
+import android.arch.persistence.room.Room;
+
+import eu.vranckaert.episodeWatcher.database.SeriesDAO;
 import eu.vranckaert.episodeWatcher.domain.User;
 import eu.vranckaert.episodeWatcher.enums.EpisodeType;
 import eu.vranckaert.episodeWatcher.enums.ListMode;
@@ -13,11 +18,14 @@ import eu.vranckaert.episodeWatcher.pager.HorizontalPager;
 import eu.vranckaert.episodeWatcher.pager.PagerControl;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
+import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
 import eu.vranckaert.episodeWatcher.service.EpisodesService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -40,6 +48,7 @@ public class HomeActivity extends Activity {
 	private static final int EXCEPTION_DIALOG = 2;
 	private static final int LOGIN_RESULT = 5;
 	private static final int SETTINGS_RESULT = 6;
+    private static Context sContext;
 	
 	private boolean exception;
 	
@@ -49,6 +58,9 @@ public class HomeActivity extends Activity {
 	private Intent watchIntent;
 	private Intent acquireIntent;
 	private Intent comingIntent;
+	public AppDatabase database;
+
+
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,7 +77,9 @@ public class HomeActivity extends Activity {
         init();
         checkPreferences();
         String LanguageCode = Preferences.getPreference(this, PreferencesKeys.LANGUAGE_KEY);
-        
+
+
+
         //fix issue where app run and no days back has been set by the user.
         if(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP).equals(null) || Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP) == ""){        	
         	MyEpisodeConstants.DAYS_BACK_CP = "365";
@@ -83,6 +97,7 @@ public class HomeActivity extends Activity {
     	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
     	super.onCreate(savedInstanceState);
     	this.service = new EpisodesService();
+        sContext =   getApplicationContext();
     	
         setContentView(R.layout.main);
         user = new User(
@@ -377,5 +392,10 @@ public class HomeActivity extends Activity {
     public void onRandomClick(View v) {
         Intent randomActivity = new Intent(this.getApplicationContext(), RandomEpPickerActivity.class);
         startActivity(randomActivity);
+    }
+
+
+    public static Context getContext() {
+        return sContext;
     }
 }

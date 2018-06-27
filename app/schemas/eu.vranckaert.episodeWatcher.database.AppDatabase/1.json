@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "36d269bdf2e00b0411b5d960aa232c54",
+    "entities": [
+      {
+        "tableName": "EpisodeRuntime",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`showName` TEXT, `showRuntime` TEXT, `showTVMazeID` TEXT, `showMyEpsID` TEXT NOT NULL, PRIMARY KEY(`showMyEpsID`))",
+        "fields": [
+          {
+            "fieldPath": "showName",
+            "columnName": "showName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "showRuntime",
+            "columnName": "showRuntime",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "showTVMazeID",
+            "columnName": "showTVMazeID",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "showMyEpsID",
+            "columnName": "showMyEpsID",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "showMyEpsID"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"36d269bdf2e00b0411b5d960aa232c54\")"
+    ]
+  }
+}
