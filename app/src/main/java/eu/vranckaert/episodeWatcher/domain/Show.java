@@ -7,6 +7,7 @@ public class Show {
 	private String showName;
 	private List<Episode> episodes = new ArrayList<Episode>(0);
     private String myEpisodeID;
+    private String runTime;
 
 	public Show(String showName) {
 		this.showName = showName;
@@ -33,6 +34,24 @@ public class Show {
      */
 	public void setShowName(String showName) {
 		this.showName = showName;
+	}
+
+	/**
+	 * Gets the show runTime.
+	 *
+	 * @return The show runTime.
+	 */
+	public String getRunTime() {
+		return runTime;
+	}
+
+	/**
+	 * Sets the show runTime.
+	 *
+	 * @param runTime The show runTime.
+	 */
+	public void setRunTime(String runTime) {
+		this.runTime = runTime;
 	}
 
 	public void addEpisode(Episode episode) {

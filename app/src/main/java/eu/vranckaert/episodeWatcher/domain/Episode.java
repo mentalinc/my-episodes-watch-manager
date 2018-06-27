@@ -16,6 +16,7 @@ public class Episode implements Serializable {
     private String TVRageWebSite;
     private EpisodeType type;
 
+
     /**
      * Gets the show name.
      *
@@ -33,6 +34,12 @@ public class Episode implements Serializable {
     public void setShowName(String showName) {
         this.showName = showName;
     }
+
+
+
+
+
+
 
     /**
      * Gets the name of the episode.

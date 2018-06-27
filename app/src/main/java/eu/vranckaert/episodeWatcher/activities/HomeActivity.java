@@ -1,15 +1,14 @@
 package eu.vranckaert.episodeWatcher.activities;
 
-import java.util.List;
 import java.util.Locale;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
 import eu.vranckaert.episodeWatcher.database.AppDatabase;
-import android.arch.persistence.room.Room;
 
-import eu.vranckaert.episodeWatcher.database.SeriesDAO;
+
+
 import eu.vranckaert.episodeWatcher.domain.User;
 import eu.vranckaert.episodeWatcher.enums.EpisodeType;
 import eu.vranckaert.episodeWatcher.enums.ListMode;
@@ -18,7 +17,7 @@ import eu.vranckaert.episodeWatcher.pager.HorizontalPager;
 import eu.vranckaert.episodeWatcher.pager.PagerControl;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
-import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
+
 import eu.vranckaert.episodeWatcher.service.EpisodesService;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,7 +38,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 public class HomeActivity extends Activity {
-	private EpisodesService service;
+
 	private User user;
 	private Resources res; // Resource object to get Drawables
 	private android.content.res.Configuration conf;
@@ -49,6 +48,7 @@ public class HomeActivity extends Activity {
 	private static final int LOGIN_RESULT = 5;
 	private static final int SETTINGS_RESULT = 6;
     private static Context sContext;
+	private EpisodesService service;
 	
 	private boolean exception;
 	
@@ -58,7 +58,7 @@ public class HomeActivity extends Activity {
 	private Intent watchIntent;
 	private Intent acquireIntent;
 	private Intent comingIntent;
-	public AppDatabase database;
+
 
 
 	

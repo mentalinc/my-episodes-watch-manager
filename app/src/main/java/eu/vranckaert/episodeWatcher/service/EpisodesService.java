@@ -27,10 +27,13 @@ import org.apache.http.util.EntityUtils;
 import org.pojava.datetime.DateTime;
 import org.xmlpull.v1.XmlSerializer;
 
+import android.arch.persistence.room.Room;
 import android.util.Log;
 import android.util.Xml;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
+import eu.vranckaert.episodeWatcher.database.AppDatabase;
+import eu.vranckaert.episodeWatcher.database.SeriesDAO;
 import eu.vranckaert.episodeWatcher.domain.Episode;
 import eu.vranckaert.episodeWatcher.domain.Feed;
 import eu.vranckaert.episodeWatcher.domain.FeedItem;
@@ -114,6 +117,10 @@ public class EpisodesService {
 
         List<Episode> episodes = new ArrayList<Episode>(0);
 
+        AppDatabase database =  Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .build();
+
         for (FeedItem item : rssFeed.getItems()) {
             Episode episode = new Episode();
 
@@ -142,11 +149,24 @@ public class EpisodesService {
                     episode.setAirDate(airDate);
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
                     //episode.setTVRageWebSite(item.getLink());
+
+                    //TODO trying to add runtime to the Show Name
+                    // add Runtime to this..
+
+                    SeriesDAO seriesDAO = database.getSeriesDAO();
+                    EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+
+                    episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
+
+                    Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
+
+
+
+                    //TODO see if can use the TVMAZE API to pull the episode info somehow?
                     episode.setTVRageWebSite("Link to episode description coming soon");
 
                     Log.d(LOG_TAG,
-                            "Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" +
-                                    episode.getEpisodeString());
+                            "Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
                 } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
                     //Solves problem mentioned in Issue 20
                     episode.setName(episodeInfo[2].trim() + "...");

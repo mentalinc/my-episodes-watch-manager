@@ -274,30 +274,23 @@ public class ShowService {
             shows.add(show);
             Log.d(LOG_TAG, "Show found: " + show.getShowName() + " (" + show.getMyEpisodeID() + ")");
 
-            //only run the api once during testing
-            //TODO Remove the first check don't need to check if already in data base will remove all the webstuff and database work for no reason
-            //if(ep < 3) {
+            //check if the show runtime is already in the database
+            // if not then go and get the runtime
 
-                //check if the show runtime is already in the database
-                // if not then go and get the runtime
-
-                SeriesDAO seriesDAO = database.getSeriesDAO();
-                EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
 
 
-                //TODO - this is causing null pointer error
-                if(showRuntime == null ){
-                    Log.d(LOG_TAG, "Show NOT found in Database");
-                    ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
+            //TODO - this is causing null pointer error
+            if(showRuntime == null ){
+                Log.d(LOG_TAG, "Show NOT found in Database");
+                ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
 
-                }else {
-                    //do nothing as already exists no need to add
-                    Log.d(LOG_TAG, "Show ID found in Database: " + showRuntime.showName + "(" + showRuntime.showMyEpsID + ")");
-                }
-                ep++;
-           // }
+            }else {
+                //do nothing as already exists no need to add
+                Log.d(LOG_TAG, "Show ID found in Database: " + showRuntime.showName + "(" + showRuntime.showMyEpsID + ")");
+            }
         }
-
         return shows;
     }
 
