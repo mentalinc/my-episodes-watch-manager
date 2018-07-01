@@ -1,5 +1,7 @@
 package eu.vranckaert.episodeWatcher.constants;
 
+import android.content.Context;
+
 public class MyEpisodeConstants {
     public static final String UID_REPLACEMENT_STRING = "[UID]";
     public static final String PWD_REPLACEMENT_STRING = "[PWD]";
@@ -8,6 +10,10 @@ public class MyEpisodeConstants {
     
     public static String DAYS_BACK_CP = "365";    
     public static Boolean DAYS_BACK_ENABLED = false;
+    public static Boolean CACHE_EPISODES_ENABLED = false;
+    public static String CACHE_EPISODES_CACHE_AGE = "Disabled";
+
+    public static Context CONTXT = null;
     
     public static String EXTENDED_EPISODES_XML;
     

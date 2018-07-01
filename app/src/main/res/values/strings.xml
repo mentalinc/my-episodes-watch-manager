@@ -83,7 +83,9 @@
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Loading...</string>
+    <string name="progressLoadingTitleCache">Loading from cache...</string>
     <string name="progressLoadingBody">Sending/Retrieving data</string>
+    <string name="progressLoadingOnlineCheck">Checking if user is online</string>
 
     <!-- aboutDialog -->
     <string name="aboutTitle">About...</string>
@@ -158,7 +160,45 @@
     <string name="daysBackwardEnable">Enable 200+ episodes</string>
     <string name="daysBackwardCP">Days Backward</string>
     <string name="daysBackwardCPExtra">Number of days backward to search for new episodes to watch</string>
-        
+
+    <!-- Cache data -->
+    <string name="CacheEpisodes">Cache Episodes</string>
+
+    <!-- Cache Data File Age -->
+    <string name="CacheFileAge">Age of Cache Files</string>
+    <string-array name="CacheFileAgeArray">
+        <item>Disabled</item>
+        <item>6 hours</item>
+        <item>12 hours</item>
+        <item>1 day</item>
+        <item>2 days</item>
+        <item>3 days</item>
+        <item>4 days</item>
+        <item>5 days</item>
+        <item>6 days</item>
+        <item>1 week</item>
+        <item>2 weeks</item>
+        <item>3 weeks</item>
+        <item>1 month</item>
+    </string-array>
+
+    <string-array name="CacheFileAgeValues">
+        <item>0</item>
+        <item>0.25</item>
+        <item>0.5</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>14</item>
+        <item>21</item>
+        <item>30</item>
+    </string-array>
+
+
     <!-- Acquire Settings -->
     <string name="openAcquirePrompt">Acquire Settings</string>
     <string name="openAcquirePromptExtra">All shows or only shows of yesterday</string>

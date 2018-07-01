@@ -3,6 +3,7 @@ package eu.vranckaert.episodeWatcher.service;
 import android.util.Log;
 import eu.vranckaert.episodeWatcher.domain.Feed;
 import eu.vranckaert.episodeWatcher.domain.FeedItem;
+import eu.vranckaert.episodeWatcher.enums.EpisodeType;
 import eu.vranckaert.episodeWatcher.exception.FeedUrlParsingException;
 import eu.vranckaert.episodeWatcher.exception.RssFeedParserException;
 import org.w3c.dom.Document;
@@ -69,6 +70,61 @@ public class DomRssFeedParser implements RssFeedParser {
                 }
             }
 
+            rssFeed.addItem(item);
+        }
+
+        return rssFeed;
+    }
+
+    public Feed parseFeed(EpisodeType episodeType, final URL url) throws RssFeedParserException, FeedUrlParsingException {
+        Feed rssFeed = new Feed();
+        DocumentBuilder builder = null;
+        Document doc = null;
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            Log.e(LOG_TAG, e.getMessage());
+            throw new RssFeedParserException(e);
+        }
+
+        try {
+            doc = builder.parse(url.openStream());
+        } catch (SAXException e) {
+            String message = "Unable to parse the URL for the feed";
+            Log.e(LOG_TAG, message);
+            throw new FeedUrlParsingException(message, e);
+        } catch (IOException e) {
+            String message = "Unable to parse the URL for the feed";
+            Log.e(LOG_TAG, message);
+            throw new FeedUrlParsingException(message, e);
+        }
+
+        NodeList nodes = doc.getElementsByTagName("item");
+
+        for (int i=0; i<nodes.getLength(); i++) {
+            Node itemNode = nodes.item(i);
+
+            NodeList contentNodes = itemNode.getChildNodes();
+            FeedItem item = new FeedItem();
+            for (int j=0; j<contentNodes.getLength(); j++) {
+                Node contentNode = contentNodes.item(j);
+                if (contentNode.getFirstChild() != null) {
+                    String nodeValue = contentNode.getFirstChild().getNodeValue();
+                    String nodeName = contentNode.getNodeName();
+                    if (nodeName.equals("guid")) {
+                        item.setGuid(nodeValue);
+                    }
+                    if (nodeName.equals("title")) {
+                        item.setTitle(nodeValue);
+                    }
+                    if (nodeName.equals("link")) {
+                        item.setLink(nodeValue);
+                    }
+                    if (nodeName.equals("description")) {
+                        item.setDescription(nodeValue);
+                    }
+                }
+            }
             rssFeed.addItem(item);
         }
 

@@ -35,7 +35,7 @@
 		android:textStyle="bold"
 		android:id="@+id/episodeDetShowName"
 		android:layout_width="fill_parent"
-		android:paddingTop="10px"
+		android:paddingTop="10dp"
 		android:layout_height="wrap_content"
 		android:gravity="center_horizontal"
 	/>
@@ -48,16 +48,17 @@
 	/>
 
 	<LinearLayout android:layout_width="fill_parent" 
-		android:paddingTop="25px" 
+		android:paddingTop="25dp"
 		android:layout_height="wrap_content" 
 		android:orientation="horizontal"
 	>
-	<TextView android:text="@string/episodeDetailsSeasonLabel" 
-		android:paddingLeft="10px" 
-		android:id="@+id/episodeDetSeasonLabel" 
-		android:layout_width="120px"
-		android:layout_height="wrap_content"
-	/>
+
+		<TextView
+			android:id="@+id/episodeDetSeasonLabel"
+			android:layout_width="220dp"
+			android:layout_height="wrap_content"
+			android:paddingLeft="10dp"
+			android:text="@string/episodeDetailsSeasonLabel" />
 	
 	<TextView android:id="@+id/episodeDetSeason" 
 		android:layout_width="fill_parent" 
@@ -69,12 +70,13 @@
 		android:layout_height="wrap_content" 
 		android:orientation="horizontal"
 	>
-	<TextView android:text="@string/episodeDetailsEpisodeLabel" 
-		android:paddingLeft="10px" 
-		android:id="@+id/episodeDetEpisodeLabel" 
-		android:layout_width="120px" 
-		android:layout_height="wrap_content"
-	/>
+
+		<TextView
+			android:id="@+id/episodeDetEpisodeLabel"
+			android:layout_width="220dp"
+			android:layout_height="wrap_content"
+			android:paddingLeft="10dp"
+			android:text="@string/episodeDetailsEpisodeLabel" />
 	
 	<TextView android:id="@+id/episodeDetEpisode" 
 		android:layout_width="fill_parent" 
@@ -86,12 +88,13 @@
 		android:layout_height="wrap_content" 
 		android:orientation="horizontal"
 	>
-	<TextView android:text="@string/episodeDetailsAirDateLabel" 
-		android:paddingLeft="10px" 
-		android:id="@+id/episodeDetAirdateLabel" 
-		android:layout_width="120px" 
-		android:layout_height="wrap_content"
-	/>
+
+		<TextView
+			android:id="@+id/episodeDetAirdateLabel"
+			android:layout_width="220dp"
+			android:layout_height="wrap_content"
+			android:paddingLeft="10dp"
+			android:text="@string/episodeDetailsAirDateLabel" />
 	
 	<TextView android:id="@+id/episodeDetAirdate" 
 		android:layout_width="fill_parent" 
@@ -101,7 +104,7 @@
 
 	<LinearLayout android:id="@+id/LinearLayout01" 
 		android:layout_width="wrap_content" 
-		android:layout_height="30px"
+		android:layout_height="30dp"
 	/>
 	
 	<Button android:id="@+id/markAsSeenButton" 

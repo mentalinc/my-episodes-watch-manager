@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import roboguice.activity.GuicePreferenceActivity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -19,6 +20,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import java.io.File;
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
@@ -31,8 +35,10 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     private static final int RELOAD_DIALOG = 0;
     private boolean refreshDialog;
     private EditTextPreference daysBackCP;
+    private ListPreference cacheAgingPref;
     private ListPreference showAcquireOrderingPref;
     private ListPreference showComingOrderingPref;
+    private String LOG_TAG = "PreferencesActivity";
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)  {
@@ -111,6 +117,10 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 				} else {
 					daysBackCP.setEnabled(true);
 				}
+
+            deleteFile("Watch.xml");
+            deleteFile("Acquire.xml");
+            deleteFile("Coming.xml");
 				return true;
 			}
         });
@@ -126,6 +136,14 @@ public class PreferencesActivity extends GuicePreferenceActivity {
             @Override
     		public boolean onPreferenceChange(Preference preference, Object newValue) {
     			refreshDialog = true;
+
+                if(MyEpisodeConstants.CACHE_EPISODES_ENABLED){
+                    //delete the current Cache file so reload downloads ne days back
+                    deleteFile("Watch");
+                    deleteFile("Acquire.xml");
+                    deleteFile("Coming.xml");
+                }
+
     			return true;    	    	
     		}
         });
@@ -135,6 +153,62 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         }
         
         root.addPreference(daysBackCP);
+
+
+
+        //Issue 109
+        final CheckBoxPreference CacheEpisodesEnable = new CheckBoxPreference(this);
+        CacheEpisodesEnable.setDefaultValue(false);
+        CacheEpisodesEnable.setKey(PreferencesKeys.CACHE_EPISODES_ENABLED_KEY);
+        CacheEpisodesEnable.setTitle(R.string.CacheEpisodes);
+        CacheEpisodesEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+
+                if (CacheEpisodesEnable.isChecked()) {
+                    cacheAgingPref.setEnabled(false);
+                } else {
+                    cacheAgingPref.setEnabled(true);
+                }
+
+                deleteFile("Watch.xml");
+                deleteFile("Acquire.xml");
+                deleteFile("Coming.xml");
+
+                return true;
+            }
+        });
+
+        root.addPreference(CacheEpisodesEnable);
+        //Issue 109 - Ends
+
+        cacheAgingPref = new ListPreference(this);
+        cacheAgingPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+
+                deleteFile("Watch.xml");
+                deleteFile("Acquire.xml");
+                deleteFile("Coming.xml");
+
+                return true;
+            }
+        });
+        cacheAgingPref.setKey(PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
+        cacheAgingPref.setDefaultValue("Disabled");
+        cacheAgingPref.setTitle(R.string.CacheFileAge);
+        cacheAgingPref.setEntries(R.array.CacheFileAgeArray);
+        cacheAgingPref.setEntryValues(R.array.CacheFileAgeValues);
+
+
+        if (!CacheEpisodesEnable.isChecked()) {
+            cacheAgingPref.setEnabled(false);
+        }
+
+        root.addPreference(cacheAgingPref);
+
 
         ListPreference openAcquirePref = new ListPreference(this);
         openAcquirePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -324,5 +398,21 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     private void startTabMain() {
     	setResult(RESULT_OK);
     	super.finish();
+    }
+
+
+    public boolean deleteFile(String fileNametoDelete){
+
+        File filetoDelete = new File(MyEpisodeConstants.CONTXT.getFilesDir(),fileNametoDelete);
+        if(filetoDelete.exists()){
+            if(filetoDelete.delete()){
+                Log.d(LOG_TAG,  filetoDelete.getName() + " deleted");
+                return true;
+            }else{
+                Log.e(LOG_TAG, "ERROR deleting " +filetoDelete.getName());
+                return false;
+            }
+        }
+        return false;
     }
 }

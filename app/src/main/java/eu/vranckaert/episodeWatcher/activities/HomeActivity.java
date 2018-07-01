@@ -38,17 +38,18 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 public class HomeActivity extends Activity {
-
+    private EpisodesService service;
 	private User user;
 	private Resources res; // Resource object to get Drawables
 	private android.content.res.Configuration conf;
 	private static final int EPISODE_LOADING_DIALOG = 0;
+    private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
 	private static final int LOGOUT_DIALOG = 1;
 	private static final int EXCEPTION_DIALOG = 2;
 	private static final int LOGIN_RESULT = 5;
 	private static final int SETTINGS_RESULT = 6;
     private static Context sContext;
-	private EpisodesService service;
+
 	
 	private boolean exception;
 	
@@ -81,14 +82,22 @@ public class HomeActivity extends Activity {
 
 
         //fix issue where app run and no days back has been set by the user.
-        if(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP).equals(null) || Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP) == ""){        	
-        	MyEpisodeConstants.DAYS_BACK_CP = "365";
-        	Preferences.setPreference(this, PreferencesKeys.DAYS_BACKWARDCP, MyEpisodeConstants.DAYS_BACK_CP);
+        if(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE).equals(null) || Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE) == ""){
+            MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = "Disabled";
+            Preferences.setPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
         } else {
-        	MyEpisodeConstants.DAYS_BACK_CP = Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
+            MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
+        }
+
+        if(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP).equals(null) || Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP) == ""){
+            MyEpisodeConstants.DAYS_BACK_CP = "365";
+            Preferences.setPreference(this, PreferencesKeys.DAYS_BACKWARDCP, MyEpisodeConstants.DAYS_BACK_CP);
+        } else {
+            MyEpisodeConstants.DAYS_BACK_CP = Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
         }
         
         MyEpisodeConstants.DAYS_BACK_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.DAYS_BACKWARD_ENABLED_KEY, false);
+        MyEpisodeConstants.CACHE_EPISODES_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.CACHE_EPISODES_ENABLED_KEY, false);
         
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
@@ -108,6 +117,8 @@ public class HomeActivity extends Activity {
         final PagerControl control = (PagerControl) findViewById(R.id.control);
         final HorizontalPager pager = (HorizontalPager) findViewById(R.id.pager);
         control.setNumPages(pager.getChildCount());
+
+		MyEpisodeConstants.CONTXT = getApplicationContext();
         
         pager.addOnScrollListener(new HorizontalPager.OnScrollListener() {
             public void onScroll(int scrollX) {
@@ -202,6 +213,12 @@ public class HomeActivity extends Activity {
 	            @Override
 	            protected void onPreExecute() {
 	                showDialog(EPISODE_LOADING_DIALOG);
+
+                    if(MyEpisodeConstants.CACHE_EPISODES_ENABLED){
+                        showDialog(EPISODE_LOADING_DIALOG_CACHE);
+                    }else{
+                        showDialog(EPISODE_LOADING_DIALOG);
+                    }
 	            }
 	
 	            @Override
@@ -227,6 +244,7 @@ public class HomeActivity extends Activity {
 	            @Override
 	            protected void onPostExecute(Object o) {
 	                removeDialog(EPISODE_LOADING_DIALOG);
+                    removeDialog(EPISODE_LOADING_DIALOG_CACHE);
 	                
 	                if (exception) {
 	                	exception = false;
@@ -313,6 +331,13 @@ public class HomeActivity extends Activity {
                 progressDialog.setCancelable(false);
 				dialog = progressDialog;
 				break;
+            case EPISODE_LOADING_DIALOG_CACHE:
+                ProgressDialog progressDialogCache = new ProgressDialog(this);
+                progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
+                progressDialogCache.setCancelable(false);
+                dialog = progressDialogCache;
+                //dialog.show();
+                break;
 			default:
 				dialog = super.onCreateDialog(id);
 				break;
@@ -350,6 +375,7 @@ public class HomeActivity extends Activity {
         Preferences.checkDefaultPreference(this, PreferencesKeys.LANGUAGE_KEY, conf.locale.getLanguage());
         Preferences.checkDefaultPreference(this, PreferencesKeys.ACQUIRE_KEY, "0");
         Preferences.checkDefaultPreference(this, PreferencesKeys.DAYS_BACKWARDCP, "365");
+        Preferences.checkDefaultPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, "0");
         Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false);
     }
     

@@ -15,4 +15,6 @@ public class PreferencesKeys {
     public static final String DAYS_BACKWARD_ENABLED_KEY = "Days_Backward_Enabled";
     public static final String DISABLE_ACQUIRE = "disable_acquire";
     public static final String DISABLE_COMING = "disable_coming";
+    public static final String CACHE_EPISODES_ENABLED_KEY = "Cache Episodes Enabled";
+    public static final String CACHE_EPISODES_CACHE_AGE = "Episodes Cache Age";
 }

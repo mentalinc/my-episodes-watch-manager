@@ -300,7 +300,7 @@ public class ShowService {
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 
-        String tvMazeAPIURL =" http://api.tvmaze.com/singlesearch/shows?q=";
+        String tvMazeAPIURL = "https://api.tvmaze.com/singlesearch/shows?q=";
         //Add the show to the end of the URL
         //need to pull the show out of the list one at a time may?
 
@@ -383,6 +383,7 @@ public class ShowService {
         } catch (InterruptedException  e) {
             e.printStackTrace();
         } finally {
+            database.close();
             if (connection != null) {
                 connection.disconnect();
             }

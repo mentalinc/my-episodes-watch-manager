@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
+import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
 import eu.vranckaert.episodeWatcher.controllers.RowController;
 import eu.vranckaert.episodeWatcher.domain.*;
@@ -34,6 +35,11 @@ import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
 import roboguice.activity.GuiceExpandableListActivity;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -42,6 +48,8 @@ import java.util.*;
 
 public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	private static final int EPISODE_LOADING_DIALOG = 0;
+	private static final int ONLINE_CHECK_DIALOG = 5;
+	private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
 	private static final int EXCEPTION_DIALOG = 2;
 	private static final int SETTINGS_RESULT = 6;
 	private static final String LOG_TAG = EpisodeListingActivity.class.getSimpleName();
@@ -60,6 +68,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	private android.content.res.Configuration conf;
     private Map<Date, List<Episode>> listedAirDates = null;
     private boolean collapsed = true;
+    private boolean isOnelineCheck;
 
     private CustomAnalyticsTracker tracker;
 
@@ -245,6 +254,20 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 progressDialog.setCancelable(false);
 				dialog = progressDialog;
 				break;
+            case EPISODE_LOADING_DIALOG_CACHE:
+                ProgressDialog progressDialogCache = new ProgressDialog(this);
+                progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
+                progressDialogCache.setCancelable(false);
+                dialog = progressDialogCache;
+                //dialog.show();
+                break;
+            case ONLINE_CHECK_DIALOG:
+                ProgressDialog progressDialogOnline = new ProgressDialog(this);
+                progressDialogOnline.setMessage(this.getString(R.string.progressLoadingOnlineCheck));
+                progressDialogOnline.setCancelable(false);
+                //progressDialogOnline.show();
+                dialog = progressDialogOnline;
+                break;
 			case EXCEPTION_DIALOG:
 				if (exceptionMessageResId == null) {
 					exceptionMessageResId = R.string.defaultExceptionMessage;
@@ -573,6 +596,12 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             @Override
             protected void onPreExecute() {
                 showDialog(EPISODE_LOADING_DIALOG);
+                if(MyEpisodeConstants.CACHE_EPISODES_ENABLED){
+                    showDialog(EPISODE_LOADING_DIALOG_CACHE);
+                }else{
+                    showDialog(EPISODE_LOADING_DIALOG);
+
+                }
             }
 
             @Override
@@ -585,6 +614,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             protected void onPostExecute(Object o) {
                 returnEpisodes();
                 removeDialog(EPISODE_LOADING_DIALOG);
+                removeDialog(EPISODE_LOADING_DIALOG_CACHE);
             }
         };
         asyncTask.execute();
@@ -868,7 +898,55 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	}
 	
 	public void onRefreshClick(View v) {
-		reloadEpisodes();
+        Log.v(LOG_TAG, "Show online dialog.");
+        showDialog(ONLINE_CHECK_DIALOG);
+        boolean onlineCheck = isOnline();
+        Log.v(LOG_TAG, "Hide online dialog.");
+        removeDialog(ONLINE_CHECK_DIALOG);
+
+        Log.d(LOG_TAG, "Check if online: " +  onlineCheck);
+
+
+        Log.d(LOG_TAG, "Episode type: " +  episodesType +" Episodes Refreshing...");
+        Log.d(LOG_TAG, "Cache Age: " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
+
+        File file;
+        //delete the current cache file to force a new download
+        switch(episodesType) {
+            case EPISODES_TO_WATCH:
+                file = new File(MyEpisodeConstants.CONTXT.getFilesDir(),"Watch.xml");
+                if(file.exists() && onlineCheck){
+                    if(file.delete()){
+                        Log.d(LOG_TAG, "Watch.xml deleted");
+                    }else{
+                        Log.e(LOG_TAG, "ERROR deleting Watch.xml");
+                    }
+                }
+                break;
+            case EPISODES_TO_YESTERDAY1:
+            case EPISODES_TO_YESTERDAY2:
+            case EPISODES_TO_ACQUIRE:
+                file = new File(MyEpisodeConstants.CONTXT.getFilesDir(),"Acquire.xml");
+                if(file.exists()  && onlineCheck){
+                    if(file.delete()){
+                        Log.d(LOG_TAG, "Acquire.xml deleted");
+                    }else{
+                        Log.e(LOG_TAG, "ERROR deleting Acquire.xml");
+                    }
+                }
+                break;
+            case EPISODES_COMING:
+                file = new File(MyEpisodeConstants.CONTXT.getFilesDir(),"Coming.xml");
+                if(file.exists() && onlineCheck){
+                    if(file.delete()){
+                        Log.d(LOG_TAG, "Coming.xml deleted");
+                    }else{
+                        Log.e(LOG_TAG, "ERROR deleting Coming.xml");
+                    }
+                }
+                break;
+        }
+        reloadEpisodes();
 	}
 	
 	public void onCollapseClick(View v) {
@@ -894,4 +972,55 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 		super.onDestroy();
 		tracker.stop();
 	}
+
+    public void SetOnline(Boolean online){
+        isOnelineCheck = online;
+    }
+
+    public Boolean isOnline() {
+
+        try {
+            //Thread.sleep(3000);
+            URL url = new URL("http://www.myepisodes.com/favicon.ico");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "yourAgent");
+            connection.setRequestProperty("Connection", "close");
+            connection.setConnectTimeout(1000);
+            connection.connect();
+
+            if (connection.getResponseCode() == 200) {
+                connection.disconnect();
+                Log.v(LOG_TAG, "Online.");
+
+                //removeDialog(ONLINE_CHECK_DIALOG);
+                // showDialog(EPISODE_LOADING_DIALOG);
+                //Log.v(LOG_TAG, "Hide online dialog.");
+                return true;
+            }else{
+                connection.disconnect();
+                //Log.v(LOG_TAG, "Offline!!");
+
+                //removeDialog(ONLINE_CHECK_DIALOG);
+                //showDialog(EPISODE_LOADING_DIALOG);
+                //Log.v(LOG_TAG, "Hide online dialog.");
+                return false;
+            }
+        } catch (UnknownHostException e){
+            Log.e(LOG_TAG, e.toString());
+            Log.v(LOG_TAG, "Offline!!");
+            //removeDialog(ONLINE_CHECK_DIALOG);
+            //showDialog(EPISODE_LOADING_DIALOG);
+            return false;
+        } catch (IOException e){
+            Log.e(LOG_TAG, e.toString());
+            //removeDialog(ONLINE_CHECK_DIALOG);
+            //showDialog(EPISODE_LOADING_DIALOG);
+            return false;
+        }catch (Exception e){
+            Log.e(LOG_TAG, e.toString());
+            //removeDialog(ONLINE_CHECK_DIALOG);
+            //showDialog(EPISODE_LOADING_DIALOG);
+            return false;
+        }
+    }
 }

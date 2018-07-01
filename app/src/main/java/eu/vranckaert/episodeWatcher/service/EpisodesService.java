@@ -1,10 +1,15 @@
 package eu.vranckaert.episodeWatcher.service;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -64,56 +69,57 @@ public class EpisodesService {
         return httpClient;
     }
 
-    public List<Episode> retrieveEpisodes(EpisodeType episodesType, final User user)
-            throws InternetConnectivityException, Exception {
+    public List<Episode> retrieveEpisodes(EpisodeType episodesType, final User user) throws InternetConnectivityException, Exception {
         String encryptedPassword = userService.encryptPassword(user.getPassword());
 
         URL feedUrl;
 
         //downloadFullUnwatched list 
-        if (episodesType.toString() == "EPISODES_TO_WATCH") {
+        if(episodesType.toString() == "EPISODES_TO_WATCH"){
             //override with download from http://myepisodes.com/views.php
 
             Log.d(LOG_TAG, "MyEpisodeConstants.DAYS_BACK_ENABLED: " + MyEpisodeConstants.DAYS_BACK_ENABLED);
             Log.d(LOG_TAG, "MyEpisodeConstants.DAYS_BACK_CP: " + MyEpisodeConstants.DAYS_BACK_CP);
+            Log.d(LOG_TAG, "MyEpisodeConstants.CACHE_EPISODES_ENABLED: " + MyEpisodeConstants.CACHE_EPISODES_ENABLED);
 
 
-            if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
-                HttpClient httpClientAllEps = getHttpClient();
+            if(MyEpisodeConstants.DAYS_BACK_ENABLED){
+                HttpClient httpClientAllEps = new DefaultHttpClient();
+                if(MyEpisodeConstants.CACHE_EPISODES_ENABLED){
+                    Log.d(LOG_TAG, "Cache is enabled, read from disk");
+                    MyEpisodeConstants.EXTENDED_EPISODES_XML = ReadFile("Watch.xml");
 
-                MyEpisodeConstants.EXTENDED_EPISODES_XML =
-                        downloadFullUnwatched(httpClientAllEps, user, true).toString();
+                    //xml file not found
+                    if( MyEpisodeConstants.EXTENDED_EPISODES_XML.equalsIgnoreCase("FileNotFound")){
+                        Log.d(LOG_TAG, "No cached file found. Downloading...");
+                        MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user, true ).toString();
+
+                        //write the xml to disk for future use
+                        String FILENAME = "Watch.xml";
+                        FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME,0); //Mode_PRIVATE
+                        fos.write(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes());
+                        fos.close();
+                        Log.d(LOG_TAG, FILENAME + " saved to disk");
+                    }
+                }else{
+                    Log.d(LOG_TAG, "Cache is disabled, download from Internet");
+                    MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user, false ).toString();
+                }
 
                 feedUrl = new URL("http://127.0.0.1"); //this is used in the parse to confirm that this has been run.
-            } else {
-                //if not enabling the extended functions
-                feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
-            }
-        } else if (episodesType.toString() == "EPISODES_TO_ACQUIRE") {
-            Log.d(LOG_TAG, "MyEpisodeConstants.DAYS_BACK_ENABLED: " + MyEpisodeConstants.DAYS_BACK_ENABLED);
-            Log.d(LOG_TAG, "MyEpisodeConstants.DAYS_BACK_CP: " + MyEpisodeConstants.DAYS_BACK_CP);
-
-
-            if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
-                HttpClient httpClientAllEps = getHttpClient();
-
-                MyEpisodeConstants.EXTENDED_EPISODES_XML =
-                       downloadFullUnwatched(httpClientAllEps, user, false).toString();
-                feedUrl = new URL("http://127.0.0.1"); //this is used in the parse to confirm that this has been run.
-
-               // RSS backup comment out above two method calls, uncomment below
-               // feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
-            } else {
+            }else{
                 //if not enabling the extended functions
                 feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
             }
         } else {
+
+            //if 200+ episodes not enabled
             feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
         }
 
         RssFeedParser rssFeedParser = new SaxRssFeedParser();
         Feed rssFeed;
-        rssFeed = rssFeedParser.parseFeed(feedUrl);
+        rssFeed = rssFeedParser.parseFeed(episodesType, feedUrl);
 
         List<Episode> episodes = new ArrayList<Episode>(0);
 
@@ -139,12 +145,18 @@ public class EpisodesService {
                     String airDateString = episodeInfo[3].trim();
                     episode.setType(episodesType);
 
-                    Log.d(LOG_TAG, "airDateString: " + airDateString);
+                    //Log.d(LOG_TAG, "airDateString: " + airDateString);
 
                    // airDateString = airDateString.replace("-","/");
-                    Log.d(LOG_TAG, "airDateString: " + airDateString);
 
-                    airDate = DateUtil.convertToDate(airDateString);
+
+                    try {
+                        airDate = parseDate(airDateString);
+                    } catch (Exception e) {
+                        airDate = DateUtil.convertToDate(airDateString);
+                    }
+
+                   // Log.d(LOG_TAG, "airDateString: " + airDateString);
 
                     episode.setAirDate(airDate);
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
@@ -156,17 +168,17 @@ public class EpisodesService {
                     SeriesDAO seriesDAO = database.getSeriesDAO();
                     EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
 
-                    episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
+                    //episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
+                    episode.setShowName(showRuntime.showRuntime + " mins" +" - "+ episode.getShowName());
 
-                    Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
+                 //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
 
 
 
                     //TODO see if can use the TVMAZE API to pull the episode info somehow?
                     episode.setTVRageWebSite("Link to episode description coming soon");
 
-                    Log.d(LOG_TAG,
-                            "Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
+                    Log.d(LOG_TAG,"Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
                 } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
                     //Solves problem mentioned in Issue 20
                     episode.setName(episodeInfo[2].trim() + "...");
@@ -193,8 +205,106 @@ public class EpisodesService {
                 }
             }
         }
-
+        database.close();
         return episodes;
+    }
+
+    public String ReadFile(String FILENAME){
+        StringBuilder EpisodeXML = new StringBuilder();
+        try{
+            //String FILENAME = "Watch.xml";
+            FileInputStream instream = MyEpisodeConstants.CONTXT.openFileInput(FILENAME);
+
+            File file = new File(MyEpisodeConstants.CONTXT.getFilesDir(),FILENAME);
+
+            Log.d(LOG_TAG, "Save file Path" + MyEpisodeConstants.CONTXT.getFilesDir().toString());
+            if(isOnline()){
+                deleteOldCacheFiles(file);
+            }else{
+                Log.d(LOG_TAG, "Offline, Cache files not checked for aging");
+            }
+
+            //add a check in the future to prompt user if they want to refresh the cache due to age. Add a preference to set time options....
+
+            // if file the available for reading
+            if (instream.available() > 1) {
+                // prepare the file for reading
+                InputStreamReader inputreader = new InputStreamReader(instream);
+                BufferedReader buffreader = new BufferedReader(inputreader);
+
+                String line;
+
+                // read every line of the file into the line-variable, on line at the time
+                while ((line = buffreader.readLine()) != null) {
+                    EpisodeXML.append(line);
+                    EpisodeXML.append('\n');
+                }
+            }
+
+            // close the file again
+            instream.close();
+        }catch (FileNotFoundException e){
+            String message = "File doesn't exist: " + FILENAME;
+            Log.e(LOG_TAG, message);
+            return "FileNotFound";
+
+        }catch(IOException e) {
+            String message = "Problem reading file: " + FILENAME;
+            Log.e(LOG_TAG, message);
+
+        }
+
+        return EpisodeXML.toString();
+    }
+
+    public boolean deleteFile(File filetoDelete){
+        if(filetoDelete.exists()){
+            if(filetoDelete.delete()){
+                Log.d(LOG_TAG,  filetoDelete.getName() + " deleted");
+                return true;
+            }else{
+                Log.e(LOG_TAG, "ERROR deleting " +filetoDelete.getName());
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public void deleteOldCacheFiles(File filetoDelete){
+        if(!MyEpisodeConstants.CACHE_EPISODES_ENABLED || MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0")){
+            Log.d(LOG_TAG, "Cache aging is disabled. Cache files not deleted");
+        }else{
+            Date lastModDate = new Date(filetoDelete.lastModified());
+            Date Now = new Date();
+            Calendar ModDate = Calendar.getInstance();
+            Calendar NowDate = Calendar.getInstance();
+            ModDate.setTime(lastModDate);
+            NowDate.setTime(Now);
+            long milliseconds1 = ModDate.getTimeInMillis();
+            long milliseconds2 = NowDate.getTimeInMillis();
+            long diff = milliseconds2 - milliseconds1;
+            long diffHours = diff / (60 * 60 * 1000);
+            long diffDays = diff / (24 * 60 * 60 * 1000);
+            Log.d(LOG_TAG,"Time in hours: " + diffHours + " hours.");
+            Log.d(LOG_TAG,"Time in days: " + diffDays + " days.");
+            Log.d(LOG_TAG,"Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) +" days " +MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
+            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : "+ lastModDate.toString());
+            if(diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)){
+                Log.d(LOG_TAG,"Delete File too many DAYS old...");
+                deleteFile(filetoDelete);
+            }else if(Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) < 1){
+                if(diffHours >= 6 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.25")){
+                    Log.d(LOG_TAG,"Delete File too many HOURS old, Greater than 6...");
+                    deleteFile(filetoDelete);
+                }
+                if(diffHours >= 12 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.5")){
+                    Log.d(LOG_TAG,"Delete File too many HOURS old, Greater than 12...");
+                    deleteFile(filetoDelete);
+                }
+            }else{
+                Log.d(LOG_TAG,filetoDelete.getName() + " cache not deleted. Cache still current.");
+            }
+        }
     }
 
     public void watchedEpisode(Episode episode, User user) throws LoginFailedException
@@ -242,8 +352,7 @@ public class EpisodesService {
         httpClient.getConnectionManager().shutdown();
     }
 
-    private void markAnEpisode(int EpisodeStatus, HttpClient httpClient, Episode episode)
-            throws ShowUpdateFailedException, InternetConnectivityException {
+    private void markAnEpisode(int EpisodeStatus, HttpClient httpClient, Episode episode) throws ShowUpdateFailedException, InternetConnectivityException {
         String urlRep = "";
 
         urlRep = EpisodeStatus == 0 ? MyEpisodeConstants.MYEPISODES_UPDATE_WATCH :
@@ -476,7 +585,7 @@ public class EpisodesService {
                 xs.endTag(null, "channel");
                 xs.endDocument();
                 Log.d(LOG_TAG, "Finished Download and RSS built");
-            Log.d(LOG_TAG, "Resetting  controlpanel settings");
+            Log.d(LOG_TAG, "Resetting  control panel settings");
                 //set the days back to what they are in the settigns
                 setDaysBack(controlPanelSettings, httpClient, true);
                // setViewFilters(false, false, httpClient);
@@ -688,6 +797,7 @@ public class EpisodesService {
         return controlPanelSettings;
     }
 
+
     private void setDaysBack(String[] controlPanelSettings, HttpClient httpClient, Boolean restore) {
         //send POST to set just the number of days in the past to show..
         Log.d(LOG_TAG, "Setting number of days back");
@@ -797,6 +907,10 @@ public class EpisodesService {
     }
 
     private Date parseDate(String date) {
+        if (date.endsWith(".") || date.endsWith(";")  || date.endsWith(":") || date.endsWith(",")  || date.endsWith("-")) {
+            date = date.substring(0, date.length()-1);
+        }
+
         DateTime parsedDate = new DateTime(date);
         return parsedDate.toDate();
     }
@@ -849,5 +963,32 @@ public class EpisodesService {
         Log.d(LOG_TAG, "FEED URL: " + url);
 
         return url;
+    }
+
+    public static boolean isOnline() {
+        try {
+            URL url = new URL("http://www.myepisodes.com/favicon.ico");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "yourAgent");
+            connection.setRequestProperty("Connection", "close");
+            connection.setConnectTimeout(1000);
+            connection.connect();
+
+            if (connection.getResponseCode() == 200) {
+                connection.disconnect();
+                Log.d(LOG_TAG, "Online.");
+                return true;
+            }else{
+                connection.disconnect();
+                Log.d(LOG_TAG, "Offline!!");
+                return false;
+            }
+        } catch (UnknownHostException e){
+            Log.e(LOG_TAG, e.toString());
+            return false;
+        } catch (IOException e){
+            Log.e(LOG_TAG, e.toString());
+            return false;
+        }
     }
 }
