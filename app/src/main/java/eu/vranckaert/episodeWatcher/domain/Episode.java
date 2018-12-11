@@ -13,7 +13,7 @@ public class Episode implements Serializable {
     private int episode;
     private Date airDate;
     private String myEpisodeID;
-    private String TVRageWebSite;
+    private String TVMazeWebSite;
     private EpisodeType type;
 
 
@@ -171,12 +171,12 @@ public class Episode implements Serializable {
 		this.type = type;
 	}
 
-	public String getTVRageWebSite() {
-		return TVRageWebSite;
+	public String getTVMazeWebSite() {
+		return TVMazeWebSite;
 	}
 
-	public void setTVRageWebSite(String tVRageWebSite) {
-		TVRageWebSite = tVRageWebSite;
+	public void setTVMazeWebSite(String tVMazeWebSite) {
+        TVMazeWebSite = tVMazeWebSite;
 	}
 	
     @Override

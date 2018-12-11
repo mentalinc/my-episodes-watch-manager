@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="eu.vranckaert.episodeWatcher.HorizontalPager">
+    <declare-styleable name="HorizontalPager">
         <attr name="pageWidth" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="eu.vranckaert.episodeWatcher.PagerControl">
+    <declare-styleable name="PagerControl">
         <attr name="barColor"        format="color" />
         <attr name="highlightColor"  format="color" />
         <attr name="fadeDelay"       format="integer" />

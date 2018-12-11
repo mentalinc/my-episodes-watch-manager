@@ -63,7 +63,7 @@
     <string name="favouriteShows">Favourisierte Serien</string>
     <string name="ignoredShows">Ignorierte Serien</string>
     <!-- Show searching -->
-    <string name="showSearchHint">Serienname eingeben...</string>
+    <string name="showSearchHint">Serienname eingeben&#8230;</string>
     <string name="showSearchNoSearchResults">Keine Serien gefunden</string>
     <string name="showSearchOneFound">Serie gefunden</string>
     <string name="showSearchMoreFound">Serien gefunden</string>
@@ -82,11 +82,11 @@
     <string name="randompickershort">Zufallswähler</string>
 
     <!-- progressDialog -->
-    <string name="progressLoadingTitle">Lädt...</string>
+    <string name="progressLoadingTitle">Lädt&#8230;</string>
     <string name="progressLoadingBody">Sende/Empfange Daten</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Info...</string>
+    <string name="aboutTitle">Info&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">Lizenz:</string>
     <string name="aboutWebsite">Webseite:</string>
@@ -149,7 +149,7 @@
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">Anordnung der Folgen</string>
-    <string name="episodeOrderPromptExtra">Älteste oder neuste zuerst...</string>
+    <string name="episodeOrderPromptExtra">Älteste oder neuste zuerst&#8230;</string>
     <string-array name="episodeOrderOptions">
         <item>Älteste zuerst</item>
         <item>Neuste zuerst</item>
@@ -194,7 +194,7 @@
 
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Alle Felder sollten ausgefüllt werden!</string>
-    <string name="exceptionDialogTitle">Nanu...</string>
+    <string name="exceptionDialogTitle">Nanu&#8230;</string>
     <string name="defaultExceptionMessage">Ein Fehler ist aufgetreten. Starte das Programm erneut und prüfe deine Internet Verbindung. Wenn du diesen Fehler wiederholt bekommst, melde ihn auf https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Konnte keine Internet Verbindung aufbauen. Bitte nochmal versuchen!</string>
     <string name="internetConnectionFailureReload">Konnte keine Internet Verbindung aufbauen. Benutze das Menü zum Aktualisieren und versuche es nochmal.</string>

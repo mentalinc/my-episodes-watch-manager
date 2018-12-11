@@ -15,7 +15,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
+//import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class RandomEpPickerActivity extends GuiceActivity {
@@ -27,14 +27,14 @@ public class RandomEpPickerActivity extends GuiceActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.randompicker);
         
-        TextView showNameText = (TextView) findViewById(R.id.episodeDetShowName);
-        TextView episodeNameText = (TextView) findViewById(R.id.episodeDetName);
-        TextView seasonText = (TextView) findViewById(R.id.episodeDetSeason);
-        TextView episodeText = (TextView) findViewById(R.id.episodeDetEpisode);
-        TextView airdateText = (TextView) findViewById(R.id.episodeDetAirdate);
+        TextView showNameText =  findViewById(R.id.episodeDetShowName);
+        TextView episodeNameText = findViewById(R.id.episodeDetName);
+        TextView seasonText =  findViewById(R.id.episodeDetSeason);
+        TextView episodeText = findViewById(R.id.episodeDetEpisode);
+        TextView airdateText = findViewById(R.id.episodeDetAirdate);
         
         ((TextView) findViewById(R.id.title_text)).setText(R.string.randompicker);
-        Button markAsSeenButton = (Button) findViewById(R.id.markAsSeenButton);
+        Button markAsSeenButton =  findViewById(R.id.markAsSeenButton);
         
         if (EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH) > 0) {
 	        random = EpisodesController.getInstance().getRandomWatchEpisode();
@@ -46,7 +46,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
 	        
 	        //Air date in specifc format
 	        Date airdate = random.getAirDate();
-	        String formattedAirDate = null;
+	        String formattedAirDate;
 	        if (airdate != null) {
 	        	formattedAirDate = DateUtil.formatDateLong(airdate, this);
 	        } else {
@@ -63,7 +63,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
 			});
         } else {
         	((TextView) findViewById(R.id.randomtexttitle)).setText(getString(R.string.watchListSubTitleWatchPlural, 0));
-        	((ImageButton) findViewById(R.id.btn_title_refresh)).setVisibility(View.GONE);
+        	( findViewById(R.id.btn_title_refresh)).setVisibility(View.GONE);
 	        seasonText.setText("-");
 	        episodeText.setText("-");
 	        airdateText.setText("-");

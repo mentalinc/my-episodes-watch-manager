@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,6 +30,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.pojava.datetime.DateTime;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -55,27 +58,27 @@ import eu.vranckaert.episodeWatcher.utils.DateUtil;
 
 public class EpisodesService {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
-    private UserService userService;
+    private final UserService userService;
 
 
     public EpisodesService() {
         userService = new UserService();
     }
 
-    public HttpClient getHttpClient() {
+    private HttpClient getHttpClient() {
         DefaultHttpClient httpClient = new DefaultHttpClient();
         httpClient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
         return httpClient;
     }
 
-    public List<Episode> retrieveEpisodes(EpisodeType episodesType, final User user) throws InternetConnectivityException, Exception {
+    public List<Episode> retrieveEpisodes(EpisodeType episodesType, final User user) throws Exception {
         String encryptedPassword = userService.encryptPassword(user.getPassword());
 
         URL feedUrl;
 
         //downloadFullUnwatched list 
-        if(episodesType.toString() == "EPISODES_TO_WATCH"){
+        if(Objects.equals(episodesType.toString(), "EPISODES_TO_WATCH")){
             //override with download from http://myepisodes.com/views.php
 
             Log.d(LOG_TAG, "MyEpisodeConstants.DAYS_BACK_ENABLED: " + MyEpisodeConstants.DAYS_BACK_ENABLED);
@@ -103,7 +106,7 @@ public class EpisodesService {
                     }
                 }else{
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet");
-                    MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user, false ).toString();
+                    MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user, true ).toString();
                 }
 
                 feedUrl = new URL("http://127.0.0.1"); //this is used in the parse to confirm that this has been run.
@@ -121,7 +124,7 @@ public class EpisodesService {
         Feed rssFeed;
         rssFeed = rssFeedParser.parseFeed(episodesType, feedUrl);
 
-        List<Episode> episodes = new ArrayList<Episode>(0);
+        List<Episode> episodes = new ArrayList<>(0);
 
         AppDatabase database =  Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
@@ -160,7 +163,7 @@ public class EpisodesService {
 
                     episode.setAirDate(airDate);
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
-                    //episode.setTVRageWebSite(item.getLink());
+                    //episode.setTVMazeWebSite(item.getLink());
 
                     //TODO trying to add runtime to the Show Name
                     // add Runtime to this..
@@ -169,22 +172,34 @@ public class EpisodesService {
                     EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
 
                     //episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
-                    episode.setShowName(showRuntime.showRuntime + " mins" +" - "+ episode.getShowName());
+                    try {
+                        episode.setShowName(showRuntime.showRuntime + " mins" + " - " + episode.getShowName());
+                    }catch (NullPointerException e){
+
+                        String message = "Problem reading runtime for " + episode.getName();
+                        Log.e(LOG_TAG, message);
+
+                    }
 
                  //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
 
 
 
                     //TODO see if can use the TVMAZE API to pull the episode info somehow?
-                    episode.setTVRageWebSite("Link to episode description coming soon");
+                    episode.setTVMazeWebSite("Link to episode description coming soon");
+                   // episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).showTVMazeID, episode.getSeason(), episode.getEpisode()));
+
 
                     Log.d(LOG_TAG,"Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
                 } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
                     //Solves problem mentioned in Issue 20
                     episode.setName(episodeInfo[2].trim() + "...");
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
-                    //episode.setTVRageWebSite(item.getLink());
-                    episode.setTVRageWebSite("Link to episode description coming soon");
+                    //episode.setTVMazeWebSite(item.getLink());
+
+                    episode.setTVMazeWebSite("Link to episode description coming soon");
+                    //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).showTVMazeID, episode.getSeason(), episode.getEpisode()));
+
                 } else {
                     String message = "Problem parsing a feed item. Feed details: " + item.toString();
                     Log.e(LOG_TAG, message);
@@ -209,7 +224,7 @@ public class EpisodesService {
         return episodes;
     }
 
-    public String ReadFile(String FILENAME){
+    private String ReadFile(String FILENAME){
         StringBuilder EpisodeXML = new StringBuilder();
         try{
             //String FILENAME = "Watch.xml";
@@ -257,20 +272,17 @@ public class EpisodesService {
         return EpisodeXML.toString();
     }
 
-    public boolean deleteFile(File filetoDelete){
+    private void deleteFile(File filetoDelete){
         if(filetoDelete.exists()){
             if(filetoDelete.delete()){
                 Log.d(LOG_TAG,  filetoDelete.getName() + " deleted");
-                return true;
             }else{
                 Log.e(LOG_TAG, "ERROR deleting " +filetoDelete.getName());
-                return false;
             }
         }
-        return false;
     }
 
-    public void deleteOldCacheFiles(File filetoDelete){
+    private void deleteOldCacheFiles(File filetoDelete){
         if(!MyEpisodeConstants.CACHE_EPISODES_ENABLED || MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0")){
             Log.d(LOG_TAG, "Cache aging is disabled. Cache files not deleted");
         }else{
@@ -309,7 +321,7 @@ public class EpisodesService {
 
     public void watchedEpisode(Episode episode, User user) throws LoginFailedException
             , ShowUpdateFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
-        List<Episode> episodes = new ArrayList<Episode>();
+        List<Episode> episodes = new ArrayList<>();
         episodes.add(episode);
         watchedEpisodes(episodes, user);
     }
@@ -332,7 +344,7 @@ public class EpisodesService {
 
     public void acquireEpisode(Episode episode, User user) throws LoginFailedException
             , ShowUpdateFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
-        List<Episode> episodes = new ArrayList<Episode>();
+        List<Episode> episodes = new ArrayList<>();
         episodes.add(episode);
         acquireEpisodes(episodes, user);
     }
@@ -353,7 +365,7 @@ public class EpisodesService {
     }
 
     private void markAnEpisode(int EpisodeStatus, HttpClient httpClient, Episode episode) throws ShowUpdateFailedException, InternetConnectivityException {
-        String urlRep = "";
+        String urlRep;
 
         urlRep = EpisodeStatus == 0 ? MyEpisodeConstants.MYEPISODES_UPDATE_WATCH :
                 MyEpisodeConstants.MYEPISODES_UPDATE_ACQUIRE;
@@ -366,7 +378,7 @@ public class EpisodesService {
 
         HttpGet get = new HttpGet(urlRep);
 
-        int status = 200;
+        int status;
 
         try {
             HttpResponse response = httpClient.execute(get);
@@ -402,7 +414,7 @@ public class EpisodesService {
         //login to myepisodes
         userService.login(httpClient, user.getUsername(), user.getPassword());
 
-        int status = 200;
+        int status;
 
         StringWriter sw = new StringWriter();
 
@@ -485,23 +497,28 @@ public class EpisodesService {
                         int indexNameEndTag = showPart.indexOf("</a>");
                         String show = showPart.substring(indexName, indexNameEndTag);
 
+                        Log.d("Serier EP","|" +rowProcess[3]);
+
                         // get Series and Episode
                         String seriesEp;
-                        if( rowProcess[3].indexOf("longnumber firstep") == -1 ) {
-                            seriesEp = rowProcess[3].substring(27);
+                        int seriesEpID;
+                        if( rowProcess[3].contains("longnumber firstep") ) {
+                            seriesEpID =rowProcess[3].indexOf(">")+1;
+                            seriesEp = rowProcess[3].substring(seriesEpID);
                             //			Log.d(LOG_TAG,"S0xE0 First: " + rowProcess[3].toString());
                         }else{
-                            seriesEp = rowProcess[3].substring(35);
+                            seriesEpID =rowProcess[3].indexOf(">")+1;
+                            seriesEp = rowProcess[3].substring(seriesEpID);
                             //			Log.d(LOG_TAG,"S0xE0 Second: " + rowProcess[3].toString());
                         }
                         //		Log.d(LOG_TAG," SeriesEp: " + SeriesEp);
 
                         //Get episode name
                         int indexEp;
-                        if( rowProcess[4].indexOf("epname firstep") == -1 ) {
-                            indexEp = rowProcess[4].indexOf("epname") + 7;
+                        if( rowProcess[4].contains("epname firstep")  ) {
+                            indexEp = rowProcess[4].indexOf(">") ; //epname
                         }else{
-                            indexEp = rowProcess[4].indexOf("epname firstep") + 15;
+                            indexEp = rowProcess[4].indexOf(">") ; //epname firstep
                         }
                         String episodeName = rowProcess[4].substring(indexEp);
                         episodeName = episodeName.substring(1, episodeName.length());
@@ -511,7 +528,7 @@ public class EpisodesService {
                         int indexEpLink = rowProcess[4].indexOf("a href=") + 8;
                         String episodeLink = rowProcess[4].substring(indexEpLink);
                         int indexEpLink1 = episodeLink.indexOf("\"");
-                        episodeLink = episodeLink.substring(0, indexEpLink1);
+                        //TODO check why setting to ""
                         episodeLink = "";
 
                         //get air date
@@ -783,10 +800,12 @@ public class EpisodesService {
                 controlPanelSettings[18] = sw_presentonly;
                 controlPanelSettings[19] = sw_currentseasononly;
 
-                StringBuilder builder = new StringBuilder();
+                //display all settings which will be set for cp.php
+                /*StringBuilder builder = new StringBuilder();
                 for (String value : controlPanelSettings) {
-                    builder.append("   " + value);
-                }
+                    builder.append("   ");
+                    builder.append(value);
+                }*/
                 //display all settings which will be set for cp.php
                 //Log.d(LOG_TAG, builder.toString());
             }
@@ -828,13 +847,13 @@ public class EpisodesService {
 
         try {
             HttpPost httppostCP = new HttpPost(MyEpisodeConstants.MYEPISODES_CONTROL_PANEL);
-            List<NameValuePair> nameValuePairsCP = new ArrayList<NameValuePair>(17);
+            List<NameValuePair> nameValuePairsCP = new ArrayList<>(17);
 
             for (int i = 0; i < controlPanelOrder.length; i++) {
                 //when setting the value for the download
-                if (i == 5 && restore == false && controlPanelSettings[i] != null) {
+                if (i == 5 && !restore && controlPanelSettings[i] != null) {
                     nameValuePairsCP.add(new BasicNameValuePair(controlPanelOrder[i], MyEpisodeConstants.DAYS_BACK_CP));
-                } else if (i == 6 && restore == false && controlPanelSettings[i] != null) {
+                } else if (i == 6 && !restore && controlPanelSettings[i] != null) {
                     nameValuePairsCP.add(new BasicNameValuePair(controlPanelOrder[i], "1"));
                 } else {
                     if (controlPanelSettings[i] != null) {
@@ -864,12 +883,12 @@ public class EpisodesService {
                 //send POST request to only show episodes with the filter Watch
                 //eps_filters[]=2&action=Filter
                 if (isWatched) {
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("eps_filters[]", "2"));
                     nameValuePairs.add(new BasicNameValuePair("action", "Filter"));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 } else {
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("eps_filters[]", "1"));
                     nameValuePairs.add(new BasicNameValuePair("action", "Filter"));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
@@ -877,7 +896,7 @@ public class EpisodesService {
             } else {
                 //set back to user default settings for the view filters
                 // need to work on detecting the settings to use.
-                List<NameValuePair> nameValuePairs2 = new ArrayList<NameValuePair>(2);
+                List<NameValuePair> nameValuePairs2 = new ArrayList<>(2);
                 nameValuePairs2.add(new BasicNameValuePair("eps_filters[]", "1"));
                 nameValuePairs2.add(new BasicNameValuePair("eps_filters[]", "2"));
                 nameValuePairs2.add(new BasicNameValuePair("action", "Filter"));
@@ -951,7 +970,7 @@ public class EpisodesService {
         urlRep = urlRep.replace(MyEpisodeConstants.UID_REPLACEMENT_STRING, username);
         urlRep = urlRep.replace(MyEpisodeConstants.PWD_REPLACEMENT_STRING, encryptedPassword);
 
-        URL url = null;
+        URL url;
         try {
             url = new URL(urlRep);
         } catch (MalformedURLException e) {
@@ -965,7 +984,7 @@ public class EpisodesService {
         return url;
     }
 
-    public static boolean isOnline() {
+    private static boolean isOnline() {
         try {
             URL url = new URL("http://www.myepisodes.com/favicon.ico");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -990,5 +1009,102 @@ public class EpisodesService {
             Log.e(LOG_TAG, e.toString());
             return false;
         }
+    }
+
+
+    public String  ShowsEpisodeLink(String showTVMazeID,int seasonNumber, int episodeNumber){
+
+        HttpURLConnection connection = null;
+        BufferedReader reader = null;
+        //https://api.tvmaze.com/shows/1/episodebynumber?season=1&number=1
+        String tvMazeAPIURL = "https://api.tvmaze.com/shows/";
+        String episodeURLandSummary ="";
+        //Add the show to the end of the URL
+        //need to pull the show out of the list one at a time may?
+
+        // for (int i = 0; i < show.size(); i++) {
+        //for now just work with the first item will build to work with all in time.
+
+
+        // Log.d("Response: ", "> " + show);
+        showTVMazeID = showTVMazeID.replace("#","");
+        tvMazeAPIURL += showTVMazeID + "/episodebynumber?season="+  seasonNumber +"&number=" + episodeNumber;
+
+
+        Log.d(LOG_TAG, "epsiode info URL: " + tvMazeAPIURL);
+
+        try {
+            URL url = new URL(tvMazeAPIURL);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+            int code = connection.getResponseCode();
+            Log.d(LOG_TAG, "API HTTP Status Code: " + code);
+
+            if(code == 429){
+                Thread.sleep(10000);
+                //wait 10 seconds then try again
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+            }
+            if(code == 404){
+                return "Episode detail not found";
+            }
+
+
+            InputStream stream = connection.getInputStream();
+
+            reader = new BufferedReader(new InputStreamReader(stream));
+
+            StringBuilder buffer = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+                buffer.append("\n");
+                //    Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
+
+            }
+
+            String jsonString = buffer.toString();
+            JSONObject jObj;
+            String episodeUrl = "";
+            String episodeSummary = "";
+
+            try
+            {
+                jObj = new JSONObject(jsonString);
+                episodeUrl = jObj.getString("url");
+                episodeSummary = jObj.getString("summary");
+                            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+            episodeURLandSummary = episodeUrl + "\n\n" +episodeSummary;
+
+            Log.d("episodeUrl: ", "> " + episodeUrl);
+            Log.d("episodeSummary: ", "> " + episodeSummary);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException  e) {
+            e.printStackTrace();
+        } finally {
+
+            if (connection != null) {
+                connection.disconnect();
+            }
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return  episodeURLandSummary;
     }
 }

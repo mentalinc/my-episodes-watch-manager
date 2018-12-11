@@ -63,7 +63,7 @@
 <string name="favouriteShows">Favoriete Series</string>
 <string name="ignoredShows">Geblokkeerde series</string>
 <!-- Show searching -->
-<string name="showSearchHint">Vul een naam van een serie in...</string>
+<string name="showSearchHint">Vul een naam van een serie in&#8230;</string>
 <string name="showSearchNoSearchResults">Geen series gevonden</string>
 <string name="showSearchOneFound">serie gevonden</string>
 <string name="showSearchMoreFound">series gevonden</string>
@@ -82,11 +82,11 @@
 <string name="randompickershort">Willekeurige Kiezer</string>
 
 <!-- progressDialog -->
-<string name="progressLoadingTitle">Laden...</string>
+<string name="progressLoadingTitle">Laden&#8230;</string>
 <string name="progressLoadingBody">Verzenden/Ontvangen data</string>
 
 <!-- aboutDialog -->
-<string name="aboutTitle">Over...</string>
+<string name="aboutTitle">Over&#8230;</string>
 <string name="aboutVersion">Versie:</string>
 <string name="aboutLicense">Licentie:</string>
 <string name="aboutWebsite">Website:</string>
@@ -94,7 +94,7 @@
 <string name="aboutOriginalIdea">Oorspronkelijk idee:</string>
 <string name="aboutProgrammer">Ontwikkeld door:</string>
 <!-- whatsNewDialog -->
-<string name="whatsNewTitle">Nieuwigheden...</string>
+<string name="whatsNewTitle">Nieuwigheden&#8230;</string>
 <string name="whatsNewVersion">Versie:</string>
 <string name="whatsNewText">Wat is veranderd:</string>
 <string-array name="whatsNewValues">
@@ -149,7 +149,7 @@
 </string-array>
 <!-- Episode sorting -->
 <string name="episodeOrderPrompt">Sortering afleveringen</string>
-<string name="episodeOrderPromptExtra">Oudste of nieuwste eerst...</string>
+<string name="episodeOrderPromptExtra">Oudste of nieuwste eerst&#8230;</string>
 <string-array name="episodeOrderOptions">
 <item>Oudste eerst</item>
 <item>Nieuwste eerst</item>
@@ -194,7 +194,7 @@
 
 <!-- Exception handling for dialogs -->
 <string name="fillInAllFields">Alle velden moeten worden ingevuld!</string>
-<string name="exceptionDialogTitle">Ooops...</string>
+<string name="exceptionDialogTitle">Ooops&#8230;</string>
 <string name="defaultExceptionMessage">Er is iets fout gegaan. Probeer de applicatie te herstarten en kijk uw internet verbinding na. Indien dit probleem blijft gelieve een bug te registreren op https://github.com/mentalinc/my-episodes-watch-manager/.</string>
 <string name="internetConnectionFailureTryAgain">Kan geen internetverbinding maken. Gelieve opnieuw te proberen.</string>
 <string name="internetConnectionFailureReload">Kan geen internetverbinding maken. Gebruik de menu-optie om the herladen en opnieuw te proberen.</string>

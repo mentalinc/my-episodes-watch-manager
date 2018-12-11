@@ -9,7 +9,7 @@
             android:src="@drawable/ic_title_home"
             android:onClick="onHomeClick" />
 
-        <ImageView style="@style/TitleBarSeparator" />
+        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
         <TextView style="@style/TitleBarText" />
     </LinearLayout>
     <RelativeLayout android:layout_height="wrap_content"
@@ -20,15 +20,17 @@
                      android:src="@drawable/ic_btn_search_go"
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
+                     android:contentDescription="@style/TitleBarSeparator"
                      android:layout_alignParentTop="true"
-                     android:layout_alignParentRight="true"/>
+                     android:layout_alignParentEnd="true"/>
         <EditText android:id="@+id/searchQuery"
                   android:hint="@string/showSearchHint"
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:layout_centerVertical="true"
+                  android:inputType="text"
                   android:singleLine="true"
-                  android:layout_toLeftOf="@id/searchButton"
+                  android:layout_toStartOf="@id/searchButton"
                   android:layout_marginTop="4dp"/>
     </RelativeLayout>
     <TextView android:id="@+id/showNameSearchNumberOfResults"

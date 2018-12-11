@@ -16,6 +16,7 @@ public class AboutActivity extends GuiceActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         init(savedInstanceState);
 
         //Application version
@@ -23,13 +24,13 @@ public class AboutActivity extends GuiceActivity {
 
         Log.d(LOG_TAG, "Current version of the application: " + version);
 
-        TextView textVersion = (TextView) findViewById(R.id.aboutVersion);
+        TextView textVersion =findViewById(R.id.aboutVersion);
         textVersion.setText(version);
 
-        TextView aboutEmail = (TextView) findViewById(R.id.aboutEmail);
+        TextView aboutEmail =  findViewById(R.id.aboutEmail);
         Linkify.addLinks(aboutEmail, Linkify.EMAIL_ADDRESSES);
 
-        TextView aboutWebsite = (TextView) findViewById(R.id.aboutWebsite);
+        TextView aboutWebsite = findViewById(R.id.aboutWebsite);
         Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
     }
 

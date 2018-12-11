@@ -20,7 +20,7 @@
 
 	<LinearLayout android:id="@+id/LinearLayout01" 
 		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
+		android:layout_height="wrap_content"
 		android:orientation="vertical"
 	>
 
@@ -29,7 +29,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
-		android:padding="15px"
+		android:padding="15dp"
 		android:text="@string/loginFormTitle"
 	/>
 	
@@ -37,7 +37,7 @@
 		android:id="@+id/loginUsername"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:password="false"
+		android:inputType="text"
 		android:hint="@string/loginUsernameHint"
 	/>
 
@@ -45,7 +45,7 @@
 		android:id="@+id/loginPassword"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:password="true"
+		android:inputType="textPassword"
 		android:hint="@string/loginPasswordHint"
 	/>
 	
@@ -58,10 +58,11 @@
 	
 	<TextView
 		android:id="@+id/registerForm"
-		android:paddingTop="5px"
-		android:paddingRight="15px"
-		android:textSize="12px"
-		android:gravity="right"
+		android:paddingTop="5dp"
+		android:paddingStart="10dp"
+		android:paddingEnd="15dp"
+		android:textSize="12sp"
+		android:gravity="end"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/loginFormRegister"

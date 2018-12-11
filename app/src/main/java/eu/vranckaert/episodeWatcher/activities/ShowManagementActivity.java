@@ -15,7 +15,6 @@ import android.widget.TextView;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.Show;
 import eu.vranckaert.episodeWatcher.domain.User;
-import eu.vranckaert.episodeWatcher.enums.CustomTracker;
 import eu.vranckaert.episodeWatcher.enums.ShowAction;
 import eu.vranckaert.episodeWatcher.enums.ShowType;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
@@ -24,11 +23,11 @@ import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingExcepti
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.ShowService;
-import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
 import roboguice.activity.GuiceListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ShowManagementActivity extends GuiceListActivity {
     private static final String LOG_TAG = ShowManagementActivity.class.getSimpleName();
@@ -36,7 +35,7 @@ public class ShowManagementActivity extends GuiceListActivity {
     private User user;
     private ShowService service;
     private ShowAdapter showAdapter;
-    private List<Show> shows = new ArrayList<Show>(0);
+    private List<Show> shows = new ArrayList<>(0);
 
     private int selectedShow = -1;
     private ShowAction showAction = null;
@@ -51,12 +50,13 @@ public class ShowManagementActivity extends GuiceListActivity {
     private static final int CONTEXT_MENU_IGNORE = 2;
     private static final int CONFIRMATION_DIALOG = 3;
 
-    CustomAnalyticsTracker tracker = null;
+    //CustomAnalyticsTracker tracker = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	init(savedInstanceState);
-        startAnalyticsTracking();
+        super.onCreate(savedInstanceState);
+        init(savedInstanceState);
+
 
         reloadShows();
     }
@@ -67,9 +67,9 @@ public class ShowManagementActivity extends GuiceListActivity {
         super.setContentView(R.layout.show_management);
 
         Bundle data = this.getIntent().getExtras();
-        showType = (ShowType) data.get(ShowType.class.getSimpleName());
+        showType = (ShowType) Objects.requireNonNull(data).get(ShowType.class.getSimpleName());
 
-        if(showType.equals(ShowType.FAVOURITE_SHOWS)) {
+        if(Objects.requireNonNull(showType).equals(ShowType.FAVOURITE_SHOWS)) {
             Log.d(LOG_TAG, "Opening the favourite shows");
             ((TextView) findViewById(R.id.title_text)).setText(R.string.favouriteShows);
         } else if(showType.equals(ShowType.IGNORED_SHOWS)) {
@@ -87,14 +87,6 @@ public class ShowManagementActivity extends GuiceListActivity {
         service = new ShowService();
     }
 
-    private void startAnalyticsTracking() {
-        tracker = CustomAnalyticsTracker.getInstance(this);
-        if(showType.equals(ShowType.FAVOURITE_SHOWS)) {
-            tracker.trackPageView(CustomTracker.PageView.SHOW_MANAGEMENT_FAVOS);
-        } else if(showType.equals(ShowType.IGNORED_SHOWS)) {
-            tracker.trackPageView(CustomTracker.PageView.SHOW_MANAGEMENT_IGNORED);
-        }
-    }
 
     @Override
 	protected Dialog onCreateDialog(int id) {
@@ -217,9 +209,9 @@ public class ShowManagementActivity extends GuiceListActivity {
     }
 
     private class ShowAdapter extends ArrayAdapter<Show> {
-        private List<Show> shows;
+        private final List<Show> shows;
 
-        public ShowAdapter(Context context, int textViewResourceId, List<Show> el) {
+        ShowAdapter(Context context, int textViewResourceId, List<Show> el) {
             super(context, textViewResourceId, el);
             this.shows = el;
         }
@@ -232,7 +224,7 @@ public class ShowManagementActivity extends GuiceListActivity {
                 row = inflater.inflate(R.layout.show_management_add_row, parent, false);
             }
 
-            TextView topText = (TextView) row.findViewById(R.id.showNameSearchResult);
+            TextView topText = row.findViewById(R.id.showNameSearchResult);
 
             Show show = shows.get(position);
             topText.setText(show.getShowName());
@@ -303,13 +295,13 @@ public class ShowManagementActivity extends GuiceListActivity {
             protected Object doInBackground(Object... objects) {
                 switch(action) {
                     case IGNORE:
-                        tracker.trackEvent(CustomTracker.Event.SHOW_INGORE);
+                     //   tracker.trackEvent(CustomTracker.Event.SHOW_INGORE);
                         break;
                     case UNIGNORE:
-                        tracker.trackEvent(CustomTracker.Event.SHOW_UNIGNORE);
+                 //       tracker.trackEvent(CustomTracker.Event.SHOW_UNIGNORE);
                         break;
                     case DELETE:
-                        tracker.trackEvent(CustomTracker.Event.SHOW_DELETE);
+                //        tracker.trackEvent(CustomTracker.Event.SHOW_DELETE);
                         break;
                 }
 
@@ -349,12 +341,6 @@ public class ShowManagementActivity extends GuiceListActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        tracker.stop();
-    }
-    
     public void onHomeClick(View v) {
     	finish();
     }

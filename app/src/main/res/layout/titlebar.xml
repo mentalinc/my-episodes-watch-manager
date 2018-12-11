@@ -4,14 +4,16 @@
     android:layout_width="fill_parent"
     android:layout_height="@dimen/title_height"
     android:padding="0dip"
-    android:background="@color/title_background">
+    >
     <!-- Logo -->
     <ImageView android:id="@+id/title_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/logo"
+        android:contentDescription="@style/TitleBarSeparator"
         android:visibility="gone"/>
 
     <!-- Home button and title -->
@@ -19,10 +21,11 @@
         android:layout_width="@dimen/title_height"
         android:layout_height="fill_parent"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:onClick="onHomeClick"
+        android:contentDescription="@style/TitleBarSeparator"
         android:src="@drawable/ic_title_home"
         android:background="@drawable/title_button"
         android:visibility="gone"/>
@@ -31,7 +34,8 @@
         android:layout_height="fill_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/title_home_button"
+        android:contentDescription="@style/TitleBarSeparator"
+        android:layout_toEndOf="@id/title_home_button"
         android:background="@color/title_separator"
         android:visibility="gone"/>
     <TextView android:id="@+id/title_text"
@@ -39,9 +43,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/title_home_button_sep"
+        android:layout_toEndOf="@id/title_home_button_sep"
         android:textSize="@dimen/text_size_medium"
-        android:paddingLeft="12dip"
+        android:paddingStart="12dip"
+        android:paddingEnd="12dip"
         android:textStyle="bold"
         android:textColor="@color/title_text"
         android:gravity="center_vertical"/>
@@ -52,14 +57,16 @@
         android:layout_height="fill_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/title_button_1"
+        android:contentDescription="@style/TitleBarSeparator"
+        android:layout_toStartOf="@+id/title_button_1"
         android:background="@color/title_separator"
         android:visibility="gone"/>
     <ImageButton android:id="@+id/title_button_1"
         android:layout_width="@dimen/title_height"
         android:layout_height="fill_parent"
-        android:layout_toLeftOf="@+id/title_sep_2"
+        android:layout_toStartOf="@+id/title_sep_2"
         android:layout_alignWithParentIfMissing="true"
+        android:contentDescription="@style/TitleBarSeparator"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/refresh"
@@ -69,9 +76,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/title_button_1"
-        android:layout_alignLeft="@id/title_button_1"
+        android:layout_alignStart="@id/title_button_1"
         android:layout_marginTop="15dip"
-        android:layout_marginLeft="15dip"
+        android:layout_marginStart="15dip"
         android:indeterminate="true"
         style="?android:attr/progressBarStyleSmall"
         android:visibility="gone"/>
@@ -79,8 +86,8 @@
         android:layout_width="1px"
         android:layout_height="fill_parent"
         android:layout_alignParentTop="true"
+        android:contentDescription="@style/TitleBarSeparator"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/title_button_2"
         android:background="@color/title_separator"
         android:visibility="gone"/>
 </RelativeLayout>

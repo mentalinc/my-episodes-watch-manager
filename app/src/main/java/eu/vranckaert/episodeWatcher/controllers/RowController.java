@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RowController {
-	private List<String> openWatchRows = new ArrayList<String>();
-	private List<String> openAcquireRows = new ArrayList<String>();
-	private List<String> openComingRows = new ArrayList<String>();
+	private List<String> openWatchRows = new ArrayList<>();
+	private List<String> openAcquireRows = new ArrayList<>();
+	private List<String> openComingRows = new ArrayList<>();
 	private static RowController Instance;
 	
 	public static RowController getInstance() {

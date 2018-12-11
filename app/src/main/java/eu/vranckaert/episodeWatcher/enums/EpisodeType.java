@@ -19,14 +19,14 @@ public enum EpisodeType {
         this.episodeListingType = type;
     }
 
-    private int episodeListingType;
+    private final int episodeListingType;
 
-    public int getEpisodeListingType() {
+    private int getEpisodeListingType() {
         return episodeListingType;
     }
 
     public static List<Integer> getEpisodeListingTypeList() {
-        List<Integer> episodeTypes = new ArrayList<Integer>();
+        List<Integer> episodeTypes = new ArrayList<>();
         episodeTypes.add(EPISODES_TO_WATCH.getEpisodeListingType());
         episodeTypes.add(EPISODES_TO_ACQUIRE.getEpisodeListingType());
         episodeTypes.add(EPISODES_COMING.getEpisodeListingType());
@@ -34,11 +34,10 @@ public enum EpisodeType {
     }
 
     public static CharSequence[] getEpisodeListingTypeArray() {
-        CharSequence[] types = {
+        return new CharSequence[]{
                        String.valueOf(EPISODES_TO_WATCH.getEpisodeListingType()),
                        String.valueOf(EPISODES_TO_ACQUIRE.getEpisodeListingType()),
                        String.valueOf(EPISODES_COMING.getEpisodeListingType())
                       };
-        return types;
     }
 }

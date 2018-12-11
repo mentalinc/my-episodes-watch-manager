@@ -11,21 +11,20 @@
             android:src="@drawable/ic_title_home"
             android:onClick="onHomeClick" />
 
-        <ImageView style="@style/TitleBarSeparator" />
+        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator"/>
         <TextView style="@style/TitleBarText" />
     </LinearLayout>
 
      <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="6dip">
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_height="wrap_content">
             <Button android:id="@+id/selectionPanelFavoShows"
                 style="@style/HomeButton"
                 android:text="@string/favouriteShows"
@@ -39,7 +38,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1">
             <Button android:id="@+id/selectionPanelAddShows"
                 style="@style/HomeButton"

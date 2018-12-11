@@ -2,13 +2,9 @@ package eu.vranckaert.episodeWatcher.service;
 
 import android.arch.persistence.room.Room;
 import android.util.Log;
-import android.widget.Toast;
 
-import eu.vranckaert.episodeWatcher.MyEpisodes;
-import eu.vranckaert.episodeWatcher.activities.HomeActivity;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.database.SeriesDAO;
-import eu.vranckaert.episodeWatcher.domain.Episode;
 import eu.vranckaert.episodeWatcher.domain.Show;
 import eu.vranckaert.episodeWatcher.domain.User;
 import eu.vranckaert.episodeWatcher.enums.ShowAction;
@@ -31,7 +27,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
 import eu.vranckaert.episodeWatcher.database.AppDatabase;
 
 
@@ -52,12 +47,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext;
 
 public class ShowService {
     private static final String LOG_TAG = ShowService.class.getSimpleName();
 
-    private UserService userService;
+    private final UserService userService;
 
 
     public ShowService() {
@@ -71,7 +65,7 @@ public class ShowService {
 
     	HttpPost post = new HttpPost(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE);
 
-    	List <NameValuePair> nvps = new ArrayList<NameValuePair>();
+    	List <NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_SHOW, search));
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_ACTION_VALUE));
 
@@ -83,7 +77,7 @@ public class ShowService {
 			throw new UnsupportedHttpPostEncodingException(message, e);
 		}
 
-		String responsePage = "";
+		String responsePage;
         HttpResponse response;
         try {
             response = httpClient.execute(post);
@@ -117,7 +111,7 @@ public class ShowService {
      * @return A List of {@link eu.vranckaert.episodeWatcher.domain.Show} instances.
      */
     private List<Show> extractSearchResults(String html) {
-        List<Show> shows = new ArrayList<Show>();
+        List<Show> shows = new ArrayList<>();
         if(html.contains("No results found.")) {
             return shows;
         }
@@ -128,8 +122,8 @@ public class ShowService {
                 split = split[0].split(MyEpisodeConstants.MYEPISODES_SEARCH_RESULT_PAGE_SPLITTER_TD_START_TAG);
                 for(int i=0; i<split.length; i++) {
                     if(i>0) {
-                        String showName = "";
-                        String showId = "";
+                        String showName;
+                        String showId;
 
                         String htmlPart = split[i];
                         htmlPart = htmlPart.replace("href=\"views.php?type=epsbyshow&showid=", "");
@@ -163,7 +157,7 @@ public class ShowService {
         String url = MyEpisodeConstants.MYEPISODES_ADD_SHOW_PAGE + myEpsidodesShowId;
         HttpGet get = new HttpGet(url);
 
-        int status = 200;
+        int status;
 
         try {
             HttpResponse response = httpClient.execute(get);
@@ -195,7 +189,7 @@ public class ShowService {
 
         HttpGet get = new HttpGet(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
 
-		String responsePage = "";
+		String responsePage;
         HttpResponse response;
         try {
             response = httpClient.execute(get);
@@ -222,7 +216,7 @@ public class ShowService {
     }
 
     private List<Show> parseShowsHtml(String html, ShowType showType) {
-        List<Show> shows = new ArrayList<Show>();
+        List<Show> shows = new ArrayList<>();
 
         String startTag = "<select id=\"";
         String endTag = "</select>";
@@ -281,10 +275,14 @@ public class ShowService {
             EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
 
 
-            //TODO - this is causing null pointer error
             if(showRuntime == null ){
                 Log.d(LOG_TAG, "Show NOT found in Database");
-                ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
+                try {
+                    ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
 
             }else {
                 //do nothing as already exists no need to add
@@ -295,7 +293,7 @@ public class ShowService {
     }
 
 
-    public void  ShowsRuntime(String show, String myEpsID, AppDatabase database){
+    private void  ShowsRuntime(String show, String myEpsID, AppDatabase database){
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
@@ -331,11 +329,12 @@ public class ShowService {
 
             reader = new BufferedReader(new InputStreamReader(stream));
 
-            StringBuffer buffer = new StringBuffer();
-            String line = "";
+            StringBuilder buffer = new StringBuilder();
+            String line;
 
             while ((line = reader.readLine()) != null) {
-                buffer.append(line+"\n");
+                buffer.append(line);
+                buffer.append("\n");
             //    Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
 
             }
@@ -350,9 +349,9 @@ public class ShowService {
             try
             {
                 jObj = new JSONObject(jsonString);
-                showNameString = jObj.getString("name").toString();
-                showRuntimeString = jObj.getString("runtime").toString();
-                tvmazeShowID = jObj.getString("id").toString();
+                showNameString = jObj.getString("name");
+                showRuntimeString = jObj.getString("runtime");
+                tvmazeShowID = jObj.getString("id");
 
             }
             catch (JSONException e)
@@ -374,6 +373,8 @@ public class ShowService {
             epsRunTime.setShowTVMazeID(tvmazeShowID);
             epsRunTime.setShowRuntime(showRuntimeString);
 
+            Log.d("epsRunTime: ",  epsRunTime.toString());
+
             seriesDAO.insert(epsRunTime);
 
         } catch (MalformedURLException e) {
@@ -383,7 +384,7 @@ public class ShowService {
         } catch (InterruptedException  e) {
             e.printStackTrace();
         } finally {
-            database.close();
+            //database.close();
             if (connection != null) {
                 connection.disconnect();
             }
@@ -437,9 +438,7 @@ public class ShowService {
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
-        
-        List<Show> shows = getFavoriteOrIgnoredShows(user, showType);
 
-        return shows;
+        return getFavoriteOrIgnoredShows(user, showType);
     }
 }

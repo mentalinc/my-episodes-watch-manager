@@ -1,11 +1,14 @@
 package eu.vranckaert.episodeWatcher.activities;
 
 import java.util.Locale;
+import java.util.Objects;
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
-import eu.vranckaert.episodeWatcher.database.AppDatabase;
+import eu.vranckaert.episodeWatcher.preferences.Preferences;
+import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 
 
 
@@ -82,14 +85,14 @@ public class HomeActivity extends Activity {
 
 
         //fix issue where app run and no days back has been set by the user.
-        if(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE).equals(null) || Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE) == ""){
+        if(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE).equals(null) || Objects.equals(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE), "")){
             MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = "Disabled";
             Preferences.setPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
         } else {
             MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
         }
 
-        if(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP).equals(null) || Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP) == ""){
+        if(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP).equals(null) || Objects.equals(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP), "")){
             MyEpisodeConstants.DAYS_BACK_CP = "365";
             Preferences.setPreference(this, PreferencesKeys.DAYS_BACKWARDCP, MyEpisodeConstants.DAYS_BACK_CP);
         } else {
@@ -114,8 +117,8 @@ public class HomeActivity extends Activity {
         		Preferences.getPreference(this, User.PASSWORD)
     		);
 
-        final PagerControl control = (PagerControl) findViewById(R.id.control);
-        final HorizontalPager pager = (HorizontalPager) findViewById(R.id.pager);
+        final PagerControl control = findViewById(R.id.control);
+        final HorizontalPager pager =  findViewById(R.id.pager);
         control.setNumPages(pager.getChildCount());
 
 		MyEpisodeConstants.CONTXT = getApplicationContext();
@@ -138,7 +141,7 @@ public class HomeActivity extends Activity {
 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
         
-    	btnWatched = (Button) findViewById(R.id.btn_watched);
+    	btnWatched = findViewById(R.id.btn_watched);
     	watchIntent = new Intent().setClass(this, EpisodeListingActivity.class)
 				 .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
     	String watch_sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
@@ -162,7 +165,7 @@ public class HomeActivity extends Activity {
     	} else {
     		acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
     	}
-    	btnAcquired = (Button) findViewById(R.id.btn_acquired);
+    	btnAcquired = findViewById(R.id.btn_acquired);
     	btnAcquired.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -173,7 +176,7 @@ public class HomeActivity extends Activity {
     		btnAcquired.setVisibility(View.GONE);
     	}
 
-        Button btnComing = (Button) findViewById(R.id.btn_coming);
+        Button btnComing = findViewById(R.id.btn_coming);
         comingIntent = new Intent().setClass(this, EpisodeListingActivity.class)
 				 .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
     	String coming_sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
@@ -192,7 +195,7 @@ public class HomeActivity extends Activity {
     		btnComing.setVisibility(View.GONE);
     	}
         
-        Button btnMore = (Button) findViewById(R.id.btn_more);
+        Button btnMore = findViewById(R.id.btn_more);
         btnMore.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -208,7 +211,7 @@ public class HomeActivity extends Activity {
         		Preferences.getPreference(this, User.PASSWORD)
     		);
     	if (episodesController.areListsEmpty()) {
-	    	AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+	    	AsyncTask<Object, Object, Object> asyncTask =  new  AsyncTask<Object, Object, Object>() {
 	
 	            @Override
 	            protected void onPreExecute() {
@@ -284,7 +287,7 @@ public class HomeActivity extends Activity {
     
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
+		Dialog dialog;
 		switch (id) {
 			case LOGOUT_DIALOG:
 				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
@@ -303,8 +306,7 @@ public class HomeActivity extends Activity {
 									dialog.cancel();
 								}
 							});
-				AlertDialog alertDialog = alertBuilder.create();
-				dialog = alertDialog;
+				dialog = alertBuilder.create();
 				break;
 			case EXCEPTION_DIALOG:
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -379,7 +381,7 @@ public class HomeActivity extends Activity {
         Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false);
     }
     
-    public void openPreferencesActivity() {
+    private void openPreferencesActivity() {
         Intent preferencesActivity = new Intent(this.getApplicationContext(), PreferencesActivity.class);
         startActivityForResult(preferencesActivity, SETTINGS_RESULT);
     }

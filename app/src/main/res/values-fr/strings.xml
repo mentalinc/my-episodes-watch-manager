@@ -63,7 +63,7 @@
     <string name="favouriteShows">Episodes favoris</string>
     <string name="ignoredShows">Episodes ignorés</string>
     <!-- Show searching -->
-    <string name="showSearchHint">Entrez un nom d\'épisode...</string>
+    <string name="showSearchHint">Entrez un nom d\'épisode&#8230;</string>
     <string name="showSearchNoSearchResults">Pas d\'épisodes trouvés</string>
     <string name="showSearchOneFound">Episode trouvé</string>
     <string name="showSearchMoreFound">Episodes trouvés</string>
@@ -82,11 +82,11 @@
 	<string name="randompickershort">Sélectionneur aléatoire</string>
 
     <!-- progressDialog -->
-    <string name="progressLoadingTitle">Chargement...</string>
+    <string name="progressLoadingTitle">Chargement&#8230;</string>
     <string name="progressLoadingBody">Envoi/Réception de données</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">A propos...</string>
+    <string name="aboutTitle">A propos&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">Licence:</string>
     <string name="aboutWebsite">Site Web:</string>
@@ -151,7 +151,7 @@
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">Ordre des épisodes</string>
-    <string name="episodeOrderPromptExtra">Plus ancien ou plus récent ...</string>
+    <string name="episodeOrderPromptExtra">Plus ancien ou plus récent &#8230;</string>
     <string-array name="episodeOrderOptions">
         <item>Du plus ancien au plus récent</item>
         <item>Du plus récent au plus ancien</item>
@@ -196,7 +196,7 @@
 
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Veuillez remplir tous les champs !</string>
-    <string name="exceptionDialogTitle">Erreur...</string>
+    <string name="exceptionDialogTitle">Erreur&#8230;</string>
     <string name="defaultExceptionMessage">Un problème est survenu dans l\'application. Veuillez redémarrer celle-ci et vérifier votre connexion Internet. Si le problème persiste, merci de faire un rapport sur https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Impossible d\'établir une connexion à Internet. Veuillez réessayer !</string>
     <string name="internetConnectionFailureReload">Impossible d\'établir une connexion à Internet. Utilisez l\'option menu pour essayer de nouveau.</string>

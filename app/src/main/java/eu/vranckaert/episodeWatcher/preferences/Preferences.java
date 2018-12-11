@@ -8,39 +8,37 @@ import eu.vranckaert.episodeWatcher.utils.ApplicationUtil;
 import eu.vranckaert.episodeWatcher.utils.StringUtils;
 
 public class Preferences {
-	public static final String LOG_TAG = Preferences.class.getSimpleName();
+	private static final String LOG_TAG = Preferences.class.getSimpleName();
 	public static final String PREF_NAME = "mewmfacred";
 
-    private static final SharedPreferences getSharedPreferences(Activity ac) {
+    private static  SharedPreferences getSharedPreferences(Activity ac) {
         return ac.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
 	
 	public static String getPreference(Activity ac, String key) {
-		String result = getSharedPreferences(ac).getString(key, null);
-		return result;
+        return getSharedPreferences(ac).getString(key, null);
 	}
 
     public static boolean getPreferenceBoolean(Activity ac, String key, boolean defaultSetting) {
-		boolean result = getSharedPreferences(ac).getBoolean(key, defaultSetting);
-		return result;
+        return getSharedPreferences(ac).getBoolean(key, defaultSetting);
     }
     
 	public static void setPreference(Activity ac, String key, String value) {
 		Editor editor = getSharedPreferences(ac).edit();
 		editor.putString(key, value);
-		editor.commit();
+		editor.apply();
 	}
 
     public static void setPreference(Activity ac, String key, boolean value) {
 		Editor editor = getSharedPreferences(ac).edit();
 		editor.putBoolean(key, value);
-		editor.commit();
+		editor.apply();
 	}
 	
 	public static void removePreference(Activity ac, String key) {
 		Editor editor = getSharedPreferences(ac).edit();
 		editor.remove(key);
-		editor.commit();
+		editor.apply();
 	}
 
     /**
@@ -83,7 +81,7 @@ public class Preferences {
 
         Editor editor = preferences.edit();
         editor.putString(PreferencesKeys.APPLICATION_VERSION_KEY, currentVersion);
-        editor.commit();
+        editor.apply();
         return isFirstTime;
     }
 }

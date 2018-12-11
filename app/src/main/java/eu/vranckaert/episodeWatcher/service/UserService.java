@@ -32,7 +32,7 @@ public class UserService {
         return status;
     }
 
-    public boolean register(User user, String email) throws LoginFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
+    public boolean register(User user, String email) throws UnsupportedHttpPostEncodingException, InternetConnectivityException {
         HttpClient httpClient = new DefaultHttpClient();
     	boolean status = false;
 		try {
@@ -47,7 +47,7 @@ public class UserService {
     public boolean login(HttpClient httpClient, String username, String password) throws LoginFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
     	HttpPost post = new HttpPost(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE);
 
-    	List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+    	List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username));
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password));
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_ACTION_VALUE));
@@ -61,7 +61,7 @@ public class UserService {
 		}
 
 		boolean result = false;
-		String responsePage = "";
+		String responsePage;
         HttpResponse response;
         try {
             response = httpClient.execute(post);
@@ -95,7 +95,7 @@ public class UserService {
     private boolean RegisterUser(HttpClient httpClient, String username, String password, String email) throws RegisterFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
     	HttpPost post = new HttpPost(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE);
 
-    	List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+    	List <NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_USERNAME, username));
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_PASSWORD, password));
         nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_EMAIL, email));
@@ -109,8 +109,8 @@ public class UserService {
 			throw new UnsupportedHttpPostEncodingException(message, e);
 		}
 
-		boolean result = false;
-		String responsePage = "";
+		boolean result;
+		String responsePage;
         HttpResponse response;
         try {
             response = httpClient.execute(post);
@@ -150,8 +150,8 @@ public class UserService {
     }
 
     public String encryptPassword(final String password) throws PasswordEnctyptionFailedException {
-        String encryptedPwd = "";
-        MessageDigest digest = null;
+        String encryptedPwd;
+        MessageDigest digest;
         try {
             digest = MessageDigest.getInstance(MyEpisodeConstants.PASSWORD_ENCRYPTION_TYPE);
             digest.reset();
@@ -159,9 +159,9 @@ public class UserService {
 
             byte[] messageDigest = digest.digest();
 
-            StringBuffer hexString = new StringBuffer();
-            for (int i=0; i<messageDigest.length; i++) {
-                hexString.append(String.format("%02x", messageDigest[i]));
+            StringBuilder hexString = new StringBuilder();
+            for (byte aMessageDigest : messageDigest) {
+                hexString.append(String.format("%02x", aMessageDigest));
             }
             encryptedPwd = hexString.toString();
         } catch (NoSuchAlgorithmException e) {

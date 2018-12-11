@@ -3,6 +3,7 @@ package eu.vranckaert.episodeWatcher.utils;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,7 +18,10 @@ public class ApplicationUtil {
         try {
             PackageInfo info = ctx.getPackageManager().getPackageInfo(name,0);
             version = info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {}
+        } catch (PackageManager.NameNotFoundException e) {
+
+            Log.e("ApplicationUtil", "Error from ApplicationUtil:", e);
+        }
         return version;
     }
 }

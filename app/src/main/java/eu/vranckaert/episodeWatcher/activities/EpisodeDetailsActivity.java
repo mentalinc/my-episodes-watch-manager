@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,16 +38,17 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         
         Bundle data = this.getIntent().getExtras();
         
-        TextView showNameText = (TextView) findViewById(R.id.episodeDetShowName);
-        TextView episodeNameText = (TextView) findViewById(R.id.episodeDetName);
-        TextView seasonText = (TextView) findViewById(R.id.episodeDetSeason);
-        TextView episodeText = (TextView) findViewById(R.id.episodeDetEpisode);
-        TextView airdateText = (TextView) findViewById(R.id.episodeDetAirdate);
+        TextView showNameText =  findViewById(R.id.episodeDetShowName);
+        TextView episodeNameText =  findViewById(R.id.episodeDetName);
+        TextView seasonText =  findViewById(R.id.episodeDetSeason);
+        TextView episodeText = findViewById(R.id.episodeDetEpisode);
+        TextView airdateText = findViewById(R.id.episodeDetAirdate);
         
         ((TextView) findViewById(R.id.title_text)).setText(R.string.details);
-        
+
         episode = (Episode) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE);
+
         
         showNameText.setText(episode.getShowName());
         episodeNameText.setText(episode.getName());
@@ -55,7 +57,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         
         //Air date in specifc format
         Date airdate = episode.getAirDate();
-        String formattedAirDate = null;
+        String formattedAirDate;
         if (airdate != null) {
         	formattedAirDate = DateUtil.formatDateLong(airdate, this);
         } else {
@@ -64,16 +66,16 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         
         airdateText.setText(" " + formattedAirDate);
         
-        TextView aboutWebsite = (TextView) findViewById(R.id.tvrageWebsite);
-		if (!TextUtils.isEmpty(episode.getTVRageWebSite())) {
-			aboutWebsite.setText(episode.getTVRageWebSite());
+        TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
+		if (!TextUtils.isEmpty(episode.getTVMazeWebSite())) {
+			aboutWebsite.setText(episode.getTVMazeWebSite());
 			Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
 		} else {
 			aboutWebsite.setVisibility(View.GONE);
 		}
         
-        Button markAsAcquiredButton = (Button) findViewById(R.id.markAsAcquiredButton);
-        Button markAsSeenButton = (Button) findViewById(R.id.markAsSeenButton);
+        Button markAsAcquiredButton = findViewById(R.id.markAsAcquiredButton);
+        Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
         
         switch(episodesType) {
 	        case EPISODES_TO_WATCH:

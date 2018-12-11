@@ -38,9 +38,8 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     private ListPreference cacheAgingPref;
     private ListPreference showAcquireOrderingPref;
     private ListPreference showComingOrderingPref;
-    private String LOG_TAG = "PreferencesActivity";
 
-	@Override
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu)  {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.preferences_menu, menu);
@@ -357,7 +356,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
+		Dialog dialog;
 		switch (id) {
 			case RELOAD_DIALOG:
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -405,6 +404,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
         File filetoDelete = new File(MyEpisodeConstants.CONTXT.getFilesDir(),fileNametoDelete);
         if(filetoDelete.exists()){
+            String LOG_TAG = "PreferencesActivity";
             if(filetoDelete.delete()){
                 Log.d(LOG_TAG,  filetoDelete.getName() + " deleted");
                 return true;

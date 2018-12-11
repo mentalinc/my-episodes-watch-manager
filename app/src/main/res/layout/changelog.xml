@@ -10,10 +10,10 @@
             android:src="@drawable/ic_title_home"
             android:onClick="onHomeClick" />
 
-        <ImageView style="@style/TitleBarSeparator" />
+        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
         <TextView style="@style/TitleBarText" />
 
-        <ImageView style="@style/TitleBarSeparator" />
+        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
     </LinearLayout>
               
     <LinearLayout android:layout_width="fill_parent"
@@ -25,7 +25,9 @@
         <ImageView android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
                    android:src="@drawable/icon"
-                   android:paddingRight="5dp"/>
+                   android:contentDescription="@style/TitleBarSeparator"
+                   android:paddingStart="5dp"
+                   android:paddingEnd="5dp"/>
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/whatsNewTitle"
@@ -41,19 +43,16 @@
               		  android:paddingLeft="5dp"
               		  android:paddingRight="5dp"
                       android:orientation="vertical">
-            <TableLayout android:layout_width="fill_parent"
-                         android:layout_height="wrap_content">
-                <TableRow>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/whatsNewVersion"/>
-                    <TextView android:id="@+id/whatsNewVersion"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:paddingLeft="5dp"
-                              android:paddingRight="5dp"/>
-                </TableRow>
-            </TableLayout>
+
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/whatsNewVersion"/>
+            <TextView android:id="@+id/whatsNewVersion"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:paddingLeft="5dp"
+                      android:paddingRight="5dp"/>
+
             <!-- Website -->
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"

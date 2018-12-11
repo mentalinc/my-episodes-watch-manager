@@ -82,7 +82,7 @@
 	<string name="randompickershort">Véletlen rész</string>
 
     <!-- progressDialog -->
-    <string name="progressLoadingTitle">Betöltés...</string>
+    <string name="progressLoadingTitle">Betöltés&#8230;</string>
     <string name="progressLoadingBody">Adatok küldése/fogadása</string>
 
     <!-- aboutDialog -->
@@ -149,7 +149,7 @@
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">A részek sorrendje</string>
-    <string name="episodeOrderPromptExtra">Régiek vagy újak elől...</string>
+    <string name="episodeOrderPromptExtra">Régiek vagy újak elől&#8230;</string>
     <string-array name="episodeOrderOptions">
         <item>Régiek elől</item>
         <item>Újak elől</item>
@@ -194,7 +194,7 @@
 
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Minden mezőt ki kell tölteni!</string>
-    <string name="exceptionDialogTitle">Hoppá...</string>
+    <string name="exceptionDialogTitle">Hoppá&#8230;</string>
     <string name="defaultExceptionMessage">Valami bibi van. Próbáld újraindítani az alkalmazást és ellenőrizd az internet kapcsolatot! Ha a probléma továbbra is fennáll, kérlek jelentsd a https://github.com/mentalinc/my-episodes-watch-manager/ oldalon!</string>
     <string name="internetConnectionFailureTryAgain">Nem sikerült kapcsolódni az internetre. Próbáld újra, kérlek!</string>
     <string name="internetConnectionFailureReload">Nem sikerült kapcsolódni az internetre. Frissíts menüből és próbáld újra!</string>

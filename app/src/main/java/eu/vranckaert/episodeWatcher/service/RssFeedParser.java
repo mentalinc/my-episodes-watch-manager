@@ -9,7 +9,7 @@ import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.RssFeedParserException;
 
 
-public interface RssFeedParser {
-    Feed parseFeed(EpisodeType episodesType, final URL url) throws Exception, RssFeedParserException, FeedUrlParsingException, InternetConnectivityException;
-    Feed parseFeed(final URL url) throws Exception, RssFeedParserException, FeedUrlParsingException, InternetConnectivityException;
+interface RssFeedParser {
+    Feed parseFeed(EpisodeType episodesType, final URL url) throws Exception;
+   Feed parseFeed(final URL url) throws Exception;
 }

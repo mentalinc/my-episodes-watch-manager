@@ -19,9 +19,9 @@ public class CustomTracker {
 
         PageView(String pageView) {
             this.pageView = pageView;
-        };
+        }
 
-        private String pageView;
+        private final String pageView;
 
         public String getPageView() {
             return pageView;
@@ -42,8 +42,8 @@ public class CustomTracker {
             this.action = action;
         }
 
-        private String category;
-        private String action;
+        private final String category;
+        private final String action;
 
         public String getCategory() {
             return category;

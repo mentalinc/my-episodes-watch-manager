@@ -56,7 +56,7 @@
     <string name="favouriteShows">Iecienītākās pārraides</string>
     <string name="ignoredShows">Ignorētās pārraides</string>
     <!-- Show searching -->
-    <string name="showSearchHint">Ievadīt pārraides nosaukumu...</string>
+    <string name="showSearchHint">Ievadīt pārraides nosaukumu&#8230;</string>
     <string name="showSearchNoSearchResults">Pārraide netika atrasta</string>
     <string name="showSearchOneFound">Pārraide atrasta</string>
     <string name="showSearchMoreFound">Vairākas pārraides ir atrastas</string>
@@ -71,11 +71,11 @@
     <string name="favoIgnoredConfirmationUnignoreMessage">Vai esi pārliecināts, ka vēlies atcelt šīs pārraides ignorēšanu?</string>
 
     <!-- progressDialog -->
-    <string name="progressLoadingTitle">Ielāde...</string>
+    <string name="progressLoadingTitle">Ielāde&#8230;</string>
     <string name="progressLoadingBody">Dati tiek nosūtīti/saņemti</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Informācija par programmu...</string>
+    <string name="aboutTitle">Informācija par programmu&#8230;</string>
     <string name="aboutVersion">Versija:</string>
     <string name="aboutLicense">Licence:</string>
     <string name="aboutWebsite">Mājas lapa:</string>
@@ -117,7 +117,7 @@
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">Sēriju secība</string>
-    <string name="episodeOrderPromptExtra">Sākt ar jaunāko vai vecāko...</string>
+    <string name="episodeOrderPromptExtra">Sākt ar jaunāko vai vecāko&#8230;</string>
     <string-array name="episodeOrderOptions">
         <item>Sākt ar vecāko</item>
         <item>Sākt ar jaunāko</item>
@@ -147,7 +147,7 @@
 
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Visiem laukiem ir jābūt aizpildītiem!</string>
-    <string name="exceptionDialogTitle">Vai vai vai...</string>
+    <string name="exceptionDialogTitle">Vai vai vai&#8230;</string>
     <string name="defaultExceptionMessage">Kaut kas nogāja greizi. Mēģini pārstartēt programmu un pārbaudi vai strādā internets. Ja atkārtoti redzi šo kļūdu, ziņo par to: https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Neveiksmīgs interneta savienojums. Mēģini vēlreiz!</string>
     <string name="internetConnectionFailureReload">Neveiksmīgs interneta savienojums. Izmanto izvēlni, lai atjauninātu un mēģinātu vēlreiz.</string>

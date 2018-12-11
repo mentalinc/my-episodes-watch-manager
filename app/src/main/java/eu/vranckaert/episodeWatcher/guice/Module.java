@@ -3,7 +3,7 @@ package eu.vranckaert.episodeWatcher.guice;
 import android.util.Log;
 import roboguice.config.AbstractAndroidModule;
 
-public class Module extends AbstractAndroidModule {
+class Module extends AbstractAndroidModule {
     private static final String LOG_TAG = Module.class.getSimpleName();
 
     @Override

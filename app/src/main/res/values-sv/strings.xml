@@ -63,7 +63,7 @@
     <string name="favouriteShows">Favoriter</string>
     <string name="ignoredShows">Ignorerade</string>
     <!-- Show searching -->
-    <string name="showSearchHint">Namn på TV-serie...</string>
+    <string name="showSearchHint">Namn på TV-serie &#8230;</string>
     <string name="showSearchNoSearchResults">Ingen TV-serie hittades</string>
     <string name="showSearchOneFound">TV-serie hittades</string>
     <string name="showSearchMoreFound">TV-serier hittades</string>
@@ -82,11 +82,11 @@
 	<string name="randompickershort">Slumpgenerator</string>
 
     <!-- progressDialog -->
-    <string name="progressLoadingTitle">Laddar...</string>
+    <string name="progressLoadingTitle">Laddar&#8230;</string>
     <string name="progressLoadingBody">Skickar/Tar emot data</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Om...</string>
+    <string name="aboutTitle">Om&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">Lisens:</string>
     <string name="aboutWebsite">Website:</string>
@@ -149,7 +149,7 @@
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">Sortering av avsnitt</string>
-    <string name="episodeOrderPromptExtra">Äldsta eller nyaste först...</string>
+    <string name="episodeOrderPromptExtra">Äldsta eller nyaste först&#8230;</string>
     <string-array name="episodeOrderOptions">
         <item>Äldsta först</item>
         <item>Nyaste först</item>
@@ -194,7 +194,7 @@
 
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Alla fält måste fyllas i!</string>
-    <string name="exceptionDialogTitle">Oj...</string>
+    <string name="exceptionDialogTitle">Oj&#8230;</string>
     <string name="defaultExceptionMessage">Någonting gick fel. Försök starta om applikationen och kontrollera uppkopplingen. Om problemet kvarstår, rapportera buggen på https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Internetkoppling misslyckades. Var vänlig försök igen!</string>
     <string name="internetConnectionFailureReload">Internetkoppling misslyckades. Uppdatera via menyn och försök igen.</string>

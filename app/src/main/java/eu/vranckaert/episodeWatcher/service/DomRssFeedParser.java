@@ -22,8 +22,8 @@ public class DomRssFeedParser implements RssFeedParser {
 	
     public Feed parseFeed(final URL url) throws RssFeedParserException, FeedUrlParsingException {
         Feed rssFeed = new Feed();
-        DocumentBuilder builder = null;
-        Document doc = null;
+        DocumentBuilder builder;
+        Document doc;
         try {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
@@ -78,8 +78,8 @@ public class DomRssFeedParser implements RssFeedParser {
 
     public Feed parseFeed(EpisodeType episodeType, final URL url) throws RssFeedParserException, FeedUrlParsingException {
         Feed rssFeed = new Feed();
-        DocumentBuilder builder = null;
-        Document doc = null;
+        DocumentBuilder builder;
+        Document doc;
         try {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (ParserConfigurationException e) {

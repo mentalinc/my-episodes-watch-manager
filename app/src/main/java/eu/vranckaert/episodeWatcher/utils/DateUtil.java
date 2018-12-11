@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * @Author Dirk Vranckaert
+ * Author Dirk Vranckaert
  * Date: 24-apr-2010
  * Time: 0:41:33
  */
@@ -25,7 +25,7 @@ public final class DateUtil {
      * @param context The context in which the user locale can be found!
      * @return The date representation in a string.
      */
-    public static final String formatDateLong(Date date, Context context) {
+    public static String formatDateLong(Date date, Context context) {
         Locale locale = getCurrentLocale(context);
         return formatDateLong(date, locale);
     }
@@ -36,7 +36,7 @@ public final class DateUtil {
      * @param context The context in which the user locale can be found!
      * @return The date representation in a string.
      */
-    public static final String formatDateFull(Date date, Context context) {
+    public static String formatDateFull(Date date, Context context) {
         Locale locale = getCurrentLocale(context);
         return formatDateFull(date, locale);
     }
@@ -47,7 +47,7 @@ public final class DateUtil {
      * @param locale The locale to use to format the date.
      * @return The date representation in a string.
      */
-    public static final String formatDateFull(Date date, Locale locale) {
+    private static String formatDateFull(Date date, Locale locale) {
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, locale);
         return dateFormat.format(date);
     }
@@ -58,7 +58,7 @@ public final class DateUtil {
      * @param locale The locale to use to format the date.
      * @return The date representation in a string.
      */
-    public static final String formatDateLong(Date date, Locale locale) {
+    private static String formatDateLong(Date date, Locale locale) {
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG, locale);
         return dateFormat.format(date);
     }

@@ -7,5 +7,5 @@ package eu.vranckaert.episodeWatcher.enums;
  */
 public enum ListMode {
     EPISODES_BY_SHOW,
-    EPISODES_BY_DATE;
+    EPISODES_BY_DATE
 }

@@ -17,7 +17,8 @@ import roboguice.activity.GuiceActivity;
 public class ShowManagementPortalActivity extends GuiceActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	init(savedInstanceState);
+        super.onCreate(savedInstanceState);
+        init(savedInstanceState);
         loadButtons();
     }
 
@@ -29,9 +30,9 @@ public class ShowManagementPortalActivity extends GuiceActivity {
     }
 
     private void loadButtons() {
-        Button favoShowsButton = (Button) findViewById(R.id.selectionPanelFavoShows);
-        Button ignoredShowsButton = (Button) findViewById(R.id.selectionPanelIgnoredShows);
-        Button addShowsButton = (Button) findViewById(R.id.selectionPanelAddShows);
+        Button favoShowsButton = findViewById(R.id.selectionPanelFavoShows);
+        Button ignoredShowsButton = findViewById(R.id.selectionPanelIgnoredShows);
+        Button addShowsButton = findViewById(R.id.selectionPanelAddShows);
         favoShowsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

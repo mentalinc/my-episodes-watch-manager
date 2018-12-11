@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Show {
 	private String showName;
-	private List<Episode> episodes = new ArrayList<Episode>(0);
+	private final List<Episode> episodes = new ArrayList<>(0);
     private String myEpisodeID;
     private String runTime;
 

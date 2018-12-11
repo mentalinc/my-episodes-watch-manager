@@ -15,18 +15,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.User;
-import eu.vranckaert.episodeWatcher.enums.CustomTracker;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.UserService;
-import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
 import roboguice.activity.GuiceActivity;
 
 public class LoginActivity extends GuiceActivity {
-    private Button loginButton;
-    private TextView register;
+    //private Button loginButton;
+   // private TextView register;
     private UserService service;
     private int exceptionMessageResId = -1;
 
@@ -35,7 +33,7 @@ public class LoginActivity extends GuiceActivity {
     private static final int MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS = 2;
     
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
-    CustomAnalyticsTracker tracker;
+    //CustomAnalyticsTracker tracker;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,12 +42,12 @@ public class LoginActivity extends GuiceActivity {
         init();
         
         if (!checkLoginCredentials()) {
-        	tracker = CustomAnalyticsTracker.getInstance(this);
-        	tracker.trackPageView(CustomTracker.PageView.LOGIN);
+        //	tracker = CustomAnalyticsTracker.getInstance(this);
+        //	tracker.trackPageView(CustomTracker.PageView.LOGIN);
 
 	        setContentView(R.layout.login);
 
-	    	register = (TextView) findViewById(R.id.registerForm);
+            TextView register = findViewById(R.id.registerForm);
 	    	register.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -57,7 +55,7 @@ public class LoginActivity extends GuiceActivity {
 				}
 			});
 
-	        loginButton = (Button) findViewById(R.id.loginLogin);
+            Button loginButton = findViewById(R.id.loginLogin);
 	        loginButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -112,7 +110,7 @@ public class LoginActivity extends GuiceActivity {
 
     @Override
 	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
+		Dialog dialog;
 		switch (id) {
 			case MY_EPISODES_LOGIN_DIALOG_LOADING:
 				ProgressDialog progressDialog = new ProgressDialog(this);
@@ -121,26 +119,24 @@ public class LoginActivity extends GuiceActivity {
 				dialog = progressDialog;
 				break;
             case MY_EPISODES_ERROR_DIALOG:
-                AlertDialog errorDialog = new AlertDialog.Builder(this)
+                dialog = new AlertDialog.Builder(this)
                         .setMessage(exceptionMessageResId)
                         .setCancelable(false)
                         .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
+                            public void onClick(DialogInterface dialog1, int id1) {
                                 removeDialog(MY_EPISODES_ERROR_DIALOG);
                             }
                         }).create();
-                dialog = errorDialog;
                 break;
             case MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS:
-                AlertDialog validationRequiredAllFieldsDialog = new AlertDialog.Builder(this)
+                dialog = new AlertDialog.Builder(this)
                         .setMessage(R.string.fillInAllFields)
                         .setCancelable(false)
                         .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
+                            public void onClick(DialogInterface dialog1, int id1) {
+                                dialog1.cancel();
                             }
                         }).create();
-                dialog = validationRequiredAllFieldsDialog;
                 break;
             default:
 				dialog = super.onCreateDialog(id);
@@ -172,12 +168,8 @@ public class LoginActivity extends GuiceActivity {
     private boolean checkLoginCredentials() {
 		String username = Preferences.getPreference(this, User.USERNAME);
 		String password = Preferences.getPreference(this, User.PASSWORD);
-		
-		if (username == null || password == null) {
-			return false;
-		} else {
-			return true;
-		}
+
+        return username != null && password != null;
 	}
     
     private void storeLoginCredentials(User user) {
@@ -193,17 +185,10 @@ public class LoginActivity extends GuiceActivity {
     private void init() {
     	this.service = new UserService();
     }
-    
+
 	private void openRegisterScreen() {
     	Intent registerActivity = new Intent(this.getApplicationContext(), RegisterActivity.class);
     	startActivity(registerActivity);
 	}
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(tracker != null) {
-            tracker.stop();
-        }
-    }
 }

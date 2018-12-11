@@ -1,6 +1,5 @@
 package eu.vranckaert.episodeWatcher;
 
-import org.acra.*;
 import org.acra.annotation.*;
 
 import eu.vranckaert.episodeWatcher.guice.Application;

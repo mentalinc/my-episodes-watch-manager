@@ -5,8 +5,8 @@ import android.content.Context;
 public class MyEpisodeConstants {
     public static final String UID_REPLACEMENT_STRING = "[UID]";
     public static final String PWD_REPLACEMENT_STRING = "[PWD]";
-    public static final String FEED = "unwatched";
-    public static final String SHOW_IGNORED = "0";
+    private static final String FEED = "unwatched";
+    private static final String SHOW_IGNORED = "0";
     
     public static String DAYS_BACK_CP = "365";    
     public static Boolean DAYS_BACK_ENABLED = false;
@@ -66,13 +66,13 @@ public class MyEpisodeConstants {
     
     
     
-    public static final int MYEPISODES_UPDATE_PAGE_SEEN = 1;
+    private static final int MYEPISODES_UPDATE_PAGE_SEEN = 1;
     public static final String MYEPISODES_UPDATE_WATCH = "http://www.myepisodes.com/allinone/?action=Update" +
                                                             "&showid=" + MYEPISODES_UPDATE_PAGE_SHOWID_REPLACEMENT +
                                                             "&season=" + MYEPISODES_UPDATE_PAGE_SEASON_REPLACEMENT +
                                                             "&episode=" + MYEPISODES_UPDATE_PAGE_EPISODE_REPLACEMENT +
                                                             "&seen=" + MYEPISODES_UPDATE_PAGE_SEEN;
-    public static final int MYEPISODES_UPDATE_PAGE_UNSEEN = 0;
+    private static final int MYEPISODES_UPDATE_PAGE_UNSEEN = 0;
     public static final String MYEPISODES_UPDATE_ACQUIRE = "http://www.myepisodes.com/allinone/?action=Update" +
     														"&showid=" + MYEPISODES_UPDATE_PAGE_SHOWID_REPLACEMENT +
     														"&season=" + MYEPISODES_UPDATE_PAGE_SEASON_REPLACEMENT +

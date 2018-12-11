@@ -37,11 +37,12 @@ public class PagerControl extends View
     private static final int DEFAULT_FADE_DURATION = 500;
 
     private int numPages, currentPage, position;
-    private Paint barPaint, highlightPaint;
-    private int fadeDelay, fadeDuration;
-    private float ovalRadius;
+    private final Paint highlightPaint;
+    private final int fadeDelay;
+    private final int fadeDuration;
+    private final float ovalRadius;
 
-    private Animation fadeOutAnimation;
+    private final Animation fadeOutAnimation;
 
     public PagerControl(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -50,15 +51,15 @@ public class PagerControl extends View
     public PagerControl(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.eu_vranckaert_episodeWatcher_PagerControl);
-        int barColor = a.getColor(R.styleable.eu_vranckaert_episodeWatcher_PagerControl_barColor, DEFAULT_BAR_COLOR);
-        int highlightColor = a.getColor(R.styleable.eu_vranckaert_episodeWatcher_PagerControl_highlightColor, DEFAULT_HIGHLIGHT_COLOR);
-        fadeDelay = a.getInteger(R.styleable.eu_vranckaert_episodeWatcher_PagerControl_fadeDelay, DEFAULT_FADE_DELAY);
-        fadeDuration = a.getInteger(R.styleable.eu_vranckaert_episodeWatcher_PagerControl_fadeDuration, DEFAULT_FADE_DURATION);
-        ovalRadius = a.getDimension(R.styleable.eu_vranckaert_episodeWatcher_PagerControl_roundRectRadius, 0f);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PagerControl);
+        int barColor = a.getColor(R.styleable.PagerControl_barColor, DEFAULT_BAR_COLOR);
+        int highlightColor = a.getColor(R.styleable.PagerControl_highlightColor, DEFAULT_HIGHLIGHT_COLOR);
+        fadeDelay = a.getInteger(R.styleable.PagerControl_fadeDelay, DEFAULT_FADE_DELAY);
+        fadeDuration = a.getInteger(R.styleable.PagerControl_fadeDuration, DEFAULT_FADE_DURATION);
+        ovalRadius = a.getDimension(R.styleable.PagerControl_roundRectRadius, 0f);
         a.recycle();
 
-        barPaint = new Paint();
+        Paint barPaint = new Paint();
         barPaint.setColor(barColor);
 
         highlightPaint = new Paint();
@@ -129,7 +130,7 @@ public class PagerControl extends View
      * Equivalent to the width of the view divided by the current number of pages.
      * @return page width, in pixels
      */
-    public int getPageWidth() {
+    private int getPageWidth() {
         return getWidth() / numPages;
     }
 
@@ -151,7 +152,8 @@ public class PagerControl extends View
      */
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawRoundRect(new RectF(0, 0, getWidth(), getHeight()), ovalRadius, ovalRadius, barPaint);
-        canvas.drawRoundRect(new RectF(position, 0, position + (getWidth() / numPages), getHeight()), ovalRadius, ovalRadius, highlightPaint);
+
+     //   canvas.drawRoundRect(new RectF(0, 0, getWidth(), getHeight()), ovalRadius, ovalRadius, barPaint);
+     //   canvas.drawRoundRect(new RectF(position, 0, position + (getWidth() / numPages), getHeight()), ovalRadius, ovalRadius, highlightPaint);
     }
 }

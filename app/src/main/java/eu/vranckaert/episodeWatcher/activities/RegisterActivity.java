@@ -13,18 +13,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.User;
-import eu.vranckaert.episodeWatcher.enums.CustomTracker;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.UserService;
-import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
 import roboguice.activity.GuiceActivity;
 
 public class RegisterActivity extends GuiceActivity {
-    private Button registerButton;
+    // private Button registerButton;
     private UserService service;
     private User user;
     private boolean registerStatus;
@@ -35,7 +33,7 @@ public class RegisterActivity extends GuiceActivity {
     private static final int MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS = 2;
 
     private static final String LOG_TAG = RegisterActivity.class.getSimpleName();
-    CustomAnalyticsTracker tracker;
+   // CustomAnalyticsTracker tracker;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,13 +42,13 @@ public class RegisterActivity extends GuiceActivity {
         
         init();
         
-    	tracker = CustomAnalyticsTracker.getInstance(this);
+    	//tracker = CustomAnalyticsTracker.getInstance(this);
         
         if (!checkLoginCredentials()) {
-        	tracker.trackPageView(CustomTracker.PageView.REGISTER_USER);
+        	//tracker.trackPageView(CustomTracker.PageView.REGISTER_USER);
         	setContentView(R.layout.register);
-	        
-	        registerButton = (Button) findViewById(R.id.registerRegister);
+
+            Button registerButton = findViewById(R.id.registerRegister);
 	        registerButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -125,26 +123,24 @@ public class RegisterActivity extends GuiceActivity {
 				dialog = progressDialog;
 				break;
             case MY_EPISODES_ERROR_DIALOG:
-                AlertDialog errorDialog = new AlertDialog.Builder(this)
+                dialog = new AlertDialog.Builder(this)
                         .setMessage(R.string.registerFailed)
                         .setCancelable(false)
                         .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
+                            public void onClick(DialogInterface dialog1, int id1) {
+                                dialog1.cancel();
                             }
                         }).create();
-                dialog = errorDialog;
                 break;
             case MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS:
-                AlertDialog validationRequiredAllFieldsDialog = new AlertDialog.Builder(this)
+                dialog = new AlertDialog.Builder(this)
                         .setMessage(R.string.fillInAllFields)
                         .setCancelable(false)
                         .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
+                            public void onClick(DialogInterface dialog1, int id1) {
+                                dialog1.cancel();
                             }
                         }).create();
-                dialog = validationRequiredAllFieldsDialog;
                 break;
 		}
 		return dialog;
@@ -153,12 +149,8 @@ public class RegisterActivity extends GuiceActivity {
     private boolean checkLoginCredentials() {
 		String username = Preferences.getPreference(this, User.USERNAME);
 		String password = Preferences.getPreference(this, User.PASSWORD);
-		
-		if (username == null || password == null) {
-			return false;
-		} else {
-			return true;
-		}
+
+        return username != null && password != null;
 	}
     
     private boolean register(User user) throws LoginFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
@@ -179,9 +171,4 @@ public class RegisterActivity extends GuiceActivity {
     	this.service = new UserService();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        tracker.stop();
-    }
 }

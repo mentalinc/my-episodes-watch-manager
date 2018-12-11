@@ -58,10 +58,10 @@ import eu.vranckaert.episodeWatcher.R;
 
 public class HorizontalPager extends ViewGroup
 {
-    public static final String TAG = "DeezApps.Widget.HorizontalPager";
+    private static final String TAG = "DeezApps.HorizontalPage";
 
     private static final int INVALID_SCREEN = -1;
-    public static final int SPEC_UNDEFINED = -1;
+    private static final int SPEC_UNDEFINED = -1;
 
     /**
      * The velocity at which a fling gesture will cause us to snap to the next screen
@@ -91,7 +91,7 @@ public class HorizontalPager extends ViewGroup
 
     private boolean mAllowLongPress;
 
-    private Set<OnScrollListener> mListeners = new HashSet<OnScrollListener>();
+    private final Set<OnScrollListener> mListeners = new HashSet<>();
 
     /**
      * Used to inflate the Workspace from XML.
@@ -113,8 +113,8 @@ public class HorizontalPager extends ViewGroup
     public HorizontalPager(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.eu_vranckaert_episodeWatcher_HorizontalPager);
-        pageWidthSpec = a.getDimensionPixelSize(R.styleable.eu_vranckaert_episodeWatcher_HorizontalPager_pageWidth, SPEC_UNDEFINED);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.HorizontalPager);
+        pageWidthSpec = a.getDimensionPixelSize(R.styleable.HorizontalPager_pageWidth, SPEC_UNDEFINED);
         a.recycle();
 
         init();
@@ -137,7 +137,7 @@ public class HorizontalPager extends ViewGroup
      *
      * @return The index of the currently displayed page.
      */
-    int getCurrentPage() {
+    private int getCurrentPage() {
         return mCurrentPage;
     }
 
@@ -178,7 +178,6 @@ public class HorizontalPager extends ViewGroup
         } else if (mNextPage != INVALID_SCREEN) {
             mCurrentPage = mNextPage;
             mNextPage = INVALID_SCREEN;
-            clearChildrenCache();
         }
     }
 
@@ -206,7 +205,7 @@ public class HorizontalPager extends ViewGroup
         }
     }
 
-    int pageWidthPadding() {
+    private int pageWidthPadding() {
         return ((getMeasuredWidth() - pageWidth) / 2);
     }
 
@@ -246,10 +245,7 @@ public class HorizontalPager extends ViewGroup
     @Override
     public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
         int screen = indexOfChild(child);
-        if (screen != mCurrentPage || !mScroller.isFinished()) {
-            return true;
-        }
-        return false;
+        return screen != mCurrentPage || !mScroller.isFinished();
     }
 
     @Override
@@ -347,7 +343,7 @@ public class HorizontalPager extends ViewGroup
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 // Release the drag
-                clearChildrenCache();
+
                 mTouchState = TOUCH_STATE_REST;
                 break;
         }
@@ -375,7 +371,7 @@ public class HorizontalPager extends ViewGroup
             if (xMoved) {
                 // Scroll if the user moved far enough along the X axis
                 mTouchState = TOUCH_STATE_SCROLLING;
-                enableChildrenCache();
+
             }
             // Either way, cancel any pending longpress
             if (mAllowLongPress) {
@@ -389,17 +385,21 @@ public class HorizontalPager extends ViewGroup
         }
     }
 
-    void enableChildrenCache() {
-        setChildrenDrawingCacheEnabled(true);
-        setChildrenDrawnWithCacheEnabled(true);
+    @Override
+    public boolean performClick() {
+        // Calls the super implementation, which generates an AccessibilityEvent
+        // and calls the onClick() listener on the view, if any
+        super.performClick();
+
+        // Handle the action for the custom click here
+
+        return true;
     }
 
-    void clearChildrenCache() {
-        setChildrenDrawnWithCacheEnabled(false);
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        performClick();
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
@@ -480,8 +480,8 @@ public class HorizontalPager extends ViewGroup
         snapToPage(whichPage);
     }
 
-    void snapToPage(int whichPage) {
-        enableChildrenCache();
+    private void snapToPage(int whichPage) {
+
 
         boolean changingPages = whichPage != mCurrentPage;
 
@@ -588,7 +588,7 @@ public class HorizontalPager extends ViewGroup
     /**
      * Implement to receive events on scroll position and page snaps.
      */
-    public static interface OnScrollListener {
+    public interface OnScrollListener {
         /**
          * Receives the current scroll X value.  This value will be adjusted to assume the left edge of the first
          * page has a scroll position of 0.  Note that values less than 0 and greater than the right edge of the

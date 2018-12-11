@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Feed {
-    List<FeedItem> items = new ArrayList<FeedItem>(0);
+    private final List<FeedItem> items = new ArrayList<>(0);
 
     public List<FeedItem> getItems() {
         return items;

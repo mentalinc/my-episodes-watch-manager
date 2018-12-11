@@ -14,21 +14,27 @@ import java.util.List;
 @Dao
 public interface SeriesDAO {
     @Insert
-    public void insert(EpisodeRuntime... contacts);
+    void insert(EpisodeRuntime... contacts);
 
     @Update
-    public void update(EpisodeRuntime... contacts);
+    void update(EpisodeRuntime... contacts);
 
     @Delete
-    public void delete(EpisodeRuntime contact);
+    void delete(EpisodeRuntime contact);
 
     @Query("SELECT * FROM EpisodeRuntime")
-    public List<EpisodeRuntime> getEpisodeRuntime();
+    List<EpisodeRuntime> getEpisodeRuntime();
 
     @Query("SELECT * FROM EpisodeRuntime WHERE showMyEpsID = :number")
-    public EpisodeRuntime getEpisodeRuntimeWithMyEpsId(String number);
+    EpisodeRuntime getEpisodeRuntimeWithMyEpsId(String number);
 
     @Query("SELECT * FROM EpisodeRuntime WHERE showTVMazeID = :number")
-    public EpisodeRuntime getEpisodeRuntimeWithTVMazeId(String number);
+    EpisodeRuntime getEpisodeRuntimeWithTVMazeId(String number);
+
+    @Query("SELECT * FROM EpisodeRuntime WHERE showMyEpsID = :number")
+    EpisodeRuntime getTvmazeShowID(String number);
+
+
+
 }
 

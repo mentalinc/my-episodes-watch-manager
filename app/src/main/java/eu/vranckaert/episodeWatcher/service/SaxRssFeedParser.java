@@ -36,15 +36,15 @@ import java.util.Date;
 public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
 	private static final String LOG_TAG = SaxRssFeedParser.class.getSimpleName();
 	
-    boolean inItem = false;
-    boolean inDescription = true;
-    boolean recordTitleString = false;
-    StringBuilder tempTitle = new StringBuilder();
-    StringBuilder nodeValue = null;
-    Feed feed = new Feed();
-    FeedItem item = null;
+    private boolean inItem = false;
+    private boolean inDescription = true;
+    private boolean recordTitleString = false;
+    private StringBuilder tempTitle = new StringBuilder();
+    private StringBuilder nodeValue = null;
+    private final Feed feed = new Feed();
+    private FeedItem item = null;
 
-    public Feed parseFeed(final URL url) throws ParserConfigurationException, SAXException, FeedUrlParsingException, RssFeedParserException, InternetConnectivityException {
+    public Feed parseFeed(final URL url) {
 
         //replaced by parseFeed(EpisodeType episodesType, final URL url)
         Log.e(LOG_TAG, "This will no longer be called. Replaced by parseFeed(EpisodeType episodesType, final URL url)");
@@ -226,23 +226,26 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         return feed;
     }
 
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        if (localName.equals("item")) {
-            item = new FeedItem();
-            item.setTitle("");
-            inItem = true;
-            inDescription = false;
-        } else if(localName.equals("description")) {
-            //Fix for issue 96: If we ignore the description tag the issue is solved!
-            inDescription = true;
-            nodeValue = null;
-        } else {
-            inDescription = false;
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        switch(localName){
+            case "item":
+                item = new FeedItem();
+                item.setTitle("");
+                inItem = true;
+                inDescription = false;
+                break;
+            case "description":
+                //Fix for issue 96: If we ignore the description tag the issue is solved!
+                inDescription = true;
+                nodeValue = null;
+                break;
+            default:
+                inDescription = false;
         }
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName) {
         if (localName.equals("item")) {
             feed.addItem(item);
             item = null;
@@ -268,7 +271,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
     @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) {
         //Fix for issue 96: If we ignore the description tag the issue is solved!
         if(!inDescription) {
             nodeValue = new StringBuilder(new String(ch, start, length));
@@ -307,7 +310,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
 
-    public String ReadFile(String FILENAME){
+    private String ReadFile(String FILENAME){
         StringBuilder EpisodeXML = new StringBuilder();
         try{
             //String FILENAME = "Watch.xml";
@@ -354,7 +357,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
 
-    public String convertStreamToString(InputStream is, String encoding) throws IOException {
+    private String convertStreamToString(InputStream is, String encoding) throws IOException {
         /*
          * To convert the InputStream to String we use the
          * Reader.read(char[] buffer) method. We iterate until the
@@ -381,7 +384,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         }
     }
 
-    public void deleteOldCacheFiles(File filetoDelete){
+    private void deleteOldCacheFiles(File filetoDelete){
         if(!MyEpisodeConstants.CACHE_EPISODES_ENABLED || MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0")){
             Log.d(LOG_TAG, "Cache aging is disabled. Cache files not deleted");
         }else{
@@ -419,20 +422,17 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         }
     }
 
-    public boolean deleteFile(File filetoDelete){
+    private void deleteFile(File filetoDelete){
         if(filetoDelete.exists()){
             if(filetoDelete.delete()){
                 Log.d(LOG_TAG,  filetoDelete.getName() + " deleted");
-                return true;
             }else{
                 Log.e(LOG_TAG, "ERROR deleting " +filetoDelete.getName());
-                return false;
             }
         }
-        return false;
     }
 
-    public static boolean isOnline() {
+    private static boolean isOnline() {
         try {
             URL url = new URL("http://www.myepisodes.com/favicon.ico");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

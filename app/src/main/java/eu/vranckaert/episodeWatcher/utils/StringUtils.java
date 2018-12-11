@@ -6,7 +6,7 @@ package eu.vranckaert.episodeWatcher.utils;
  *         Time: 18:29:04
  */
 public class StringUtils {
-    public static String EMPTY = "";
+    public static final String EMPTY = "";
 
     /**
      * Search what the start-index of a certain search value in a source string is.

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"   encoding="utf-8"?>
 <!-- Revision #93 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- default values -->
     <string name="yes">Yes</string>
     <string name="no">No</string>
@@ -37,12 +37,12 @@
     <string name="coming">Coming</string>
     <string name="more">More</string>
     <string name="watchListTitle">List of shows/episodes</string>
-    <string name="watchListSubTitleWatch">%d episode to watch</string>
-    <string name="watchListSubTitleAcquire">%d episode to acquire</string>
-    <string name="watchListSubTitleComing">%d future episode</string>
-    <string name="watchListSubTitleWatchPlural">%d episodes to watch</string>
-    <string name="watchListSubTitleAcquirePlural">%d episodes to acquire</string>
-    <string name="watchListSubTitleComingPlural">%d future episodes</string>
+    <string name="watchListSubTitleWatch"  tools:ignore="PluralsCandidate">%d episode to watch</string>
+    <string name="watchListSubTitleAcquire" tools:ignore="PluralsCandidate">%d episode to acquire</string>
+    <string name="watchListSubTitleComing" tools:ignore="PluralsCandidate">%d future episode</string>
+    <string name="watchListSubTitleWatchPlural"  tools:ignore="PluralsCandidate">%d episodes to watch</string>
+    <string name="watchListSubTitleAcquirePlural" tools:ignore="PluralsCandidate">%d episodes to acquire</string>
+    <string name="watchListSubTitleComingPlural" tools:ignore="PluralsCandidate">%d future episodes</string>
     <string name="watchListEmpty">No episodes found.</string>
     <string name="watchListFull">Reached the limit of 200 episodes, consider enabling 200+ episodes in preferences.</string>
 
@@ -63,7 +63,7 @@
     <string name="favouriteShows">Favourite Shows</string>
     <string name="ignoredShows">Ignored Shows</string>
     <!-- Show searching -->
-    <string name="showSearchHint">Enter a show name...</string>
+    <string name="showSearchHint">Enter a show name&#8230;</string>
     <string name="showSearchNoSearchResults">No shows found</string>
     <string name="showSearchOneFound">show found</string>
     <string name="showSearchMoreFound">shows found</string>
@@ -82,13 +82,13 @@
 	<string name="randompickershort">Random Picker</string>
 
     <!-- progressDialog -->
-    <string name="progressLoadingTitle">Loading...</string>
-    <string name="progressLoadingTitleCache">Loading from cache...</string>
+    <string name="progressLoadingTitle">Loading&#8230;</string>
+    <string name="progressLoadingTitleCache">Loading from cache&#8230;</string>
     <string name="progressLoadingBody">Sending/Retrieving data</string>
     <string name="progressLoadingOnlineCheck">Checking if user is online</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">About...</string>
+    <string name="aboutTitle">About&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">License:</string>
     <string name="aboutWebsite">Website:</string>
@@ -151,7 +151,7 @@
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">Order of episodes</string>
-    <string name="episodeOrderPromptExtra">Oldest or newest first...</string>
+    <string name="episodeOrderPromptExtra">Oldest or newest first&#8230;</string>
     <string-array name="episodeOrderOptions">
         <item>Oldest first</item>
         <item>Newest first</item>
@@ -234,7 +234,7 @@
 
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">All fields should be filled in!</string>
-    <string name="exceptionDialogTitle">Ooops...</string>
+    <string name="exceptionDialogTitle">Ooops&#8230;</string>
     <string name="defaultExceptionMessage">Something went wrong. Try to restart the application and check your internet connection. If you keep having this issue report a bug at https://github.com/mentalinc/my-episodes-watch-manager.</string>
     <string name="internetConnectionFailureTryAgain">Could not establish internet connection. Please try again!</string>
     <string name="internetConnectionFailureReload">Could not establish internet connection. Use the menu option to reload and try again.</string>

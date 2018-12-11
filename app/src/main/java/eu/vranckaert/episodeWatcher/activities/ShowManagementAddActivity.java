@@ -19,19 +19,17 @@ import android.widget.TextView;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.Show;
 import eu.vranckaert.episodeWatcher.domain.User;
-import eu.vranckaert.episodeWatcher.enums.CustomTracker;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.ShowAddFailedException;
 import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.ShowService;
-import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
 import roboguice.activity.GuiceListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Dirk Vranckaert
@@ -49,28 +47,29 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     private ShowService service;
     private User user;
     private ShowAdapter showAdapter;
-    private List<Show> shows = new ArrayList<Show>(0);
+    private List<Show> shows = new ArrayList<>(0);
 
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
 
     private boolean showsAdded = false;
 
-    CustomAnalyticsTracker tracker = null;
+    //CustomAnalyticsTracker tracker = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         init(savedInstanceState);
-        startAnalyticsTracking();
 
-        ImageButton searchButton = (ImageButton) findViewById(R.id.searchButton);
+
+        ImageButton searchButton = findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 CharSequence query = ((EditText) findViewById(R.id.searchQuery)).getText();
                 if(query.length() > 0) {
                     InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    Objects.requireNonNull(imm).hideSoftInputFromWindow(view.getWindowToken(), 0);
                     ShowManagementAddActivity.this.searchShows(query.toString());
                 }
             }
@@ -93,11 +92,6 @@ public class ShowManagementAddActivity extends GuiceListActivity {
         initializeShowList();
     }
 
-    private void startAnalyticsTracking() {
-        tracker = CustomAnalyticsTracker.getInstance(this);
-        tracker.trackPageView(CustomTracker.PageView.SHOW_MANAGEMENT_SEARCH);
-    }
-
     private void initializeShowList() {
         showAdapter = new ShowAdapter(this, R.layout.show_management_add_row, shows);
         setListAdapter(showAdapter);
@@ -112,7 +106,7 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     }
 
     private void updateNumberOfResults() {
-        TextView numberOfResults = (TextView) findViewById(R.id.showNameSearchNumberOfResults);
+        TextView numberOfResults = findViewById(R.id.showNameSearchNumberOfResults);
 
         if(shows.size() > 0) {
             String text = shows.size() + " ";
@@ -230,7 +224,7 @@ public class ShowManagementAddActivity extends GuiceListActivity {
 
     private void doSearch(String query) {
         try {
-            shows = service.searchShows(query.toString(), user);
+            shows = service.searchShows(query, user);
             Log.d(LOG_TAG, shows.size() + " show(s) found!!!");
             exceptionMessageResId = null;
         } catch (UnsupportedHttpPostEncodingException e) {
@@ -249,9 +243,9 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     }
 
     private class ShowAdapter extends ArrayAdapter<Show> {
-        private List<Show> shows;
+        private final List<Show> shows;
 
-        public ShowAdapter(Context context, int textViewResourceId, List<Show> el) {
+        ShowAdapter(Context context, int textViewResourceId, List<Show> el) {
             super(context, textViewResourceId, el);
             this.shows = el;
         }
@@ -265,7 +259,7 @@ public class ShowManagementAddActivity extends GuiceListActivity {
                 row = inflater.inflate(R.layout.show_management_add_row, parent, false);
             }
 
-            TextView topText = (TextView) row.findViewById(R.id.showNameSearchResult);
+            TextView topText = row.findViewById(R.id.showNameSearchResult);
 
             Show show = shows.get(position);
             topText.setText(show.getShowName());
@@ -290,7 +284,7 @@ public class ShowManagementAddActivity extends GuiceListActivity {
 
             @Override
             protected Object doInBackground(Object... objects) {
-                tracker.trackEvent(CustomTracker.Event.SHOW_ADD_NEW);
+             //   tracker.trackEvent(CustomTracker.Event.SHOW_ADD_NEW);
                 Show show = shows.get(position);
                 addShow(show);
                 return 100L;
@@ -347,9 +341,4 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     	finish();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        tracker.stop();
-    }
 }

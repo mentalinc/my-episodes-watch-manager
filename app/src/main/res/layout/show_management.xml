@@ -9,7 +9,7 @@
             android:src="@drawable/ic_title_home"
             android:onClick="onHomeClick" />
 
-        <ImageView style="@style/TitleBarSeparator" />
+        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
         <TextView style="@style/TitleBarText" />
     </LinearLayout>
     <ListView android:id="@+id/android:list"

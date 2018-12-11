@@ -11,11 +11,12 @@
             android:src="@drawable/ic_title_home"
             android:onClick="onHomeClick" />
 
-        <ImageView style="@style/TitleBarSeparator" />
+        <ImageView style="@style/TitleBarSeparator"  android:contentDescription="@style/TitleBarSeparator"/>
         <TextView style="@style/TitleBarText" />
 
         <ImageView style="@style/TitleBarSeparator"
 	        android:id="@+id/separator_collapse"
+			android:contentDescription="@style/TitleBarSeparator"
 	        android:visibility="gone"
          />
         <ImageButton style="@style/TitleBarAction"
@@ -25,7 +26,7 @@
             android:src="@drawable/ic_title_collapse"
             android:onClick="onCollapseClick" />
 
-        <ImageView style="@style/TitleBarSeparator" />
+        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
         <ImageButton style="@style/TitleBarAction"
             android:id="@+id/btn_title_refresh"
             android:contentDescription="@string/refresh"
@@ -45,13 +46,13 @@
 			  android:layout_height="wrap_content" 
 			  android:gravity="center"
 			  android:text="@string/watchListSubTitleWatch" 
-			  android:paddingBottom="3px" 
+			  android:paddingBottom="3dp"
 	/>
 	
 	<ExpandableListView
 		android:id="@+id/android:list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-	></ExpandableListView>
+	/>
 	
 </LinearLayout>

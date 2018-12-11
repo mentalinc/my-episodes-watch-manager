@@ -55,7 +55,7 @@
     <string name="favouriteShows">Favoritt show</string>
     <string name="ignoredShows">Ignorerte show</string>
     <!-- Show searching -->
-    <string name="showSearchHint">Skriv inn TV-serie...</string>
+    <string name="showSearchHint">Skriv inn TV-serie&#8230;</string>
     <string name="showSearchNoSearchResults">Ingen TV-serie funnet</string>
     <string name="showSearchOneFound">TV-serie funnet</string>
     <string name="showSearchMoreFound">TV-serier funnet</string>
@@ -70,11 +70,11 @@
     <string name="favoIgnoredConfirmationUnignoreMessage">Er du sikker på at du vil \"ikke\"-ignorere denne TV-serien?</string>
 
     <!-- progressDialog -->
-    <string name="progressLoadingTitle">Laster...</string>
+    <string name="progressLoadingTitle">Laster&#8230;</string>
     <string name="progressLoadingBody">Sender/Tar imot data</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Om...</string>
+    <string name="aboutTitle">Om&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">Lisens:</string>
     <string name="aboutWebsite">Webside:</string>
@@ -85,21 +85,11 @@
     <string name="whatsNewVersion">Version:</string>
     <string name="whatsNewText">Forandringer:</string>
     <string-array name="whatsNewValues">
-        <item>Registrering av nye brukere</item>
-        <item>Håndtering av TV-serier</item>
-        <item>Twitterintegrering</item>
-        <item>Tysk oversettelse</item>
-        <item>Latvisk oversettelse</item>
-        <item>Portugisisk oversettelse</item>
-        <item>Ny logo</item>
-        <item>Mørkt tema</item>
-        <item>Markere alle episode (gruppe) som sett eller hentet</item>
-        <item>Velg default tab ved start</item>
-        <item>Lasting av dialoger (ikke lengre ANR)</item>
-        <item>Fix av datobug</item>
-        <item>Koreansk oversettelse støttes ikke lengre</item>
-        <item>Ny \"Om\"-dialog</item>
-        <item>Ny \"Nyheter\"-dialog</item>
+        <item> Deaktiver Acquire / Coming </item>
+        <item> Sorter alternativer </item>
+        <item> Code refactoring </item>
+        <item> Nye ikoner </item>
+        <item> Aktivert 200 + episoder </item>
     </string-array>
     <!-- logoutDialog -->
     <string name="logoutDialogTitle">Er du sikker?</string>
@@ -133,7 +123,7 @@
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">Sortering av episoder</string>
-    <string name="episodeOrderPromptExtra">Eldst elelr nyest først...</string>
+    <string name="episodeOrderPromptExtra">Eldst elelr nyest først&#8230;</string>
     <string-array name="episodeOrderOptions">
         <item>Eldst først</item>
         <item>Nyeste først</item>
@@ -163,7 +153,7 @@
 
     <!-- Exception handling for dialogs -->
     <string name="fillInAllFields">Alle felt må være fylt inn!</string>
-    <string name="exceptionDialogTitle">Ooops...</string>
+    <string name="exceptionDialogTitle">Ooops&#8230;</string>
     <string name="defaultExceptionMessage">Noe gikk feil. Prøv å restart appen og sjekk din internettforbindelse. Om denne buggen oppstår flere ganger rapporter buggen her https://github.com/mentalinc/my-episodes-watch-manager/.</string>
     <string name="internetConnectionFailureTryAgain">Kunne ikke opprette internettforbindelse. Vennligst prøv igjen!</string>
     <string name="internetConnectionFailureReload">Kunne ikke opprette internettforbindelse. Trykk refresh og prøv igjen.</string>

@@ -14,7 +14,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+//import android.widget.ImageView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,14 +24,14 @@ import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
 import eu.vranckaert.episodeWatcher.controllers.RowController;
 import eu.vranckaert.episodeWatcher.domain.*;
-import eu.vranckaert.episodeWatcher.enums.CustomTracker;
+//import eu.vranckaert.episodeWatcher.enums.CustomTracker;
 import eu.vranckaert.episodeWatcher.enums.EpisodeType;
 import eu.vranckaert.episodeWatcher.enums.ListMode;
 import eu.vranckaert.episodeWatcher.exception.*;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.EpisodesService;
-import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
+//import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
 import roboguice.activity.GuiceExpandableListActivity;
 
@@ -55,22 +55,22 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	private static final String LOG_TAG = EpisodeListingActivity.class.getSimpleName();
 
 	private User user;
-    private EpisodesService service;
-    private List<Episode> episodes = new ArrayList<Episode>();
-    private List<Show> shows = new ArrayList<Show>();
-    private TextView Title;
+    private final EpisodesService service;
+    private List<Episode> episodes = new ArrayList<>();
+    private List<Show> shows = new ArrayList<>();
+    //private TextView Title;
     private TextView subTitle;
     private SimpleExpandableListAdapter episodeAdapter;
     private Integer exceptionMessageResId = null;
     private static EpisodeType episodesType;
     private ListMode listMode;
-	private Resources res; // Resource object to get Drawables
-	private android.content.res.Configuration conf;
+	//private Resources res; // Resource object to get Drawables
+	// private android.content.res.Configuration conf;
     private Map<Date, List<Episode>> listedAirDates = null;
     private boolean collapsed = true;
-    private boolean isOnelineCheck;
+    //private boolean isOnelineCheck;
 
-    private CustomAnalyticsTracker tracker;
+    //private CustomAnalyticsTracker tracker;
 
 	public EpisodeListingActivity() {
 		super();
@@ -94,11 +94,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 		return false;
 	}
 
-	@Override
-    protected void onResume() {
-    	super.onResume();    		
-    }
-	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == SETTINGS_RESULT && resultCode == RESULT_OK) {
@@ -246,7 +241,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
+		Dialog dialog;
 		switch (id) {
 			case EPISODE_LOADING_DIALOG:
 				ProgressDialog progressDialog = new ProgressDialog(this);
@@ -295,9 +290,9 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 		//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
         super.onCreate(savedInstanceState);
         
-        tracker = CustomAnalyticsTracker.getInstance(this);
+      //  tracker = CustomAnalyticsTracker.getInstance(this);
         Bundle data = this.getIntent().getExtras();
-        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE);
+        episodesType = (EpisodeType) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE);
         listMode = (ListMode) data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE);
         
         init();
@@ -309,26 +304,26 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 		int groupid = ExpandableListView.getPackedPositionGroup(info.packedPosition);
 		int childid = ExpandableListView.getPackedPositionChild(info.packedPosition);
         Episode selectedEpisode = determineEpisode(groupid, childid);
-        List<Episode> selectedGroup = null;
+        List<Episode> selectedGroup;
     	selectedGroup = determineGroup(groupid);
 			switch(item.getItemId()) {
 			case R.id.episodeMenuWatched:
-                tracker.trackEvent(CustomTracker.Event.MARK_WATCHED);
+             //   tracker.trackEvent(CustomTracker.Event.MARK_WATCHED);
                 markEpisodes(0, selectedEpisode);
 				return true;
 			case R.id.episodeMenuAcquired:
-				tracker.trackEvent(CustomTracker.Event.MARK_ACQUIRED);
+			//	tracker.trackEvent(CustomTracker.Event.MARK_ACQUIRED);
 				markEpisodes(1, selectedEpisode);
 				return true;
 			case R.id.episodeTweet:
-		    	String tweet = selectedEpisode.getShowName() + " S" + selectedEpisode.getSeasonString() + "E" + selectedEpisode.getEpisodeString() + " - " + selectedEpisode.getName();
+		    	String tweet = Objects.requireNonNull(selectedEpisode).getShowName() + " S" + selectedEpisode.getSeasonString() + "E" + selectedEpisode.getEpisodeString() + " - " + selectedEpisode.getName();
 		    	Intent i = new Intent(android.content.Intent.ACTION_SEND);
 		    	i.setType("text/plain");
 		    	i.putExtra(Intent.EXTRA_TEXT, getString(R.string.Tweet, tweet));
 		    	startActivity(Intent.createChooser(i, getString(R.string.TweetTitle)));
 				return true;
 			case R.id.episodeMenuDetails:
-				tracker.trackPageView(CustomTracker.PageView.EPISODE_DETAILS);
+			//	tracker.trackPageView(CustomTracker.PageView.EPISODE_DETAILS);
 				openEpisodeDetails(selectedEpisode, episodesType);
 				return true;
 			case R.id.showMenuWatched:
@@ -344,43 +339,43 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-		tracker.trackPageView(CustomTracker.PageView.EPISODE_DETAILS);
+	//	tracker.trackPageView(CustomTracker.PageView.EPISODE_DETAILS);
 		openEpisodeDetails(determineEpisode(groupPosition, childPosition), episodesType);
 		return true;
 	}
 
 	private void init() {
 		setContentView(R.layout.episode_listing_tab);
-        episodes = new ArrayList<Episode>();
+        episodes = new ArrayList<>();
         
         user = new User(
         		Preferences.getPreference(this, User.USERNAME),
         		Preferences.getPreference(this, User.PASSWORD)
     		);
-        res = getResources();
-        conf = res.getConfiguration();
+		Resources res = getResources();
+		android.content.res.Configuration conf = res.getConfiguration();
 
         String LanguageCode = Preferences.getPreference(this, PreferencesKeys.LANGUAGE_KEY);
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
-        
-    	Title = (TextView) findViewById(R.id.watchListTitle);
+
+		TextView Title = findViewById(R.id.watchListTitle);
     	Title.setText(getString(R.string.watchListTitle));
-    	subTitle = (TextView) findViewById(R.id.watchListSubTitle);
+    	subTitle = findViewById(R.id.watchListSubTitle);
     	subTitle.setText("");
     	
     	Bundle data = this.getIntent().getExtras();
-    	String markEpisode = data.getString(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE);
+    	String markEpisode = Objects.requireNonNull(data).getString(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE);
     	
-    	if (markEpisode != null && markEpisode != "") {
+    	if (markEpisode != null && !Objects.equals(markEpisode, "")) {
 	        Episode episode = (Episode) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
 	        
 	        if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)) {
-	            tracker.trackEvent(CustomTracker.Event.MARK_WATCHED);
+	            //tracker.trackEvent(CustomTracker.Event.MARK_WATCHED);
 	            markEpisodes(0, episode);
 	        }
 	        else if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_ACQUIRE)) {
-	            tracker.trackEvent(CustomTracker.Event.MARK_ACQUIRED);
+	          //  tracker.trackEvent(CustomTracker.Event.MARK_ACQUIRED);
 	            markEpisodes(1, episode);
 	        }
     	}
@@ -405,8 +400,8 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 		episodeAdapter.notifyDataSetChanged();
 		registerForContextMenu(getExpandableListView());
         
-    	((ImageView) findViewById(R.id.separator_collapse)).setVisibility(View.VISIBLE);
-    	((ImageButton) findViewById(R.id.btn_title_collapse)).setVisibility(View.VISIBLE);
+    	( findViewById(R.id.separator_collapse)).setVisibility(View.VISIBLE);
+    	(findViewById(R.id.btn_title_collapse)).setVisibility(View.VISIBLE);
 		
 		int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
 		
@@ -460,18 +455,18 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	private void openListRows(List<String> openRows) {
 		for (String rowName : openRows) {
 			for (int i = 0; i<episodeAdapter.getGroupCount(); i++) {
-				if (rowName.equals(((String[]) episodeAdapter.getGroup(i).toString().split("\\["))[0]))
+				if (rowName.equals((episodeAdapter.getGroup(i).toString().split("\\["))[0]))
 					this.getExpandableListView().expandGroup(i);
 			}
 		}
 	}
 	
 	private void saveListRows() {
-		List<String> rows = new ArrayList<String>();
+		List<String> rows = new ArrayList<>();
 		
 		for (int i = 0; i<episodeAdapter.getGroupCount(); i++) {
 			if (this.getExpandableListView().collapseGroup(i)) {
-				rows.add(((String[]) episodeAdapter.getGroup(i).toString().split("\\["))[0]);
+				rows.add((episodeAdapter.getGroup(i).toString().split("\\["))[0]);
 			}
 				
 		}
@@ -492,12 +487,12 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	}
 
 	private List<? extends Map<String, ?>> createGroups() {
-		List<Map<String, String>> headerList = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> headerList = new ArrayList<>();
 
         switch(listMode) {
         case EPISODES_BY_DATE: {
-            listedAirDates = new LinkedHashMap<Date, List<Episode>>();
-            Map<Date, Integer> workingMap = new TreeMap<Date, Integer>();
+            listedAirDates = new LinkedHashMap<>();
+            Map<Date, Integer> workingMap = new TreeMap<>();
             for (Show show : shows) {
 	            for(Episode episode : show.getEpisodes()) {
 	                Date airDate = episode.getAirDate();
@@ -511,7 +506,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             }
             
             for(Date key : workingMap.keySet()) {
-                Map<String, String> map = new HashMap<String, String>();
+                Map<String, String> map = new HashMap<>();
                 int countEp = workingMap.get(key);
                 map.put("episodeRowTitle", DateUtil.formatDateFull(key, getApplicationContext()) + " [ " + countEp + " ]");
                 headerList.add(map);
@@ -521,7 +516,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             }
             case EPISODES_BY_SHOW: {
                 for(Show show : shows) {
-                    Map<String, String> map = new HashMap<String, String>();
+                    Map<String, String> map = new HashMap<>();
                     map.put("episodeRowTitle", show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
                     headerList.add(map);
                 }
@@ -532,37 +527,36 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	}
 
 	private List<? extends List<? extends Map<String, ?>>> createChilds() {
-		List<List<Map<String,String>>> childList = new ArrayList<List<Map<String,String>>>();
+		List<List<Map<String,String>>> childList = new ArrayList<>();
 
         switch(listMode) {
         case EPISODES_BY_DATE: {
-            for(Iterator iter = listedAirDates.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry entry = (Map.Entry) iter.next();
-                Date listedAirDate = (Date) entry.getKey();
-                List<Episode> episodeList = new ArrayList<Episode>();
+			for (Map.Entry<Date, List<Episode>> dateListEntry : listedAirDates.entrySet()) {
+				Date listedAirDate = dateListEntry.getKey();
+				List<Episode> episodeList = new ArrayList<>();
 
-                List<Map<String, String>> subListSecondLvl = new ArrayList<Map<String, String>>();
-                for(Show show : shows) {
-                    for(Episode episode : show.getEpisodes()) {
-                        if(listedAirDate.equals(episode.getAirDate())) {
-                            HashMap<String, String> map = new HashMap<String, String>();
-                            map.put("episodeRowChildTitle", episode.getShowName());
-                            map.put("episodeRowChildDetail", "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
-                            subListSecondLvl.add(map);
-                            episodeList.add(episode);
-                        }
-                     }
-                 }
-                entry.setValue(episodeList);
-                childList.add(subListSecondLvl);
-            }
+				List<Map<String, String>> subListSecondLvl = new ArrayList<>();
+				for (Show show : shows) {
+					for (Episode episode : show.getEpisodes()) {
+						if (listedAirDate.equals(episode.getAirDate())) {
+							HashMap<String, String> map = new HashMap<>();
+							map.put("episodeRowChildTitle", episode.getShowName());
+							map.put("episodeRowChildDetail", "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
+							subListSecondLvl.add(map);
+							episodeList.add(episode);
+						}
+					}
+				}
+				dateListEntry.setValue(episodeList);
+				childList.add(subListSecondLvl);
+			}
             break;
             }
         	case EPISODES_BY_SHOW: {
                 for (Show show : shows) {
-                    List<Map<String, String>> subListSecondLvl = new ArrayList<Map<String, String>>();
+                    List<Map<String, String>> subListSecondLvl = new ArrayList<>();
                     for (Episode episode : show.getEpisodes()) {
-                            HashMap<String, String> map = new HashMap<String, String>();
+                            HashMap<String, String> map = new HashMap<>();
                             map.put("episodeRowChildTitle", episode.getShowName());
                             map.put("episodeRowChildDetail", "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
                             subListSecondLvl.add(map);
@@ -655,7 +649,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	}
 
 	private void returnEpisodes() {
-        shows = new ArrayList<Show>();
+        shows = new ArrayList<>();
         if (episodes != null && episodes.size() > 0) {
             for (Episode ep : episodes) {
                 AddEpisodeToShow(ep);
@@ -967,17 +961,11 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 		finish();
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		tracker.stop();
-	}
-
-    public void SetOnline(Boolean online){
-        isOnelineCheck = online;
+	public void SetOnline(Boolean online){
+       boolean isOnelineCheck = online;
     }
 
-    public Boolean isOnline() {
+    private Boolean isOnline() {
 
         try {
             //Thread.sleep(3000);
