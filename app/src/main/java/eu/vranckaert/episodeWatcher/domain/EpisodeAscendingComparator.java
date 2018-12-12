@@ -20,13 +20,7 @@ public class EpisodeAscendingComparator implements Comparator<Episode> {
         } else if (s1 > s2) {
             return 1;
         } else {
-            if (e1 < e2) {
-                return -1;
-            } else if (e1 > e2) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return Integer.compare(e1, e2);
         }
     }
 }

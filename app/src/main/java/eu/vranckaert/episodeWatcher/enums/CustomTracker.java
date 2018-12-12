@@ -37,10 +37,12 @@ public class CustomTracker {
         SHOW_DELETE("DeleteShow", "FavosAndIngoredShowManagementActivity"),
         SHOW_ADD_NEW("AddNewShow","ContextMenu-ShowManagementAddActivity");
 
+
         Event(String category, String action) {
             this.category = category;
             this.action = action;
         }
+
 
         private final String category;
         private final String action;

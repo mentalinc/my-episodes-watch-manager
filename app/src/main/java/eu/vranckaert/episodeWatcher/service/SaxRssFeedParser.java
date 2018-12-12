@@ -211,11 +211,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
 
         try {
             parser.parse(inputStream, this);
-        } catch (SAXException e) {
-            String message = "Exception occured during the RSS parsing process.";
-            Log.e(LOG_TAG, message, e);
-            throw new RssFeedParserException(message, e);
-        } catch (IOException e) {
+        } catch (SAXException | IOException e) {
             String message = "Exception occured during the RSS parsing process.";
             Log.e(LOG_TAG, message, e);
             throw new RssFeedParserException(message, e);
@@ -434,7 +430,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
 
     private static boolean isOnline() {
         try {
-            URL url = new URL("http://www.myepisodes.com/favicon.ico");
+            URL url = new URL("https://www.myepisodes.com/favicon.ico");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "yourAgent");
             connection.setRequestProperty("Connection", "close");
@@ -450,9 +446,6 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                 Log.d(LOG_TAG, "Offline!!");
                 return false;
             }
-        } catch (UnknownHostException e){
-            Log.e(LOG_TAG, e.toString());
-            return false;
         } catch (IOException e){
             Log.e(LOG_TAG, e.toString());
             return false;

@@ -18,7 +18,6 @@ import eu.vranckaert.episodeWatcher.domain.User;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.UserService;
 import roboguice.activity.GuiceActivity;
 
@@ -62,7 +61,7 @@ public class LoginActivity extends GuiceActivity {
                     String username = ((EditText) findViewById(R.id.loginUsername)).getText().toString().trim();
 				    String password = ((EditText) findViewById(R.id.loginPassword)).getText().toString().trim();
 
-                    if( (username != null && username.length()>0) && (password != null && password.length()>0) ) {
+                    if(username.length() > 0 && password.length() > 0) {
                         final User user = new User(
                                 username, password
                         );

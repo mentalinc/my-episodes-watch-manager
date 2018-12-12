@@ -6,8 +6,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import eu.vranckaert.episodeWatcher.R;
-import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.utils.ApplicationUtil;
 import roboguice.activity.GuiceActivity;
 

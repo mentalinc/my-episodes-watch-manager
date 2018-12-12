@@ -63,15 +63,17 @@ public final class DateUtil {
         return dateFormat.format(date);
     }
 
-    /**
-     * Formats a given date in the {@link java.text.DateFormat#LONG} format.
-     * @param date The date to format.
-     * @return The date representation in a string.
-     */
-    public static final String formatDateLong(Date date) {
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG);
-        return dateFormat.format(date);
-    }
+// --Commented out by Inspection START (11/12/2018 9:30 PM):
+//    /**
+//     * Formats a given date in the {@link java.text.DateFormat#LONG} format.
+//     * @param date The date to format.
+//     * @return The date representation in a string.
+//     */
+//    public static String formatDateLong(Date date) {
+//        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG);
+//        return dateFormat.format(date);
+//    }
+// --Commented out by Inspection STOP (11/12/2018 9:30 PM)
 
     /**
      * Get the current locale of the user.

@@ -21,7 +21,6 @@ import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.ShowService;
 import roboguice.activity.GuiceListActivity;
 
@@ -262,13 +261,13 @@ public class ShowManagementActivity extends GuiceListActivity {
         selectedShow = info.position;
         switch(item.getItemId()) {
             case CONTEXT_MENU_IGNORE:
-                showDialog(CONFIRMATION_DIALOG, info.position, ShowAction.IGNORE, R.string.favoIgnoredConfirmationIgnoreMessage);
+                showDialog(info.position, ShowAction.IGNORE, R.string.favoIgnoredConfirmationIgnoreMessage);
                 break;
             case CONTEXT_MENU_UNIGNORE:
-                showDialog(CONFIRMATION_DIALOG, info.position, ShowAction.UNIGNORE, R.string.favoIgnoredConfirmationUnignoreMessage);
+                showDialog(info.position, ShowAction.UNIGNORE, R.string.favoIgnoredConfirmationUnignoreMessage);
                 break;
             case CONTEXT_MENU_DELETE:
-                showDialog(CONFIRMATION_DIALOG, info.position, ShowAction.DELETE, R.string.favoIgnoredConfirmationDeleteMessage);
+                showDialog(info.position, ShowAction.DELETE, R.string.favoIgnoredConfirmationDeleteMessage);
                 break;
             default:
                 return false;
@@ -276,12 +275,12 @@ public class ShowManagementActivity extends GuiceListActivity {
         return true;
     }
 
-    private void showDialog(int dialogId, int listPosition, ShowAction action, int messageId) {
+    private void showDialog(int listPosition, ShowAction action, int messageId) {
         this.selectedShow = listPosition;
         this.showAction = action;
         this.confirmationMessageResId = messageId;
 
-        showDialog(dialogId);
+        showDialog(ShowManagementActivity.CONFIRMATION_DIALOG);
     }
 
     private void markShow(final Show show, final ShowAction action) {

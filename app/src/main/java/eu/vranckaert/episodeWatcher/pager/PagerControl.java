@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -37,10 +36,8 @@ public class PagerControl extends View
     private static final int DEFAULT_FADE_DURATION = 500;
 
     private int numPages, currentPage, position;
-    private final Paint highlightPaint;
     private final int fadeDelay;
     private final int fadeDuration;
-    private final float ovalRadius;
 
     private final Animation fadeOutAnimation;
 
@@ -56,13 +53,13 @@ public class PagerControl extends View
         int highlightColor = a.getColor(R.styleable.PagerControl_highlightColor, DEFAULT_HIGHLIGHT_COLOR);
         fadeDelay = a.getInteger(R.styleable.PagerControl_fadeDelay, DEFAULT_FADE_DELAY);
         fadeDuration = a.getInteger(R.styleable.PagerControl_fadeDuration, DEFAULT_FADE_DURATION);
-        ovalRadius = a.getDimension(R.styleable.PagerControl_roundRectRadius, 0f);
+        float ovalRadius = a.getDimension(R.styleable.PagerControl_roundRectRadius, 0f);
         a.recycle();
 
         Paint barPaint = new Paint();
         barPaint.setColor(barColor);
 
-        highlightPaint = new Paint();
+        Paint highlightPaint = new Paint();
         highlightPaint.setColor(highlightColor);
 
         fadeOutAnimation = new AlphaAnimation(1f, 0f);

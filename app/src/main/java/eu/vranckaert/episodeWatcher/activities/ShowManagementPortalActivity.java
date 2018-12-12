@@ -7,8 +7,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.enums.ShowType;
-import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import roboguice.activity.GuiceActivity;
 
 /**

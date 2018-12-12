@@ -82,15 +82,11 @@ public class ShowService {
         try {
             response = httpClient.execute(post);
             responsePage = EntityUtils.toString(response.getEntity());
-        } catch (ClientProtocolException e) {
+        } catch (ClientProtocolException | UnknownHostException e) {
             String message = "Could not connect to host.";
 			Log.e(LOG_TAG, message, e);
 			throw new InternetConnectivityException(message, e);
-        } catch (UnknownHostException e) {
-			String message = "Could not connect to host.";
-			Log.e(LOG_TAG, message, e);
-			throw new InternetConnectivityException(message, e);
-		} catch (IOException e) {
+        } catch (IOException e) {
             String message = "Search on MyEpisodes failed.";
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
@@ -194,15 +190,11 @@ public class ShowService {
         try {
             response = httpClient.execute(get);
             responsePage = EntityUtils.toString(response.getEntity());
-        } catch (ClientProtocolException e) {
+        } catch (ClientProtocolException | UnknownHostException e) {
             String message = "Could not connect to host.";
 			Log.e(LOG_TAG, message, e);
 			throw new InternetConnectivityException(message, e);
-        } catch (UnknownHostException e) {
-			String message = "Could not connect to host.";
-			Log.e(LOG_TAG, message, e);
-			throw new InternetConnectivityException(message, e);
-		} catch (IOException e) {
+        } catch (IOException e) {
             String message = "Search on MyEpisodes failed.";
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
@@ -377,11 +369,7 @@ public class ShowService {
 
             seriesDAO.insert(epsRunTime);
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException  e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
             //database.close();
@@ -423,11 +411,7 @@ public class ShowService {
 
         try {
             httpClient.execute(get);
-        } catch (ClientProtocolException e) {
-            String message = "Could not connect to host.";
-            Log.e(LOG_TAG, message, e);
-            throw new InternetConnectivityException(message, e);
-        } catch (UnknownHostException e) {
+        } catch (ClientProtocolException | UnknownHostException e) {
             String message = "Could not connect to host.";
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);

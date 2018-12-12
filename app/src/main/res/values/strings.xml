@@ -83,7 +83,7 @@
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Loading&#8230;</string>
-    <string name="progressLoadingTitleCache">Loading from cache&#8230;</string>
+    <string name="progressLoadingTitleCache" tools:ignore="MissingTranslation">Loading from cache&#8230;</string>
     <string name="progressLoadingBody">Sending/Retrieving data</string>
     <string name="progressLoadingOnlineCheck">Checking if user is online</string>
 

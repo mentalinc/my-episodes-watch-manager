@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Revision #93 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- default values -->
     <string name="yes">Si</string>
     <string name="no">No</string>
@@ -118,7 +118,7 @@
     <string name="manageShows">Gestire Episodi</string>
     <string name="about">A proposito</string>
     <string name="logout">Uscire</string>
-    <string name="changelog">Che cosa è cambiato</string>
+    <string name="changelog" tools:ignore="ExtraTranslation">Che cosa è cambiato</string>
     <string name="preferences">Impostazioni</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Contrassegnare tutti gli episodi come Acquistati</string>

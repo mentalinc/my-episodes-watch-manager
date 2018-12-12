@@ -14,10 +14,8 @@ import android.widget.Toast;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.User;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
-import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.UserService;
 import roboguice.activity.GuiceActivity;
 
@@ -55,7 +53,7 @@ public class RegisterActivity extends GuiceActivity {
                     String username = ((EditText) findViewById(R.id.registerUsername)).getText().toString();
 				    String password = ((EditText) findViewById(R.id.registerPassword)).getText().toString();
 				    email = ((EditText) findViewById(R.id.registerEmail)).getText().toString();
-                    if( (username!= null && username.length()>0) && (password != null && password.length()>0) && (email != null && email.length()>0)) {
+                    if(username.length() > 0 && password.length() > 0 && email != null && email.length() > 0) {
                         user = new User(
                                 username, password
                         );
@@ -74,9 +72,7 @@ public class RegisterActivity extends GuiceActivity {
 							        } catch (InternetConnectivityException e) {
 							            String message = "Could not connect to host";
 							            Log.e(LOG_TAG, message, e);
-							        } catch (LoginFailedException e) {
-							            String message = "Login failed";
-							            Log.e(LOG_TAG, message, e);
+
 							        } catch (Exception e) {
 							            String message = "Some Exception occured";
 							            Log.e(LOG_TAG, message, e);
@@ -153,7 +149,7 @@ public class RegisterActivity extends GuiceActivity {
         return username != null && password != null;
 	}
     
-    private boolean register(User user) throws LoginFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
+    private boolean register(User user) throws UnsupportedHttpPostEncodingException, InternetConnectivityException {
     	return service.register(user, email);
 	}
     

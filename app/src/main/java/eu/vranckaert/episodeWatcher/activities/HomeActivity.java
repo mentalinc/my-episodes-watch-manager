@@ -7,9 +7,6 @@ import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
-import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
-
 
 
 import eu.vranckaert.episodeWatcher.domain.User;
@@ -85,14 +82,16 @@ public class HomeActivity extends Activity {
 
 
         //fix issue where app run and no days back has been set by the user.
-        if(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE).equals(null) || Objects.equals(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE), "")){
+		Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
+		if(Objects.equals(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE), "")){
             MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = "Disabled";
             Preferences.setPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
         } else {
             MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
         }
 
-        if(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP).equals(null) || Objects.equals(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP), "")){
+		Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
+		if(Objects.equals(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP), "")){
             MyEpisodeConstants.DAYS_BACK_CP = "365";
             Preferences.setPreference(this, PreferencesKeys.DAYS_BACKWARDCP, MyEpisodeConstants.DAYS_BACK_CP);
         } else {

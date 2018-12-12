@@ -66,15 +66,11 @@ public class UserService {
         try {
             response = httpClient.execute(post);
             responsePage = EntityUtils.toString(response.getEntity());
-        } catch (ClientProtocolException e) {
+        } catch (ClientProtocolException | UnknownHostException e) {
             String message = "Could not connect to host.";
 			Log.e(LOG_TAG, message, e);
 			throw new InternetConnectivityException(message, e);
-        } catch (UnknownHostException e) {
-			String message = "Could not connect to host.";
-			Log.e(LOG_TAG, message, e);
-			throw new InternetConnectivityException(message, e);
-		} catch (IOException e) {
+        } catch (IOException e) {
             String message = "Login to MyEpisodes failed.";
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
@@ -115,15 +111,11 @@ public class UserService {
         try {
             response = httpClient.execute(post);
             responsePage = EntityUtils.toString(response.getEntity());
-        } catch (ClientProtocolException e) {
+        } catch (ClientProtocolException | UnknownHostException e) {
             String message = "Could not connect to host.";
 			Log.e(LOG_TAG, message, e);
 			throw new InternetConnectivityException(message, e);
-        } catch (UnknownHostException e) {
-			String message = "Could not connect to host.";
-			Log.e(LOG_TAG, message, e);
-			throw new InternetConnectivityException(message, e);
-		} catch (IOException e) {
+        } catch (IOException e) {
             String message = "Login to MyEpisodes failed.";
             Log.w(LOG_TAG, message, e);
             throw new RegisterFailedException(message, e);

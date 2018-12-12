@@ -93,7 +93,7 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     }
 
     private void initializeShowList() {
-        showAdapter = new ShowAdapter(this, R.layout.show_management_add_row, shows);
+        showAdapter = new ShowAdapter(this, shows);
         setListAdapter(showAdapter);
     }
 
@@ -245,8 +245,8 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     private class ShowAdapter extends ArrayAdapter<Show> {
         private final List<Show> shows;
 
-        ShowAdapter(Context context, int textViewResourceId, List<Show> el) {
-            super(context, textViewResourceId, el);
+        ShowAdapter(Context context, List<Show> el) {
+            super(context, R.layout.show_management_add_row, el);
             this.shows = el;
         }
 

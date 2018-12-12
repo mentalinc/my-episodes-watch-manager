@@ -36,7 +36,6 @@ import eu.vranckaert.episodeWatcher.utils.DateUtil;
 import roboguice.activity.GuiceExpandableListActivity;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -116,7 +115,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
             Episode selectedEpisode = determineEpisode(groupid, childid);
 
-			menu.setHeaderTitle(selectedEpisode.getShowName() +
+			menu.setHeaderTitle(Objects.requireNonNull(selectedEpisode).getShowName() +
 					" S" + selectedEpisode.getSeasonString() +
 					"E" + selectedEpisode.getEpisodeString() + "\n" +
 					selectedEpisode.getName());
@@ -385,6 +384,9 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 	
 	private void initExendableList()
 	{
+	    //TODO add here the runtime some how  - would require nesting the ListApaters somehow or using a different adaptoer to handle multi layer
+        //https://github.com/kedzie/tree-view-list-android
+        //https://stackoverflow.com/questions/8293538/multi-layered-expandablelistview
 		episodeAdapter = new SimpleExpandableListAdapter(
 	                this,
 	                createGroups(),
@@ -514,12 +516,20 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             }
             break;
             }
+            //TODO
             case EPISODES_BY_SHOW: {
+               //TODO create a map for show run times but way to complex to make is own grouper as they seem to be two levels and adding runtime as a group would be three levels
+                /* for(Show show : shows) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("episodeRowTitleRun", show.getRunTime());
+                    headerList.add(map);
+                }*/
                 for(Show show : shows) {
                     Map<String, String> map = new HashMap<>();
                     map.put("episodeRowTitle", show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
                     headerList.add(map);
                 }
+
             }
         }
 
@@ -670,7 +680,9 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
     }
 
     private void AddEpisodeToShow(Episode episode) {
+
         Show currentShow = CheckShowDublicate(episode.getShowName());
+
         if (currentShow == null) {
             Show tempShow = new Show(episode.getShowName());
             tempShow.addEpisode(episode);
@@ -969,7 +981,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
         try {
             //Thread.sleep(3000);
-            URL url = new URL("http://www.myepisodes.com/favicon.ico");
+            URL url = new URL("https://www.myepisodes.com/favicon.ico");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "yourAgent");
             connection.setRequestProperty("Connection", "close");
@@ -999,12 +1011,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             //removeDialog(ONLINE_CHECK_DIALOG);
             //showDialog(EPISODE_LOADING_DIALOG);
             return false;
-        } catch (IOException e){
-            Log.e(LOG_TAG, e.toString());
-            //removeDialog(ONLINE_CHECK_DIALOG);
-            //showDialog(EPISODE_LOADING_DIALOG);
-            return false;
-        }catch (Exception e){
+        } catch (Exception e){
             Log.e(LOG_TAG, e.toString());
             //removeDialog(ONLINE_CHECK_DIALOG);
             //showDialog(EPISODE_LOADING_DIALOG);

@@ -33,11 +33,7 @@ public class DomRssFeedParser implements RssFeedParser {
         
         try {
             doc = builder.parse(url.openStream());
-        } catch (SAXException e) {
-        	String message = "Unable to parse the URL for the feed";
-        	Log.e(LOG_TAG, message);
-            throw new FeedUrlParsingException(message, e);
-        } catch (IOException e) {
+        } catch (SAXException | IOException e) {
         	String message = "Unable to parse the URL for the feed";
         	Log.e(LOG_TAG, message);
             throw new FeedUrlParsingException(message, e);
@@ -89,11 +85,7 @@ public class DomRssFeedParser implements RssFeedParser {
 
         try {
             doc = builder.parse(url.openStream());
-        } catch (SAXException e) {
-            String message = "Unable to parse the URL for the feed";
-            Log.e(LOG_TAG, message);
-            throw new FeedUrlParsingException(message, e);
-        } catch (IOException e) {
+        } catch (SAXException | IOException e) {
             String message = "Unable to parse the URL for the feed";
             Log.e(LOG_TAG, message);
             throw new FeedUrlParsingException(message, e);

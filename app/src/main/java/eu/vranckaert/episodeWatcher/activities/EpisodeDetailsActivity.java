@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,6 +21,7 @@ import eu.vranckaert.episodeWatcher.utils.DateUtil;
 import roboguice.activity.GuiceActivity;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author Ivo Janssen
@@ -46,7 +46,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         
         ((TextView) findViewById(R.id.title_text)).setText(R.string.details);
 
-        episode = (Episode) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
+        episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE);
 
         

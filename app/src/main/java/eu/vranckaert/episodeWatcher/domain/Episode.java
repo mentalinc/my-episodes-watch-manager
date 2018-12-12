@@ -155,7 +155,7 @@ public class Episode implements Serializable {
     }
 
     /**
-     * Sets the MyEpisdoe unique number for this episode.
+     * Sets the MyEpisode unique number for this episode.
      *
      * @param myEpisodeID The MyEpisode unique number for this episode.
      */

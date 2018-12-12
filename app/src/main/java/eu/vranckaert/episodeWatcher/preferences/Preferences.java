@@ -59,7 +59,7 @@ public class Preferences {
     
     public static int getPreferenceInt(Activity ac, String key) {
         String result = getSharedPreferences(ac).getString(key, "0");
-        if (result == null || result.equals("")) {
+        if (result.equals("")) {
             result = "0";
         }
         return Integer.parseInt(result);

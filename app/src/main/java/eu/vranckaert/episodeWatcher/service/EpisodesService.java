@@ -71,7 +71,34 @@ public class EpisodesService {
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
         return httpClient;
     }
+/*
+    private StringBuffer webRequest(String urlString) {
 
+
+        StringBuffer chaine = new StringBuffer("");
+        try{
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
+            connection.setRequestMethod("POST");
+            connection.setDoInput(true);
+            connection.connect();
+
+            InputStream inputStream = connection.getInputStream();
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+            String line = "";
+            while ((line = rd.readLine()) != null) {
+                chaine.append(line);
+            }
+        }
+        catch (IOException e) {
+            // Writing exception to log
+            e.printStackTrace();
+        }
+        return chaine;
+    }
+*/
     public List<Episode> retrieveEpisodes(EpisodeType episodesType, final User user) throws Exception {
         String encryptedPassword = userService.encryptPassword(user.getPassword());
 
@@ -95,7 +122,7 @@ public class EpisodesService {
                     //xml file not found
                     if( MyEpisodeConstants.EXTENDED_EPISODES_XML.equalsIgnoreCase("FileNotFound")){
                         Log.d(LOG_TAG, "No cached file found. Downloading...");
-                        MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user, true ).toString();
+                        MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user).toString();
 
                         //write the xml to disk for future use
                         String FILENAME = "Watch.xml";
@@ -106,7 +133,7 @@ public class EpisodesService {
                     }
                 }else{
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet");
-                    MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user, true ).toString();
+                    MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(httpClientAllEps, user).toString();
                 }
 
                 feedUrl = new URL("http://127.0.0.1"); //this is used in the parse to confirm that this has been run.
@@ -165,9 +192,8 @@ public class EpisodesService {
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
                     //episode.setTVMazeWebSite(item.getLink());
 
-                    //TODO trying to add runtime to the Show Name
+                    //Add runtime to the Show Name
                     // add Runtime to this..
-
                     SeriesDAO seriesDAO = database.getSeriesDAO();
                     EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
 
@@ -175,7 +201,7 @@ public class EpisodesService {
                     try {
                         episode.setShowName(showRuntime.showRuntime + " mins" + " - " + episode.getShowName());
                     }catch (NullPointerException e){
-
+                        episode.setShowName("Error mins" + " - " + episode.getShowName());
                         String message = "Problem reading runtime for " + episode.getName();
                         Log.e(LOG_TAG, message);
 
@@ -187,7 +213,10 @@ public class EpisodesService {
 
                     //TODO see if can use the TVMAZE API to pull the episode info somehow?
                     episode.setTVMazeWebSite("Link to episode description coming soon");
-                   // episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).showTVMazeID, episode.getSeason(), episode.getEpisode()));
+                    //need to create a DOA database for all this episode information as it takes a VERY long time to download
+                    //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).showTVMazeID, episode.getSeason(), episode.getEpisode()));
+
+                    //TODO see if can use the TVMAZE API to pull the Show/series info or URL somehow?
 
 
                     Log.d(LOG_TAG,"Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
@@ -407,7 +436,7 @@ public class EpisodesService {
      * parse the views.php page to show a full list of unwatched apps
      */
 
-    private StringWriter downloadFullUnwatched(HttpClient httpClient, User user, boolean isWatched)
+    private StringWriter downloadFullUnwatched(HttpClient httpClient, User user)
             throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException,
             UnsupportedHttpPostEncodingException {
         String urlRep = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
@@ -540,33 +569,31 @@ public class EpisodesService {
                         String guid = rowProcess[5].substring(indexGUID);
                         int indexGUID1 = guid.indexOf("\"");
                         guid = guid.substring(0, indexGUID1);
-                        if(isWatched) {
-                            if (rowProcess[5].contains("checked") && !rowProcess[6].contains("checked")) {
+                        if (rowProcess[5].contains("checked") && !rowProcess[6].contains("checked")) {
 
-                                String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
+                            String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
 
-                                xs.startTag(null, "item");
-                                xs.startTag(null, "guid");
-                                xs.text(guid);
-                                xs.endTag(null, "guid");
+                            xs.startTag(null, "item");
+                            xs.startTag(null, "guid");
+                            xs.text(guid);
+                            xs.endTag(null, "guid");
 
-                                xs.startTag(null, "title");
-                                xs.text(headerRow);
-                                xs.endTag(null, "title");
+                            xs.startTag(null, "title");
+                            xs.text(headerRow);
+                            xs.endTag(null, "title");
 
-                                xs.startTag(null, "link");
-                                xs.text(episodeLink);
-                                xs.endTag(null, "link");
+                            xs.startTag(null, "link");
+                            xs.text(episodeLink);
+                            xs.endTag(null, "link");
 
-                                xs.startTag(null, "description");
-                                xs.endTag(null, "description");
+                            xs.startTag(null, "description");
+                            xs.endTag(null, "description");
 
-                                xs.endTag(null, "item");
-                            } else {
-                                //Log.d(LOG_TAG, "Already watched or Not Acquired not adding to rss: [ " + Show + " ]" + "[ " + SeriesEp + " ]" + "[ " + EpisodeName + " ]" + "[ " + AirDate + " ]");
-                            }
+                            xs.endTag(null, "item");
+                        } else {
+                            //Log.d(LOG_TAG, "Already watched or Not Acquired not adding to rss: [ " + Show + " ]" + "[ " + SeriesEp + " ]" + "[ " + EpisodeName + " ]" + "[ " + AirDate + " ]");
                         }
-                        if(!isWatched){
+                        if(false){
                           //  Log.d(LOG_TAG, "Setting 200+ acquire list");
                           // Log.d(LOG_TAG,"5: " + rowProcess[5].toString());
                           //  Log.d(LOG_TAG,"6: " + rowProcess[6].toString());
@@ -986,7 +1013,7 @@ public class EpisodesService {
 
     private static boolean isOnline() {
         try {
-            URL url = new URL("http://www.myepisodes.com/favicon.ico");
+            URL url = new URL("https://www.myepisodes.com/favicon.ico");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "yourAgent");
             connection.setRequestProperty("Connection", "close");
@@ -1002,9 +1029,6 @@ public class EpisodesService {
                 Log.d(LOG_TAG, "Offline!!");
                 return false;
             }
-        } catch (UnknownHostException e){
-            Log.e(LOG_TAG, e.toString());
-            return false;
         } catch (IOException e){
             Log.e(LOG_TAG, e.toString());
             return false;
@@ -1086,11 +1110,7 @@ public class EpisodesService {
             Log.d("episodeUrl: ", "> " + episodeUrl);
             Log.d("episodeSummary: ", "> " + episodeSummary);
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException  e) {
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         } finally {
 

@@ -7,8 +7,6 @@ import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
 import eu.vranckaert.episodeWatcher.domain.Episode;
 import eu.vranckaert.episodeWatcher.enums.EpisodeType;
 import eu.vranckaert.episodeWatcher.enums.ListMode;
-import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
 import roboguice.activity.GuiceActivity;
 import android.content.Intent;
