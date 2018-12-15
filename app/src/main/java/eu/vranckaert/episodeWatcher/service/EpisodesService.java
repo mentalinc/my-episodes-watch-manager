@@ -142,7 +142,6 @@ public class EpisodesService {
                 feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
             }
         } else {
-
             //if 200+ episodes not enabled
             feedUrl = buildEpisodesUrl(episodesType, user.getUsername().replace(" ", "%20"), encryptedPassword);
         }
@@ -192,16 +191,28 @@ public class EpisodesService {
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
                     //episode.setTVMazeWebSite(item.getLink());
 
-                    //Add runtime to the Show Name
-                    // add Runtime to this..
-                    SeriesDAO seriesDAO = database.getSeriesDAO();
-                    EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
 
                     //episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
                     try {
-                        episode.setShowName(showRuntime.showRuntime + " mins" + " - " + episode.getShowName());
+
+                        //RunTimeEnable = true = show runtime
+                        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+                            //Add runtime to the Show Name
+                            SeriesDAO seriesDAO = database.getSeriesDAO();
+                            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+                            episode.setShowName(showRuntime.showRuntime + " mins" + " - " + episode.getShowName());
+
+                        }else{
+                            episode.setShowName(episode.getShowName());
+
+                        }
+
                     }catch (NullPointerException e){
-                        episode.setShowName("Error mins" + " - " + episode.getShowName());
+                        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+                            episode.setShowName("Error mins" + " - " + episode.getShowName());
+                        }else{
+                            episode.setShowName(episode.getShowName());
+                        }
                         String message = "Problem reading runtime for " + episode.getName();
                         Log.e(LOG_TAG, message);
 

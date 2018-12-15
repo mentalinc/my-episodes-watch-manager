@@ -260,25 +260,24 @@ public class ShowService {
             shows.add(show);
             Log.d(LOG_TAG, "Show found: " + show.getShowName() + " (" + show.getMyEpisodeID() + ")");
 
-            //check if the show runtime is already in the database
-            // if not then go and get the runtime
+            //if the show has no runtime, AND runtime is enabled
+            if(MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+                //check if the show runtime is already in the database
+                // if not then go and get the runtime
+                SeriesDAO seriesDAO = database.getSeriesDAO();
+                EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
 
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
-
-
-            if(showRuntime == null ){
-                Log.d(LOG_TAG, "Show NOT found in Database");
-                try {
-                    ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
-                }catch (Exception e)
-                {
-                    e.printStackTrace();
+                if (showRuntime == null) {
+                    Log.d(LOG_TAG, "Show NOT found in Database");
+                    try {
+                        ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //do nothing as already exists no need to add
+                   // Log.d(LOG_TAG, "Show ID found in Database: " + showRuntime.showName + "(" + showRuntime.showMyEpsID + ")");
                 }
-
-            }else {
-                //do nothing as already exists no need to add
-                Log.d(LOG_TAG, "Show ID found in Database: " + showRuntime.showName + "(" + showRuntime.showMyEpsID + ")");
             }
         }
         return shows;

@@ -11,6 +11,7 @@ public class MyEpisodeConstants {
     public static String DAYS_BACK_CP = "365";    
     public static Boolean DAYS_BACK_ENABLED = false;
     public static Boolean CACHE_EPISODES_ENABLED = false;
+    public static Boolean SHOW_RUNTIME_ENABLED = false;
     public static String CACHE_EPISODES_CACHE_AGE = "Disabled";
 
     public static Context CONTXT = null;

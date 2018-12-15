@@ -17,4 +17,5 @@ public class PreferencesKeys {
     public static final String DISABLE_COMING = "disable_coming";
     public static final String CACHE_EPISODES_ENABLED_KEY = "Cache Episodes Enabled";
     public static final String CACHE_EPISODES_CACHE_AGE = "Episodes Cache Age";
+    public static final String RUNTIME_ENABLED_KEY = "Series Runtime Enabled";
 }

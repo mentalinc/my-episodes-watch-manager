@@ -36,6 +36,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     private boolean refreshDialog;
     private EditTextPreference daysBackCP;
     private ListPreference cacheAgingPref;
+    private ListPreference RunTimeEnablePref;
     private ListPreference showAcquireOrderingPref;
     private ListPreference showComingOrderingPref;
 
@@ -154,6 +155,27 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         root.addPreference(daysBackCP);
 
 
+        final CheckBoxPreference RunTimeEnable = new CheckBoxPreference(this);
+        RunTimeEnable.setDefaultValue(false);
+        RunTimeEnable.setKey(PreferencesKeys.RUNTIME_ENABLED_KEY);
+        RunTimeEnable.setTitle(R.string.RunTime);
+        RunTimeEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+/*
+                if (RunTimeEnable.isChecked()) {
+                    RunTimeEnablePref.setEnabled(false);
+                } else {
+                    RunTimeEnablePref.setEnabled(true);
+                }
+*/
+                return true;
+            }
+        });
+        root.addPreference(RunTimeEnable);
+        Log.d("RunTimeEnable: value", RunTimeEnable.getKey());
+
 
         //Issue 109
         final CheckBoxPreference CacheEpisodesEnable = new CheckBoxPreference(this);
@@ -181,6 +203,9 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
         root.addPreference(CacheEpisodesEnable);
         //Issue 109 - Ends
+
+
+
 
         cacheAgingPref = new ListPreference(this);
         cacheAgingPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {

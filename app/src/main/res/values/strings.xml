@@ -161,6 +161,11 @@
     <string name="daysBackwardCP">Days Backward</string>
     <string name="daysBackwardCPExtra">Number of days backward to search for new episodes to watch</string>
 
+
+    <!-- Run Time -->
+    <string name="RunTime">Series Run Time</string>
+
+
     <!-- Cache data -->
     <string name="CacheEpisodes">Cache Episodes</string>
 

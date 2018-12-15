@@ -100,6 +100,7 @@ public class HomeActivity extends Activity {
         
         MyEpisodeConstants.DAYS_BACK_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.DAYS_BACKWARD_ENABLED_KEY, false);
         MyEpisodeConstants.CACHE_EPISODES_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.CACHE_EPISODES_ENABLED_KEY, false);
+		MyEpisodeConstants.SHOW_RUNTIME_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.RUNTIME_ENABLED_KEY, false);
         
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
