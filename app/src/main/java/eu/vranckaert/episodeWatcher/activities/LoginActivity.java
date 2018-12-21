@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.User;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
@@ -23,50 +24,50 @@ import roboguice.activity.GuiceActivity;
 
 public class LoginActivity extends GuiceActivity {
     //private Button loginButton;
-   // private TextView register;
+    // private TextView register;
     private UserService service;
     private int exceptionMessageResId = -1;
 
     private static final int MY_EPISODES_LOGIN_DIALOG_LOADING = 0;
     private static final int MY_EPISODES_ERROR_DIALOG = 1;
     private static final int MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS = 2;
-    
+
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
     //CustomAnalyticsTracker tracker;
-	
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
-    	super.onCreate(savedInstanceState);
+        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        super.onCreate(savedInstanceState);
         init();
-        
-        if (!checkLoginCredentials()) {
-        //	tracker = CustomAnalyticsTracker.getInstance(this);
-        //	tracker.trackPageView(CustomTracker.PageView.LOGIN);
 
-	        setContentView(R.layout.login);
+        if (!checkLoginCredentials()) {
+            //	tracker = CustomAnalyticsTracker.getInstance(this);
+            //	tracker.trackPageView(CustomTracker.PageView.LOGIN);
+
+            setContentView(R.layout.login);
 
             TextView register = findViewById(R.id.registerForm);
-	    	register.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-			    	openRegisterScreen();
-				}
-			});
+            register.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openRegisterScreen();
+                }
+            });
 
             Button loginButton = findViewById(R.id.loginLogin);
-	        loginButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
+            loginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     String username = ((EditText) findViewById(R.id.loginUsername)).getText().toString().trim();
-				    String password = ((EditText) findViewById(R.id.loginPassword)).getText().toString().trim();
+                    String password = ((EditText) findViewById(R.id.loginPassword)).getText().toString().trim();
 
-                    if(username.length() > 0 && password.length() > 0) {
+                    if (username.length() > 0 && password.length() > 0) {
                         final User user = new User(
                                 username, password
                         );
 
-                        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>()  {
+                        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
                             boolean loginStatus = false;
 
                             @Override
@@ -77,7 +78,7 @@ public class LoginActivity extends GuiceActivity {
                             @Override
                             protected Object doInBackground(Object... objects) {
                                 loginStatus = login(user);
-                                if(loginStatus) {
+                                if (loginStatus) {
                                     storeLoginCredentials(user);
                                 }
                                 return 100L;
@@ -86,7 +87,7 @@ public class LoginActivity extends GuiceActivity {
                             @Override
                             protected void onPostExecute(Object o) {
                                 removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
-                                if(loginStatus) {
+                                if (loginStatus) {
                                     Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
                                     finalizeLogin();
                                 } else {
@@ -100,23 +101,23 @@ public class LoginActivity extends GuiceActivity {
                     } else {
                         showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
                     }
-				}
-			});
+                }
+            });
         } else {
-        	finalizeLogin();
+            finalizeLogin();
         }
     }
 
     @Override
-	protected Dialog onCreateDialog(int id) {
-		Dialog dialog;
-		switch (id) {
-			case MY_EPISODES_LOGIN_DIALOG_LOADING:
-				ProgressDialog progressDialog = new ProgressDialog(this);
-				progressDialog.setMessage(this.getString(R.string.loginStartLogin));
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog;
+        switch (id) {
+            case MY_EPISODES_LOGIN_DIALOG_LOADING:
+                ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage(this.getString(R.string.loginStartLogin));
                 progressDialog.setCancelable(false);
-				dialog = progressDialog;
-				break;
+                dialog = progressDialog;
+                break;
             case MY_EPISODES_ERROR_DIALOG:
                 dialog = new AlertDialog.Builder(this)
                         .setMessage(exceptionMessageResId)
@@ -138,11 +139,11 @@ public class LoginActivity extends GuiceActivity {
                         }).create();
                 break;
             default:
-				dialog = super.onCreateDialog(id);
-				break;
-		}
-		return dialog;
-	}
+                dialog = super.onCreateDialog(id);
+                break;
+        }
+        return dialog;
+    }
 
     private boolean login(User user) {
         boolean loginStatus = false;
@@ -163,31 +164,31 @@ public class LoginActivity extends GuiceActivity {
         }
         return loginStatus;
     }
-    
+
     private boolean checkLoginCredentials() {
-		String username = Preferences.getPreference(this, User.USERNAME);
-		String password = Preferences.getPreference(this, User.PASSWORD);
+        String username = Preferences.getPreference(this, User.USERNAME);
+        String password = Preferences.getPreference(this, User.PASSWORD);
 
         return username != null && password != null;
-	}
-    
+    }
+
     private void storeLoginCredentials(User user) {
-    	Preferences.setPreference(this, User.USERNAME, user.getUsername());
-    	Preferences.setPreference(this, User.PASSWORD, user.getPassword());
+        Preferences.setPreference(this, User.USERNAME, user.getUsername());
+        Preferences.setPreference(this, User.PASSWORD, user.getPassword());
     }
 
-	private void finalizeLogin() {
-    	setResult(RESULT_OK);
-		finish();
+    private void finalizeLogin() {
+        setResult(RESULT_OK);
+        finish();
     }
-    
+
     private void init() {
-    	this.service = new UserService();
+        this.service = new UserService();
     }
 
-	private void openRegisterScreen() {
-    	Intent registerActivity = new Intent(this.getApplicationContext(), RegisterActivity.class);
-    	startActivity(registerActivity);
-	}
+    private void openRegisterScreen() {
+        Intent registerActivity = new Intent(this.getApplicationContext(), RegisterActivity.class);
+        startActivity(registerActivity);
+    }
 
 }

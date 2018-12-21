@@ -1,117 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
-    <LinearLayout style="@style/TitleBar">
-        <ImageButton style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:src="@drawable/ic_title_home"
-            android:onClick="onHomeClick" />
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
+    <LinearLayout style="@style/TitleBar">
+
+        <ImageButton
+            style="@style/TitleBarAction"
+            android:contentDescription="@string/home"
+            android:onClick="onHomeClick"
+            android:src="@drawable/ic_title_home" />
+
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
+
         <TextView style="@style/TitleBarText" />
 
-        <ImageView style="@style/TitleBarSeparator"  android:contentDescription="@style/TitleBarSeparator"/>
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
     </LinearLayout>
 
-    <LinearLayout android:layout_width="fill_parent"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="5dp"
+        android:orientation="horizontal"
         android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:orientation="horizontal">
-        <ImageView android:layout_width="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon"
             android:contentDescription="@style/TitleBarSeparator"
             android:paddingStart="5dp"
-            android:paddingEnd="5dp"/>
-        <TextView android:layout_width="wrap_content"
+            android:paddingEnd="5dp"
+            android:src="@drawable/icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/aboutTitle"
             android:layout_gravity="center_vertical"
-            android:textSize="25sp"/>
+            android:text="@string/aboutTitle"
+            android:textSize="25sp" />
     </LinearLayout>
 
 
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
-    <ScrollView android:id="@+id/scrollview"
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:paddingRight="5dp">
+
+            <TableLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:paddingTop="5dp"
-              		  android:paddingLeft="5dp"
-              		  android:paddingRight="5dp"
-                      android:orientation="vertical">
-            <TableLayout android:layout_width="fill_parent"
-                         android:layout_height="wrap_content">
+
                 <TableRow>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/aboutVersion"/>
-                    <TextView android:id="@+id/aboutVersion"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:paddingLeft="5dp"
-                              android:paddingRight="5dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/aboutVersion" />
+
+                    <TextView
+                        android:id="@+id/aboutVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp" />
                 </TableRow>
+
                 <TableRow>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/aboutLicense"/>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/aboutLicenseValue"
-                              android:paddingLeft="5dp"
-                              android:paddingRight="5dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/aboutLicense" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="@string/aboutLicenseValue" />
                 </TableRow>
+
                 <TableRow>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/aboutOriginalIdea"/>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/aboutOriginalIdeaValue"
-                              android:paddingLeft="5dp"
-                              android:paddingRight="5dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/aboutOriginalIdea" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="@string/aboutOriginalIdeaValue" />
                 </TableRow>
+
                 <TableRow>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/aboutProgrammer"/>
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:text="@string/aboutProgrammerValue"
-                              android:paddingLeft="5dp"
-                              android:paddingRight="5dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/aboutProgrammer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="@string/aboutProgrammerValue" />
                 </TableRow>
             </TableLayout>
             <!-- Website -->
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text=""/>
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/aboutWebsite"/>
-            <TextView android:id="@+id/aboutWebsite"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/aboutWebsiteValue"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/aboutWebsite" />
+
+            <TextView
+                android:id="@+id/aboutWebsite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/aboutWebsiteValue" />
 
             <!-- Email -->
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text=""/>
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/aboutEmail"/>
-            <TextView android:id="@+id/aboutEmail"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/aboutEmailValue"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/aboutEmail" />
+
+            <TextView
+                android:id="@+id/aboutEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/aboutEmailValue" />
         </LinearLayout>
-	</ScrollView>
+    </ScrollView>
 </LinearLayout>

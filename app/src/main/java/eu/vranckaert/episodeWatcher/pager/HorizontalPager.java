@@ -16,7 +16,7 @@ package eu.vranckaert.episodeWatcher.pager;
  * limitations under the License.
  *
  * --
- * 
+ *
  * Based on http://android.git.kernel.org/?p=platform/packages/apps/Launcher.git;a=blob;f=src/com/android/launcher/Workspace.java
  *
  * Copyright (C) 2008 The Android Open Source Project
@@ -56,8 +56,7 @@ import java.util.Set;
 
 import eu.vranckaert.episodeWatcher.R;
 
-public class HorizontalPager extends ViewGroup
-{
+public class HorizontalPager extends ViewGroup {
     private static final String TAG = "DeezApps.HorizontalPage";
 
     private static final int INVALID_SCREEN = -1;
@@ -97,7 +96,7 @@ public class HorizontalPager extends ViewGroup
      * Used to inflate the Workspace from XML.
      *
      * @param context The application's context.
-     * @param attrs The attribtues set containing the Workspace's customization values.
+     * @param attrs   The attribtues set containing the Workspace's customization values.
      */
     public HorizontalPager(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -106,8 +105,8 @@ public class HorizontalPager extends ViewGroup
     /**
      * Used to inflate the Workspace from XML.
      *
-     * @param context The application's context.
-     * @param attrs The attribtues set containing the Workspace's customization values.
+     * @param context  The application's context.
+     * @param attrs    The attribtues set containing the Workspace's customization values.
      * @param defStyle Unused.
      */
     public HorizontalPager(Context context, AttributeSet attrs, int defStyle) {
@@ -163,6 +162,7 @@ public class HorizontalPager extends ViewGroup
     /**
      * Gets the value that getScrollX() should return if the specified page is the current page (and no other scrolling is occurring).
      * Use this to pass a value to scrollTo(), for example.
+     *
      * @param whichPage
      * @return
      */
@@ -283,7 +283,7 @@ public class HorizontalPager extends ViewGroup
             if (mCurrentPage > 0) {
                 getChildAt(mCurrentPage - 1).addFocusables(views, direction);
             }
-        } else if (direction == View.FOCUS_RIGHT){
+        } else if (direction == View.FOCUS_RIGHT) {
             if (mCurrentPage < getChildCount() - 1) {
                 getChildAt(mCurrentPage + 1).addFocusables(views, direction);
             }
@@ -412,9 +412,9 @@ public class HorizontalPager extends ViewGroup
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 /*
-                * If being flinged and user touches, stop the fling. isFinished
-                * will be false if being flinged.
-                */
+                 * If being flinged and user touches, stop the fling. isFinished
+                 * will be false if being flinged.
+                 */
                 if (!mScroller.isFinished()) {
                     mScroller.abortAnimation();
                 }
@@ -471,10 +471,10 @@ public class HorizontalPager extends ViewGroup
     private void snapToDestination() {
         final int startX = getScrollXForPage(mCurrentPage);
         int whichPage = mCurrentPage;
-        if (getScrollX() < startX - getWidth()/8) {
-            whichPage = Math.max(0, whichPage-1);
-        } else if (getScrollX() > startX + getWidth()/8) {
-            whichPage = Math.min(getChildCount()-1, whichPage+1);
+        if (getScrollX() < startX - getWidth() / 8) {
+            whichPage = Math.max(0, whichPage - 1);
+        } else if (getScrollX() > startX + getWidth() / 8) {
+            whichPage = Math.min(getChildCount() - 1, whichPage + 1);
         }
 
         snapToPage(whichPage);
@@ -566,15 +566,15 @@ public class HorizontalPager extends ViewGroup
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
-            new Parcelable.Creator<SavedState>() {
-                public SavedState createFromParcel(Parcel in) {
-                    return new SavedState(in);
-                }
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
 
-                public SavedState[] newArray(int size) {
-                    return new SavedState[size];
-                }
-            };
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 
     public void addOnScrollListener(OnScrollListener listener) {
@@ -593,12 +593,14 @@ public class HorizontalPager extends ViewGroup
          * Receives the current scroll X value.  This value will be adjusted to assume the left edge of the first
          * page has a scroll position of 0.  Note that values less than 0 and greater than the right edge of the
          * last page are possible due to touch events scrolling beyond the edges.
+         *
          * @param scrollX Scroll X value
          */
         void onScroll(int scrollX);
 
         /**
          * Invoked when scrolling is finished (settled on a page, centered).
+         *
          * @param currentPage The current page
          */
         void onViewScrollFinished(int currentPage);

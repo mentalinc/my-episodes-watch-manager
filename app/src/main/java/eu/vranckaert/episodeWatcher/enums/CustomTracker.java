@@ -29,13 +29,13 @@ public class CustomTracker {
     }
 
     public enum Event {
-        MARK_WATCHED("MarkAsWatched","ContextMenu-EpisodeListingTabActivity"),
-        MARK_ACQUIRED("MarkAsAcquire","ContextMenu-EpisodeListingTabActivity"),
+        MARK_WATCHED("MarkAsWatched", "ContextMenu-EpisodeListingTabActivity"),
+        MARK_ACQUIRED("MarkAsAcquire", "ContextMenu-EpisodeListingTabActivity"),
         LOGOUT("Logout", "MenuButton-EpisodeListingTabActivity"),
         SHOW_INGORE("IgnoreShow", "FavosAndIngoredShowManagementActivity"),
         SHOW_UNIGNORE("UnignoreShow", "FavosAndIngoredShowManagementActivity"),
         SHOW_DELETE("DeleteShow", "FavosAndIngoredShowManagementActivity"),
-        SHOW_ADD_NEW("AddNewShow","ContextMenu-ShowManagementAddActivity");
+        SHOW_ADD_NEW("AddNewShow", "ContextMenu-ShowManagementAddActivity");
 
 
         Event(String category, String action) {

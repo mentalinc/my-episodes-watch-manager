@@ -1,6 +1,7 @@
 package eu.vranckaert.episodeWatcher.guice;
 
 import android.util.Log;
+
 import roboguice.config.AbstractAndroidModule;
 
 class Module extends AbstractAndroidModule {

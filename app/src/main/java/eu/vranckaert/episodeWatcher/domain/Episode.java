@@ -6,8 +6,8 @@ import java.util.Date;
 import eu.vranckaert.episodeWatcher.enums.EpisodeType;
 
 public class Episode implements Serializable {
-	private static final long serialVersionUID = -8433440792935384437L;
-	private String showName;
+    private static final long serialVersionUID = -8433440792935384437L;
+    private String showName;
     private String name;
     private int season;
     private int episode;
@@ -34,11 +34,6 @@ public class Episode implements Serializable {
     public void setShowName(String showName) {
         this.showName = showName;
     }
-
-
-
-
-
 
 
     /**
@@ -72,15 +67,12 @@ public class Episode implements Serializable {
      * Gets the season number of the episode in String.
      *
      * @return The season number of the episode.
-     */    
+     */
     public String getSeasonString() {
-        if (season < 10)
-        {
-        	return "0" + season;
-        }
-        else
-        {
-        	return "" + season;
+        if (season < 10) {
+            return "0" + season;
+        } else {
+            return "" + season;
         }
     }
 
@@ -101,20 +93,17 @@ public class Episode implements Serializable {
     public int getEpisode() {
         return episode;
     }
-    
+
     /**
      * Gets the number of the episode of a season in String.
      *
      * @return The number of the episode of a season.
      */
     public String getEpisodeString() {
-        if (episode < 10)
-        {
-        	return "0" + episode;
-        }
-        else
-        {
-        	return "" + episode;
+        if (episode < 10) {
+            return "0" + episode;
+        } else {
+            return "" + episode;
         }
     }
 
@@ -162,23 +151,23 @@ public class Episode implements Serializable {
     public void setMyEpisodeID(String myEpisodeID) {
         this.myEpisodeID = myEpisodeID;
     }
-    
+
     public EpisodeType getType() {
-		return type;
-	}
+        return type;
+    }
 
-	public void setType(EpisodeType type) {
-		this.type = type;
-	}
+    public void setType(EpisodeType type) {
+        this.type = type;
+    }
 
-	public String getTVMazeWebSite() {
-		return TVMazeWebSite;
-	}
+    public String getTVMazeWebSite() {
+        return TVMazeWebSite;
+    }
 
-	public void setTVMazeWebSite(String tVMazeWebSite) {
+    public void setTVMazeWebSite(String tVMazeWebSite) {
         TVMazeWebSite = tVMazeWebSite;
-	}
-	
+    }
+
     @Override
     public String toString() {
         return showName + " S" + getSeasonString() + "E" + getEpisodeString() + " - " + name + " (" + myEpisodeID + ") (" + airDate + ")";

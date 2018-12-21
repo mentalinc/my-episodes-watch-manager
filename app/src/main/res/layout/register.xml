@@ -1,68 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
+    android:orientation="vertical">
+
     <LinearLayout style="@style/TitleBar">
-        <ImageView style="@style/TitleBarLogo"
+
+        <ImageView
+            style="@style/TitleBarLogo"
             android:contentDescription="@string/app_name"
             android:src="@drawable/logo" />
 
         <View style="@style/TitleBarSpring" />
     </LinearLayout>
-    
-	<ScrollView android:id="@+id/ScrollView01" 
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
-	>
 
-	<LinearLayout android:id="@+id/LinearLayout01" 
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-	>
+    <ScrollView
+        android:id="@+id/ScrollView01"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-	<TextView
-		android:id="@+id/registerFormTitle"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center"
-		android:padding="15dp"
-		android:text="@string/registerFormTitle"
-	/>
-	
-	<EditText
-		android:id="@+id/registerUsername"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-        android:inputType="text"
-		android:hint="@string/registerUsernameHint"
-	/>
+        <LinearLayout
+            android:id="@+id/LinearLayout01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-	<EditText
-		android:id="@+id/registerPassword"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:inputType="textPassword"
-		android:hint="@string/registerPasswordHint"
-	/>
-	
-	<EditText
-		android:id="@+id/registerEmail"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-		android:hint="@string/registerEmailHint"
-	/>
-	
-	<Button
-		android:id="@+id/registerRegister"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:text="@string/registerBtn"
-	/>
+            <TextView
+                android:id="@+id/registerFormTitle"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="@string/registerFormTitle" />
 
-	</LinearLayout>
-	</ScrollView>
+            <EditText
+                android:id="@+id/registerUsername"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/registerUsernameHint"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/registerPassword"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/registerPasswordHint"
+                android:inputType="textPassword" />
+
+            <EditText
+                android:id="@+id/registerEmail"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/registerEmailHint"
+                android:inputType="textEmailAddress" />
+
+            <Button
+                android:id="@+id/registerRegister"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/registerBtn" />
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

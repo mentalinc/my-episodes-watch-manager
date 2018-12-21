@@ -37,8 +37,8 @@ public class FeedItem {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     public String toString() {
-    	return "GUID: " + guid + " | Title: " + title + " | Link: " +link + " | Description: " + description;
+        return "GUID: " + guid + " | Title: " + title + " | Link: " + link + " | Description: " + description;
     }
 }

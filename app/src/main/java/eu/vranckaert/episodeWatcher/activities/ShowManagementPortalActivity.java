@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.enums.ShowType;
 import roboguice.activity.GuiceActivity;
@@ -31,6 +32,7 @@ public class ShowManagementPortalActivity extends GuiceActivity {
         Button favoShowsButton = findViewById(R.id.selectionPanelFavoShows);
         Button ignoredShowsButton = findViewById(R.id.selectionPanelIgnoredShows);
         Button addShowsButton = findViewById(R.id.selectionPanelAddShows);
+        Button ShowsRuntimeButton = findViewById(R.id.selectionPanelShowsRuntime);
         favoShowsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,11 +51,23 @@ public class ShowManagementPortalActivity extends GuiceActivity {
                 openSearchActivity();
             }
         });
+        ShowsRuntimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                openRunTimeActivity();
+            }
+        });
     }
 
     private void openSearchActivity() {
         Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);
         startActivity(searchIntent);
+    }
+
+    private void openRunTimeActivity() {
+        Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
+        startActivity(runTimeIntent);
     }
 
     private void openFavouriteOrIgnoredShows(ShowType showType) {

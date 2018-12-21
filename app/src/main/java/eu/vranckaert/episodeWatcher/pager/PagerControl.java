@@ -16,7 +16,6 @@ package eu.vranckaert.episodeWatcher.pager;
  * limitations under the License.
  */
 
-import eu.vranckaert.episodeWatcher.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -28,8 +27,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 
-public class PagerControl extends View
-{
+import eu.vranckaert.episodeWatcher.R;
+
+public class PagerControl extends View {
     private static final int DEFAULT_BAR_COLOR = 0xaa777777;
     private static final int DEFAULT_HIGHLIGHT_COLOR = 0xaa999999;
     private static final int DEFAULT_FADE_DELAY = 2000;
@@ -71,7 +71,6 @@ public class PagerControl extends View
     }
 
     /**
-     *
      * @return current number of pages
      */
     public int getNumPages() {
@@ -79,7 +78,6 @@ public class PagerControl extends View
     }
 
     /**
-     *
      * @param numPages must be positive number
      */
     public void setNumPages(int numPages) {
@@ -101,6 +99,7 @@ public class PagerControl extends View
 
     /**
      * 0 to numPages-1
+     *
      * @return
      */
     public int getCurrentPage() {
@@ -108,7 +107,6 @@ public class PagerControl extends View
     }
 
     /**
-     *
      * @param currentPage 0 to numPages-1
      */
     public void setCurrentPage(int currentPage) {
@@ -125,6 +123,7 @@ public class PagerControl extends View
 
     /**
      * Equivalent to the width of the view divided by the current number of pages.
+     *
      * @return page width, in pixels
      */
     private int getPageWidth() {
@@ -132,7 +131,6 @@ public class PagerControl extends View
     }
 
     /**
-     *
      * @param position can be -pageWidth to pageWidth*(numPages+1)
      */
     public void setPosition(int position) {
@@ -144,13 +142,12 @@ public class PagerControl extends View
     }
 
     /**
-     * 
      * @param canvas
      */
     @Override
     protected void onDraw(Canvas canvas) {
 
-     //   canvas.drawRoundRect(new RectF(0, 0, getWidth(), getHeight()), ovalRadius, ovalRadius, barPaint);
-     //   canvas.drawRoundRect(new RectF(position, 0, position + (getWidth() / numPages), getHeight()), ovalRadius, ovalRadius, highlightPaint);
+        //   canvas.drawRoundRect(new RectF(0, 0, getWidth(), getHeight()), ovalRadius, ovalRadius, barPaint);
+        //   canvas.drawRoundRect(new RectF(position, 0, position + (getWidth() / numPages), getHeight()), ovalRadius, ovalRadius, highlightPaint);
     }
 }

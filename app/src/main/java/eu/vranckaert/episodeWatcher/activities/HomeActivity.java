@@ -1,30 +1,10 @@
 package eu.vranckaert.episodeWatcher.activities;
 
-import java.util.Locale;
-import java.util.Objects;
-
-import eu.vranckaert.episodeWatcher.R;
-import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
-import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
-import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
-
-
-import eu.vranckaert.episodeWatcher.domain.User;
-import eu.vranckaert.episodeWatcher.enums.EpisodeType;
-import eu.vranckaert.episodeWatcher.enums.ListMode;
-import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
-import eu.vranckaert.episodeWatcher.pager.HorizontalPager;
-import eu.vranckaert.episodeWatcher.pager.PagerControl;
-import eu.vranckaert.episodeWatcher.preferences.Preferences;
-import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
-
-import eu.vranckaert.episodeWatcher.service.EpisodesService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -36,6 +16,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
+import java.util.Locale;
+import java.util.Objects;
+
+import eu.vranckaert.episodeWatcher.R;
+import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
+import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
+import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
+import eu.vranckaert.episodeWatcher.domain.User;
+import eu.vranckaert.episodeWatcher.enums.EpisodeType;
+import eu.vranckaert.episodeWatcher.enums.ListMode;
+import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
+import eu.vranckaert.episodeWatcher.pager.HorizontalPager;
+import eu.vranckaert.episodeWatcher.pager.PagerControl;
+import eu.vranckaert.episodeWatcher.preferences.Preferences;
+import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
+import eu.vranckaert.episodeWatcher.service.EpisodesService;
 
 public class HomeActivity extends Activity {
     private EpisodesService service;

@@ -16,7 +16,7 @@ public class ApplicationUtil {
         String name = ctx.getPackageName();
         String version = "";
         try {
-            PackageInfo info = ctx.getPackageManager().getPackageInfo(name,0);
+            PackageInfo info = ctx.getPackageManager().getPackageInfo(name, 0);
             version = info.versionName;
         } catch (PackageManager.NameNotFoundException e) {
 

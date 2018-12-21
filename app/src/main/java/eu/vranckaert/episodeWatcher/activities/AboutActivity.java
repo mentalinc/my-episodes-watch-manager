@@ -5,6 +5,7 @@ import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.utils.ApplicationUtil;
 import roboguice.activity.GuiceActivity;
@@ -22,10 +23,10 @@ public class AboutActivity extends GuiceActivity {
 
         Log.d(LOG_TAG, "Current version of the application: " + version);
 
-        TextView textVersion =findViewById(R.id.aboutVersion);
+        TextView textVersion = findViewById(R.id.aboutVersion);
         textVersion.setText(version);
 
-        TextView aboutEmail =  findViewById(R.id.aboutEmail);
+        TextView aboutEmail = findViewById(R.id.aboutEmail);
         Linkify.addLinks(aboutEmail, Linkify.EMAIL_ADDRESSES);
 
         TextView aboutWebsite = findViewById(R.id.aboutWebsite);
@@ -36,11 +37,11 @@ public class AboutActivity extends GuiceActivity {
         //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
-        
+
         ((TextView) findViewById(R.id.title_text)).setText(R.string.about);
     }
-    
+
     public void onHomeClick(View v) {
-    	finish();
+        finish();
     }
 }

@@ -4,48 +4,50 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
+
 import eu.vranckaert.episodeWatcher.utils.ApplicationUtil;
 import eu.vranckaert.episodeWatcher.utils.StringUtils;
 
 public class Preferences {
-	private static final String LOG_TAG = Preferences.class.getSimpleName();
-	public static final String PREF_NAME = "mewmfacred";
+    private static final String LOG_TAG = Preferences.class.getSimpleName();
+    public static final String PREF_NAME = "mewmfacred";
 
-    private static  SharedPreferences getSharedPreferences(Activity ac) {
+    private static SharedPreferences getSharedPreferences(Activity ac) {
         return ac.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
-	
-	public static String getPreference(Activity ac, String key) {
+
+    public static String getPreference(Activity ac, String key) {
         return getSharedPreferences(ac).getString(key, null);
-	}
+    }
 
     public static boolean getPreferenceBoolean(Activity ac, String key, boolean defaultSetting) {
         return getSharedPreferences(ac).getBoolean(key, defaultSetting);
     }
-    
-	public static void setPreference(Activity ac, String key, String value) {
-		Editor editor = getSharedPreferences(ac).edit();
-		editor.putString(key, value);
-		editor.apply();
-	}
+
+    public static void setPreference(Activity ac, String key, String value) {
+        Editor editor = getSharedPreferences(ac).edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
 
     public static void setPreference(Activity ac, String key, boolean value) {
-		Editor editor = getSharedPreferences(ac).edit();
-		editor.putBoolean(key, value);
-		editor.apply();
-	}
-	
-	public static void removePreference(Activity ac, String key) {
-		Editor editor = getSharedPreferences(ac).edit();
-		editor.remove(key);
-		editor.apply();
-	}
+        Editor editor = getSharedPreferences(ac).edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    public static void removePreference(Activity ac, String key) {
+        Editor editor = getSharedPreferences(ac).edit();
+        editor.remove(key);
+        editor.apply();
+    }
 
     /**
      * Check if a preference with a certain key is already set. If not it will set a default value.
      * Otherwise it will do nothing.
-     * @param ac The activity requesting the preference.
-     * @param key The key of the preference to look for.
+     *
+     * @param ac           The activity requesting the preference.
+     * @param key          The key of the preference to look for.
      * @param defaultValue The default value for the preference in case it's not found.
      */
     public static void checkDefaultPreference(Activity ac, String key, String defaultValue) {
@@ -56,7 +58,7 @@ public class Preferences {
             Log.e(LOG_TAG, key + "  " + defaultValue);
         }
     }
-    
+
     public static int getPreferenceInt(Activity ac, String key) {
         String result = getSharedPreferences(ac).getString(key, "0");
         if (result.equals("")) {
@@ -71,10 +73,10 @@ public class Preferences {
 
         SharedPreferences preferences = getSharedPreferences(ac);
         String knownApplicationVersion = preferences.getString(PreferencesKeys.APPLICATION_VERSION_KEY, null);
-        if(knownApplicationVersion == null) {
+        if (knownApplicationVersion == null) {
             isFirstTime = true;
         } else {
-            if(!knownApplicationVersion.equals(currentVersion)) {
+            if (!knownApplicationVersion.equals(currentVersion)) {
                 isFirstTime = true;
             }
         }

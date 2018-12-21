@@ -8,10 +8,20 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.*;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.Show;
 import eu.vranckaert.episodeWatcher.domain.User;
@@ -23,10 +33,6 @@ import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingExcepti
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.service.ShowService;
 import roboguice.activity.GuiceListActivity;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class ShowManagementActivity extends GuiceListActivity {
     private static final String LOG_TAG = ShowManagementActivity.class.getSimpleName();
@@ -68,17 +74,17 @@ public class ShowManagementActivity extends GuiceListActivity {
         Bundle data = this.getIntent().getExtras();
         showType = (ShowType) Objects.requireNonNull(data).get(ShowType.class.getSimpleName());
 
-        if(Objects.requireNonNull(showType).equals(ShowType.FAVOURITE_SHOWS)) {
+        if (Objects.requireNonNull(showType).equals(ShowType.FAVOURITE_SHOWS)) {
             Log.d(LOG_TAG, "Opening the favourite shows");
             ((TextView) findViewById(R.id.title_text)).setText(R.string.favouriteShows);
-        } else if(showType.equals(ShowType.IGNORED_SHOWS)) {
+        } else if (showType.equals(ShowType.IGNORED_SHOWS)) {
             Log.d(LOG_TAG, "Opening the ignored shows");
             ((TextView) findViewById(R.id.title_text)).setText(R.string.ignoredShows);
         }
 
         user = new User(
-            Preferences.getPreference(this, User.USERNAME),
-            Preferences.getPreference(this, User.PASSWORD)
+                Preferences.getPreference(this, User.USERNAME),
+                Preferences.getPreference(this, User.PASSWORD)
         );
 
         initializeShowList();
@@ -88,49 +94,49 @@ public class ShowManagementActivity extends GuiceListActivity {
 
 
     @Override
-	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = null;
 
-		switch (id) {
-			case DIALOG_LOADING: {
-				ProgressDialog progressDialog = new ProgressDialog(this);
-				progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
+        switch (id) {
+            case DIALOG_LOADING: {
+                ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
                 progressDialog.setCancelable(false);
-				dialog = progressDialog;
-				break;
+                dialog = progressDialog;
+                break;
             }
             case DIALOG_EXCEPTION: {
-				if (exceptionMessageResId == null) {
-					exceptionMessageResId = R.string.defaultExceptionMessage;
-				}
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.exceptionDialogTitle)
-					   .setMessage(exceptionMessageResId)
-					   .setCancelable(false)
-					   .setPositiveButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
+                if (exceptionMessageResId == null) {
+                    exceptionMessageResId = R.string.defaultExceptionMessage;
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.exceptionDialogTitle)
+                        .setMessage(exceptionMessageResId)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
                                 exceptionMessageResId = null;
                                 removeDialog(DIALOG_EXCEPTION);
-				           }
-				       });
-				dialog = builder.create();
+                            }
+                        });
+                dialog = builder.create();
                 break;
             }
             case CONFIRMATION_DIALOG: {
-                if(selectedShow > -1) {
+                if (selectedShow > -1) {
                     final Show show = shows.get(selectedShow);
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(show.getShowName())
-                           .setMessage(confirmationMessageResId)
-                           .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            .setMessage(confirmationMessageResId)
+                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     selectedShow = -1;
                                     confirmationMessageResId = -1;
                                     showAction = null;
                                     removeDialog(CONFIRMATION_DIALOG);
                                 }
-                           })
-                           .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            })
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     removeDialog(CONFIRMATION_DIALOG);
                                     markShow(show, showAction);
@@ -140,7 +146,7 @@ public class ShowManagementActivity extends GuiceListActivity {
                                     showAction = null;
                                 }
                             });
-				    dialog = builder.create();
+                    dialog = builder.create();
                 }
                 break;
             }
@@ -149,7 +155,7 @@ public class ShowManagementActivity extends GuiceListActivity {
     }
 
     private void reloadShows() {
-    	AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>()  {
+        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
             @Override
             protected void onPreExecute() {
                 showDialog(DIALOG_LOADING);
@@ -163,7 +169,7 @@ public class ShowManagementActivity extends GuiceListActivity {
 
             @Override
             protected void onPostExecute(Object o) {
-                if(exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
                     showDialog(DIALOG_EXCEPTION);
                 } else {
@@ -180,22 +186,22 @@ public class ShowManagementActivity extends GuiceListActivity {
             shows = service.getFavoriteOrIgnoredShows(user, showType);
         } catch (UnsupportedHttpPostEncodingException e) {
             String message = "Network issues";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.internetConnectionFailureReload;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
             String message = "Login failure";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
         }
     }
 
     private void updateShowList() {
         showAdapter.clear();
-        for(Show show : shows) {
+        for (Show show : shows) {
             showAdapter.add(show);
         }
         showAdapter.notifyDataSetChanged();
@@ -218,7 +224,7 @@ public class ShowManagementActivity extends GuiceListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;
-            if (row==null) {
+            if (row == null) {
                 LayoutInflater inflater = getLayoutInflater();
                 row = inflater.inflate(R.layout.show_management_add_row, parent, false);
             }
@@ -240,10 +246,10 @@ public class ShowManagementActivity extends GuiceListActivity {
     }
 
     @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        switch(showType) {
+        switch (showType) {
             case FAVOURITE_SHOWS:
                 menu.add(Menu.NONE, CONTEXT_MENU_IGNORE, Menu.NONE, R.string.favoIgnoredIgnoreShow);
                 break;
@@ -259,7 +265,7 @@ public class ShowManagementActivity extends GuiceListActivity {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         selectedShow = info.position;
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case CONTEXT_MENU_IGNORE:
                 showDialog(info.position, ShowAction.IGNORE, R.string.favoIgnoredConfirmationIgnoreMessage);
                 break;
@@ -284,7 +290,7 @@ public class ShowManagementActivity extends GuiceListActivity {
     }
 
     private void markShow(final Show show, final ShowAction action) {
-    	AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
             @Override
             protected void onPreExecute() {
                 showDialog(DIALOG_LOADING);
@@ -292,15 +298,15 @@ public class ShowManagementActivity extends GuiceListActivity {
 
             @Override
             protected Object doInBackground(Object... objects) {
-                switch(action) {
+                switch (action) {
                     case IGNORE:
-                     //   tracker.trackEvent(CustomTracker.Event.SHOW_INGORE);
+                        //   tracker.trackEvent(CustomTracker.Event.SHOW_INGORE);
                         break;
                     case UNIGNORE:
-                 //       tracker.trackEvent(CustomTracker.Event.SHOW_UNIGNORE);
+                        //       tracker.trackEvent(CustomTracker.Event.SHOW_UNIGNORE);
                         break;
                     case DELETE:
-                //        tracker.trackEvent(CustomTracker.Event.SHOW_DELETE);
+                        //        tracker.trackEvent(CustomTracker.Event.SHOW_DELETE);
                         break;
                 }
 
@@ -310,7 +316,7 @@ public class ShowManagementActivity extends GuiceListActivity {
 
             @Override
             protected void onPostExecute(Object o) {
-                if(exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
                     showDialog(DIALOG_EXCEPTION);
                 } else {
@@ -327,20 +333,20 @@ public class ShowManagementActivity extends GuiceListActivity {
             shows = service.markShow(user, show, showAction, showType);
         } catch (UnsupportedHttpPostEncodingException e) {
             String message = "Network issues";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.internetConnectionFailureReload;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
             String message = "Login failure";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
         }
     }
 
     public void onHomeClick(View v) {
-    	finish();
+        finish();
     }
 }

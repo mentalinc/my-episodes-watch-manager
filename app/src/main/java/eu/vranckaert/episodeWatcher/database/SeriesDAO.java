@@ -6,9 +6,10 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
-import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
+
 import java.util.List;
 
+import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
 
 
 @Dao
@@ -33,7 +34,6 @@ public interface SeriesDAO {
 
     @Query("SELECT * FROM EpisodeRuntime WHERE showMyEpsID = :number")
     EpisodeRuntime getTvmazeShowID(String number);
-
 
 
 }

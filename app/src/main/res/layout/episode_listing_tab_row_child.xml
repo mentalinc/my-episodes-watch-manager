@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-	>
-   	<TextView
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
         android:id="@+id/episodeRowChildTitle"
-        android:paddingStart="20dp"
-		android:paddingEnd="20dp"
-        android:paddingTop="6dp"
-        android:textStyle="bold"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-    />
+        android:paddingStart="20dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="20dp"
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/episodeRowChildDetail"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="6dp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-    />
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="6dp" />
 </LinearLayout>

@@ -1,9 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/closePreferences"
-		android:title="@string/close"
+    <item
+        android:id="@+id/closePreferences"
         android:enabled="true"
-        android:visible="true"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:showAsAction="ifRoom|withText"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+        android:title="@string/close"
+        android:visible="true" />
 
 </menu>

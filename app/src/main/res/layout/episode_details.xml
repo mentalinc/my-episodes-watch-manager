@@ -1,131 +1,145 @@
-<LinearLayout android:layout_width="fill_parent"
-	  	android:layout_height="fill_parent"
-	 	android:orientation="vertical"
-	  	xmlns:android="http://schemas.android.com/apk/res/android"
-	 >
-	 
-    <LinearLayout style="@style/TitleBar">
-        <ImageButton style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:src="@drawable/ic_title_home"
-            android:onClick="onHomeClick" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-        <ImageView style="@style/TitleBarSeparator"  android:contentDescription="@style/TitleBarSeparator"/>
+    <LinearLayout style="@style/TitleBar">
+
+        <ImageButton
+            style="@style/TitleBarAction"
+            android:contentDescription="@string/home"
+            android:onClick="onHomeClick"
+            android:src="@drawable/ic_title_home" />
+
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
+
         <TextView style="@style/TitleBarText" />
 
-        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
-        <ImageButton style="@style/TitleBarAction"
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
+
+        <ImageButton
             android:id="@+id/btn_title_refresh"
+            style="@style/TitleBarAction"
             android:contentDescription="@string/TweetTitle"
-            android:src="@drawable/ic_title_share"
-			android:showAsAction="ifRoom|withText"
-            android:onClick="onTweetClick" />
+            android:onClick="onTweetClick"
+            android:showAsAction="ifRoom|withText"
+            android:src="@drawable/ic_title_share" />
     </LinearLayout>
-	 
-	<ScrollView android:id="@+id/ScrollView01" 
-				android:layout_width="fill_parent" 
-				android:layout_height="fill_parent">
-	<LinearLayout android:id="@+id/LinearLayout03" 
-				  android:orientation="vertical"
-				  android:layout_width="fill_parent" 
-				  android:layout_height="wrap_content">
 
-	<TextView
-		android:id="@+id/episodeDetShowName"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-		android:paddingTop="10dp"
-		android:textStyle="bold" />
+    <ScrollView
+        android:id="@+id/ScrollView01"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-	<TextView
-		android:id="@+id/episodeDetName"
+        <LinearLayout
+            android:id="@+id/LinearLayout03"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-	/>
+            <TextView
+                android:id="@+id/episodeDetShowName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:paddingTop="10dp"
+                android:textStyle="bold" />
 
-	<LinearLayout android:layout_width="fill_parent"
-		android:paddingTop="25dp" 
-		android:layout_height="wrap_content" 
-		android:orientation="horizontal"
-	>
-	<TextView android:text="@string/episodeDetailsSeasonLabel" 
-		android:paddingStart="10dp"
-		android:paddingEnd="10dp"
-		android:id="@+id/episodeDetSeasonLabel" 
-		android:layout_width="120dp"
-		android:layout_height="wrap_content"
-	/>
-	
-	<TextView android:id="@+id/episodeDetSeason" 
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-	/>
-	</LinearLayout>
+            <TextView
+                android:id="@+id/episodeDetName"
 
-	<LinearLayout android:layout_width="fill_parent" 
-		android:layout_height="wrap_content" 
-		android:orientation="horizontal"
-	>
-	<TextView android:text="@string/episodeDetailsEpisodeLabel" 
-		android:paddingStart="10dp"
-		android:paddingEnd="10dp"
-		android:id="@+id/episodeDetEpisodeLabel" 
-		android:layout_width="120dp" 
-		android:layout_height="wrap_content"
-	/>
-	
-	<TextView android:id="@+id/episodeDetEpisode" 
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-	/>
-	</LinearLayout>
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal" />
 
-	<LinearLayout android:layout_width="fill_parent" 
-		android:layout_height="wrap_content" 
-		android:orientation="horizontal"
-		android:paddingBottom="25dp"
-	>
-	<TextView android:text="@string/episodeDetailsAirDateLabel" 
-		android:paddingStart="10dp"
-		android:paddingEnd="10dp"
-		android:id="@+id/episodeDetAirdateLabel" 
-		android:layout_width="120dp" 
-		android:layout_height="wrap_content"
-	/>
-	
-	<TextView android:id="@+id/episodeDetAirdate" 
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-	/>
-	</LinearLayout>
-	
-     <TextView android:id="@+id/tvMazeWebsite"
-               android:layout_width="fill_parent"
-               android:gravity="center"
-               android:layout_height="wrap_content"
-               android:paddingBottom="25dp"/>
-	
-	<Button android:text="@string/menuEpisodeMarkAcquired" 
-			android:id="@+id/markAsAcquiredButton" 
-			android:layout_width="fill_parent" 
-			android:layout_height="wrap_content"
-	/>
-	
-	<Button android:id="@+id/markAsSeenButton" 
-		android:text="@string/menuEpisodeMarkWatched" 
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-	/>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="25dp">
 
-	<LinearLayout android:id="@+id/LinearLayout02" 
-			  android:layout_width="fill_parent"
-			  android:gravity="center"
-              android:orientation="horizontal"
-			  android:layout_height="wrap_content">
-	</LinearLayout>
-</LinearLayout>
-</ScrollView>
+                <TextView
+                    android:id="@+id/episodeDetSeasonLabel"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/episodeDetailsSeasonLabel" />
+
+                <TextView
+                    android:id="@+id/episodeDetSeason"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/episodeDetEpisodeLabel"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/episodeDetailsEpisodeLabel" />
+
+                <TextView
+                    android:id="@+id/episodeDetEpisode"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="25dp">
+
+                <TextView
+                    android:id="@+id/episodeDetAirdateLabel"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/episodeDetailsAirDateLabel" />
+
+                <TextView
+                    android:id="@+id/episodeDetAirdate"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvMazeWebsite"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="25dp" />
+
+            <Button
+                android:id="@+id/markAsAcquiredButton"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/menuEpisodeMarkAcquired" />
+
+            <Button
+                android:id="@+id/markAsSeenButton"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/menuEpisodeMarkWatched" />
+
+            <LinearLayout
+                android:id="@+id/LinearLayout02"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"></LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

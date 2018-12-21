@@ -44,6 +44,12 @@
                 style="@style/HomeButton"
                 android:text="@string/addShow"
                 android:drawableTop="@drawable/ic_menu_add"/>
+
+            <Button
+                android:id="@+id/selectionPanelShowsRuntime"
+                style="@style/HomeButton"
+                android:drawableTop="@drawable/runtime"
+                android:text="@string/ShowRuntime" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

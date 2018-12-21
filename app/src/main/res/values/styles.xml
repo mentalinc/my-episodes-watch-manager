@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Base application theme is the default theme. -->
-    <style name="Theme" parent="android:Theme"/>
+    <style name="Theme" parent="android:Theme" />
 
     <!-- Variation on the Light theme that turns off the title -->
     <style name="Theme.IOSched" parent="android:style/Theme.Light">
@@ -40,7 +40,7 @@
         <item name="android:layout_marginLeft">14dip</item>
         <item name="android:layout_marginRight">15dip</item>
         <item name="android:layout_marginTop">14dip</item>
-        <item name="android:indeterminate">true</item> 
+        <item name="android:indeterminate">true</item>
     </style>
 
     <style name="TitleBarSeparator">

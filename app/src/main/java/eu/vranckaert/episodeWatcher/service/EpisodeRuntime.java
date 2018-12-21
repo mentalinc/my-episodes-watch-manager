@@ -13,7 +13,7 @@ public class EpisodeRuntime {
 
     @PrimaryKey
     @NonNull
-    public String showMyEpsID ="";
+    public String showMyEpsID = "";
 
     public String getShowName() {
         return showName;
@@ -22,6 +22,7 @@ public class EpisodeRuntime {
     public void setShowName(String showName) {
         this.showName = showName;
     }
+
     @NonNull
     public String getShowMyEpsID() {
         return showMyEpsID;

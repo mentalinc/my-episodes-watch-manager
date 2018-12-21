@@ -4,8 +4,8 @@ import java.util.Comparator;
 
 /**
  * @author Dirk Vranckaert
- *         Date: 11-mei-2010
- *         Time: 18:45:35
+ * Date: 11-mei-2010
+ * Time: 18:45:35
  */
 public class EpisodeAscendingComparator implements Comparator<Episode> {
     @Override

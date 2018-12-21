@@ -1,58 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    	android:orientation="vertical"
-    	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    >
-    
-    <LinearLayout style="@style/TitleBar">
-        <ImageButton style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:src="@drawable/ic_title_home"
-            android:onClick="onHomeClick" />
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-        <ImageView style="@style/TitleBarSeparator"  android:contentDescription="@style/TitleBarSeparator"/>
+    <LinearLayout style="@style/TitleBar">
+
+        <ImageButton
+            style="@style/TitleBarAction"
+            android:contentDescription="@string/home"
+            android:onClick="onHomeClick"
+            android:src="@drawable/ic_title_home" />
+
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
+
         <TextView style="@style/TitleBarText" />
 
-        <ImageView style="@style/TitleBarSeparator"
-	        android:id="@+id/separator_collapse"
-			android:contentDescription="@style/TitleBarSeparator"
-	        android:visibility="gone"
-         />
-        <ImageButton style="@style/TitleBarAction"
+        <ImageView
+            android:id="@+id/separator_collapse"
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator"
+            android:visibility="gone" />
+
+        <ImageButton
             android:id="@+id/btn_title_collapse"
-            android:visibility="gone"
+            style="@style/TitleBarAction"
             android:contentDescription="@string/collapse"
+            android:onClick="onCollapseClick"
             android:src="@drawable/ic_title_collapse"
-            android:onClick="onCollapseClick" />
+            android:visibility="gone" />
 
-        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
-        <ImageButton style="@style/TitleBarAction"
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
+
+        <ImageButton
             android:id="@+id/btn_title_refresh"
+            style="@style/TitleBarAction"
             android:contentDescription="@string/refresh"
-            android:src="@drawable/ic_title_refresh"
-            android:onClick="onRefreshClick" />
+            android:onClick="onRefreshClick"
+            android:src="@drawable/ic_title_refresh" />
     </LinearLayout>
-	
-	<TextView android:id="@+id/watchListTitle" 
-			  android:layout_width="fill_parent" 
-			  android:layout_height="wrap_content" 
-			  android:gravity="center"
-			  android:text="@string/watchListTitle" 
-	/>
 
-	<TextView android:id="@+id/watchListSubTitle" 
-			  android:layout_width="fill_parent" 
-			  android:layout_height="wrap_content" 
-			  android:gravity="center"
-			  android:text="@string/watchListSubTitleWatch" 
-			  android:paddingBottom="3dp"
-	/>
-	
-	<ExpandableListView
-		android:id="@+id/android:list"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-	/>
-	
+    <TextView
+        android:id="@+id/watchListTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/watchListTitle" />
+
+    <TextView
+        android:id="@+id/watchListSubTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="3dp"
+        android:text="@string/watchListSubTitleWatch" />
+
+    <ExpandableListView
+        android:id="@+id/android:list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
 </LinearLayout>

@@ -1,69 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
-    <LinearLayout style="@style/TitleBar">
-        <ImageButton style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:src="@drawable/ic_title_home"
-            android:onClick="onHomeClick" />
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
+    <LinearLayout style="@style/TitleBar">
+
+        <ImageButton
+            style="@style/TitleBarAction"
+            android:contentDescription="@string/home"
+            android:onClick="onHomeClick"
+            android:src="@drawable/ic_title_home" />
+
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
+
         <TextView style="@style/TitleBarText" />
 
-        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
     </LinearLayout>
-              
-    <LinearLayout android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-              	  android:paddingTop="5dp"
-              	  android:paddingLeft="5dp"
-              	  android:paddingRight="5dp"
-                  android:orientation="horizontal">
-        <ImageView android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:src="@drawable/icon"
-                   android:contentDescription="@style/TitleBarSeparator"
-                   android:paddingStart="5dp"
-                   android:paddingEnd="5dp"/>
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="@string/whatsNewTitle"
-                  android:layout_gravity="center_vertical"
-                  android:textSize="25sp"/>
-    </LinearLayout>
-    <ScrollView android:id="@+id/scrollview"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-              		  android:paddingTop="5dp"
-              		  android:paddingLeft="5dp"
-              		  android:paddingRight="5dp"
-                      android:orientation="vertical">
 
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/whatsNewVersion"/>
-            <TextView android:id="@+id/whatsNewVersion"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:paddingLeft="5dp"
-                      android:paddingRight="5dp"/>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@style/TitleBarSeparator"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:src="@drawable/icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/whatsNewTitle"
+            android:textSize="25sp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:paddingRight="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/whatsNewVersion" />
+
+            <TextView
+                android:id="@+id/whatsNewVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp" />
 
             <!-- Website -->
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text=""/>
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/whatsNewText"/>
-            <LinearLayout android:layout_width="fill_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="vertical"
-                          android:id="@+id/whatsNewTextEntries"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/whatsNewText" />
+
+            <LinearLayout
+                android:id="@+id/whatsNewTextEntries"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
         </LinearLayout>
-	</ScrollView>
+    </ScrollView>
 </LinearLayout>

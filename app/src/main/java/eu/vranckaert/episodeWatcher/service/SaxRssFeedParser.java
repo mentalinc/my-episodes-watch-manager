@@ -1,20 +1,10 @@
 package eu.vranckaert.episodeWatcher.service;
 
 import android.util.Log;
-import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
-import eu.vranckaert.episodeWatcher.domain.Feed;
-import eu.vranckaert.episodeWatcher.domain.FeedItem;
-import eu.vranckaert.episodeWatcher.enums.EpisodeType;
-import eu.vranckaert.episodeWatcher.exception.FeedUrlParsingException;
-import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
-import eu.vranckaert.episodeWatcher.exception.RssFeedParserException;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -33,9 +23,21 @@ import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
+import eu.vranckaert.episodeWatcher.domain.Feed;
+import eu.vranckaert.episodeWatcher.domain.FeedItem;
+import eu.vranckaert.episodeWatcher.enums.EpisodeType;
+import eu.vranckaert.episodeWatcher.exception.FeedUrlParsingException;
+import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
+import eu.vranckaert.episodeWatcher.exception.RssFeedParserException;
+
 public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
-	private static final String LOG_TAG = SaxRssFeedParser.class.getSimpleName();
-	
+    private static final String LOG_TAG = SaxRssFeedParser.class.getSimpleName();
+
     private boolean inItem = false;
     private boolean inDescription = true;
     private boolean recordTitleString = false;
@@ -89,7 +91,6 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
 
-
     public Feed parseFeed(EpisodeType episodesType, final URL url) throws ParserConfigurationException, SAXException, FeedUrlParsingException, RssFeedParserException, InternetConnectivityException {
         InputStream inputStream;
 
@@ -97,36 +98,36 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
 
         try {
 
-            if(MyEpisodeConstants.CACHE_EPISODES_ENABLED){
+            if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                 Log.d(LOG_TAG, "Cache is enabled, read from disk");
                 String FILENAME;
                 String FileContents;
-                switch(episodesType) {
+                switch (episodesType) {
                     case EPISODES_TO_WATCH:
-                        if(MyEpisodeConstants.DAYS_BACK_ENABLED){
+                        if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                             Log.d(LOG_TAG, "MyEpisodeConstants.EXTENDED_EPISODES_XML:  " + MyEpisodeConstants.EXTENDED_EPISODES_XML);
                             inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes("UTF-8"));
-                        }else{
+                        } else {
                             inputStream = url.openConnection().getInputStream();
                             FILENAME = "Watch.xml";
                             FileContents = ReadFile(FILENAME);
-                            inputStream =  new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
+                            inputStream = new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
 
 
                             //xml file not found
-                            if( FileContents.equalsIgnoreCase("FileNotFound")){
+                            if (FileContents.equalsIgnoreCase("FileNotFound")) {
                                 Log.d(LOG_TAG, "No cached " + FILENAME + " file found. Downloading...");
                                 inputStream = url.openConnection().getInputStream();
 
                                 //write the to disk for future use
-                                FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME,0); //Mode_PRIVATE
+                                FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
                                 String stringInputStream = convertStreamToString(inputStream, "UTF-8");
                                 fos.write(stringInputStream.getBytes());
                                 fos.close();
                                 Log.d(LOG_TAG, FILENAME + " saved to disk");
 
                                 //inputStream is closed
-                                inputStream =  new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
+                                inputStream = new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
                             }
                         }
                         break;
@@ -137,44 +138,44 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     case EPISODES_TO_ACQUIRE:
                         FILENAME = "Acquire.xml";
                         FileContents = ReadFile(FILENAME);
-                        inputStream =  new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
+                        inputStream = new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
 
                         //xml file not found
-                        if( FileContents.equalsIgnoreCase("FileNotFound")){
+                        if (FileContents.equalsIgnoreCase("FileNotFound")) {
                             Log.d(LOG_TAG, "No cached " + FILENAME + " file found. Downloading...");
                             inputStream = url.openConnection().getInputStream();
 
                             //write the to disk for future use
-                            FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME,0); //Mode_PRIVATE
+                            FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
                             String stringInputStream = convertStreamToString(inputStream, "UTF-8");
                             fos.write(stringInputStream.getBytes());
                             fos.close();
                             Log.d(LOG_TAG, FILENAME + " saved to disk");
 
                             //inputStream is closed
-                            inputStream =  new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
+                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
                         }
 
                         break;
                     case EPISODES_COMING:
                         FILENAME = "Coming.xml";
                         FileContents = ReadFile(FILENAME);
-                        inputStream =  new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
+                        inputStream = new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
 
                         //xml file not found
-                        if( FileContents.equalsIgnoreCase("FileNotFound")){
+                        if (FileContents.equalsIgnoreCase("FileNotFound")) {
                             Log.d(LOG_TAG, "No cached " + FILENAME + " file found. Downloading...");
                             inputStream = url.openConnection().getInputStream();
 
                             //write the to disk for future use
-                            FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME,0); //Mode_PRIVATE
+                            FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
                             String stringInputStream = convertStreamToString(inputStream, "UTF-8");
                             fos.write(stringInputStream.getBytes());
                             fos.close();
                             Log.d(LOG_TAG, FILENAME + " saved to disk");
 
                             //inputStream is closed
-                            inputStream =  new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
+                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
                         }
 
                         break;
@@ -186,11 +187,11 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                 }
 
 
-            }else{
+            } else {
                 //Cache is not enabled using standard RSS feeds
-                if(url.toString().substring(0, 16).equalsIgnoreCase("http://127.0.0.1")){
+                if (url.toString().substring(0, 16).equalsIgnoreCase("http://127.0.0.1")) {
                     inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes("UTF-8"));
-                }else{
+                } else {
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet RSS Feeds");
                     inputStream = url.openConnection().getInputStream();
                 }
@@ -223,7 +224,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        switch(localName){
+        switch (localName) {
             case "item":
                 item = new FeedItem();
                 item.setTitle("");
@@ -269,34 +270,23 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     @Override
     public void characters(char[] ch, int start, int length) {
         //Fix for issue 96: If we ignore the description tag the issue is solved!
-        if(!inDescription) {
+        if (!inDescription) {
             nodeValue = new StringBuilder(new String(ch, start, length));
-            if(recordTitleString)
-            {
-                if (nodeValue.length() == 1 && nodeValue.toString().equals("]"))
-                {
+            if (recordTitleString) {
+                if (nodeValue.length() == 1 && nodeValue.toString().equals("]")) {
                     tempTitle.append(nodeValue);
                     recordTitleString = false;
-                }
-                else if (nodeValue.length() > 1 && nodeValue.substring(nodeValue.length()-2,nodeValue.length()).equals(" ]"))
-                {
+                } else if (nodeValue.length() > 1 && nodeValue.substring(nodeValue.length() - 2, nodeValue.length()).equals(" ]")) {
                     tempTitle.append(nodeValue);
                     recordTitleString = false;
-                }
-                else
-                {
+                } else {
                     tempTitle.append(nodeValue);
                 }
-            }
-            else
-            {
-                if (nodeValue.length() > 1 && nodeValue.substring(0,2).equals("[ ")) {
-                    if(nodeValue.length() > 1 && nodeValue.substring(nodeValue.length()-2,nodeValue.length()).equals(" ]"))
-                    {
+            } else {
+                if (nodeValue.length() > 1 && nodeValue.substring(0, 2).equals("[ ")) {
+                    if (nodeValue.length() > 1 && nodeValue.substring(nodeValue.length() - 2, nodeValue.length()).equals(" ]")) {
                         tempTitle.append(nodeValue);
-                    }
-                    else
-                    {
+                    } else {
                         tempTitle.append(nodeValue);
                         recordTitleString = true;
                     }
@@ -306,16 +296,16 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
 
-    private String ReadFile(String FILENAME){
+    private String ReadFile(String FILENAME) {
         StringBuilder EpisodeXML = new StringBuilder();
-        try{
+        try {
             //String FILENAME = "Watch.xml";
             FileInputStream instream = MyEpisodeConstants.CONTXT.openFileInput(FILENAME);
 
-            File file = new File(MyEpisodeConstants.CONTXT.getFilesDir(),FILENAME);
-            if(isOnline()){
+            File file = new File(MyEpisodeConstants.CONTXT.getFilesDir(), FILENAME);
+            if (isOnline()) {
                 deleteOldCacheFiles(file);
-            }else{
+            } else {
                 Log.d(LOG_TAG, "Offline, Cache files not checked for aging");
             }
 
@@ -338,12 +328,12 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
 
             // close the file again
             instream.close();
-        }catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             String message = "File doesn't exist: " + FILENAME;
             Log.e(LOG_TAG, message);
             return "FileNotFound";
 
-        }catch(IOException e) {
+        } catch (IOException e) {
             String message = "Problem reading file: " + FILENAME;
             Log.e(LOG_TAG, message);
 
@@ -380,10 +370,10 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         }
     }
 
-    private void deleteOldCacheFiles(File filetoDelete){
-        if(!MyEpisodeConstants.CACHE_EPISODES_ENABLED || MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0")){
+    private void deleteOldCacheFiles(File filetoDelete) {
+        if (!MyEpisodeConstants.CACHE_EPISODES_ENABLED || MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0")) {
             Log.d(LOG_TAG, "Cache aging is disabled. Cache files not deleted");
-        }else{
+        } else {
             Date lastModDate = new Date(filetoDelete.lastModified());
             Date Now = new Date();
             Calendar ModDate = Calendar.getInstance();
@@ -395,35 +385,35 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             long diff = milliseconds2 - milliseconds1;
             long diffHours = diff / (60 * 60 * 1000);
             long diffDays = diff / (24 * 60 * 60 * 1000);
-            Log.d(LOG_TAG,"Time in hours: " + diffHours + " hours.");
-            Log.d(LOG_TAG,"Time in days: " + diffDays + " days.");
-            Log.d(LOG_TAG,"Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) +" days " +MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
-            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : "+ lastModDate.toString());
-            if(diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)){
-                Log.d(LOG_TAG,"Delete File too many DAYS old...");
+            Log.d(LOG_TAG, "Time in hours: " + diffHours + " hours.");
+            Log.d(LOG_TAG, "Time in days: " + diffDays + " days.");
+            Log.d(LOG_TAG, "Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) + " days " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
+            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate.toString());
+            if (diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)) {
+                Log.d(LOG_TAG, "Delete File too many DAYS old...");
                 deleteFile(filetoDelete);
-            }else if(Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) < 1){
-                if(diffHours >= 6 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.25")){
-                    Log.d(LOG_TAG,"Delete File too many HOURS old, Greater than 6...");
+            } else if (Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) < 1) {
+                if (diffHours >= 6 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.25")) {
+                    Log.d(LOG_TAG, "Delete File too many HOURS old, Greater than 6...");
                     deleteFile(filetoDelete);
                 }
-                if(diffHours >= 12 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.5")){
-                    Log.d(LOG_TAG,"Delete File too many HOURS old, Greater than 12...");
+                if (diffHours >= 12 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.5")) {
+                    Log.d(LOG_TAG, "Delete File too many HOURS old, Greater than 12...");
                     deleteFile(filetoDelete);
                 }
-            }else{
-                Log.d(LOG_TAG, filetoDelete.getName() +" cache not deleted. Cache still current.");
+            } else {
+                Log.d(LOG_TAG, filetoDelete.getName() + " cache not deleted. Cache still current.");
 
             }
         }
     }
 
-    private void deleteFile(File filetoDelete){
-        if(filetoDelete.exists()){
-            if(filetoDelete.delete()){
-                Log.d(LOG_TAG,  filetoDelete.getName() + " deleted");
-            }else{
-                Log.e(LOG_TAG, "ERROR deleting " +filetoDelete.getName());
+    private void deleteFile(File filetoDelete) {
+        if (filetoDelete.exists()) {
+            if (filetoDelete.delete()) {
+                Log.d(LOG_TAG, filetoDelete.getName() + " deleted");
+            } else {
+                Log.e(LOG_TAG, "ERROR deleting " + filetoDelete.getName());
             }
         }
     }
@@ -441,12 +431,12 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                 connection.disconnect();
                 Log.d(LOG_TAG, "Online.");
                 return true;
-            }else{
+            } else {
                 connection.disconnect();
                 Log.d(LOG_TAG, "Offline!!");
                 return false;
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             Log.e(LOG_TAG, e.toString());
             return false;
         }

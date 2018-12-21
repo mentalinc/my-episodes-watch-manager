@@ -1,9 +1,10 @@
-<?xml version="1.0"   encoding="utf-8"?>
-<!-- Revision #93 -->
+<?xml version="1.0"   encoding="utf-8"?><!-- Revision #93 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- default values -->
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
     <string name="close">Close</string>
     <string name="attention">Attention</string>
     <string name="done">Done</string>
@@ -18,8 +19,8 @@
     <string name="loginStartLogin">Logging in to MyEpisodes.com</string>
     <string name="loginSuccessfullLogin">Successfully logged in</string>
     <string name="loginLoginFailed">Username or password incorrect, please try again!</string>
-    
-	<!-- register form -->
+
+    <!-- register form -->
     <string name="registerFormTitle">Register here, fill in all your user details and click on register.</string>
     <string name="registerUsernameHint">Username</string>
     <string name="registerPasswordHint">Password</string>
@@ -27,8 +28,8 @@
     <string name="registerBtn">Register</string>
     <string name="registerStart">Creating user for MyEpisodes.com</string>
     <string name="registerSuccessfull">Successfully created user!</string>
-    <string name="registerFailed">Username already exists, please choose another username.</string>	
-	
+    <string name="registerFailed">Username already exists, please choose another username.</string>
+
     <!-- episode_listing_tab -->
     <string name="watch">Watch</string>
     <string name="watchhome">Watch (%d)</string>
@@ -37,10 +38,10 @@
     <string name="coming">Coming</string>
     <string name="more">More</string>
     <string name="watchListTitle">List of shows/episodes</string>
-    <string name="watchListSubTitleWatch"  tools:ignore="PluralsCandidate">%d episode to watch</string>
+    <string name="watchListSubTitleWatch" tools:ignore="PluralsCandidate">%d episode to watch</string>
     <string name="watchListSubTitleAcquire" tools:ignore="PluralsCandidate">%d episode to acquire</string>
     <string name="watchListSubTitleComing" tools:ignore="PluralsCandidate">%d future episode</string>
-    <string name="watchListSubTitleWatchPlural"  tools:ignore="PluralsCandidate">%d episodes to watch</string>
+    <string name="watchListSubTitleWatchPlural" tools:ignore="PluralsCandidate">%d episodes to watch</string>
     <string name="watchListSubTitleAcquirePlural" tools:ignore="PluralsCandidate">%d episodes to acquire</string>
     <string name="watchListSubTitleComingPlural" tools:ignore="PluralsCandidate">%d future episodes</string>
     <string name="watchListEmpty">No episodes found.</string>
@@ -52,14 +53,15 @@
     <string name="episodeDetailsEpisodeLabel">Episode: </string>
     <string name="episodeDetailsAirDateLabel">Airdate: </string>
     <string name="episodeDetailsAirDateLabelDateNotFound">Unsupported date format!</string>
-	<string name="TweetTitle">Share</string>
+    <string name="TweetTitle">Share</string>
     <string name="Tweet">I have watched \'%s\' #MyEpisodesManager #Android</string>
-    
+
     <string name="randompickertext">The random episode picker demands you to watch: </string>
 
     <!-- Show management -->
     <!-- Show Panel -->
     <string name="addShow">Add Show</string>
+    <string name="ShowRuntime">Show Runtime</string>
     <string name="favouriteShows">Favourite Shows</string>
     <string name="ignoredShows">Ignored Shows</string>
     <!-- Show searching -->
@@ -67,8 +69,10 @@
     <string name="showSearchNoSearchResults">No shows found</string>
     <string name="showSearchOneFound">show found</string>
     <string name="showSearchMoreFound">shows found</string>
-    <string name="showSearchAddShow">Are you sure you want to add this show to your list of shows?</string>    
+    <string name="showSearchAddShow">Are you sure you want to add this show to your list of shows?</string>
     <string name="showSearchFinished">Are you done adding shows or do you want to continue?</string>
+    <string name="runTimeEditMessage">Please update the runtime (mins) below if incorrect:</string>
+
     <!-- Favo and ingored shows -->
     <string name="favoIgnoredDeleteShow">Delete show</string>
     <string name="favoIgnoredIgnoreShow">Ignore show</string>
@@ -77,9 +81,9 @@
     <string name="favoIgnoredConfirmationIgnoreMessage">Are you sure you want to ignore this show?</string>
     <string name="favoIgnoredConfirmationUnignoreMessage">Are you sure you want to unignore this show?</string>
 
-	<!-- random episode picker -->
-	<string name="randompicker">Random Episode Picker</string>
-	<string name="randompickershort">Random Picker</string>
+    <!-- random episode picker -->
+    <string name="randompicker">Random Episode Picker</string>
+    <string name="randompickershort">Random Picker</string>
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Loading&#8230;</string>
@@ -130,13 +134,13 @@
     <string name="menuEpisodeMarkWatched">Mark Watched</string>
     <string name="menuTweet">Tweet this!</string>
 
-	<!-- preferences titles -->
+    <!-- preferences titles -->
     <string name="generalPreferences">General</string>
     <string name="showPreferences">Shows</string>
     <string name="orderPreferences">Order</string>
     <string name="disablePreferences">Disable</string>
     <string name="languagePreferences">Language</string>
-    
+
     <!-- preferences -->
     <string name="applyPreferences">Because settings are changed, the episodes will be refreshed now!</string>
     <!-- Show sorting -->
@@ -208,23 +212,23 @@
     <string name="openAcquirePrompt">Acquire Settings</string>
     <string name="openAcquirePromptExtra">All shows or only shows of yesterday</string>
     <string-array name="openAcquireOptions">
-            <item>All</item>
-            <item>Only yesterday</item>
+        <item>All</item>
+        <item>Only yesterday</item>
     </string-array>
     <!-- Default opening tab -->
     <string name="openDefaultPrompt">Default tab to open</string>
     <string name="openDefaultPromptExtra">Default tab to select when opening the application</string>
     <string-array name="openDefaultTabOptions">
-            <item>Watch</item>
-            <item>Acquire</item>
-            <item>Coming</item>
+        <item>Watch</item>
+        <item>Acquire</item>
+        <item>Coming</item>
     </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Choose Theme</string>
     <string name="ThemePromptExtra">Select your theme</string>
     <string-array name="ThemeOptions">
-            <item>Light</item>
-            <item>Dark</item>
+        <item>Light</item>
+        <item>Dark</item>
     </string-array>
     <!-- Store password -->
     <string name="storePasswordPrompt">Store password</string>
@@ -272,12 +276,12 @@
         <item>newest_on_top</item>
     </string-array>
     <string-array name="ThemeValues">
-            <item>0</item>
-            <item>1</item>
+        <item>0</item>
+        <item>1</item>
     </string-array>
     <string-array name="AcquireValues">
-            <item>0</item>
-            <item>1</item>
+        <item>0</item>
+        <item>1</item>
     </string-array>
     <!-- Next two arrays should be in the same order always!!! -->
     <string-array name="showLanguageOptionsValues">

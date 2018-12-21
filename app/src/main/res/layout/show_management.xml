@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_height="fill_parent"
-              android:layout_width="fill_parent">
-    <LinearLayout style="@style/TitleBar">
-        <ImageButton style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:src="@drawable/ic_title_home"
-            android:onClick="onHomeClick" />
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-        <ImageView style="@style/TitleBarSeparator" android:contentDescription="@style/TitleBarSeparator" />
+    <LinearLayout style="@style/TitleBar">
+
+        <ImageButton
+            style="@style/TitleBarAction"
+            android:contentDescription="@string/home"
+            android:onClick="onHomeClick"
+            android:src="@drawable/ic_title_home" />
+
+        <ImageView
+            style="@style/TitleBarSeparator"
+            android:contentDescription="@style/TitleBarSeparator" />
+
         <TextView style="@style/TitleBarText" />
     </LinearLayout>
-    <ListView android:id="@+id/android:list"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:choiceMode="singleChoice"/>
-    <TextView android:id="@+id/android:empty"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:text="@string/showSearchNoSearchResults"/>
+
+    <ListView
+        android:id="@+id/android:list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:choiceMode="singleChoice" />
+
+    <TextView
+        android:id="@+id/android:empty"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        />
+
+
 </LinearLayout>

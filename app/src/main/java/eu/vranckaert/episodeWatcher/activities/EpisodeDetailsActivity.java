@@ -10,6 +10,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.Date;
+import java.util.Objects;
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
 import eu.vranckaert.episodeWatcher.domain.Episode;
@@ -20,215 +24,214 @@ import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
 import roboguice.activity.GuiceActivity;
 
-import java.util.Date;
-import java.util.Objects;
-
 /**
  * @author Ivo Janssen
  */
 public class EpisodeDetailsActivity extends GuiceActivity {
-	private Episode episode = null;
-	private EpisodeType episodesType;
-	
+    private Episode episode = null;
+    private EpisodeType episodesType;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.episode_details);
-        
+
         Bundle data = this.getIntent().getExtras();
-        
-        TextView showNameText =  findViewById(R.id.episodeDetShowName);
-        TextView episodeNameText =  findViewById(R.id.episodeDetName);
-        TextView seasonText =  findViewById(R.id.episodeDetSeason);
+
+        TextView showNameText = findViewById(R.id.episodeDetShowName);
+        TextView episodeNameText = findViewById(R.id.episodeDetName);
+        TextView seasonText = findViewById(R.id.episodeDetSeason);
         TextView episodeText = findViewById(R.id.episodeDetEpisode);
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
-        
+
         ((TextView) findViewById(R.id.title_text)).setText(R.string.details);
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE);
 
-        
+
         showNameText.setText(episode.getShowName());
         episodeNameText.setText(episode.getName());
         seasonText.setText(" " + episode.getSeasonString());
         episodeText.setText(" " + episode.getEpisodeString());
-        
+
         //Air date in specifc format
         Date airdate = episode.getAirDate();
         String formattedAirDate;
         if (airdate != null) {
-        	formattedAirDate = DateUtil.formatDateLong(airdate, this);
+            formattedAirDate = DateUtil.formatDateLong(airdate, this);
         } else {
             formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
         }
-        
+
         airdateText.setText(" " + formattedAirDate);
-        
+
         TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
-		if (!TextUtils.isEmpty(episode.getTVMazeWebSite())) {
-			aboutWebsite.setText(episode.getTVMazeWebSite());
-			Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
-		} else {
-			aboutWebsite.setVisibility(View.GONE);
-		}
-        
+        if (!TextUtils.isEmpty(episode.getTVMazeWebSite())) {
+            aboutWebsite.setText(episode.getTVMazeWebSite());
+            Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
+        } else {
+            aboutWebsite.setVisibility(View.GONE);
+        }
+
         Button markAsAcquiredButton = findViewById(R.id.markAsAcquiredButton);
         Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
-        
-        switch(episodesType) {
-	        case EPISODES_TO_WATCH:
-	        	markAsAcquiredButton.setVisibility(View.GONE);
-	        	break;
-			case EPISODES_TO_YESTERDAY1:
-			case EPISODES_TO_YESTERDAY2:
-	        case EPISODES_TO_ACQUIRE:
-	        	break;
-	        case EPISODES_COMING:
-			// show the acquired button on the "Coming" Screen
-	        //	markAsAcquiredButton.setVisibility(View.GONE);
-	        	break;
-        }
-        
-        markAsAcquiredButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				closeAndAcquireEpisode(episode);
-			}
-		});        
-        
-        markAsSeenButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				closeAndMarkWatched(episode);
-			}
-		});
-    }
-    
-    @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.episode_details_menu, menu);
-		if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
-			menu.removeItem(R.id.markAsAquired);
-		} else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
-			menu.removeItem(R.id.markAsAquired);
-		}
-		return true;
-	}
-    
-    @Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.markAsSeen:
-			closeAndMarkWatched(episode);
-			return true;
-		case R.id.markAsAquired:
-			closeAndAcquireEpisode(episode);
-			return true;
-		}
-		return false;
-	}
-    
-    private void closeAndAcquireEpisode(Episode episode) {
-    	finish();
-    	
-    	OpenListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_ACQUIRE);
-	}
-    
-    private void closeAndMarkWatched(Episode episode) {
-    	finish();
-    	
-    	OpenListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH);
-	}
-    
-    private void OpenListingActivity(Episode episode, String type) {
-    	String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
-    	
-		Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
-		episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
-							  .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
-						      .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episodesType);
-		
-    	String sorting = ""; 
-    	
-        switch(episodesType) {
-	        case EPISODES_TO_WATCH:
-	        	sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
-	        	break;
-			case EPISODES_TO_YESTERDAY1:
-			case EPISODES_TO_YESTERDAY2:
-	        case EPISODES_TO_ACQUIRE:
-	        	sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
-	        	break;
-	        case EPISODES_COMING:
-	        	sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
-	        	break;
-        }
-    	
-    	if (sorting.equals(showOrderOptions[3])) {
-    		episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
-    	} else {
-    		episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
-    	}
-		
-        startActivity(episodeListingActivity);
-	}
-    
-    private void OpenListingActivity() {
-    	String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
-    	
-    	Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
-		episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episodesType);
-    	
-		String sorting = ""; 
-    	
-        switch(episodesType) {
-	        case EPISODES_TO_WATCH:
-	        	sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
-	        	break;
-			case EPISODES_TO_YESTERDAY1:
-			case EPISODES_TO_YESTERDAY2:
-	        case EPISODES_TO_ACQUIRE:
-	        	sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
-	        	break;
-	        case EPISODES_COMING:
-	        	sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
-	        	break;
-        }
-        
-    	if (sorting.equals(showOrderOptions[3])) {
-    		episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
-    	} else {
-    		episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
-    	}
-		
-        startActivity(episodeListingActivity);
-	}
-    
-	private void tweetThis() {
-    	String tweet = episode.getShowName() + " S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName();
-    	Intent i = new Intent(android.content.Intent.ACTION_SEND);
-    	i.setType("text/plain");
-    	i.putExtra(Intent.EXTRA_TEXT, getString(R.string.Tweet, tweet));
-    	startActivity(Intent.createChooser(i, getString(R.string.TweetTitle)));
-    }
-    
-	@Override
-	public final void onBackPressed() { exit(); }
-    
-    public void onHomeClick(View v) {
-    	exit();
-    }
-    
-    private void exit() {
-    	finish();
-    	
-    	OpenListingActivity();
-	}
 
-	public void onTweetClick(View v) {
-    	tweetThis();
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                markAsAcquiredButton.setVisibility(View.GONE);
+                break;
+            case EPISODES_TO_YESTERDAY1:
+            case EPISODES_TO_YESTERDAY2:
+            case EPISODES_TO_ACQUIRE:
+                break;
+            case EPISODES_COMING:
+                // show the acquired button on the "Coming" Screen
+                //	markAsAcquiredButton.setVisibility(View.GONE);
+                break;
+        }
+
+        markAsAcquiredButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeAndAcquireEpisode(episode);
+            }
+        });
+
+        markAsSeenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeAndMarkWatched(episode);
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.episode_details_menu, menu);
+        if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
+            menu.removeItem(R.id.markAsAquired);
+        } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
+            menu.removeItem(R.id.markAsAquired);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.markAsSeen:
+                closeAndMarkWatched(episode);
+                return true;
+            case R.id.markAsAquired:
+                closeAndAcquireEpisode(episode);
+                return true;
+        }
+        return false;
+    }
+
+    private void closeAndAcquireEpisode(Episode episode) {
+        finish();
+
+        OpenListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_ACQUIRE);
+    }
+
+    private void closeAndMarkWatched(Episode episode) {
+        finish();
+
+        OpenListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH);
+    }
+
+    private void OpenListingActivity(Episode episode, String type) {
+        String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
+
+        Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
+        episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
+                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episodesType);
+
+        String sorting = "";
+
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                break;
+            case EPISODES_TO_YESTERDAY1:
+            case EPISODES_TO_YESTERDAY2:
+            case EPISODES_TO_ACQUIRE:
+                sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                break;
+            case EPISODES_COMING:
+                sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                break;
+        }
+
+        if (sorting.equals(showOrderOptions[3])) {
+            episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
+        } else {
+            episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
+        }
+
+        startActivity(episodeListingActivity);
+    }
+
+    private void OpenListingActivity() {
+        String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
+
+        Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
+        episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episodesType);
+
+        String sorting = "";
+
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                break;
+            case EPISODES_TO_YESTERDAY1:
+            case EPISODES_TO_YESTERDAY2:
+            case EPISODES_TO_ACQUIRE:
+                sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                break;
+            case EPISODES_COMING:
+                sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                break;
+        }
+
+        if (sorting.equals(showOrderOptions[3])) {
+            episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
+        } else {
+            episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
+        }
+
+        startActivity(episodeListingActivity);
+    }
+
+    private void tweetThis() {
+        String tweet = episode.getShowName() + " S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName();
+        Intent i = new Intent(android.content.Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_TEXT, getString(R.string.Tweet, tweet));
+        startActivity(Intent.createChooser(i, getString(R.string.TweetTitle)));
+    }
+
+    @Override
+    public final void onBackPressed() {
+        exit();
+    }
+
+    public void onHomeClick(View v) {
+        exit();
+    }
+
+    private void exit() {
+        finish();
+
+        OpenListingActivity();
+    }
+
+    public void onTweetClick(View v) {
+        tweetThis();
     }
 }

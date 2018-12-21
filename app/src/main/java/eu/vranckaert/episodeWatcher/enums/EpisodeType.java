@@ -35,9 +35,9 @@ public enum EpisodeType {
 
     public static CharSequence[] getEpisodeListingTypeArray() {
         return new CharSequence[]{
-                       String.valueOf(EPISODES_TO_WATCH.getEpisodeListingType()),
-                       String.valueOf(EPISODES_TO_ACQUIRE.getEpisodeListingType()),
-                       String.valueOf(EPISODES_COMING.getEpisodeListingType())
-                      };
+                String.valueOf(EPISODES_TO_WATCH.getEpisodeListingType()),
+                String.valueOf(EPISODES_TO_ACQUIRE.getEpisodeListingType()),
+                String.valueOf(EPISODES_COMING.getEpisodeListingType())
+        };
     }
 }

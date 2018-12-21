@@ -1,9 +1,10 @@
 package eu.vranckaert.episodeWatcher.guice;
 
 import android.util.Log;
-import roboguice.application.GuiceApplication;
 
 import java.util.List;
+
+import roboguice.application.GuiceApplication;
 
 public class Application extends GuiceApplication {
     private static final String LOG_TAG = Application.class.getSimpleName();

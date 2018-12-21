@@ -8,5 +8,6 @@ import eu.vranckaert.episodeWatcher.enums.EpisodeType;
 
 interface RssFeedParser {
     Feed parseFeed(EpisodeType episodesType, final URL url) throws Exception;
-   Feed parseFeed(final URL url) throws Exception;
+
+    Feed parseFeed(final URL url) throws Exception;
 }

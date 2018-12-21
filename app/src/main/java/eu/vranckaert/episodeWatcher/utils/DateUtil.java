@@ -17,11 +17,12 @@ import java.util.Locale;
 public final class DateUtil {
     private static final String LOG_TAG = DateUtil.class.getSimpleName();
     //http://download.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html#rfc822timezone
-    private static final String[] dateFormats = {"d-MMM-y","d/M/y", "d-M-y", "d-MM-y" };
+    private static final String[] dateFormats = {"d-MMM-y", "d/M/y", "d-M-y", "d-MM-y"};
 
     /**
      * Formats a given date in the {@link java.text.DateFormat#LONG} format.
-     * @param date The date to format.
+     *
+     * @param date    The date to format.
      * @param context The context in which the user locale can be found!
      * @return The date representation in a string.
      */
@@ -32,7 +33,8 @@ public final class DateUtil {
 
     /**
      * Formats a given date in the {@link java.text.DateFormat#FULL} format.
-     * @param date The date to format.
+     *
+     * @param date    The date to format.
      * @param context The context in which the user locale can be found!
      * @return The date representation in a string.
      */
@@ -43,7 +45,8 @@ public final class DateUtil {
 
     /**
      * Formats a given date in the {@link java.text.DateFormat#FULL} format.
-     * @param date The date to format.
+     *
+     * @param date   The date to format.
      * @param locale The locale to use to format the date.
      * @return The date representation in a string.
      */
@@ -54,7 +57,8 @@ public final class DateUtil {
 
     /**
      * Formats a given date in the {@link java.text.DateFormat#LONG} format.
-     * @param date The date to format.
+     *
+     * @param date   The date to format.
      * @param locale The locale to use to format the date.
      * @return The date representation in a string.
      */
@@ -77,6 +81,7 @@ public final class DateUtil {
 
     /**
      * Get the current locale of the user.
+     *
      * @param context The context in which the locale can be found.
      * @return The user's locale.
      */
@@ -86,15 +91,16 @@ public final class DateUtil {
 
     /**
      * Tries to convert a string to a date intance.
+     *
      * @param dateString The string to convert.
      * @return A date instance. Null if the date pattern could not be determined!
      */
     public static Date convertToDate(String dateString) {
-        if (dateString.endsWith(".") || dateString.endsWith(";")  || dateString.endsWith(":") || dateString.endsWith(",")  || dateString.endsWith("-")) {
-            dateString = dateString.substring(0, dateString.length()-1);
+        if (dateString.endsWith(".") || dateString.endsWith(";") || dateString.endsWith(":") || dateString.endsWith(",") || dateString.endsWith("-")) {
+            dateString = dateString.substring(0, dateString.length() - 1);
         }
 
-        for(String dateFormat : dateFormats) {
+        for (String dateFormat : dateFormats) {
             DateFormat format = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
             format.setLenient(false);
             try {
