@@ -230,19 +230,20 @@ public class ShowService {
 
         AppDatabase database = Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .fallbackToDestructiveMigration()
                 .build();
 
         int ep = 1;
 
         while (selectTag.length() > 0) {
-            int startPosistionOption = selectTag.indexOf(optionStartTag);
+            int startPositionOption = selectTag.indexOf(optionStartTag);
             int endPositionOption = selectTag.indexOf(optionEndTag);
 
-            if (startPosistionOption == -1 || endPositionOption == -1 || endPositionOption < startPosistionOption) {
+            if (startPositionOption == -1 || endPositionOption == -1 || endPositionOption < startPositionOption) {
                 break;
             }
 
-            String optionTag = selectTag.substring(startPosistionOption + optionStartTag.length(), endPositionOption);
+            String optionTag = selectTag.substring(startPositionOption + optionStartTag.length(), endPositionOption);
             selectTag = selectTag.replace(optionStartTag + optionTag + optionEndTag, "");
 
             String[] values = optionTag.split("\">");
@@ -330,22 +331,40 @@ public class ShowService {
             String showNameString = "";
             String showRuntimeString = "";
             String tvmazeShowID = "";
+            String showSummary = "";
+            String showURL = "";
+            String showImageURL = "";
+            String officialSite = "";
+
 
             try {
                 jObj = new JSONObject(jsonString);
                 showNameString = jObj.getString("name");
                 showRuntimeString = jObj.getString("runtime");
                 tvmazeShowID = jObj.getString("id");
+                showSummary = jObj.getString("summary");
+                showURL = jObj.getString("url");
+                officialSite = jObj.getString("officialSite");
+                if (!jObj.getString("image").equals("null")) {
+                    showImageURL = jObj.getJSONObject("image").getString("medium");
+                }
+
+                //change the http:// to https://
+                showImageURL = showImageURL.replace("http://", "https://");
+
+                showSummary = showSummary.replace("<p>", "");
+                showSummary = showSummary.replace("</p>", "");
+                showSummary = showSummary.replace("<b>", "");
+                showSummary = showSummary.replace("</b>", "");
+                showSummary = showSummary.replace("<i>", "");
+                showSummary = showSummary.replace("</i>", "");
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            //    Log.d("showNameString: ", "> " + showNameString);
-            //    Log.d("showRuntimeString: ", "> " + showRuntimeString);
-            //    Log.d("showTVmazeID: ", "> " + tvmazeShowID);
-
-            //now put the three values into a database....
+            //now put the tv Show values into a database....
             SeriesDAO seriesDAO = database.getSeriesDAO();
 
             //Inserting an episodeRuntime
@@ -354,8 +373,12 @@ public class ShowService {
             epsRunTime.setShowName(showNameString);
             epsRunTime.setShowTVMazeID(tvmazeShowID);
             epsRunTime.setShowRuntime(showRuntimeString);
+            epsRunTime.setShowSummary(showSummary);
+            epsRunTime.setShowURL(showURL);
+            epsRunTime.setOfficialSite(officialSite);
+            epsRunTime.setShowImageURL(showImageURL);
 
-            Log.d("epsRunTime: ", epsRunTime.toString());
+          //  Log.d("epsRunTime: ", epsRunTime.toString());
 
             seriesDAO.insert(epsRunTime);
 

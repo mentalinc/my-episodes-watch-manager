@@ -71,7 +71,7 @@
 
                 <TextView
                     android:id="@+id/episodeDetSeasonLabel"
-                    android:layout_width="220dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
@@ -90,7 +90,7 @@
 
                 <TextView
                     android:id="@+id/episodeDetEpisodeLabel"
-                    android:layout_width="220dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
@@ -109,7 +109,7 @@
 
                 <TextView
                     android:id="@+id/episodeDetAirdateLabel"
-                    android:layout_width="220dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
@@ -120,6 +120,12 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+
+
+
+
+
+
 
             <LinearLayout
                 android:id="@+id/LinearLayout01"

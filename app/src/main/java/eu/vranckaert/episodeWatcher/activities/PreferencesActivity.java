@@ -39,6 +39,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     private ListPreference RunTimeEnablePref;
     private ListPreference showAcquireOrderingPref;
     private ListPreference showComingOrderingPref;
+    private ListPreference showRuntimeOrderingPref;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -126,6 +127,32 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         });
         root.addPreference(daysBackwardEnable);
 
+
+        final CheckBoxPreference RunTimeEnable = new CheckBoxPreference(this);
+        RunTimeEnable.setDefaultValue(false);
+        RunTimeEnable.setKey(PreferencesKeys.RUNTIME_ENABLED_KEY);
+        RunTimeEnable.setTitle(R.string.RunTime);
+        RunTimeEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+
+                if (RunTimeEnable.isChecked()) {
+                    showRuntimeOrderingPref.setEnabled(false);
+                } else {
+                    showRuntimeOrderingPref.setEnabled(true);
+                }
+
+                deleteFile("Watch.xml");
+                deleteFile("Acquire.xml");
+                deleteFile("Coming.xml");
+
+                return true;
+            }
+        });
+        root.addPreference(RunTimeEnable);
+        Log.d("RunTimeEnable: value", RunTimeEnable.getKey());
+
         daysBackCP = new EditTextPreference(this);
         daysBackCP.setTitle(R.string.daysBackwardCP);
         daysBackCP.setKey(PreferencesKeys.DAYS_BACKWARDCP);
@@ -153,29 +180,6 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         }
 
         root.addPreference(daysBackCP);
-
-
-        final CheckBoxPreference RunTimeEnable = new CheckBoxPreference(this);
-        RunTimeEnable.setDefaultValue(false);
-        RunTimeEnable.setKey(PreferencesKeys.RUNTIME_ENABLED_KEY);
-        RunTimeEnable.setTitle(R.string.RunTime);
-        RunTimeEnable.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                refreshDialog = true;
-/*
-                if (RunTimeEnable.isChecked()) {
-                    RunTimeEnablePref.setEnabled(false);
-                } else {
-                    RunTimeEnablePref.setEnabled(true);
-                }
-*/
-                return true;
-            }
-        });
-        root.addPreference(RunTimeEnable);
-        Log.d("RunTimeEnable: value", RunTimeEnable.getKey());
-
 
         //Issue 109
         final CheckBoxPreference CacheEpisodesEnable = new CheckBoxPreference(this);
@@ -287,6 +291,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         disableComingPref.setTitle(R.string.disableComing);
         root.addPreference(disableComingPref);
 
+
         PreferenceCategory orderSettings = new PreferenceCategory(this);
         orderSettings.setTitle(R.string.orderPreferences);
         root.addPreference(orderSettings);
@@ -340,6 +345,26 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         if (disableComingPref.isChecked()) {
             showComingOrderingPref.setEnabled(false);
         }
+
+
+        showRuntimeOrderingPref = new ListPreference(this);
+        showRuntimeOrderingPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+                return true;
+            }
+        });
+        showRuntimeOrderingPref.setKey(PreferencesKeys.RUNTIME_SHOW_SORTING_KEY);
+        showRuntimeOrderingPref.setTitle(R.string.showRuntimeOrderPrompt);
+        showRuntimeOrderingPref.setEntries(R.array.showOrderOptions);
+        showRuntimeOrderingPref.setEntryValues(R.array.showOrderOptionsValues);
+        root.addPreference(showRuntimeOrderingPref);
+
+        if (RunTimeEnable.isChecked()) {
+            showRuntimeOrderingPref.setEnabled(true);
+        }
+
 
         ListPreference episodeOrderingPref = new ListPreference(this);
         episodeOrderingPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {

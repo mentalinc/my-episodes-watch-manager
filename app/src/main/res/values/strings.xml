@@ -52,6 +52,7 @@
     <string name="episodeDetailsSeasonLabel">Season: </string>
     <string name="episodeDetailsEpisodeLabel">Episode: </string>
     <string name="episodeDetailsAirDateLabel">Airdate: </string>
+    <string name="episodeRuntimeLabel">Runtime: </string>
     <string name="episodeDetailsAirDateLabelDateNotFound">Unsupported date format!</string>
     <string name="TweetTitle">Share</string>
     <string name="Tweet">I have watched \'%s\' #MyEpisodesManager #Android</string>
@@ -110,6 +111,8 @@
         <item>Code refactoring</item>
         <item>New icons</item>
         <item>Enabled 200+ episodes</item>
+        <item>Show runtime added</item>
+        <item>Ability to update/edit show runtime</item>
     </string-array>
     <!-- logoutDialog -->
     <string name="logoutDialogTitle">Are you sure?</string>
@@ -147,6 +150,7 @@
     <string name="showWatchOrderPrompt">Order of watched shows</string>
     <string name="showAcquireOrderPrompt">Order of acquired shows</string>
     <string name="showComingOrderPrompt">Order of coming shows</string>
+    <string name="showRuntimeOrderPrompt">Order of show runtime</string>
     <string-array name="showOrderOptions">
         <item>Default</item>
         <item>Ascending</item>
@@ -167,7 +171,7 @@
 
 
     <!-- Run Time -->
-    <string name="RunTime">Series Run Time</string>
+    <string name="RunTime">Enable show runtime</string>
 
 
     <!-- Cache data -->

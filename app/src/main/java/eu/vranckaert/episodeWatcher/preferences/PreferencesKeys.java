@@ -5,6 +5,7 @@ public class PreferencesKeys {
     public static final String WATCH_SHOW_SORTING_KEY = "watch_show_sorting_order";
     public static final String ACQUIRE_SHOW_SORTING_KEY = "acquire_show_sorting_order";
     public static final String COMING_SHOW_SORTING_KEY = "coming_show_sorting_order";
+    public static final String RUNTIME_SHOW_SORTING_KEY = "runtime_show_sorting_order";
     public static final String OPEN_DEFAULT_TAB_KEY = "open_default_tab";
     public static final String ACQUIRE_KEY = "acquire_settings";
     public static final String THEME_KEY = "theme_key";

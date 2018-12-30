@@ -155,7 +155,12 @@ public class EpisodesService {
 
         AppDatabase database = Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .fallbackToDestructiveMigration()
                 .build();
+
+        SeriesDAO seriesDAO = database.getSeriesDAO();
+        //remove any shows that have a null in them
+        seriesDAO.deleteNullShow();
 
         for (FeedItem item : rssFeed.getItems()) {
             Episode episode = new Episode();
@@ -199,9 +204,11 @@ public class EpisodesService {
                         //RunTimeEnable = true = show runtime
                         if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
                             //Add runtime to the Show Name
-                            SeriesDAO seriesDAO = database.getSeriesDAO();
+                            seriesDAO = database.getSeriesDAO();
+
                             EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-                            episode.setShowName(showRuntime.showRuntime + " mins" + " - " + episode.getShowName());
+                            episode.setShowName(showRuntime.getShowRuntime()+ " mins" + " - " + episode.getShowName());
+                            episode.setTVMazeWebSite("https://www.tvmaze.com/shows/" + showRuntime.getShowTVMazeID());
 
                         } else {
                             episode.setShowName(episode.getShowName());
@@ -221,15 +228,6 @@ public class EpisodesService {
 
                     //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
 
-
-                    //TODO see if can use the TVMAZE API to pull the episode info somehow?
-                    episode.setTVMazeWebSite("Link to episode description coming soon");
-                    //need to create a DOA database for all this episode information as it takes a VERY long time to download
-                    //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).showTVMazeID, episode.getSeason(), episode.getEpisode()));
-
-                    //TODO see if can use the TVMAZE API to pull the Show/series info or URL somehow?
-
-
                     Log.d(LOG_TAG, "Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
                 } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
                     //Solves problem mentioned in Issue 20
@@ -237,7 +235,13 @@ public class EpisodesService {
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
                     //episode.setTVMazeWebSite(item.getLink());
 
-                    episode.setTVMazeWebSite("Link to episode description coming soon");
+                    seriesDAO = database.getSeriesDAO();
+
+                    EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+                    episode.setShowName(showRuntime.getShowRuntime()+ " mins" + " - " + episode.getShowName());
+                    episode.setTVMazeWebSite("https://www.tvmaze.com/shows/" + showRuntime.getShowTVMazeID());
+
+                    //episode.setTVMazeWebSite("Link to episode description coming soon");
                     //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).showTVMazeID, episode.getSeason(), episode.getEpisode()));
 
                 } else {

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,38 +36,37 @@ import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.EpisodesService;
 
 public class HomeActivity extends Activity {
+    private static final String LOG_TAG = EpisodesService.class.getSimpleName();
     private EpisodesService service;
-	private User user;
-	private Resources res; // Resource object to get Drawables
-	private android.content.res.Configuration conf;
-	private static final int EPISODE_LOADING_DIALOG = 0;
+    private User user;
+    private Resources res; // Resource object to get Drawables
+    private android.content.res.Configuration conf;
+    private static final int EPISODE_LOADING_DIALOG = 0;
     private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
-	private static final int LOGOUT_DIALOG = 1;
-	private static final int EXCEPTION_DIALOG = 2;
-	private static final int LOGIN_RESULT = 5;
-	private static final int SETTINGS_RESULT = 6;
+    private static final int LOGOUT_DIALOG = 1;
+    private static final int EXCEPTION_DIALOG = 2;
+    private static final int LOGIN_RESULT = 5;
+    private static final int SETTINGS_RESULT = 6;
     private static Context sContext;
 
-	
-	private boolean exception;
-	
-	private Button btnWatched;
-	private Button btnAcquired;
-	
-	private Intent watchIntent;
-	private Intent acquireIntent;
-	private Intent comingIntent;
+
+    private boolean exception;
+
+    private Button btnWatched;
+    private Button btnAcquired;
+
+    private Intent watchIntent;
+    private Intent acquireIntent;
+    private Intent comingIntent;
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_menu, menu);
+        return true;
+    }
 
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.home_menu, menu);
-		return true;
-	}
-	
     /**
      * Called when the activity is first created.
      */
@@ -77,49 +77,48 @@ public class HomeActivity extends Activity {
         String LanguageCode = Preferences.getPreference(this, PreferencesKeys.LANGUAGE_KEY);
 
 
-
         //fix issue where app run and no days back has been set by the user.
-		Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
-		if(Objects.equals(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE), "")){
+        Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
+        if (Objects.equals(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE), "")) {
             MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = "Disabled";
             Preferences.setPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
         } else {
             MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
         }
 
-		Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
-		if(Objects.equals(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP), "")){
+        Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
+        if (Objects.equals(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP), "")) {
             MyEpisodeConstants.DAYS_BACK_CP = "365";
             Preferences.setPreference(this, PreferencesKeys.DAYS_BACKWARDCP, MyEpisodeConstants.DAYS_BACK_CP);
         } else {
             MyEpisodeConstants.DAYS_BACK_CP = Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
         }
-        
+
         MyEpisodeConstants.DAYS_BACK_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.DAYS_BACKWARD_ENABLED_KEY, false);
         MyEpisodeConstants.CACHE_EPISODES_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.CACHE_EPISODES_ENABLED_KEY, false);
-		MyEpisodeConstants.SHOW_RUNTIME_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.RUNTIME_ENABLED_KEY, false);
-        
+        MyEpisodeConstants.SHOW_RUNTIME_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.RUNTIME_ENABLED_KEY, false);
+
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
         openLoginActivity();
-        
-    	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
-    	super.onCreate(savedInstanceState);
-    	this.service = new EpisodesService();
-        sContext =   getApplicationContext();
-    	
+
+        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        super.onCreate(savedInstanceState);
+        this.service = new EpisodesService();
+        sContext = getApplicationContext();
+
         setContentView(R.layout.main);
         user = new User(
-        		Preferences.getPreference(this, User.USERNAME),
-        		Preferences.getPreference(this, User.PASSWORD)
-    		);
+                Preferences.getPreference(this, User.USERNAME),
+                Preferences.getPreference(this, User.PASSWORD)
+        );
 
         final PagerControl control = findViewById(R.id.control);
-        final HorizontalPager pager =  findViewById(R.id.pager);
+        final HorizontalPager pager = findViewById(R.id.pager);
         control.setNumPages(pager.getChildCount());
 
-		MyEpisodeConstants.CONTXT = getApplicationContext();
-        
+        MyEpisodeConstants.CONTXT = getApplicationContext();
+
         pager.addOnScrollListener(new HorizontalPager.OnScrollListener() {
             public void onScroll(int scrollX) {
                 float scale = (float) (pager.getPageWidth() * pager.getChildCount()) / (float) control.getWidth();
@@ -128,208 +127,211 @@ public class HomeActivity extends Activity {
 
             public void onViewScrollFinished(int currentPage) {
                 control.setCurrentPage(currentPage);
-              
-                if (currentPage == 0) 
-                	((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator1);
+
+                if (currentPage == 0)
+                    ((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator1);
                 else
-                	((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator2);
+                    ((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator2);
             }
         });
 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
-        
-    	btnWatched = findViewById(R.id.btn_watched);
-    	watchIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-				 .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
-    	String watch_sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
-    	if (watch_sorting.equals(showOrderOptions[3])) {
-    		watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
-    	} else {
-    		watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
-    	}
-    	btnWatched.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(watchIntent);
-			}
-		});
-    	
-    	acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-    					 .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
-    	String acquire_sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
-    	if (acquire_sorting.equals(showOrderOptions[3])) {
-    		acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
-    	} else {
-    		acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
-    	}
-    	btnAcquired = findViewById(R.id.btn_acquired);
-    	btnAcquired.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(acquireIntent);
-			}
-		});
-    	if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_ACQUIRE, false)) {
-    		btnAcquired.setVisibility(View.GONE);
-    	}
+
+        btnWatched = findViewById(R.id.btn_watched);
+        watchIntent = new Intent().setClass(this, EpisodeListingActivity.class)
+                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+        String watch_sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+        if (watch_sorting.equals(showOrderOptions[3])) {
+            watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
+        } else {
+            watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
+        }
+        btnWatched.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(watchIntent);
+            }
+        });
+
+        acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class)
+                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
+        String acquire_sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+        if (acquire_sorting.equals(showOrderOptions[3])) {
+            acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
+        } else {
+            acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
+        }
+        btnAcquired = findViewById(R.id.btn_acquired);
+        btnAcquired.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(acquireIntent);
+            }
+        });
+        if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_ACQUIRE, false)) {
+            btnAcquired.setVisibility(View.GONE);
+        }
 
         Button btnComing = findViewById(R.id.btn_coming);
         comingIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-				 .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
-    	String coming_sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
-    	if (coming_sorting.equals(showOrderOptions[3])) {
-    		comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
-    	} else {
-    		comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
-    	}
+                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+        String coming_sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+        if (coming_sorting.equals(showOrderOptions[3])) {
+            comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
+        } else {
+            comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
+        }
         btnComing.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(comingIntent);
-			}
-		});
-    	if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false)) {
-    		btnComing.setVisibility(View.GONE);
-    	}
-        
+            @Override
+            public void onClick(View v) {
+                startActivity(comingIntent);
+            }
+        });
+        if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false)) {
+            btnComing.setVisibility(View.GONE);
+        }
+
         Button btnMore = findViewById(R.id.btn_more);
         btnMore.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				pager.scrollRight();
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                pager.scrollRight();
+            }
+        });
     }
-    
-    private void getEpisodesInLoadingDialog() {
-    	final EpisodesController episodesController = EpisodesController.getInstance();
-        user = new User(
-        		Preferences.getPreference(this, User.USERNAME),
-        		Preferences.getPreference(this, User.PASSWORD)
-    		);
-    	if (episodesController.areListsEmpty()) {
-	    	AsyncTask<Object, Object, Object> asyncTask =  new  AsyncTask<Object, Object, Object>() {
-	
-	            @Override
-	            protected void onPreExecute() {
-	                showDialog(EPISODE_LOADING_DIALOG);
 
-                    if(MyEpisodeConstants.CACHE_EPISODES_ENABLED){
+    private void getEpisodesInLoadingDialog() {
+        final EpisodesController episodesController = EpisodesController.getInstance();
+        user = new User(
+                Preferences.getPreference(this, User.USERNAME),
+                Preferences.getPreference(this, User.PASSWORD)
+        );
+        if (episodesController.areListsEmpty()) {
+            AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+
+                @Override
+                protected void onPreExecute() {
+                    showDialog(EPISODE_LOADING_DIALOG);
+
+                    if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                         showDialog(EPISODE_LOADING_DIALOG_CACHE);
-                    }else{
+                    } else {
                         showDialog(EPISODE_LOADING_DIALOG);
                     }
-	            }
-	
-	            @Override
-	            protected Object doInBackground(Object... objects) {
-	            	try {
-	            		episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
-	                	String acquire = Preferences.getPreference(HomeActivity.this, PreferencesKeys.ACQUIRE_KEY);
-	    	            if (acquire != null && acquire.equals("1")) {
-	    	            	EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
-	    	            	EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
-	    	            } else {
-	    	            	EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
-	    	            }
-	            		episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
-	        		} catch (InternetConnectivityException e) {
-	        			exception = true;
-	        		} catch (Exception e) {
-	        			e.printStackTrace();
-	        		}
-	                return 100L;
-	            }
-	
-	            @Override
-	            protected void onPostExecute(Object o) {
-	                removeDialog(EPISODE_LOADING_DIALOG);
-                    removeDialog(EPISODE_LOADING_DIALOG_CACHE);
-	                
-	                if (exception) {
-	                	exception = false;
-	                	showDialog(EXCEPTION_DIALOG);
-	                } else {
-	                	btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
-	            		btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
-	                }
-	            }
-	        };
-	        asyncTask.execute();
-    	}
-	}
+                }
 
-	@Override
-    protected void onResume() {
-    	super.onResume();
-    	btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
-    	btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+                @Override
+                protected Object doInBackground(Object... objects) {
+                    try {
+                        episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
+                        String acquire = Preferences.getPreference(HomeActivity.this, PreferencesKeys.ACQUIRE_KEY);
+                        if (acquire != null && acquire.equals("1")) {
+                            EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
+                            EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
+                        } else {
+                            EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
+                        }
+                        episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
+                    } catch (InternetConnectivityException e) {
+                        exception = true;
+                    } catch (Exception e) {
+                        //e.printStackTrace();
+                        String message = "Error in backgroud task";
+                        Log.e(LOG_TAG, message, e);
+
+                    }
+                    return 100L;
+                }
+
+                @Override
+                protected void onPostExecute(Object o) {
+                    removeDialog(EPISODE_LOADING_DIALOG);
+                    removeDialog(EPISODE_LOADING_DIALOG_CACHE);
+
+                    if (exception) {
+                        exception = false;
+                        showDialog(EXCEPTION_DIALOG);
+                    } else {
+                        btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
+                        btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+                    }
+                }
+            };
+            asyncTask.execute();
+        }
     }
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == LOGIN_RESULT && resultCode == RESULT_OK)
-			getEpisodesInLoadingDialog();
-		if (requestCode == SETTINGS_RESULT && resultCode == RESULT_OK) {
-			EpisodesController.getInstance().deleteAll();
-			finish();
-			
-	        Intent homeActivity = new Intent(this.getApplicationContext(), HomeActivity.class);
-	        startActivity(homeActivity);
-		}
-		if (requestCode == LOGIN_RESULT && resultCode != RESULT_OK) {
-			finish();
-		}
-	}
-    
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		Dialog dialog;
-		switch (id) {
-			case LOGOUT_DIALOG:
-				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-				alertBuilder.setTitle(R.string.logoutDialogTitle)
-						   .setMessage(R.string.logoutDialogMessage)
-						   .setCancelable(false)
-						   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									logout();
-								}
-							})
-						   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.cancel();
-								}
-							});
-				dialog = alertBuilder.create();
-				break;
-			case EXCEPTION_DIALOG:
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.exceptionDialogTitle)
-					   .setMessage(R.string.internetConnectionFailureTryAgain)
-					   .setCancelable(false)
-					   .setPositiveButton(R.string.refresh, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-				                removeDialog(EXCEPTION_DIALOG);
-				                getEpisodesInLoadingDialog();
-				           }
-				       })
-				       .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-				                removeDialog(EXCEPTION_DIALOG);
-				                finish();
-				           }
-				       });
-				dialog = builder.create();
-				break;
-			case EPISODE_LOADING_DIALOG:
-				ProgressDialog progressDialog = new ProgressDialog(this);
-				progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
+        btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == LOGIN_RESULT && resultCode == RESULT_OK)
+            getEpisodesInLoadingDialog();
+        if (requestCode == SETTINGS_RESULT && resultCode == RESULT_OK) {
+            EpisodesController.getInstance().deleteAll();
+            finish();
+
+            Intent homeActivity = new Intent(this.getApplicationContext(), HomeActivity.class);
+            startActivity(homeActivity);
+        }
+        if (requestCode == LOGIN_RESULT && resultCode != RESULT_OK) {
+            finish();
+        }
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog;
+        switch (id) {
+            case LOGOUT_DIALOG:
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+                alertBuilder.setTitle(R.string.logoutDialogTitle)
+                        .setMessage(R.string.logoutDialogMessage)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                logout();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                dialog = alertBuilder.create();
+                break;
+            case EXCEPTION_DIALOG:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.exceptionDialogTitle)
+                        .setMessage(R.string.internetConnectionFailureTryAgain)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.refresh, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                removeDialog(EXCEPTION_DIALOG);
+                                getEpisodesInLoadingDialog();
+                            }
+                        })
+                        .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                removeDialog(EXCEPTION_DIALOG);
+                                finish();
+                            }
+                        });
+                dialog = builder.create();
+                break;
+            case EPISODE_LOADING_DIALOG:
+                ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
                 progressDialog.setCancelable(false);
-				dialog = progressDialog;
-				break;
+                dialog = progressDialog;
+                break;
             case EPISODE_LOADING_DIALOG_CACHE:
                 ProgressDialog progressDialogCache = new ProgressDialog(this);
                 progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
@@ -337,23 +339,23 @@ public class HomeActivity extends Activity {
                 dialog = progressDialogCache;
                 //dialog.show();
                 break;
-			default:
-				dialog = super.onCreateDialog(id);
-				break;
-		}
-		return dialog;
-	}
-    
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-	        case R.id.preferences:
-	            openPreferencesActivity();
-	            return true;
-		}
-		return false;
-	}
-	
+            default:
+                dialog = super.onCreateDialog(id);
+                break;
+        }
+        return dialog;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.preferences:
+                openPreferencesActivity();
+                return true;
+        }
+        return false;
+    }
+
     private void init() {
         res = getResources();
         conf = res.getConfiguration();
@@ -377,43 +379,43 @@ public class HomeActivity extends Activity {
         Preferences.checkDefaultPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, "0");
         Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false);
     }
-    
+
     private void openPreferencesActivity() {
         Intent preferencesActivity = new Intent(this.getApplicationContext(), PreferencesActivity.class);
         startActivityForResult(preferencesActivity, SETTINGS_RESULT);
     }
-    
+
     public void onManageClick(View v) {
         Intent manageShowsActivity = new Intent(this.getApplicationContext(), ShowManagementPortalActivity.class);
         startActivity(manageShowsActivity);
     }
-    
+
     public void onLogoutClick(View v) {
-    	showDialog(LOGOUT_DIALOG);
+        showDialog(LOGOUT_DIALOG);
     }
-    
-	private void logout() {
-		Preferences.removePreference(this, User.USERNAME);
-		Preferences.removePreference(this, User.PASSWORD);
-		EpisodesController.getInstance().deleteAll();
-		openLoginActivity();
-	}
-	
-	private void openLoginActivity() {
-		Intent loginSubActivity = new Intent(this.getApplicationContext(), LoginActivity.class);
+
+    private void logout() {
+        Preferences.removePreference(this, User.USERNAME);
+        Preferences.removePreference(this, User.PASSWORD);
+        EpisodesController.getInstance().deleteAll();
+        openLoginActivity();
+    }
+
+    private void openLoginActivity() {
+        Intent loginSubActivity = new Intent(this.getApplicationContext(), LoginActivity.class);
         startActivityForResult(loginSubActivity, LOGIN_RESULT);
-	}
-	
+    }
+
     public void onAboutClick(View v) {
         Intent manageShowsActivity = new Intent(this.getApplicationContext(), AboutActivity.class);
         startActivity(manageShowsActivity);
     }
-    
+
     public void onTodoClick(View v) {
         Intent manageShowsActivity = new Intent(this.getApplicationContext(), ChangelogActivity.class);
         startActivity(manageShowsActivity);
     }
-    
+
     public void onRandomClick(View v) {
         Intent randomActivity = new Intent(this.getApplicationContext(), RandomEpPickerActivity.class);
         startActivity(randomActivity);

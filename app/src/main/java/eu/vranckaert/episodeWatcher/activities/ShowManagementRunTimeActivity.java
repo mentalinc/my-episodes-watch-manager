@@ -24,6 +24,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.database.AppDatabase;
@@ -45,10 +46,9 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
     private static final int DIALOG_FINISHED = 2;
     private static final int DIALOG_UPDATE_RUNTIME = 3;
 
-    private ShowService service;
     private User user;
     private ShowManagementRunTimeActivity.ShowAdapter showAdapter;
-    private List<Show> shows = new ArrayList<>(0);
+    private final List<Show> shows = new ArrayList<>(0);
 
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
@@ -68,11 +68,7 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
         ((TextView) findViewById(R.id.title_text)).setText(R.string.ShowRuntime);
 
-        service = new ShowService();
-        user = new User(
-                Preferences.getPreference(this, User.USERNAME),
-                Preferences.getPreference(this, User.PASSWORD)
-        );
+
 
         initializeShowList();
     }
@@ -98,6 +94,7 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
         AppDatabase database = Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .fallbackToDestructiveMigration()
                 .build();
 
         SeriesDAO seriesDAO = database.getSeriesDAO();
@@ -105,7 +102,7 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
         for (int i = 0; i < runtimeList.size(); i++) {
             EpisodeRuntime showRuntime = (EpisodeRuntime) runtimeList.get(i);
-            shows.add(new Show(showRuntime.showName, showRuntime.showRuntime, showRuntime.getShowMyEpsID()));
+            shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
         }
         Collections.sort(shows, new ShowRuntimeAscendingComparator());
     }
@@ -166,7 +163,7 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
                 runTimeInput.setFilters(new InputFilter[]{new InputFilterMinMax("1", "150")}); //set 150 minutes as longest runtime
                 // consider using this if it doesn't work properly due to entering values that are not ok - https://stackoverflow.com/questions/8806492/monodroid-set-max-value-for-edittext/13812853#13812853
                 final InputMethodManager imm = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
+                Objects.requireNonNull(imm).showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
                 runTimeInput.requestFocus();
                 builder.setView(runTimeInput);
 
@@ -199,6 +196,7 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
                                     AppDatabase database = Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                                             .allowMainThreadQueries()   //Allows room to do operation on main thread
+                                            .fallbackToDestructiveMigration()
                                             .build();
                                     SeriesDAO seriesDAO = database.getSeriesDAO();
 

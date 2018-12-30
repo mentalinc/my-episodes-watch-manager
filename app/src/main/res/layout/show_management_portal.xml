@@ -48,7 +48,7 @@
             <Button
                 android:id="@+id/selectionPanelShowsRuntime"
                 style="@style/HomeButton"
-                android:drawableTop="@drawable/runtime"
+                android:drawableTop="@drawable/btn_runtime"
                 android:text="@string/ShowRuntime" />
         </LinearLayout>
     </LinearLayout>

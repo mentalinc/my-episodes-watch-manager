@@ -1,9 +1,14 @@
+plugins {
+    id "org.sonarqube" version "2.6"
+}
+
 apply plugin: 'com.android.application'
+
 
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
-    useLibrary  'org.apache.http.legacy'
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "eu.vranckaert.episodeWatcher"
@@ -47,4 +52,6 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "android.arch.persistence.room:runtime:1.1.1"
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    implementation 'com.android.support.test:runner:1.0.1'
+    implementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }

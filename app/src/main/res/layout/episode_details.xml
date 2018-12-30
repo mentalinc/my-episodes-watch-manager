@@ -60,11 +60,11 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingTop="25dp">
+                android:paddingTop="15dp">
 
                 <TextView
                     android:id="@+id/episodeDetSeasonLabel"
-                    android:layout_width="120dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
@@ -83,7 +83,7 @@
 
                 <TextView
                     android:id="@+id/episodeDetEpisodeLabel"
-                    android:layout_width="120dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
@@ -98,12 +98,11 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="25dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/episodeDetAirdateLabel"
-                    android:layout_width="120dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
@@ -115,12 +114,40 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:id="@+id/episodeRuntimeLabel"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/episodeRuntimeLabel" />
+
+                <TextView
+                    android:id="@+id/episodeRuntime"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvMazeWebsite"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingBottom="25dp" />
+                android:paddingBottom="5dp" />
+
+            <TextView
+                android:id="@+id/tvMazeEpisodeSummary"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="5dp" />
 
             <Button
                 android:id="@+id/markAsAcquiredButton"
@@ -133,6 +160,53 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/menuEpisodeMarkWatched" />
+
+            <TextView
+                android:id="@+id/ShowName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:paddingTop="5dp"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvMazeShowWebsite"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="5dp" />
+
+            <TextView
+                android:id="@+id/officialShowWebsite"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="5dp" />
+
+            <TextView
+                android:id="@+id/tvMazeShowSummary"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="5dp" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.50"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingTop="25dp">
+
+                <ImageView
+                    android:id="@+id/episodeImage"
+                    android:layout_width="210dp"
+                    android:layout_height="295dp"
+                    android:contentDescription="ImageFromEpisode"
+                    android:gravity="center"
+                    android:scaleType="fitXY" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/LinearLayout02"

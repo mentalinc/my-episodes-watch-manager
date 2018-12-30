@@ -8,7 +8,8 @@ public class Show {
     private String showName;
     private String myEpisodeID;
     private String runTime;
-    public String showTVMazeID;
+    private String showTVMazeID;
+    private String TVMazeWebSite;
 
     public Show(String showName) {
         this.showName = showName;
@@ -83,6 +84,15 @@ public class Show {
 
     public void setMyEpisodeID(String myEpisodeID) {
         this.myEpisodeID = myEpisodeID;
+    }
+
+
+    public String getTVMazeWebSite() {
+        return TVMazeWebSite;
+    }
+
+    public void setTVMazeWebSite(String tVMazeWebSite) {
+        TVMazeWebSite = tVMazeWebSite;
     }
 
     @Override

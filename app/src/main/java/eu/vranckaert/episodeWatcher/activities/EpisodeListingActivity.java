@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -1007,7 +1008,9 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
     }
 
     private Boolean isOnline() {
-
+        //TODO consdider seeing if this should be a thread.
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         try {
             //Thread.sleep(3000);
             URL url = new URL("https://www.myepisodes.com/favicon.ico");

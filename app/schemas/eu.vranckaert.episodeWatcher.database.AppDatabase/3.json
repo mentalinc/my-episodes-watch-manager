@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "474c39b82dada5fa7b5ae157ecf6d416",
+    "version": 3,
+    "identityHash": "77154d3723191167751f794b9c72d645",
     "entities": [
       {
         "tableName": "EpisodeRuntime",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`showName` TEXT, `showRuntime` TEXT, `showTVMazeID` TEXT, `showMyEpsID` TEXT NOT NULL, PRIMARY KEY(`showMyEpsID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`showName` TEXT, `showRuntime` TEXT, `showTVMazeID` TEXT, `showSummary` TEXT, `showImageURL` TEXT, `officialSite` TEXT, `showURL` TEXT, `showMyEpsID` TEXT NOT NULL, PRIMARY KEY(`showMyEpsID`))",
         "fields": [
           {
             "fieldPath": "showName",
@@ -23,6 +23,30 @@
           {
             "fieldPath": "showTVMazeID",
             "columnName": "showTVMazeID",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "showSummary",
+            "columnName": "showSummary",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "showImageURL",
+            "columnName": "showImageURL",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "officialSite",
+            "columnName": "officialSite",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "showURL",
+            "columnName": "showURL",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -45,7 +69,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"474c39b82dada5fa7b5ae157ecf6d416\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"77154d3723191167751f794b9c72d645\")"
     ]
   }
 }

@@ -7,9 +7,13 @@ import android.support.annotation.NonNull;
 
 @Entity(tableName = "EpisodeRuntime")
 public class EpisodeRuntime {
-    public String showName;
-    public String showRuntime;
-    public String showTVMazeID;
+    private String showName;
+    private String showRuntime;
+    private String showTVMazeID;
+    private String showSummary;
+    private String showImageURL;
+    private String officialSite;
+    private String showURL;
 
     @PrimaryKey
     @NonNull
@@ -47,5 +51,41 @@ public class EpisodeRuntime {
     public void setShowRuntime(String showRuntime) {
         this.showRuntime = showRuntime;
     }
+
+
+    public String getShowSummary() {
+        return showSummary;
+    }
+
+    public void setShowSummary(String showSummary) {
+        this.showSummary = showSummary;
+    }
+
+    public String getShowImageURL() {
+        return showImageURL;
+    }
+
+    public void setShowImageURL(String showImageURL) {
+        this.showImageURL = showImageURL;
+    }
+
+    public String getOfficialSite() {
+        return officialSite;
+    }
+
+    public void setOfficialSite(String officialSite) {
+        this.officialSite = officialSite;
+    }
+
+    public String getShowURL() {
+        return showURL;
+    }
+
+    public void setShowURL(String showURL) {
+        this.showURL = showURL;
+    }
+
+
+
 
 }

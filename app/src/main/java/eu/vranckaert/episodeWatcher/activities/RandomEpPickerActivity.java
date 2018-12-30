@@ -32,6 +32,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
         TextView episodeNameText = findViewById(R.id.episodeDetName);
         TextView seasonText = findViewById(R.id.episodeDetSeason);
         TextView episodeText = findViewById(R.id.episodeDetEpisode);
+       // TextView runtimeText = findViewById(R.id.episodeRuntime);
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
 
         ((TextView) findViewById(R.id.title_text)).setText(R.string.randompicker);
@@ -44,6 +45,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
             episodeNameText.setText(random.getName());
             seasonText.setText(" " + random.getSeasonString());
             episodeText.setText(" " + random.getEpisodeString());
+            //runtimeText.setText(random.get);
 
             //Air date in specifc format
             Date airdate = random.getAirDate();
