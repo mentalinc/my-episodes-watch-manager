@@ -3,7 +3,7 @@ package eu.vranckaert.episodeWatcher.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,9 +31,7 @@ import eu.vranckaert.episodeWatcher.database.SeriesDAO;
 import eu.vranckaert.episodeWatcher.domain.Show;
 import eu.vranckaert.episodeWatcher.domain.ShowRuntimeAscendingComparator;
 import eu.vranckaert.episodeWatcher.domain.User;
-import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
-import eu.vranckaert.episodeWatcher.service.ShowService;
 import eu.vranckaert.episodeWatcher.utils.InputFilterMinMax;
 import roboguice.activity.GuiceListActivity;
 
@@ -52,8 +49,6 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
-
-    private boolean showsAdded = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,7 +99,7 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
             EpisodeRuntime showRuntime = (EpisodeRuntime) runtimeList.get(i);
             shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
         }
-        Collections.sort(shows, new ShowRuntimeAscendingComparator());
+        shows.sort(new ShowRuntimeAscendingComparator());
     }
 
     @Override
@@ -126,11 +121,9 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
                 builder.setTitle(R.string.exceptionDialogTitle)
                         .setMessage(exceptionMessageResId)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                exceptionMessageResId = null;
-                                removeDialog(DIALOG_EXCEPTION);
-                            }
+                        .setPositiveButton(R.string.dialogOK, (dialog15, id15) -> {
+                            exceptionMessageResId = null;
+                            removeDialog(DIALOG_EXCEPTION);
                         });
                 dialog = builder.create();
                 break;
@@ -139,17 +132,11 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.showSearchFinished)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                                finish();
-                            }
+                        .setPositiveButton(R.string.done, (dialog14, id14) -> {
+                            dialog14.dismiss();
+                            finish();
                         })
-                        .setNegativeButton(R.string.search, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                            }
-                        });
+                        .setNegativeButton(R.string.search, (dialog13, id13) -> dialog13.dismiss());
                 dialog = builder.create();
                 break;
             }
@@ -172,76 +159,64 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
                         //builder.setTitle(shows.get(showListPosition).toString()) //this works ad does what is required showing the runtime and name in the title
                         .setMessage((R.string.runTimeEditMessage))
                         .setCancelable(true)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                removeDialog(DIALOG_UPDATE_RUNTIME);
-                                String newRuntimeValue = runTimeInput.getText().toString();
-                                //silent fail if user has entered a blank runtime
-                                if (runTimeInput.getText().toString().trim().length() < 1) {
-                                    // runTimeInput.setError("Error: Can't be blank");
-                                    Context context = getApplicationContext();
-                                    String text = "Error: Runtime can't be blank!";
-                                    int duration = Toast.LENGTH_SHORT;
-                                    Toast toast = Toast.makeText(context, text, duration);
-                                    toast.show();
-                                } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
-                                    Context context = getApplicationContext();
-                                    String text = "Runtime unchanged";
-                                    int duration = Toast.LENGTH_SHORT;
-                                    Toast toast = Toast.makeText(context, text, duration);
-                                    toast.show();
-                                } else {
-                                    runTimeInput.setError(null);
+                        .setPositiveButton(R.string.ok, (dialog12, id12) -> {
+                            removeDialog(DIALOG_UPDATE_RUNTIME);
+                            String newRuntimeValue = runTimeInput.getText().toString();
+                            //silent fail if user has entered a blank runtime
+                            if (runTimeInput.getText().toString().trim().length() < 1) {
+                                // runTimeInput.setError("Error: Can't be blank");
+                                Context context = getApplicationContext();
+                                String text = "Error: Runtime can't be blank!";
+                                int duration = Toast.LENGTH_SHORT;
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();
+                            } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
+                                Context context = getApplicationContext();
+                                String text = "Runtime unchanged";
+                                int duration = Toast.LENGTH_SHORT;
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();
+                            } else {
+                                runTimeInput.setError(null);
 
 
-                                    AppDatabase database = Room.databaseBuilder(eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                                            .allowMainThreadQueries()   //Allows room to do operation on main thread
-                                            .fallbackToDestructiveMigration()
-                                            .build();
-                                    SeriesDAO seriesDAO = database.getSeriesDAO();
+                                AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                                        .allowMainThreadQueries()   //Allows room to do operation on main thread
+                                        .fallbackToDestructiveMigration()
+                                        .build();
+                                SeriesDAO seriesDAO = database.getSeriesDAO();
 
-                                    //Updating an episodeRuntime
-                                    EpisodeRuntime epsRunTime = new EpisodeRuntime();
-                                    epsRunTime.setshowMyepsID(shows.get(showListPosition).getMyEpisodeID());
-                                    epsRunTime.setShowName(shows.get(showListPosition).getShowName());
-                                    // epsRunTime.setShowTVMazeID(epsRunTime.getShowTVMazeID());
-                                    epsRunTime.setShowRuntime(newRuntimeValue);
-                                    Log.d("epsRunTime: ", epsRunTime.toString());
-                                    seriesDAO.update(epsRunTime);
+                                //Updating an episodeRuntime
+                                EpisodeRuntime epsRunTime = new EpisodeRuntime();
+                                epsRunTime.setshowMyepsID(shows.get(showListPosition).getMyEpisodeID());
+                                epsRunTime.setShowName(shows.get(showListPosition).getShowName());
+                                // epsRunTime.setShowTVMazeID(epsRunTime.getShowTVMazeID());
+                                epsRunTime.setShowRuntime(newRuntimeValue);
+                                Log.d("epsRunTime: ", epsRunTime.toString());
+                                seriesDAO.update(epsRunTime);
 
 
-                                    Context context = getApplicationContext();
-                                    String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
-                                    int duration = Toast.LENGTH_SHORT;
-                                    Toast toast = Toast.makeText(context, text, duration);
-                                    toast.show();
+                                Context context = getApplicationContext();
+                                String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
+                                int duration = Toast.LENGTH_SHORT;
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();
 
-                                    populateShowRuntimeList();
-                                    showListPosition = null;
-                                }
+                                populateShowRuntimeList();
+                                showListPosition = null;
                             }
                         })
                         //; //remove this ; if add the .negative back int
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                showListPosition = null;
-                                removeDialog(DIALOG_UPDATE_RUNTIME);
-                            }
+                        .setNegativeButton(R.string.cancel, (dialog1, id1) -> {
+                            showListPosition = null;
+                            removeDialog(DIALOG_UPDATE_RUNTIME);
                         });
                 dialog = builder.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialogInterface) {
-                        runTimeInput.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                final InputMethodManager imm = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
-                                runTimeInput.requestFocus(); // needed if you have more then one input
-                            }
-                        });
-                    }
-                });
+                dialog.setOnShowListener(dialogInterface -> runTimeInput.post(() -> {
+                    final InputMethodManager imm1 = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm1.showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
+                    runTimeInput.requestFocus(); // needed if you have more then one input
+                }));
             }
         }
         return dialog;
@@ -291,6 +266,7 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
     @Override
     public void finish() {
+        boolean showsAdded = false;
         if (showsAdded) {
             setResult(RESULT_OK);
         } else {
@@ -324,12 +300,9 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
             Show show = shows.get(position);
             topText.setText(show.getRunTime() + " mins - " + show.getShowName());
-            row.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showListPosition = i;
-                    showDialog(DIALOG_UPDATE_RUNTIME);
-                }
+            row.setOnClickListener(view -> {
+                showListPosition = i;
+                showDialog(DIALOG_UPDATE_RUNTIME);
             });
 
             return row;

@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -117,7 +116,7 @@ public class HomeActivity extends Activity {
         final HorizontalPager pager = findViewById(R.id.pager);
         control.setNumPages(pager.getChildCount());
 
-        MyEpisodeConstants.CONTXT = getApplicationContext();
+        MyEpisodeConstants.CONTEXT = getApplicationContext();
 
         pager.addOnScrollListener(new HorizontalPager.OnScrollListener() {
             public void onScroll(int scrollX) {
@@ -139,22 +138,17 @@ public class HomeActivity extends Activity {
 
         btnWatched = findViewById(R.id.btn_watched);
         watchIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
         String watch_sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
         if (watch_sorting.equals(showOrderOptions[3])) {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
-        btnWatched.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(watchIntent);
-            }
-        });
+        btnWatched.setOnClickListener(v -> startActivity(watchIntent));
 
         acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
         String acquire_sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
         if (acquire_sorting.equals(showOrderOptions[3])) {
             acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
@@ -162,42 +156,27 @@ public class HomeActivity extends Activity {
             acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
         btnAcquired = findViewById(R.id.btn_acquired);
-        btnAcquired.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(acquireIntent);
-            }
-        });
+        btnAcquired.setOnClickListener(v -> startActivity(acquireIntent));
         if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_ACQUIRE, false)) {
             btnAcquired.setVisibility(View.GONE);
         }
 
         Button btnComing = findViewById(R.id.btn_coming);
         comingIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
         String coming_sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
         if (coming_sorting.equals(showOrderOptions[3])) {
             comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
             comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
-        btnComing.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(comingIntent);
-            }
-        });
+        btnComing.setOnClickListener(v -> startActivity(comingIntent));
         if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false)) {
             btnComing.setVisibility(View.GONE);
         }
 
         Button btnMore = findViewById(R.id.btn_more);
-        btnMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pager.scrollRight();
-            }
-        });
+        btnMore.setOnClickListener(v -> pager.scrollRight());
     }
 
     private void getEpisodesInLoadingDialog() {
@@ -293,18 +272,8 @@ public class HomeActivity extends Activity {
                 alertBuilder.setTitle(R.string.logoutDialogTitle)
                         .setMessage(R.string.logoutDialogMessage)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                logout();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+                        .setPositiveButton(R.string.yes, (dialog14, which) -> logout())
+                        .setNegativeButton(R.string.no, (dialog13, which) -> dialog13.cancel());
                 dialog = alertBuilder.create();
                 break;
             case EXCEPTION_DIALOG:
@@ -312,17 +281,13 @@ public class HomeActivity extends Activity {
                 builder.setTitle(R.string.exceptionDialogTitle)
                         .setMessage(R.string.internetConnectionFailureTryAgain)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.refresh, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                removeDialog(EXCEPTION_DIALOG);
-                                getEpisodesInLoadingDialog();
-                            }
+                        .setPositiveButton(R.string.refresh, (dialog12, id12) -> {
+                            removeDialog(EXCEPTION_DIALOG);
+                            getEpisodesInLoadingDialog();
                         })
-                        .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                removeDialog(EXCEPTION_DIALOG);
-                                finish();
-                            }
+                        .setNegativeButton(R.string.close, (dialog1, id1) -> {
+                            removeDialog(EXCEPTION_DIALOG);
+                            finish();
                         });
                 dialog = builder.create();
                 break;

@@ -1,9 +1,7 @@
 package eu.vranckaert.episodeWatcher.activities;
 
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,6 +15,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,7 +70,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         ((TextView) findViewById(R.id.title_text)).setText(R.string.details);
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
-        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE);
+        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
 
 
         showNameText.setText(episode.getShowName());
@@ -109,7 +110,6 @@ public class EpisodeDetailsActivity extends GuiceActivity {
             }};
 
 
-            // todo before downloading check if in the local database will be MUCh faster as no internet APi call or parsing
             new downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
             new downloadEpisodeSummary(episodeSummaryHashMap).execute(showRuntime.getShowTVMazeID(), episode.getSeasonString(), episode.getEpisodeString());
 
@@ -137,12 +137,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                 break;
         }
 
-        markAsAcquiredButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeAndAcquireEpisode(episode);
-            }
-        });
+        markAsAcquiredButton.setOnClickListener(v -> closeAndAcquireEpisode(episode));
 
         markAsSeenButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,9 +149,9 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 
 
     private class downloadEpisodeSummary extends AsyncTask<String, String, HashMap<String, String>> {
-        HashMap<String, String> episodeSummaryHash;
+        final HashMap<String, String> episodeSummaryHash;
 
-        public downloadEpisodeSummary(HashMap<String, String> episodeSummaryHash) {
+        downloadEpisodeSummary(HashMap<String, String> episodeSummaryHash) {
             this.episodeSummaryHash = episodeSummaryHash;
         }
 
@@ -189,8 +184,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                 //episode not found so stop and display to user...
                 String jsonString;
                 if (code == 404) {
-                    String errorJson = "{\"id\":0,\"url\":\"Unknown Episode\",\"name\":\"Unknown Episode\",\"image\":null,\"summary\":\"Unknown Episode\"}";
-                    jsonString = errorJson;
+                    jsonString = "{\"id\":0,\"url\":\"Unknown Episode\",\"name\":\"Unknown Episode\",\"image\":null,\"summary\":\"Unknown Episode\"}";
 
                     Toast.makeText(EpisodeDetailsActivity.this, "episode not found via API", Toast.LENGTH_LONG).show();
                 } else {
@@ -208,12 +202,10 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                     jsonString = buffer.toString();
                 }
 
-
                 JSONObject jObj;
                 String episodeSummary = "";
                 String episodeURL = "";
                 String episodeImageURL = "";
-
 
                 try {
                     jObj = new JSONObject(jsonString);
@@ -231,9 +223,9 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                     episodeSummary = episodeSummary.replace("<p>", "");
                     episodeSummary = episodeSummary.replace("</p>", "");
 
-                    episodeSummaryHash.put("episodeURL", new String(episodeURL));
-                    episodeSummaryHash.put("episodeSummary", new String(episodeSummary));
-                    episodeSummaryHash.put("episodeImageURL", new String(episodeImageURL));
+                    episodeSummaryHash.put("episodeURL", episodeURL);
+                    episodeSummaryHash.put("episodeSummary", episodeSummary);
+                    episodeSummaryHash.put("episodeImageURL", episodeImageURL);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -270,10 +262,13 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 
             String episodeSummary = episodeSummaryHash.get("episodeSummary");
 
-            if (!episodeSummary.equals("null")) { //not a type want to check for the string null not null no object
-                tvMazeEpisodeSummary.setText(episodeSummary);
-            } else {
-                tvMazeEpisodeSummary.setVisibility(View.GONE);
+            //null check is to before NPE when there is no network (i.e. flight mode).
+            if (!(episodeSummary == null)) {
+                if (!episodeSummary.equals("null")) { //not a type want to check for the string null not null no object
+                    tvMazeEpisodeSummary.setText(episodeSummary);
+                } else {
+                    tvMazeEpisodeSummary.setVisibility(View.GONE);
+                }
             }
         }
     }
@@ -313,12 +308,12 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 
             if (!ShowName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && !showImageURL.equals("")) {
 
-                showSummaryHash.put("ShowName", new String(ShowName));
-                showSummaryHash.put("showURL", new String(showURL));
-                showSummaryHash.put("officialSite", new String(officialSite));
-                showSummaryHash.put("showSummary", new String(showSummary));
-                showSummaryHash.put("showImageURL", new String(showImageURL));
-                showSummaryHash.put("ShowRuntime", new String(ShowRuntime));
+                showSummaryHash.put("ShowName", ShowName);
+                showSummaryHash.put("showURL", showURL);
+                showSummaryHash.put("officialSite", officialSite);
+                showSummaryHash.put("showSummary", showSummary);
+                showSummaryHash.put("showImageURL", showImageURL);
+                showSummaryHash.put("ShowRuntime", ShowRuntime);
 
                 //not in database so download from API
             } else {
@@ -381,12 +376,12 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                         showSummary = showSummary.replace("<i>", "");
                         showSummary = showSummary.replace("</i>", "");
 
-                        showSummaryHash.put("showURL", new String(showURL));
-                        showSummaryHash.put("showSummary", new String(showSummary));
-                        showSummaryHash.put("showImageURL", new String(showImageURL));
-                        showSummaryHash.put("officialSite", new String(officialSite));
-                        showSummaryHash.put("ShowName", new String(ShowName));
-                        showSummaryHash.put("ShowRuntime", new String(ShowRuntime));
+                        showSummaryHash.put("showURL", showURL);
+                        showSummaryHash.put("showSummary", showSummary);
+                        showSummaryHash.put("showImageURL", showImageURL);
+                        showSummaryHash.put("officialSite", officialSite);
+                        showSummaryHash.put("ShowName", ShowName);
+                        showSummaryHash.put("ShowRuntime", ShowRuntime);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -446,13 +441,22 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                 tvMazeShowSummary.setVisibility(View.GONE);
             }
 
-            ImageView showImage = findViewById(R.id.episodeImage);
+            ImageView showImage = findViewById(R.id.showImage);
 
             String showImageURL = showSummaryHash.get("showImageURL");
             // add in here to download tv series info...and the show level info to a database!
 
             if (!showImageURL.equals("")) {
-                new DownLoadImageTask(showImage).execute(showImageURL);
+
+                RequestOptions requestOptions = new RequestOptions();
+                requestOptions.placeholder(R.drawable.placeholder);
+                requestOptions.error(R.drawable.error);
+
+                Glide.with(findViewById(R.id.showImage))
+                        .load(showImageURL)
+                        .apply(requestOptions)
+                        .into(showImage);
+
             } else {
                 showImage.setVisibility(View.GONE);
             }
@@ -480,43 +484,6 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 
             seriesDAO.update(showSummaryInfo);
 
-        }
-    }
-
-
-    private class DownLoadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView imageView;
-
-        public DownLoadImageTask(ImageView imageView) {
-            this.imageView = imageView;
-        }
-
-        /*
-            doInBackground(Params... params)
-                Override this method to perform a computation on a background thread.
-         */
-        protected Bitmap doInBackground(String... urls) {
-            String urlOfImage = urls[0];
-            Bitmap image = null;
-            try {
-                InputStream is = new URL(urlOfImage).openStream();
-                /*
-                    decodeStream(InputStream is)
-                        Decode an input stream into a bitmap.
-                 */
-                image = BitmapFactory.decodeStream(is);
-            } catch (Exception e) { // Catch the download exception
-                e.printStackTrace();
-            }
-            return image;
-        }
-
-        /*
-            onPostExecute(Result result)
-                Runs on the UI thread after doInBackground(Params...).
-         */
-        protected void onPostExecute(Bitmap result) {
-            imageView.setImageBitmap(result);
         }
     }
 
@@ -564,7 +531,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
-                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episodesType);
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
 
         String sorting = "";
 
@@ -595,7 +562,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
         Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
-        episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episodesType);
+        episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
 
         String sorting = "";
 

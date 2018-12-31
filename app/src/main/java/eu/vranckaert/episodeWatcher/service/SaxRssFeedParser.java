@@ -120,7 +120,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                                 inputStream = url.openConnection().getInputStream();
 
                                 //write the to disk for future use
-                                FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
+                                FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
                                 String stringInputStream = convertStreamToString(inputStream, "UTF-8");
                                 fos.write(stringInputStream.getBytes());
                                 fos.close();
@@ -146,7 +146,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             inputStream = url.openConnection().getInputStream();
 
                             //write the to disk for future use
-                            FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
+                            FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
                             String stringInputStream = convertStreamToString(inputStream, "UTF-8");
                             fos.write(stringInputStream.getBytes());
                             fos.close();
@@ -168,7 +168,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             inputStream = url.openConnection().getInputStream();
 
                             //write the to disk for future use
-                            FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
+                            FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
                             String stringInputStream = convertStreamToString(inputStream, "UTF-8");
                             fos.write(stringInputStream.getBytes());
                             fos.close();
@@ -300,9 +300,9 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         StringBuilder EpisodeXML = new StringBuilder();
         try {
             //String FILENAME = "Watch.xml";
-            FileInputStream instream = MyEpisodeConstants.CONTXT.openFileInput(FILENAME);
+            FileInputStream instream = MyEpisodeConstants.CONTEXT.openFileInput(FILENAME);
 
-            File file = new File(MyEpisodeConstants.CONTXT.getFilesDir(), FILENAME);
+            File file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), FILENAME);
             if (isOnline()) {
                 deleteOldCacheFiles(file);
             } else {

@@ -3,7 +3,6 @@ package eu.vranckaert.episodeWatcher.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -240,7 +239,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
     }
 
     private Date determineDate(int listGroupId) {
-        List<Episode> episodes = null;
+
 
         if (listGroupId < 0) {
             return null;
@@ -297,11 +296,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 builder.setTitle(R.string.exceptionDialogTitle)
                         .setMessage(exceptionMessageResId)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                removeDialog(EXCEPTION_DIALOG);
-                            }
-                        });
+                        .setPositiveButton(R.string.dialogOK, (dialog1, id1) -> removeDialog(EXCEPTION_DIALOG));
                 dialog = builder.create();
                 break;
             default:
@@ -318,7 +313,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
         //  tracker = CustomAnalyticsTracker.getInstance(this);
         Bundle data = this.getIntent().getExtras();
-        episodesType = (EpisodeType) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE);
+        episodesType = (EpisodeType) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         listMode = (ListMode) data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE);
 
         init();
@@ -609,7 +604,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
-                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episodeType);
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -745,7 +740,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
         if (sorting.equals(showOrderOptions[1])) {
             Log.d(LOG_TAG, "Sorting episodes ascending");
-            Collections.sort(showList, new ShowAscendingComparator());
+            showList.sort(new ShowAscendingComparator());
         } else if (sorting.equals(showOrderOptions[2])) {
             Log.d(LOG_TAG, "Sorting episodes descending");
             Collections.sort(showList, new ShowDescendingComparator());
@@ -950,7 +945,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         //delete the current cache file to force a new download
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                file = new File(MyEpisodeConstants.CONTXT.getFilesDir(), "Watch.xml");
+                file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), "Watch.xml");
                 if (file.exists() && onlineCheck) {
                     if (file.delete()) {
                         Log.d(LOG_TAG, "Watch.xml deleted");
@@ -962,7 +957,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                file = new File(MyEpisodeConstants.CONTXT.getFilesDir(), "Acquire.xml");
+                file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), "Acquire.xml");
                 if (file.exists() && onlineCheck) {
                     if (file.delete()) {
                         Log.d(LOG_TAG, "Acquire.xml deleted");
@@ -972,7 +967,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 }
                 break;
             case EPISODES_COMING:
-                file = new File(MyEpisodeConstants.CONTXT.getFilesDir(), "Coming.xml");
+                file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), "Coming.xml");
                 if (file.exists() && onlineCheck) {
                     if (file.delete()) {
                         Log.d(LOG_TAG, "Coming.xml deleted");

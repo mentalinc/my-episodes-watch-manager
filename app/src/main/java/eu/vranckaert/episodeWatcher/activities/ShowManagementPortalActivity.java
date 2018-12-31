@@ -33,31 +33,10 @@ public class ShowManagementPortalActivity extends GuiceActivity {
         Button ignoredShowsButton = findViewById(R.id.selectionPanelIgnoredShows);
         Button addShowsButton = findViewById(R.id.selectionPanelAddShows);
         Button ShowsRuntimeButton = findViewById(R.id.selectionPanelShowsRuntime);
-        favoShowsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
-            }
-        });
-        ignoredShowsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
-            }
-        });
-        addShowsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openSearchActivity();
-            }
-        });
-        ShowsRuntimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                openRunTimeActivity();
-            }
-        });
+        favoShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS));
+        ignoredShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS));
+        addShowsButton.setOnClickListener(view -> openSearchActivity());
+        ShowsRuntimeButton.setOnClickListener(view -> openRunTimeActivity());
     }
 
     private void openSearchActivity() {

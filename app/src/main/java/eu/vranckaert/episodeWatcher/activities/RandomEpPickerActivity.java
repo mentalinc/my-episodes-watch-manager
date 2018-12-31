@@ -58,12 +58,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
 
             airdateText.setText(" " + formattedAirDate);
 
-            markAsSeenButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    closeAndMarkWatched(random);
-                }
-            });
+            markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
         } else {
             ((TextView) findViewById(R.id.randomtexttitle)).setText(getString(R.string.watchListSubTitleWatchPlural, 0));
             (findViewById(R.id.btn_title_refresh)).setVisibility(View.GONE);
@@ -81,7 +76,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
         Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)
-                .putExtra(ActivityConstants.EXTRA_BUNLDE_VAR_EPISODE_TYPE, episode.getType())
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episode.getType())
                 .putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         startActivity(episodeListingActivity);
     }

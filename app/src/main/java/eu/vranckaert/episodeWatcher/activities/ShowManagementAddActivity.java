@@ -63,15 +63,12 @@ public class ShowManagementAddActivity extends GuiceListActivity {
 
 
         ImageButton searchButton = findViewById(R.id.searchButton);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CharSequence query = ((EditText) findViewById(R.id.searchQuery)).getText();
-                if(query.length() > 0) {
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    Objects.requireNonNull(imm).hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    ShowManagementAddActivity.this.searchShows(query.toString());
-                }
+        searchButton.setOnClickListener(view -> {
+            CharSequence query = ((EditText) findViewById(R.id.searchQuery)).getText();
+            if(query.length() > 0) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                Objects.requireNonNull(imm).hideSoftInputFromWindow(view.getWindowToken(), 0);
+                ShowManagementAddActivity.this.searchShows(query.toString());
             }
         });
     }
@@ -142,12 +139,10 @@ public class ShowManagementAddActivity extends GuiceListActivity {
 				builder.setTitle(R.string.exceptionDialogTitle)
 					   .setMessage(exceptionMessageResId)
 					   .setCancelable(false)
-					   .setPositiveButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-                                exceptionMessageResId = null;
-                                removeDialog(DIALOG_EXCEPTION);
-				           }
-				       });
+					   .setPositiveButton(R.string.dialogOK, (dialog15, id15) -> {
+                            exceptionMessageResId = null;
+                            removeDialog(DIALOG_EXCEPTION);
+                       });
 				dialog = builder.create();
                 break;
             }
@@ -155,17 +150,11 @@ public class ShowManagementAddActivity extends GuiceListActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.showSearchFinished)
                        .setCancelable(false)
-                       .setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-                               dialog.dismiss();
-                               finish();
-				           }
-				       })
-                       .setNegativeButton(R.string.search, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-                               dialog.dismiss();
-				           }
-				       });
+                       .setPositiveButton(R.string.done, (dialog14, id14) -> {
+dialog14.dismiss();
+finish();
+                       })
+                       .setNegativeButton(R.string.search, (dialog13, id13) -> dialog13.dismiss());
                 dialog = builder.create();
                 break;
             }
@@ -174,19 +163,15 @@ public class ShowManagementAddActivity extends GuiceListActivity {
                 builder.setTitle(shows.get(showListPosition).getShowName())
                        .setMessage(R.string.showSearchAddShow)
                        .setCancelable(false)
-                       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-                               removeDialog(DIALOG_ADD_SHOW);
-                               addShowByListPosition(showListPosition);
-                               showListPosition = null;
-				           }
-				       })
-                       .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-                               showListPosition = null;
-                               removeDialog(DIALOG_ADD_SHOW);
-				           }
-				       });
+                       .setPositiveButton(R.string.yes, (dialog12, id12) -> {
+removeDialog(DIALOG_ADD_SHOW);
+addShowByListPosition(showListPosition);
+showListPosition = null;
+                       })
+                       .setNegativeButton(R.string.no, (dialog1, id1) -> {
+showListPosition = null;
+removeDialog(DIALOG_ADD_SHOW);
+                       });
                 dialog = builder.create();
                 break;
             }
@@ -263,12 +248,9 @@ public class ShowManagementAddActivity extends GuiceListActivity {
 
             Show show = shows.get(position);
             topText.setText(show.getShowName());
-            row.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showListPosition = i;
-                    showDialog(DIALOG_ADD_SHOW);
-                }
+            row.setOnClickListener(view -> {
+                showListPosition = i;
+                showDialog(DIALOG_ADD_SHOW);
             });
 
             return row;

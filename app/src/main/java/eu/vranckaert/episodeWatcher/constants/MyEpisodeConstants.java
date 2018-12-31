@@ -14,7 +14,7 @@ public class MyEpisodeConstants {
     public static Boolean SHOW_RUNTIME_ENABLED = false;
     public static String CACHE_EPISODES_CACHE_AGE = "Disabled";
 
-    public static Context CONTXT = null;
+    public static Context CONTEXT = null;
 
     public static String EXTENDED_EPISODES_XML;
 

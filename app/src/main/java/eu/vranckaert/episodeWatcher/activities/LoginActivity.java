@@ -48,59 +48,51 @@ public class LoginActivity extends GuiceActivity {
             setContentView(R.layout.login);
 
             TextView register = findViewById(R.id.registerForm);
-            register.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openRegisterScreen();
-                }
-            });
+            register.setOnClickListener(v -> openRegisterScreen());
 
             Button loginButton = findViewById(R.id.loginLogin);
-            loginButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String username = ((EditText) findViewById(R.id.loginUsername)).getText().toString().trim();
-                    String password = ((EditText) findViewById(R.id.loginPassword)).getText().toString().trim();
+            loginButton.setOnClickListener(v -> {
+                String username = ((EditText) findViewById(R.id.loginUsername)).getText().toString().trim();
+                String password = ((EditText) findViewById(R.id.loginPassword)).getText().toString().trim();
 
-                    if (username.length() > 0 && password.length() > 0) {
-                        final User user = new User(
-                                username, password
-                        );
+                if (username.length() > 0 && password.length() > 0) {
+                    final User user = new User(
+                            username, password
+                    );
 
-                        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-                            boolean loginStatus = false;
+                    AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+                        boolean loginStatus = false;
 
-                            @Override
-                            protected void onPreExecute() {
-                                showDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
+                        @Override
+                        protected void onPreExecute() {
+                            showDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
+                        }
+
+                        @Override
+                        protected Object doInBackground(Object... objects) {
+                            loginStatus = login(user);
+                            if (loginStatus) {
+                                storeLoginCredentials(user);
                             }
+                            return 100L;
+                        }
 
-                            @Override
-                            protected Object doInBackground(Object... objects) {
-                                loginStatus = login(user);
-                                if (loginStatus) {
-                                    storeLoginCredentials(user);
-                                }
-                                return 100L;
+                        @Override
+                        protected void onPostExecute(Object o) {
+                            removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
+                            if (loginStatus) {
+                                Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
+                                finalizeLogin();
+                            } else {
+                                ((EditText) findViewById(R.id.loginUsername)).setText("");
+                                ((EditText) findViewById(R.id.loginPassword)).setText("");
+                                showDialog(MY_EPISODES_ERROR_DIALOG);
                             }
-
-                            @Override
-                            protected void onPostExecute(Object o) {
-                                removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
-                                if (loginStatus) {
-                                    Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
-                                    finalizeLogin();
-                                } else {
-                                    ((EditText) findViewById(R.id.loginUsername)).setText("");
-                                    ((EditText) findViewById(R.id.loginPassword)).setText("");
-                                    showDialog(MY_EPISODES_ERROR_DIALOG);
-                                }
-                            }
-                        };
-                        asyncTask.execute();
-                    } else {
-                        showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
-                    }
+                        }
+                    };
+                    asyncTask.execute();
+                } else {
+                    showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
                 }
             });
         } else {
@@ -122,21 +114,13 @@ public class LoginActivity extends GuiceActivity {
                 dialog = new AlertDialog.Builder(this)
                         .setMessage(exceptionMessageResId)
                         .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog1, int id1) {
-                                removeDialog(MY_EPISODES_ERROR_DIALOG);
-                            }
-                        }).create();
+                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> removeDialog(MY_EPISODES_ERROR_DIALOG)).create();
                 break;
             case MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS:
                 dialog = new AlertDialog.Builder(this)
                         .setMessage(R.string.fillInAllFields)
                         .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog1, int id1) {
-                                dialog1.cancel();
-                            }
-                        }).create();
+                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> dialog1.cancel()).create();
                 break;
             default:
                 dialog = super.onCreateDialog(id);

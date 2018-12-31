@@ -48,60 +48,57 @@ public class RegisterActivity extends GuiceActivity {
             setContentView(R.layout.register);
 
             Button registerButton = findViewById(R.id.registerRegister);
-            registerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String username = ((EditText) findViewById(R.id.registerUsername)).getText().toString();
-                    String password = ((EditText) findViewById(R.id.registerPassword)).getText().toString();
-                    email = ((EditText) findViewById(R.id.registerEmail)).getText().toString();
-                    if (username.length() > 0 && password.length() > 0 && email != null && email.length() > 0) {
-                        user = new User(
-                                username, password
-                        );
-                        registerStatus = false;
+            registerButton.setOnClickListener(v -> {
+                String username = ((EditText) findViewById(R.id.registerUsername)).getText().toString();
+                String password = ((EditText) findViewById(R.id.registerPassword)).getText().toString();
+                email = ((EditText) findViewById(R.id.registerEmail)).getText().toString();
+                if (username.length() > 0 && password.length() > 0 && email != null && email.length() > 0) {
+                    user = new User(
+                            username, password
+                    );
+                    registerStatus = false;
 
-                        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-                            @Override
-                            protected void onPreExecute() {
-                                showDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
+                    AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+                        @Override
+                        protected void onPreExecute() {
+                            showDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
+                        }
+
+                        @Override
+                        protected Object doInBackground(Object... objects) {
+                            try {
+                                registerStatus = register(user);
+                            } catch (InternetConnectivityException e) {
+                                String message = "Could not connect to host";
+                                Log.e(LOG_TAG, message, e);
+
+                            } catch (Exception e) {
+                                String message = "Some Exception occured";
+                                Log.e(LOG_TAG, message, e);
                             }
-
-                            @Override
-                            protected Object doInBackground(Object... objects) {
-                                try {
-                                    registerStatus = register(user);
-                                } catch (InternetConnectivityException e) {
-                                    String message = "Could not connect to host";
-                                    Log.e(LOG_TAG, message, e);
-
-                                } catch (Exception e) {
-                                    String message = "Some Exception occured";
-                                    Log.e(LOG_TAG, message, e);
-                                }
-                                if (registerStatus) {
-                                    storeLoginCredentials(user);
-                                }
-                                return 100L;
+                            if (registerStatus) {
+                                storeLoginCredentials(user);
                             }
+                            return 100L;
+                        }
 
-                            @Override
-                            protected void onPostExecute(Object o) {
-                                removeDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
-                                if (registerStatus) {
-                                    Toast.makeText(RegisterActivity.this, R.string.registerSuccessfull, Toast.LENGTH_LONG).show();
-                                    finalizeLogin();
-                                } else {
-                                    ((EditText) findViewById(R.id.registerUsername)).setText("");
-                                    ((EditText) findViewById(R.id.registerPassword)).setText("");
-                                    ((EditText) findViewById(R.id.registerEmail)).setText("");
-                                    showDialog(MY_EPISODES_ERROR_DIALOG);
-                                }
+                        @Override
+                        protected void onPostExecute(Object o) {
+                            removeDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
+                            if (registerStatus) {
+                                Toast.makeText(RegisterActivity.this, R.string.registerSuccessfull, Toast.LENGTH_LONG).show();
+                                finalizeLogin();
+                            } else {
+                                ((EditText) findViewById(R.id.registerUsername)).setText("");
+                                ((EditText) findViewById(R.id.registerPassword)).setText("");
+                                ((EditText) findViewById(R.id.registerEmail)).setText("");
+                                showDialog(MY_EPISODES_ERROR_DIALOG);
                             }
-                        };
-                        asyncTask.execute();
-                    } else {
-                        showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
-                    }
+                        }
+                    };
+                    asyncTask.execute();
+                } else {
+                    showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
                 }
             });
         } else {
@@ -123,21 +120,13 @@ public class RegisterActivity extends GuiceActivity {
                 dialog = new AlertDialog.Builder(this)
                         .setMessage(R.string.registerFailed)
                         .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog1, int id1) {
-                                dialog1.cancel();
-                            }
-                        }).create();
+                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> dialog1.cancel()).create();
                 break;
             case MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS:
                 dialog = new AlertDialog.Builder(this)
                         .setMessage(R.string.fillInAllFields)
                         .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog1, int id1) {
-                                dialog1.cancel();
-                            }
-                        }).create();
+                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> dialog1.cancel()).create();
                 break;
         }
         return dialog;

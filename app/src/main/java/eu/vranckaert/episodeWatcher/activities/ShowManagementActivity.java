@@ -113,11 +113,9 @@ public class ShowManagementActivity extends GuiceListActivity {
                 builder.setTitle(R.string.exceptionDialogTitle)
                         .setMessage(exceptionMessageResId)
                         .setCancelable(false)
-                        .setPositiveButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                exceptionMessageResId = null;
-                                removeDialog(DIALOG_EXCEPTION);
-                            }
+                        .setPositiveButton(R.string.dialogOK, (dialog13, id13) -> {
+                            exceptionMessageResId = null;
+                            removeDialog(DIALOG_EXCEPTION);
                         });
                 dialog = builder.create();
                 break;
@@ -128,23 +126,19 @@ public class ShowManagementActivity extends GuiceListActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(show.getShowName())
                             .setMessage(confirmationMessageResId)
-                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    selectedShow = -1;
-                                    confirmationMessageResId = -1;
-                                    showAction = null;
-                                    removeDialog(CONFIRMATION_DIALOG);
-                                }
+                            .setNegativeButton(R.string.no, (dialog12, id12) -> {
+                                selectedShow = -1;
+                                confirmationMessageResId = -1;
+                                showAction = null;
+                                removeDialog(CONFIRMATION_DIALOG);
                             })
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    removeDialog(CONFIRMATION_DIALOG);
-                                    markShow(show, showAction);
+                            .setPositiveButton(R.string.yes, (dialog1, id1) -> {
+                                removeDialog(CONFIRMATION_DIALOG);
+                                markShow(show, showAction);
 
-                                    selectedShow = -1;
-                                    confirmationMessageResId = -1;
-                                    showAction = null;
-                                }
+                                selectedShow = -1;
+                                confirmationMessageResId = -1;
+                                showAction = null;
                             });
                     dialog = builder.create();
                 }
@@ -234,12 +228,7 @@ public class ShowManagementActivity extends GuiceListActivity {
             Show show = shows.get(position);
             topText.setText(show.getShowName());
 
-            row.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    openContextMenu(view);
-                }
-            });
+            row.setOnClickListener(view -> openContextMenu(view));
 
             return row;
         }

@@ -1,6 +1,6 @@
 package eu.vranckaert.episodeWatcher.service;
 
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.util.Log;
 import android.util.Xml;
 
@@ -127,7 +127,7 @@ public class EpisodesService {
 
                         //write the xml to disk for future use
                         String FILENAME = "Watch.xml";
-                        FileOutputStream fos = MyEpisodeConstants.CONTXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
+                        FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
                         fos.write(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes());
                         fos.close();
                         Log.d(LOG_TAG, FILENAME + " saved to disk");
@@ -272,11 +272,11 @@ public class EpisodesService {
         StringBuilder EpisodeXML = new StringBuilder();
         try {
             //String FILENAME = "Watch.xml";
-            FileInputStream instream = MyEpisodeConstants.CONTXT.openFileInput(FILENAME);
+            FileInputStream instream = MyEpisodeConstants.CONTEXT.openFileInput(FILENAME);
 
-            File file = new File(MyEpisodeConstants.CONTXT.getFilesDir(), FILENAME);
+            File file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), FILENAME);
 
-            Log.d(LOG_TAG, "Save file Path" + MyEpisodeConstants.CONTXT.getFilesDir().toString());
+            Log.d(LOG_TAG, "Save file Path" + MyEpisodeConstants.CONTEXT.getFilesDir().toString());
             if (isOnline()) {
                 deleteOldCacheFiles(file);
             } else {
@@ -917,6 +917,7 @@ public class EpisodesService {
         }
     }
 
+    //todo - make this actually work
     private void setViewFilters(Boolean setForDownload, Boolean isWatched, HttpClient httpClient) {
         HttpPost httppost = new HttpPost(MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING);
         Log.e(LOG_TAG, "setViewFilters has been called");

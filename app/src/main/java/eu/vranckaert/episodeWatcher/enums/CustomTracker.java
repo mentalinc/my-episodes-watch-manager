@@ -28,7 +28,7 @@ public class CustomTracker {
         }
     }
 
-    public enum Event {
+   /* public enum Event {
         MARK_WATCHED("MarkAsWatched", "ContextMenu-EpisodeListingTabActivity"),
         MARK_ACQUIRED("MarkAsAcquire", "ContextMenu-EpisodeListingTabActivity"),
         LOGOUT("Logout", "MenuButton-EpisodeListingTabActivity"),
@@ -54,5 +54,5 @@ public class CustomTracker {
         public String getAction() {
             return action;
         }
-    }
+    }*/
 }

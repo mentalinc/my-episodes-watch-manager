@@ -1,6 +1,6 @@
 package eu.vranckaert.episodeWatcher.service;
 
-import android.arch.persistence.room.Room;
+import androidx.room.Room;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;

@@ -87,12 +87,9 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         root.addPreference(passwordPref);
 
         ListPreference openThemePref = new ListPreference(this);
-        openThemePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                refreshDialog = true;
-                return true;
-            }
+        openThemePref.setOnPreferenceChangeListener((preference, newValue) -> {
+            refreshDialog = true;
+            return true;
         });
         openThemePref.setKey(PreferencesKeys.THEME_KEY);
         openThemePref.setTitle(R.string.ThemePrompt);
@@ -449,7 +446,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
     public boolean deleteFile(String fileNametoDelete) {
 
-        File filetoDelete = new File(MyEpisodeConstants.CONTXT.getFilesDir(), fileNametoDelete);
+        File filetoDelete = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), fileNametoDelete);
         if (filetoDelete.exists()) {
             String LOG_TAG = "PreferencesActivity";
             if (filetoDelete.delete()) {

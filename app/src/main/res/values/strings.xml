@@ -1,9 +1,9 @@
 <?xml version="1.0"   encoding="utf-8"?><!-- Revision #93 -->
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="InconsistentArrays">
     <!-- default values -->
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
     <string name="attention">Attention</string>
@@ -113,6 +113,7 @@
         <item>Enabled 200+ episodes</item>
         <item>Show runtime added</item>
         <item>Ability to update/edit show runtime</item>
+        <item>Show summary and image added to episode details</item>
     </string-array>
     <!-- logoutDialog -->
     <string name="logoutDialogTitle">Are you sure?</string>
