@@ -26,11 +26,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
@@ -161,7 +162,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
          */
         protected HashMap<String, String> doInBackground(String... params) {
 
-            HttpURLConnection connection = null;
+            HttpsURLConnection connection = null;
             BufferedReader reader = null;
             //String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + ShowTVMazeID + "/episodebynumber?season=" + SeasonString + "&number=" + EpisodeString;
             String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0] + "/episodebynumber?season=" + params[1] + "&number=" + params[2];
@@ -169,7 +170,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 
             try {
                 URL url = new URL(episodeSummaryAPIURL);
-                connection = (HttpURLConnection) url.openConnection();
+                connection = (HttpsURLConnection) url.openConnection();
                 connection.connect();
                 int code = connection.getResponseCode();
                 Log.d(LOG_TAG, "API HTTP Status Code: " + code);
@@ -177,7 +178,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                 if (code == 429) {
                     Thread.sleep(10000);
                     //wait 10 seconds then try again
-                    connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpsURLConnection) url.openConnection();
                     connection.connect();
                 }
 
@@ -319,7 +320,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
             } else {
 
 
-                HttpURLConnection connection = null;
+                HttpsURLConnection connection = null;
                 BufferedReader reader = null;
                 //String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + ShowTVMazeID + "/episodebynumber?season=" + SeasonString + "&number=" + EpisodeString;
                 String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0];
@@ -327,7 +328,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 
                 try {
                     URL url = new URL(episodeSummaryAPIURL);
-                    connection = (HttpURLConnection) url.openConnection();
+                    connection = (HttpsURLConnection) url.openConnection();
                     connection.connect();
                     int code = connection.getResponseCode();
                     Log.d(LOG_TAG, "API HTTP Status Code: " + code);
@@ -335,7 +336,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                     if (code == 429) {
                         Thread.sleep(10000);
                         //wait 10 seconds then try again
-                        connection = (HttpURLConnection) url.openConnection();
+                        connection = (HttpsURLConnection) url.openConnection();
                         connection.connect();
                     }
 

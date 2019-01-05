@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -37,6 +36,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
@@ -1009,7 +1010,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         try {
             //Thread.sleep(3000);
             URL url = new URL("https://www.myepisodes.com/favicon.ico");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "yourAgent");
             connection.setRequestProperty("Connection", "close");
             connection.setConnectTimeout(1000);

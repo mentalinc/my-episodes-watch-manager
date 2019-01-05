@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -178,10 +177,6 @@ public class ShowManagementActivity extends GuiceListActivity {
     private void getShows(User user, ShowType showType) {
         try {
             shows = service.getFavoriteOrIgnoredShows(user, showType);
-        } catch (UnsupportedHttpPostEncodingException e) {
-            String message = "Network issues";
-            Log.e(LOG_TAG, message, e);
-            exceptionMessageResId = R.string.networkIssues;
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
             Log.e(LOG_TAG, message, e);

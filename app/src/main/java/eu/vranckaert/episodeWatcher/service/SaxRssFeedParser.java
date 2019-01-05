@@ -17,12 +17,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -421,7 +421,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     private static boolean isOnline() {
         try {
             URL url = new URL("https://www.myepisodes.com/favicon.ico");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", "yourAgent");
             connection.setRequestProperty("Connection", "close");
             connection.setConnectTimeout(1000);

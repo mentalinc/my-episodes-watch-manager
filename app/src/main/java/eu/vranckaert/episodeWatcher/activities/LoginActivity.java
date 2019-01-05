@@ -42,8 +42,6 @@ public class LoginActivity extends GuiceActivity {
         init();
 
         if (!checkLoginCredentials()) {
-            //	tracker = CustomAnalyticsTracker.getInstance(this);
-            //	tracker.trackPageView(CustomTracker.PageView.LOGIN);
 
             setContentView(R.layout.login);
 
@@ -63,6 +61,8 @@ public class LoginActivity extends GuiceActivity {
                     AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
                         boolean loginStatus = false;
 
+                        java.net.CookieManager msCookieManager = new java.net.CookieManager();
+
                         @Override
                         protected void onPreExecute() {
                             showDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
@@ -70,8 +70,10 @@ public class LoginActivity extends GuiceActivity {
 
                         @Override
                         protected Object doInBackground(Object... objects) {
-                            loginStatus = login(user);
-                            if (loginStatus) {
+                            msCookieManager = login(user);
+                            //todo add a test here to check for a type of cookie to show login has worked ok....
+                            //remove true and add in the cookie test
+                            if (msCookieManager.getCookieStore().getCookies().size() > 0) {
                                 storeLoginCredentials(user);
                             }
                             return 100L;
@@ -80,7 +82,9 @@ public class LoginActivity extends GuiceActivity {
                         @Override
                         protected void onPostExecute(Object o) {
                             removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
-                            if (loginStatus) {
+                            //todo add a test here to check for a type of cookie to show login has worked ok....
+                            //remove true and add in the cookie test
+                            if (msCookieManager.getCookieStore().getCookies().size() > 0) {
                                 Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
                                 finalizeLogin();
                             } else {
@@ -129,14 +133,14 @@ public class LoginActivity extends GuiceActivity {
         return dialog;
     }
 
-    private boolean login(User user) {
-        boolean loginStatus = false;
+    private java.net.CookieManager login(User user) {
+        java.net.CookieManager cookieManager = new java.net.CookieManager();
         try {
-            loginStatus = service.login(user);
-        } catch (InternetConnectivityException e) {
+            cookieManager = service.login(user);
+        /*} catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
             Log.e(LOG_TAG, message, e);
-            exceptionMessageResId = R.string.internetConnectionFailureTryAgain;
+            exceptionMessageResId = R.string.internetConnectionFailureTryAgain;*/
         } catch (LoginFailedException e) {
             String message = "Login failed";
             Log.e(LOG_TAG, message, e);
@@ -146,7 +150,7 @@ public class LoginActivity extends GuiceActivity {
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.defaultExceptionMessage;
         }
-        return loginStatus;
+        return cookieManager;
     }
 
     private boolean checkLoginCredentials() {

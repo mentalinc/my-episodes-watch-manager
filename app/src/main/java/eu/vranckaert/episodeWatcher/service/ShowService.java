@@ -1,32 +1,33 @@
 package eu.vranckaert.episodeWatcher.service;
 
-import androidx.room.Room;
 import android.util.Log;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
+import androidx.room.Room;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.database.AppDatabase;
 import eu.vranckaert.episodeWatcher.database.SeriesDAO;
@@ -52,30 +53,53 @@ public class ShowService {
     }
 
     public List<Show> searchShows(String search, User user) throws UnsupportedHttpPostEncodingException, InternetConnectivityException, LoginFailedException {
-        HttpClient httpClient = new DefaultHttpClient();
-        String username = user.getUsername();
-        userService.login(httpClient, username, user.getPassword());
 
-        HttpPost post = new HttpPost(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE);
 
-        List<NameValuePair> nvps = new ArrayList<>();
-        nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_SHOW, search));
-        nvps.add(new BasicNameValuePair(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_ACTION_VALUE));
+        userService.login(user.getUsername(), user.getPassword());
 
+
+        URL url;
+        String response = "";
+        java.net.CookieManager msCookieManager = new java.net.CookieManager();
+        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
         try {
-            post.setEntity(new UrlEncodedFormEntity(nvps));
-        } catch (UnsupportedEncodingException e) {
-            String message = "Could not start search because the HTTP post encoding is not supported";
-            Log.e(LOG_TAG, message, e);
-            throw new UnsupportedHttpPostEncodingException(message, e);
-        }
+            url = new URL(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE);
 
-        String responsePage;
-        HttpResponse response;
-        try {
-            response = httpClient.execute(post);
-            responsePage = EntityUtils.toString(response.getEntity());
-        } catch (ClientProtocolException | UnknownHostException e) {
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+
+            HashMap postDataParams = new HashMap<String, String>() {{
+                put(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_SHOW, search);
+                put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_ACTION_VALUE);
+            }};
+
+            writer.write(getPostDataString(postDataParams));
+
+            writer.flush();
+            writer.close();
+            os.close();
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = br.readLine()) != null) {
+                    response += line;
+                }
+            } else {
+                response = "";
+
+            }
+
+
+        } catch ( UnknownHostException e) {
             String message = "Could not connect to host.";
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
@@ -83,16 +107,19 @@ public class ShowService {
             String message = "Search on MyEpisodes failed.";
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
-        } finally {
-            httpClient.getConnectionManager().shutdown();
+
+        } catch (Exception e) {
+            String message = "Error";
+            Log.e(LOG_TAG, message, e);
         }
 
-        List<Show> shows = extractSearchResults(responsePage);
+        List<Show> shows = extractSearchResults(response);
 
         Log.d(LOG_TAG, shows.size() + " shows found for search value " + search);
 
         return shows;
     }
+
 
     /**
      * Extract a list of shows from the MyEpisodes.com HTML output!
@@ -141,50 +168,79 @@ public class ShowService {
         return shows;
     }
 
-    public void addShow(String myEpsidodesShowId, User user) throws InternetConnectivityException, LoginFailedException, UnsupportedHttpPostEncodingException, ShowAddFailedException {
-        HttpClient httpClient = new DefaultHttpClient();
-        userService.login(httpClient, user.getUsername(), user.getPassword());
-        String url = MyEpisodeConstants.MYEPISODES_ADD_SHOW_PAGE + myEpsidodesShowId;
-        HttpGet get = new HttpGet(url);
+    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (first)
+                first = false;
+            else
+                result.append("&");
 
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
+    }
+
+
+    public void addShow(String myEpsidodesShowId, User user) throws InternetConnectivityException, LoginFailedException, UnsupportedHttpPostEncodingException, ShowAddFailedException {
+
+        userService.login(user.getUsername(), user.getPassword());
+        String responsePage = "";
         int status;
+        String URLString = MyEpisodeConstants.MYEPISODES_ADD_SHOW_PAGE + myEpsidodesShowId;
 
         try {
-            HttpResponse response = httpClient.execute(get);
-            status = response.getStatusLine().getStatusCode();
+            URL url = new URL(URLString);
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            status = conn.getResponseCode();
+
+            String line;
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            while ((line = br.readLine()) != null) {
+                responsePage += line;
+            }
+
         } catch (UnknownHostException e) {
             String message = "Could not connect to host.";
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
         } catch (IOException e) {
-            String message = "Adding the show status failed for URL " + url;
+            String message = "Adding the show status failed for URL " + URLString;
             Log.w(LOG_TAG, message, e);
             throw new ShowAddFailedException(message, e);
-        } finally {
-            httpClient.getConnectionManager().shutdown();
         }
 
         if (status != 200) {
-            String message = "Adding the show status failed with status code " + status + " for URL " + url;
+            String message = "Adding the show status failed with status code " + status + " for URL " + URLString;
             Log.w(LOG_TAG, message);
             throw new ShowAddFailedException(message);
         } else {
-            Log.i(LOG_TAG, "Successfully added the show from url " + url);
+            Log.i(LOG_TAG, "Successfully added the show from url " + URLString);
         }
     }
 
-    public List<Show> getFavoriteOrIgnoredShows(User user, ShowType showType) throws UnsupportedHttpPostEncodingException, InternetConnectivityException, LoginFailedException {
-        HttpClient httpClient = new DefaultHttpClient();
-        userService.login(httpClient, user.getUsername(), user.getPassword());
+    public List<Show> getFavoriteOrIgnoredShows(User user, ShowType showType) throws InternetConnectivityException, LoginFailedException {
 
-        HttpGet get = new HttpGet(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
+        userService.login(user.getUsername(), user.getPassword());
+        String responsePage = "";
 
-        String responsePage;
-        HttpResponse response;
         try {
-            response = httpClient.execute(get);
-            responsePage = EntityUtils.toString(response.getEntity());
-        } catch (ClientProtocolException | UnknownHostException e) {
+            URL url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.getResponseCode();
+
+            String line;
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            while ((line = br.readLine()) != null) {
+                responsePage += line;
+            }
+        } catch (UnknownHostException e) {
             String message = "Could not connect to host.";
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
@@ -200,6 +256,7 @@ public class ShowService {
 
         return shows;
     }
+
 
     private List<Show> parseShowsHtml(String html, ShowType showType) {
         List<Show> shows = new ArrayList<>();
@@ -281,7 +338,7 @@ public class ShowService {
 
     private void ShowsRuntime(String show, String myEpsID, AppDatabase database) {
 
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         BufferedReader reader = null;
 
         String tvMazeAPIURL = "https://api.tvmaze.com/singlesearch/shows?q=";
@@ -298,7 +355,7 @@ public class ShowService {
 
         try {
             URL url = new URL(tvMazeAPIURL);
-            connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpsURLConnection) url.openConnection();
             connection.connect();
             int code = connection.getResponseCode();
             Log.d(LOG_TAG, "API HTTP Status Code: " + code);
@@ -306,7 +363,7 @@ public class ShowService {
             if (code == 429) {
                 Thread.sleep(10000);
                 //wait 10 seconds then try again
-                connection = (HttpURLConnection) url.openConnection();
+                connection = (HttpsURLConnection) url.openConnection();
                 connection.connect();
             }
 
@@ -378,7 +435,7 @@ public class ShowService {
             epsRunTime.setOfficialSite(officialSite);
             epsRunTime.setShowImageURL(showImageURL);
 
-          //  Log.d("epsRunTime: ", epsRunTime.toString());
+            //  Log.d("epsRunTime: ", epsRunTime.toString());
 
             seriesDAO.insert(epsRunTime);
 
@@ -401,39 +458,39 @@ public class ShowService {
 
 
     public List<Show> markShow(User user, Show show, ShowAction showAction, ShowType showType) throws LoginFailedException, InternetConnectivityException, UnsupportedHttpPostEncodingException {
-        HttpClient httpClient = new DefaultHttpClient();
-        userService.login(httpClient, user.getUsername(), user.getPassword());
 
-        String url = "";
-        switch (showAction) {
-            case IGNORE:
-                Log.d(LOG_TAG, "IGNORING SHOWS");
-                url = MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_URL;
-                break;
-            case UNIGNORE:
-                Log.d(LOG_TAG, "UNIGNORING SHOWS");
-                url = MyEpisodeConstants.MYEPISODES_FAVO_UNIGNORE_URL;
-                break;
-            case DELETE:
-                Log.d(LOG_TAG, "DELETING SHOWS");
-                url = MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR;
-                break;
-        }
-
-        HttpGet get = new HttpGet(url + show.getMyEpisodeID());
+        userService.login(user.getUsername(), user.getPassword());
 
         try {
-            httpClient.execute(get);
-        } catch (ClientProtocolException | UnknownHostException e) {
+            URL url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID());
+
+            switch (showAction) {
+                case IGNORE:
+                    Log.d(LOG_TAG, "IGNORING SHOWS");
+                    url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_URL + show.getMyEpisodeID());
+                    break;
+                case UNIGNORE:
+                    Log.d(LOG_TAG, "UNIGNORING SHOWS");
+                    url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_UNIGNORE_URL + show.getMyEpisodeID());
+                    break;
+                case DELETE:
+                    Log.d(LOG_TAG, "DELETING SHOWS");
+                    url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID());
+                    break;
+            }
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.getResponseCode();
+
+
+        } catch (UnknownHostException e) {
             String message = "Could not connect to host.";
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
         } catch (IOException e) {
-            String message = "Markin shows on MyEpisodes failed.";
+            String message = "Marking shows on MyEpisodes failed.";
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
-        } finally {
-            httpClient.getConnectionManager().shutdown();
         }
 
         return getFavoriteOrIgnoredShows(user, showType);
