@@ -76,9 +76,13 @@ public class ShowManagementActivity extends GuiceListActivity {
         if (Objects.requireNonNull(showType).equals(ShowType.FAVOURITE_SHOWS)) {
             Log.d(LOG_TAG, "Opening the favourite shows");
             ((TextView) findViewById(R.id.title_text)).setText(R.string.favouriteShows);
+            this.setTitle(R.string.favouriteShows);
+
+
         } else if (showType.equals(ShowType.IGNORED_SHOWS)) {
             Log.d(LOG_TAG, "Opening the ignored shows");
             ((TextView) findViewById(R.id.title_text)).setText(R.string.ignoredShows);
+            this.setTitle(R.string.ignoredShows);
         }
 
         user = new User(
@@ -315,10 +319,6 @@ public class ShowManagementActivity extends GuiceListActivity {
     private void markShow(User user, ShowType showType, ShowAction showAction, Show show) {
         try {
             shows = service.markShow(user, show, showAction, showType);
-        } catch (UnsupportedHttpPostEncodingException e) {
-            String message = "Network issues";
-            Log.e(LOG_TAG, message, e);
-            exceptionMessageResId = R.string.networkIssues;
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
             Log.e(LOG_TAG, message, e);

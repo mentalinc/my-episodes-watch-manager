@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="eu.vranckaert.episodeWatcher"
     android:installLocation="auto">
 
@@ -9,14 +10,14 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 
-
     <application
         android:name="MyEpisodes"
         android:allowBackup="false"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Holo.Light">
+        android:theme="@android:style/Theme.Holo.Light"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".activities.HomeActivity"
             android:label="@string/app_name">
@@ -27,16 +28,20 @@
         </activity>
         <activity
             android:name=".activities.EpisodeListingActivity"
-            android:configChanges="orientation|keyboardHidden" />
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/watch" />
         <activity
             android:name=".activities.LoginActivity"
-            android:configChanges="orientation|keyboardHidden" />
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/loginLoginBtn" />
         <activity
             android:name=".activities.RegisterActivity"
-            android:configChanges="orientation|keyboardHidden" />
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/registerBtn" />
         <activity
             android:name=".activities.EpisodeDetailsActivity"
-            android:configChanges="orientation|keyboardHidden" />
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/details" />
         <activity
             android:name=".activities.PreferencesActivity"
             android:configChanges="orientation|keyboardHidden"
@@ -47,24 +52,25 @@
         <activity
             android:name=".activities.ShowManagementActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:label="@string/manageShows" />
+            android:label="@string/favouriteShows" />
         <activity
             android:name=".activities.ShowManagementAddActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:label="@string/manageShows" />
+            android:label="@string/addShow" />
         <activity
             android:name=".activities.ShowManagementRunTimeActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:label="@string/manageShows" />
+            android:label="@string/ShowRuntime" />
         <activity
             android:name=".activities.RandomEpPickerActivity"
-            android:configChanges="orientation|keyboardHidden" />
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/randompicker" />
         <activity
             android:name=".activities.AboutActivity"
-            android:theme="@android:style/Theme.Holo.Light" />
+            android:label="@string/about" />
         <activity
             android:name=".activities.ChangelogActivity"
-            android:theme="@android:style/Theme.Holo.Light" />
+            android:label="@string/whatsNewTitle" />
 
 
         <uses-library android:name="android.test.runner" />

@@ -1,4 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@id/home"
+        android:contentDescription="@string/home"
+        android:enabled="true"
+        android:icon="@drawable/ic_title_home"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/home"
+        android:visible="true" />
+
     <item
         android:id="@+id/markAsSeen"
         android:enabled="true"
@@ -13,4 +23,14 @@
         android:showAsAction="ifRoom|withText"
         android:title="@string/menuEpisodeMarkAcquired"
         android:visible="true" />
+
+    <item
+        android:id="@+id/btn_title_share"
+        android:contentDescription="@string/TweetTitle"
+        android:enabled="true"
+        android:icon="@drawable/ic_title_share"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/TweetTitle"
+        android:visible="true" />
+
 </menu>

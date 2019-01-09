@@ -212,10 +212,6 @@ removeDialog(DIALOG_ADD_SHOW);
             shows = service.searchShows(query, user);
             Log.d(LOG_TAG, shows.size() + " show(s) found!!!");
             exceptionMessageResId = null;
-        } catch (UnsupportedHttpPostEncodingException e) {
-            String message = "Network issues";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
 			Log.e(LOG_TAG, message, e);
@@ -296,10 +292,6 @@ removeDialog(DIALOG_ADD_SHOW);
 			exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
             String message = "Login failure";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
-        } catch (UnsupportedHttpPostEncodingException e) {
-            String message = "Network issues";
 			Log.e(LOG_TAG, message, e);
 			exceptionMessageResId = R.string.networkIssues;
         } catch (ShowAddFailedException e) {

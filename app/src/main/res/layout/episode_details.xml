@@ -3,33 +3,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <LinearLayout style="@style/TitleBar">
-
-        <ImageButton
-            style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:onClick="onHomeClick"
-            android:src="@drawable/ic_title_home" />
-
-        <ImageView
-            style="@style/TitleBarSeparator"
-            android:contentDescription="@style/TitleBarSeparator" />
-
-        <TextView style="@style/TitleBarText" />
-
-        <ImageView
-            style="@style/TitleBarSeparator"
-            android:contentDescription="@style/TitleBarSeparator" />
-
-        <ImageButton
-            android:id="@+id/btn_title_refresh"
-            style="@style/TitleBarAction"
-            android:contentDescription="@string/TweetTitle"
-            android:onClick="onTweetClick"
-            android:showAsAction="ifRoom|withText"
-            android:src="@drawable/ic_title_share" />
-    </LinearLayout>
-
     <ScrollView
         android:id="@+id/ScrollView01"
         android:layout_width="fill_parent"

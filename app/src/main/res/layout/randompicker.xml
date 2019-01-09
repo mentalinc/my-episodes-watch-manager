@@ -22,7 +22,7 @@
             android:contentDescription="@style/TitleBarSeparator" />
 
         <ImageButton
-            android:id="@+id/btn_title_refresh"
+            android:id="@+id/btn_title_share"
             style="@style/TitleBarAction"
             android:contentDescription="@string/TweetTitle"
             android:onClick="onTweetClick"
@@ -120,12 +120,6 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-
-
-
-
-
-
 
             <LinearLayout
                 android:id="@+id/LinearLayout01"

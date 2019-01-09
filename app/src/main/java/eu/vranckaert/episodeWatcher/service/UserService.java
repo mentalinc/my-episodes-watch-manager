@@ -146,9 +146,7 @@ public class UserService {
         return msCookieManager;
     }
 
-    private boolean RegisterUser(String username, String password, String email) throws RegisterFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
-
-
+    private boolean RegisterUser(String username, String password, String email) throws RegisterFailedException, UnsupportedHttpPostEncodingException {
         URL url;
         String response = "";
         CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));

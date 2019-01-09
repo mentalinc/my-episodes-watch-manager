@@ -103,10 +103,12 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         this.service = new EpisodesService();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.home_menu, menu);
+        //inflater.inflate(R.menu.home_menu, menu);
+        inflater.inflate(R.menu.episode_listing_menu, menu);
         return true;
     }
 
@@ -116,6 +118,16 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             case R.id.preferences:
                 openPreferencesActivity();
                 return true;
+            case R.id.btn_title_collapse:
+                onCollapseClick();
+                return true;
+            case R.id.home:
+                exit();
+                return true;
+            case R.id.btn_title_refresh :
+                onRefreshClick();
+                return true;
+
         }
         return false;
     }
@@ -162,7 +174,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                     menu.setHeaderTitle(shows.get(groupid).getShowName());
                     break;
                 case EPISODES_BY_DATE:
-                    menu.setHeaderTitle(DateUtil.formatDateLong(determineDate(groupid), this));
+                    menu.setHeaderTitle(DateUtil.formatDateLong(determineDate(groupid)));
                     break;
             }
             MenuInflater inflater = getMenuInflater();
@@ -435,6 +447,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             switch (episodesType) {
                 case EPISODES_TO_WATCH:
                     subTitle.setText(getString(R.string.watchListSubTitleWatch, countEpisodes));
+                    this.setTitle(R.string.watch);
                     ((TextView) findViewById(R.id.title_text)).setText(R.string.watch);
                     openListRows(RowController.getInstance().getOpenWatchRows());
                     break;
@@ -442,11 +455,13 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 case EPISODES_TO_YESTERDAY2:
                 case EPISODES_TO_ACQUIRE:
                     subTitle.setText(getString(R.string.watchListSubTitleAcquire, countEpisodes));
+                    this.setTitle(R.string.acquire);
                     ((TextView) findViewById(R.id.title_text)).setText(R.string.acquire);
                     openListRows(RowController.getInstance().getOpenAcquireRows());
                     break;
                 case EPISODES_COMING:
                     subTitle.setText(getString(R.string.watchListSubTitleComing, countEpisodes));
+                    this.setTitle(R.string.coming);
                     ((TextView) findViewById(R.id.title_text)).setText(R.string.coming);
                     openListRows(RowController.getInstance().getOpenComingRows());
                     break;
@@ -455,6 +470,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             switch (episodesType) {
                 case EPISODES_TO_WATCH:
                     subTitle.setText(getString(R.string.watchListSubTitleWatchPlural, countEpisodes));
+                    this.setTitle(R.string.watch);
                     ((TextView) findViewById(R.id.title_text)).setText(R.string.watch);
                     openListRows(RowController.getInstance().getOpenWatchRows());
                     break;
@@ -462,11 +478,13 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 case EPISODES_TO_YESTERDAY2:
                 case EPISODES_TO_ACQUIRE:
                     subTitle.setText(getString(R.string.watchListSubTitleAcquirePlural, countEpisodes));
+                    this.setTitle(R.string.acquire);
                     ((TextView) findViewById(R.id.title_text)).setText(R.string.acquire);
                     openListRows(RowController.getInstance().getOpenAcquireRows());
                     break;
                 case EPISODES_COMING:
                     subTitle.setText(getString(R.string.watchListSubTitleComingPlural, countEpisodes));
+                    this.setTitle(R.string.coming);
                     ((TextView) findViewById(R.id.title_text)).setText(R.string.coming);
                     openListRows(RowController.getInstance().getOpenComingRows());
                     break;
@@ -530,7 +548,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 for (Date key : workingMap.keySet()) {
                     Map<String, String> map = new HashMap<>();
                     int countEp = workingMap.get(key);
-                    map.put("episodeRowTitle", DateUtil.formatDateFull(key, getApplicationContext()) + " [ " + countEp + " ]");
+                    map.put("episodeRowTitle", DateUtil.formatDateFull(key) + " [ " + countEp + " ]");
                     headerList.add(map);
                     listedAirDates.put(key, null);
                 }
@@ -881,10 +899,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             String message = "Marking the show watched failed (" + episode + ")";
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.watchListUnableToMarkWatched;
-        } catch (UnsupportedHttpPostEncodingException e) {
-            String message = "Network issues";
-            Log.e(LOG_TAG, message, e);
-            exceptionMessageResId = R.string.networkIssues;
         } catch (Exception e) {
             String message = "Unknown exception occured";
             Log.e(LOG_TAG, message, e);
@@ -914,10 +928,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             String message = "Marking shows watched failed";
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.watchListUnableToMarkWatched;
-        } catch (UnsupportedHttpPostEncodingException e) {
-            String message = "Network issues";
-            Log.e(LOG_TAG, message, e);
-            exceptionMessageResId = R.string.networkIssues;
         } catch (Exception e) {
             String message = "Unknown exception occured";
             Log.e(LOG_TAG, message, e);
@@ -929,7 +939,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         exit();
     }
 
-    public void onRefreshClick(View v) {
+    public void onRefreshClick() {
         Log.v(LOG_TAG, "Show online dialog.");
         showDialog(ONLINE_CHECK_DIALOG);
         boolean onlineCheck = isOnline();
@@ -981,7 +991,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         reloadEpisodes();
     }
 
-    public void onCollapseClick(View v) {
+    public void onCollapseClick() {
         for (int i = 0; i < episodeAdapter.getGroupCount(); i++) {
             if (collapsed) {
                 this.getExpandableListView().expandGroup(i);

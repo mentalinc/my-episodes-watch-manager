@@ -17,7 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -50,10 +50,15 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.closePreferences:
                 finish();
                 return true;
+            case R.id.home:
+                finish();
+                return true;
+
         }
         return false;
     }
@@ -63,9 +68,9 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
         super.onCreate(savedInstance);
 
-        setContentView(R.layout.preferences);
-
-        ((TextView) findViewById(R.id.title_text)).setText(R.string.preferences);
+        //remove the blue bar from the preferences page
+        // setContentView(R.layout.preferences);
+        // ((TextView) findViewById(R.id.title_text)).setText(R.string.preferences);
 
         getPreferenceManager().setSharedPreferencesName(Preferences.PREF_NAME);
         PreferenceScreen screen = createPreferenceScreen();
@@ -446,14 +451,14 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
     public boolean deleteFile(String fileNametoDelete) {
 
-        File filetoDelete = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), fileNametoDelete);
-        if (filetoDelete.exists()) {
+        File fileToDelete = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), fileNametoDelete);
+        if (fileToDelete.exists()) {
             String LOG_TAG = "PreferencesActivity";
-            if (filetoDelete.delete()) {
-                Log.d(LOG_TAG, filetoDelete.getName() + " deleted");
+            if (fileToDelete.delete()) {
+                Log.d(LOG_TAG, fileToDelete.getName() + " deleted");
                 return true;
             } else {
-                Log.e(LOG_TAG, "ERROR deleting " + filetoDelete.getName());
+                Log.e(LOG_TAG, "ERROR deleting " + fileToDelete.getName());
                 return false;
             }
         }

@@ -75,7 +75,6 @@ public class HomeActivity extends Activity {
         checkPreferences();
         String LanguageCode = Preferences.getPreference(this, PreferencesKeys.LANGUAGE_KEY);
 
-
         //fix issue where app run and no days back has been set by the user.
         Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
         if (Objects.equals(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE), "")) {
@@ -126,19 +125,18 @@ public class HomeActivity extends Activity {
 
             public void onViewScrollFinished(int currentPage) {
                 control.setCurrentPage(currentPage);
-
+/*
                 if (currentPage == 0)
                     ((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator1);
                 else
-                    ((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator2);
+                    ((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator2)*/
             }
         });
 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
         btnWatched = findViewById(R.id.btn_watched);
-        watchIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+        watchIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
         String watch_sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
         if (watch_sorting.equals(showOrderOptions[3])) {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
@@ -147,8 +145,7 @@ public class HomeActivity extends Activity {
         }
         btnWatched.setOnClickListener(v -> startActivity(watchIntent));
 
-        acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
+        acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
         String acquire_sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
         if (acquire_sorting.equals(showOrderOptions[3])) {
             acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
@@ -162,8 +159,7 @@ public class HomeActivity extends Activity {
         }
 
         Button btnComing = findViewById(R.id.btn_coming);
-        comingIntent = new Intent().setClass(this, EpisodeListingActivity.class)
-                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+        comingIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
         String coming_sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
         if (coming_sorting.equals(showOrderOptions[3])) {
             comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);

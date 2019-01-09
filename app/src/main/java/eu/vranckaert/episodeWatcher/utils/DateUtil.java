@@ -19,39 +19,15 @@ public final class DateUtil {
     //http://download.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html#rfc822timezone
     private static final String[] dateFormats = {"d-MMM-y", "d/M/y", "d-M-y", "d-MM-y"};
 
-    /**
-     * Formats a given date in the {@link java.text.DateFormat#LONG} format.
-     *
-     * @param date    The date to format.
-     * @param context The context in which the user locale can be found!
-     * @return The date representation in a string.
-     */
-    public static String formatDateLong(Date date, Context context) {
-        Locale locale = getCurrentLocale(context);
-        return formatDateLong(date, locale);
-    }
-
-    /**
-     * Formats a given date in the {@link java.text.DateFormat#FULL} format.
-     *
-     * @param date    The date to format.
-     * @param context The context in which the user locale can be found!
-     * @return The date representation in a string.
-     */
-    public static String formatDateFull(Date date, Context context) {
-        Locale locale = getCurrentLocale(context);
-        return formatDateFull(date, locale);
-    }
 
     /**
      * Formats a given date in the {@link java.text.DateFormat#FULL} format.
      *
      * @param date   The date to format.
-     * @param locale The locale to use to format the date.
      * @return The date representation in a string.
      */
-    private static String formatDateFull(Date date, Locale locale) {
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, locale);
+    public static String formatDateFull(Date date) {
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL);
         return dateFormat.format(date);
     }
 
@@ -59,34 +35,12 @@ public final class DateUtil {
      * Formats a given date in the {@link java.text.DateFormat#LONG} format.
      *
      * @param date   The date to format.
-     * @param locale The locale to use to format the date.
+     *
      * @return The date representation in a string.
      */
-    private static String formatDateLong(Date date, Locale locale) {
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG, locale);
+    public static String formatDateLong(Date date) {
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG);
         return dateFormat.format(date);
-    }
-
-// --Commented out by Inspection START (11/12/2018 9:30 PM):
-//    /**
-//     * Formats a given date in the {@link java.text.DateFormat#LONG} format.
-//     * @param date The date to format.
-//     * @return The date representation in a string.
-//     */
-//    public static String formatDateLong(Date date) {
-//        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG);
-//        return dateFormat.format(date);
-//    }
-// --Commented out by Inspection STOP (11/12/2018 9:30 PM)
-
-    /**
-     * Get the current locale of the user.
-     *
-     * @param context The context in which the locale can be found.
-     * @return The user's locale.
-     */
-    private static Locale getCurrentLocale(Context context) {
-        return context.getResources().getConfiguration().locale;
     }
 
     /**

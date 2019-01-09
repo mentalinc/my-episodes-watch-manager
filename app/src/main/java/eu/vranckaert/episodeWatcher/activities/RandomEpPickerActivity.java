@@ -51,7 +51,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
             Date airdate = random.getAirDate();
             String formattedAirDate;
             if (airdate != null) {
-                formattedAirDate = DateUtil.formatDateLong(airdate, this);
+                formattedAirDate = DateUtil.formatDateLong(airdate);
             } else {
                 formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
             }

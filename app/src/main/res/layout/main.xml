@@ -5,22 +5,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <LinearLayout style="@style/TitleBar">
-
-        <ImageView
-            style="@style/TitleBarLogo"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/logo" />
-
-        <TextView style="@style/TitleBarText" />
-
-        <ImageView
-            android:id="@+id/menu_indicator"
-            style="@style/TitleBarAction"
-            android:contentDescription="home_indicator1"
-            android:src="@drawable/home_indicator1" />
-    </LinearLayout>
-
     <eu.vranckaert.episodeWatcher.pager.HorizontalPager
         android:id="@+id/pager"
         android:layout_width="fill_parent"

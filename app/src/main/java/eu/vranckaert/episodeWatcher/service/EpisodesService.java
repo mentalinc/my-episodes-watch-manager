@@ -49,7 +49,6 @@ import eu.vranckaert.episodeWatcher.exception.FeedUrlBuildingFaildException;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.ShowUpdateFailedException;
-import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
 
 
@@ -325,14 +324,13 @@ public class EpisodesService {
         }
     }
 
-    public void watchedEpisode(Episode episode, User user) throws LoginFailedException, ShowUpdateFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
+    public void watchedEpisode(Episode episode, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
         List<Episode> episodes = new ArrayList<>();
         episodes.add(episode);
         watchedEpisodes(episodes, user);
     }
 
-    public void watchedEpisodes(List<Episode> episodes, User user) throws LoginFailedException
-            , ShowUpdateFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
+    public void watchedEpisodes(List<Episode> episodes, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
 
 
         userService.login(user.getUsername(), user.getPassword());
@@ -345,13 +343,13 @@ public class EpisodesService {
         }
     }
 
-    public void acquireEpisode(Episode episode, User user) throws LoginFailedException, ShowUpdateFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
+    public void acquireEpisode(Episode episode, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
         List<Episode> episodes = new ArrayList<>();
         episodes.add(episode);
         acquireEpisodes(episodes, user);
     }
 
-    public void acquireEpisodes(List<Episode> episodes, User user) throws LoginFailedException, ShowUpdateFailedException, UnsupportedHttpPostEncodingException, InternetConnectivityException {
+    public void acquireEpisodes(List<Episode> episodes, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
 
         userService.login(user.getUsername(), user.getPassword());
 
@@ -427,7 +425,6 @@ public class EpisodesService {
 
 
             url = new URL(urlRep);
-            String response = "";
             Log.d(LOG_TAG, "DOWNLOADING FULL LIST");
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 

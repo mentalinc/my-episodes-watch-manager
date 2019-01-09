@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
-        android:id="@+id/home"
+        android:id="@id/home"
         android:contentDescription="@string/home"
         android:enabled="true"
         android:icon="@drawable/ic_title_home"
         android:showAsAction="ifRoom|withText"
         android:title="@string/home"
         android:visible="true" />
+
     <item
-        android:id="@+id/closePreferences"
+        android:id="@+id/btn_title_collapse"
         android:enabled="true"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:icon="@drawable/ic_title_collapse"
         android:showAsAction="ifRoom|withText"
-        android:title="@string/close"
+        android:title="@string/collapse"
         android:visible="true" />
+
+    <item
+        android:id="@+id/btn_title_refresh"
+        android:enabled="true"
+        android:icon="@drawable/ic_title_refresh"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/refresh"
+        android:visible="true" />
+
+
 </menu>

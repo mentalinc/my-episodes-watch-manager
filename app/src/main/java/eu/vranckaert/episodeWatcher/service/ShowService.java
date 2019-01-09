@@ -2,7 +2,6 @@ package eu.vranckaert.episodeWatcher.service;
 
 import android.util.Log;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,7 +37,6 @@ import eu.vranckaert.episodeWatcher.enums.ShowType;
 import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.ShowAddFailedException;
-import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
 import eu.vranckaert.episodeWatcher.utils.StringUtils;
 
 
@@ -52,7 +50,7 @@ public class ShowService {
         userService = new UserService();
     }
 
-    public List<Show> searchShows(String search, User user) throws UnsupportedHttpPostEncodingException, InternetConnectivityException, LoginFailedException {
+    public List<Show> searchShows(String search, User user) throws InternetConnectivityException, LoginFailedException {
 
 
         userService.login(user.getUsername(), user.getPassword());
@@ -99,7 +97,7 @@ public class ShowService {
             }
 
 
-        } catch ( UnknownHostException e) {
+        } catch (UnknownHostException e) {
             String message = "Could not connect to host.";
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
@@ -186,7 +184,7 @@ public class ShowService {
     }
 
 
-    public void addShow(String myEpsidodesShowId, User user) throws InternetConnectivityException, LoginFailedException, UnsupportedHttpPostEncodingException, ShowAddFailedException {
+    public void addShow(String myEpsidodesShowId, User user) throws InternetConnectivityException, LoginFailedException, ShowAddFailedException {
 
         userService.login(user.getUsername(), user.getPassword());
         String responsePage = "";
@@ -457,7 +455,7 @@ public class ShowService {
     }
 
 
-    public List<Show> markShow(User user, Show show, ShowAction showAction, ShowType showType) throws LoginFailedException, InternetConnectivityException, UnsupportedHttpPostEncodingException {
+    public List<Show> markShow(User user, Show show, ShowAction showAction, ShowType showType) throws LoginFailedException, InternetConnectivityException {
 
         userService.login(user.getUsername(), user.getPassword());
 

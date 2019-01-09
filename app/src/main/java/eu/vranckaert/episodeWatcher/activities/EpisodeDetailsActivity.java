@@ -1,6 +1,5 @@
 package eu.vranckaert.episodeWatcher.activities;
 
-import androidx.room.Room;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,6 +32,7 @@ import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import androidx.room.Room;
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
 import eu.vranckaert.episodeWatcher.database.AppDatabase;
@@ -68,7 +68,10 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         TextView episodeText = findViewById(R.id.episodeDetEpisode);
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
 
-        ((TextView) findViewById(R.id.title_text)).setText(R.string.details);
+        //findViewById(R.id.);
+
+        //((TextView) findViewById(R.id.title_text)).setText(R.string.details);
+        //((TextView) findViewById(R.id.title_text)).setText(R.string.details);
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
@@ -83,7 +86,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         Date airdate = episode.getAirDate();
         String formattedAirDate;
         if (airdate != null) {
-            formattedAirDate = DateUtil.formatDateLong(airdate, this);
+            formattedAirDate = DateUtil.formatDateLong(airdate);
         } else {
             formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
         }
@@ -127,6 +130,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         switch (episodesType) {
             case EPISODES_TO_WATCH:
                 markAsAcquiredButton.setVisibility(View.GONE);
+
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
@@ -135,6 +139,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
             case EPISODES_COMING:
                 // show the acquired button on the "Coming" Screen
                 //	markAsAcquiredButton.setVisibility(View.GONE);
+
                 break;
         }
 
@@ -279,7 +284,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
     private class downloadShowSummary extends AsyncTask<String, String, HashMap<String, String>> {
         HashMap<String, String> showSummaryHash;
 
-        public downloadShowSummary(HashMap<String, String> showSummaryHash) {
+        downloadShowSummary(HashMap<String, String> showSummaryHash) {
             this.showSummaryHash = showSummaryHash;
         }
 
@@ -510,6 +515,12 @@ public class EpisodeDetailsActivity extends GuiceActivity {
             case R.id.markAsAquired:
                 closeAndAcquireEpisode(episode);
                 return true;
+            case R.id.btn_title_share:
+                tweetThis();
+                return true;
+            case R.id.home:
+                exit();
+                return true;
         }
         return false;
     }
@@ -539,6 +550,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         switch (episodesType) {
             case EPISODES_TO_WATCH:
                 sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
@@ -598,6 +610,10 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         startActivity(Intent.createChooser(i, getString(R.string.TweetTitle)));
     }
 
+    public void onTweetClick(View v) {
+        tweetThis();
+    }
+
     @Override
     public final void onBackPressed() {
         exit();
@@ -613,7 +629,5 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         OpenListingActivity();
     }
 
-    public void onTweetClick(View v) {
-        tweetThis();
-    }
+
 }
