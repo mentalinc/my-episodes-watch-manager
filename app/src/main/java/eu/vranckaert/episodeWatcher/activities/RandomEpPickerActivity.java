@@ -32,10 +32,7 @@ public class RandomEpPickerActivity extends GuiceActivity {
         TextView episodeNameText = findViewById(R.id.episodeDetName);
         TextView seasonText = findViewById(R.id.episodeDetSeason);
         TextView episodeText = findViewById(R.id.episodeDetEpisode);
-       // TextView runtimeText = findViewById(R.id.episodeRuntime);
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
-
-        ((TextView) findViewById(R.id.title_text)).setText(R.string.randompicker);
         Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
 
         if (EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH) > 0) {
@@ -60,8 +57,6 @@ public class RandomEpPickerActivity extends GuiceActivity {
 
             markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
         } else {
-            ((TextView) findViewById(R.id.randomtexttitle)).setText(getString(R.string.watchListSubTitleWatchPlural, 0));
-            (findViewById(R.id.btn_title_refresh)).setVisibility(View.GONE);
             seasonText.setText("-");
             episodeText.setText("-");
             airdateText.setText("-");

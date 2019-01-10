@@ -4,46 +4,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <LinearLayout style="@style/TitleBar">
-
-        <ImageButton
-            style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:onClick="onHomeClick"
-            android:src="@drawable/ic_title_home" />
-
-        <ImageView
-            style="@style/TitleBarSeparator"
-            android:contentDescription="@style/TitleBarSeparator" />
-
-        <TextView style="@style/TitleBarText" />
-
-        <ImageView
-            android:id="@+id/separator_collapse"
-            style="@style/TitleBarSeparator"
-            android:contentDescription="@style/TitleBarSeparator"
-            android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/btn_title_collapse"
-            style="@style/TitleBarAction"
-            android:contentDescription="@string/collapse"
-            android:onClick="onCollapseClick"
-            android:src="@drawable/ic_title_collapse"
-            android:visibility="gone" />
-
-        <ImageView
-            style="@style/TitleBarSeparator"
-            android:contentDescription="@style/TitleBarSeparator" />
-
-        <ImageButton
-            android:id="@+id/btn_title_refresh"
-            style="@style/TitleBarAction"
-            android:contentDescription="@string/refresh"
-            android:onClick="onRefreshClick"
-            android:src="@drawable/ic_title_refresh" />
-    </LinearLayout>
-
     <TextView
         android:id="@+id/watchListTitle"
         android:layout_width="fill_parent"

@@ -68,10 +68,6 @@ public class EpisodeDetailsActivity extends GuiceActivity {
         TextView episodeText = findViewById(R.id.episodeDetEpisode);
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
 
-        //findViewById(R.id.);
-
-        //((TextView) findViewById(R.id.title_text)).setText(R.string.details);
-        //((TextView) findViewById(R.id.title_text)).setText(R.string.details);
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);

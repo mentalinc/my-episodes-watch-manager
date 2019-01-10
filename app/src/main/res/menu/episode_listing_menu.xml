@@ -10,6 +10,7 @@
         android:title="@string/home"
         android:visible="true" />
 
+
     <item
         android:id="@+id/btn_title_collapse"
         android:enabled="true"

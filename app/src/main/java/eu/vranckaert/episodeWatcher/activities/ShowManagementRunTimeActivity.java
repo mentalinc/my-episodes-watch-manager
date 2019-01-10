@@ -61,10 +61,6 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management);
 
-        ((TextView) findViewById(R.id.title_text)).setText(R.string.ShowRuntime);
-
-
-
         initializeShowList();
     }
 

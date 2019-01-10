@@ -36,8 +36,6 @@ public class ChangelogActivity extends GuiceActivity {
         //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelog);
-
-        ((TextView) findViewById(R.id.title_text)).setText(R.string.whatsNew);
     }
 
     public void onHomeClick(View v) {

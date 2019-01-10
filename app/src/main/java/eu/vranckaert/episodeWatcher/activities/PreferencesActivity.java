@@ -68,10 +68,6 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
         super.onCreate(savedInstance);
 
-        //remove the blue bar from the preferences page
-        // setContentView(R.layout.preferences);
-        // ((TextView) findViewById(R.id.title_text)).setText(R.string.preferences);
-
         getPreferenceManager().setSharedPreferencesName(Preferences.PREF_NAME);
         PreferenceScreen screen = createPreferenceScreen();
 

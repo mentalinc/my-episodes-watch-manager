@@ -61,7 +61,6 @@ public class ShowManagementActivity extends GuiceListActivity {
         super.onCreate(savedInstanceState);
         init(savedInstanceState);
 
-
         reloadShows();
     }
 
@@ -75,13 +74,12 @@ public class ShowManagementActivity extends GuiceListActivity {
 
         if (Objects.requireNonNull(showType).equals(ShowType.FAVOURITE_SHOWS)) {
             Log.d(LOG_TAG, "Opening the favourite shows");
-            ((TextView) findViewById(R.id.title_text)).setText(R.string.favouriteShows);
             this.setTitle(R.string.favouriteShows);
 
 
         } else if (showType.equals(ShowType.IGNORED_SHOWS)) {
             Log.d(LOG_TAG, "Opening the ignored shows");
-            ((TextView) findViewById(R.id.title_text)).setText(R.string.ignoredShows);
+
             this.setTitle(R.string.ignoredShows);
         }
 

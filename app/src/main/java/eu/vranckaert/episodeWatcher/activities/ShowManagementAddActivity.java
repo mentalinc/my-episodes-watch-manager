@@ -77,8 +77,6 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management_add);
-        
-        ((TextView) findViewById(R.id.title_text)).setText(R.string.addShow);
 
         service = new ShowService();
         user = new User(

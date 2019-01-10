@@ -435,8 +435,8 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         episodeAdapter.notifyDataSetChanged();
         registerForContextMenu(getExpandableListView());
 
-        (findViewById(R.id.separator_collapse)).setVisibility(View.VISIBLE);
-        (findViewById(R.id.btn_title_collapse)).setVisibility(View.VISIBLE);
+        //(findViewById(R.id.separator_collapse)).setVisibility(View.VISIBLE);
+        //(findViewById(R.id.btn_title_collapse)).setVisibility(View.VISIBLE);
 
         int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
 
@@ -448,7 +448,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 case EPISODES_TO_WATCH:
                     subTitle.setText(getString(R.string.watchListSubTitleWatch, countEpisodes));
                     this.setTitle(R.string.watch);
-                    ((TextView) findViewById(R.id.title_text)).setText(R.string.watch);
                     openListRows(RowController.getInstance().getOpenWatchRows());
                     break;
                 case EPISODES_TO_YESTERDAY1:
@@ -456,13 +455,11 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 case EPISODES_TO_ACQUIRE:
                     subTitle.setText(getString(R.string.watchListSubTitleAcquire, countEpisodes));
                     this.setTitle(R.string.acquire);
-                    ((TextView) findViewById(R.id.title_text)).setText(R.string.acquire);
                     openListRows(RowController.getInstance().getOpenAcquireRows());
                     break;
                 case EPISODES_COMING:
                     subTitle.setText(getString(R.string.watchListSubTitleComing, countEpisodes));
                     this.setTitle(R.string.coming);
-                    ((TextView) findViewById(R.id.title_text)).setText(R.string.coming);
                     openListRows(RowController.getInstance().getOpenComingRows());
                     break;
             }
@@ -471,7 +468,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 case EPISODES_TO_WATCH:
                     subTitle.setText(getString(R.string.watchListSubTitleWatchPlural, countEpisodes));
                     this.setTitle(R.string.watch);
-                    ((TextView) findViewById(R.id.title_text)).setText(R.string.watch);
                     openListRows(RowController.getInstance().getOpenWatchRows());
                     break;
                 case EPISODES_TO_YESTERDAY1:
@@ -479,13 +475,11 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 case EPISODES_TO_ACQUIRE:
                     subTitle.setText(getString(R.string.watchListSubTitleAcquirePlural, countEpisodes));
                     this.setTitle(R.string.acquire);
-                    ((TextView) findViewById(R.id.title_text)).setText(R.string.acquire);
                     openListRows(RowController.getInstance().getOpenAcquireRows());
                     break;
                 case EPISODES_COMING:
                     subTitle.setText(getString(R.string.watchListSubTitleComingPlural, countEpisodes));
                     this.setTitle(R.string.coming);
-                    ((TextView) findViewById(R.id.title_text)).setText(R.string.coming);
                     openListRows(RowController.getInstance().getOpenComingRows());
                     break;
             }
@@ -994,11 +988,12 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
     public void onCollapseClick() {
         for (int i = 0; i < episodeAdapter.getGroupCount(); i++) {
             if (collapsed) {
+                //TODO fix this so that the icon changes depending on the expand state - need to figure out how to set the icon?
                 this.getExpandableListView().expandGroup(i);
-                ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse2);
+                //((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse2);
             } else {
                 this.getExpandableListView().collapseGroup(i);
-                ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse);
+               // ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse);
             }
         }
 
