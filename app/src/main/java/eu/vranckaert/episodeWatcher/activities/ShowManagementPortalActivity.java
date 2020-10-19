@@ -2,12 +2,16 @@ package eu.vranckaert.episodeWatcher.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.enums.ShowType;
+import eu.vranckaert.episodeWatcher.preferences.Preferences;
+import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import roboguice.activity.GuiceActivity;
 
 /**
@@ -21,9 +25,31 @@ public class ShowManagementPortalActivity extends GuiceActivity {
         loadButtons();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.show_management_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.closePreferences:
+                finish();
+                return true;
+            case R.id.home:
+                finish();
+                return true;
+
+        }
+        return false;
+    }
+
     private void init(Bundle savedInstanceState) {
-    	//setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
-    	super.onCreate(savedInstanceState);
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management_portal);
     }
 
@@ -53,8 +79,8 @@ public class ShowManagementPortalActivity extends GuiceActivity {
         intent.putExtra(ShowType.class.getSimpleName(), showType);
         startActivity(intent);
     }
-    
+
     public void onHomeClick(View v) {
-    	finish();
+        finish();
     }
 }

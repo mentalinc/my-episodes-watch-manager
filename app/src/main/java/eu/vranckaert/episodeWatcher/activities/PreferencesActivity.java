@@ -41,6 +41,8 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     private ListPreference showComingOrderingPref;
     private ListPreference showRuntimeOrderingPref;
 
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -65,7 +67,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
     @Override
     public void onCreate(Bundle savedInstance) {
-        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstance);
 
         getPreferenceManager().setSharedPreferencesName(Preferences.PREF_NAME);
@@ -378,6 +380,101 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         episodeOrderingPref.setEntries(R.array.episodeOrderOptions);
         episodeOrderingPref.setEntryValues(R.array.episodeOrderOptionsValues);
         root.addPreference(episodeOrderingPref);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        PreferenceCategory filterSettings = new PreferenceCategory(this);
+        filterSettings.setTitle(R.string.filterPreferences);
+        root.addPreference(filterSettings);
+
+
+
+        final CheckBoxPreference showListingUnacquired = new CheckBoxPreference(this);
+        showListingUnacquired.setDefaultValue(false);
+        showListingUnacquired.setKey(PreferencesKeys.SHOW_LISTING_UNACQUIRED_KEY);
+        showListingUnacquired.setTitle(R.string.listingUnacquired);
+        showListingUnacquired.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+                return true;
+            }
+        });
+        root.addPreference(showListingUnacquired);
+
+
+        final CheckBoxPreference showListingUnwatched = new CheckBoxPreference(this);
+        showListingUnwatched.setDefaultValue(false);
+        showListingUnwatched.setKey(PreferencesKeys.SHOW_LISTING_UNWATCHED_KEY);
+        showListingUnwatched.setTitle(R.string.listingUnwatched);
+        showListingUnwatched.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+                return true;
+            }
+        });
+        root.addPreference(showListingUnwatched);
+
+
+        final CheckBoxPreference showListingIgnored = new CheckBoxPreference(this);
+        showListingIgnored.setDefaultValue(false);
+        showListingIgnored.setKey(PreferencesKeys.SHOW_LISTING_IGNORED_KEY);
+        showListingIgnored.setTitle(R.string.listingIgnored);
+        showListingIgnored.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+                return true;
+            }
+        });
+        root.addPreference(showListingIgnored);
+
+
+        final CheckBoxPreference showListingPilots = new CheckBoxPreference(this);
+        showListingPilots.setDefaultValue(false);
+        showListingPilots.setKey(PreferencesKeys.SHOW_LISTING_PILOTS_KEY);
+        showListingPilots.setTitle(R.string.listingPilots);
+        showListingPilots.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+                return true;
+            }
+        });
+        root.addPreference(showListingPilots);
+
+
+
+        final CheckBoxPreference showListingLocalizedAirdate = new CheckBoxPreference(this);
+        showListingLocalizedAirdate.setDefaultValue(false);
+        showListingLocalizedAirdate.setKey(PreferencesKeys.SHOW_LISTING_LOCALIZED_AIRDATES_KEY);
+        showListingLocalizedAirdate.setTitle(R.string.listingLocalizedAirdates);
+        showListingLocalizedAirdate.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+                return true;
+            }
+        });
+        root.addPreference(showListingLocalizedAirdate);
+
+
+
+
+
 
         PreferenceCategory languageSettings = new PreferenceCategory(this);
         languageSettings.setTitle(R.string.languagePreferences);

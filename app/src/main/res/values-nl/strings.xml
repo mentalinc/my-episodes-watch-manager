@@ -205,4 +205,7 @@
 <string name="watchListUnableToMarkWatched">Kan deze episode niet markeren als gezien!
 \nKijk uw internetverbinding na of herlaad de lijst!</string>
 <string name="searchShowUnabletoAdd">Kan deze serie niet toevoegen. Probeer het later eens opnieuw. Indien dit probleem zich blijft voordoen gelieve een bug te registreren!</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 </resources>

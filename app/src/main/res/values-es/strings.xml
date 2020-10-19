@@ -202,4 +202,7 @@
     <string name="watchListUnableToReadFeed">¡Error de Red! \nPrueba a recargar manualmente.</string>
     <string name="watchListUnableToMarkWatched">¡Error al marcar este capítulo como Visto! \nComprueba tu conexión a Internet o recarga la lista</string>
 	<string name="searchserieUnabletoAdd">Error al añadir la serie. Por favor, inténtalo de nuevo. Si el error continúa, por favor manda un informe</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 </resources>

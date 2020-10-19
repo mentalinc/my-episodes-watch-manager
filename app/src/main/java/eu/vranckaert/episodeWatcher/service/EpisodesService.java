@@ -3,6 +3,8 @@ package eu.vranckaert.episodeWatcher.service;
 import android.util.Log;
 import android.util.Xml;
 
+import androidx.room.Room;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.pojava.datetime.DateTime;
@@ -10,6 +12,7 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,7 +39,6 @@ import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import androidx.room.Room;
 import eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants;
 import eu.vranckaert.episodeWatcher.controllers.EpisodesController;
 import eu.vranckaert.episodeWatcher.database.AppDatabase;
@@ -50,6 +53,8 @@ import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.exception.ShowUpdateFailedException;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
+
+import static eu.vranckaert.episodeWatcher.constants.MyEpisodeConstants.TV_MAZE_SHOWS_URL;
 
 
 public class EpisodesService {
@@ -169,7 +174,7 @@ public class EpisodesService {
 
                             EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
                             episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
-                            episode.setTVMazeWebSite("https://www.tvmaze.com/shows/" + showRuntime.getShowTVMazeID());
+                            episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
 
                         } else {
                             episode.setShowName(episode.getShowName());
@@ -200,10 +205,10 @@ public class EpisodesService {
 
                     EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
                     episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
-                    episode.setTVMazeWebSite("https://www.tvmaze.com/shows/" + showRuntime.getShowTVMazeID());
+                    episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
 
                     //episode.setTVMazeWebSite("Link to episode description coming soon");
-                    //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).showTVMazeID, episode.getSeason(), episode.getEpisode()));
+                    //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).getShowTVMazeID(), episode.getSeason(), episode.getEpisode()));
 
                 } else {
                     String message = "Problem parsing a feed item. Feed details: " + item.toString();
@@ -407,18 +412,18 @@ public class EpisodesService {
         String urlRep = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
         URL url;
         //login to myepisodes
-        java.net.CookieManager msCookieManager = userService.login(user.getUsername(), user.getPassword());
-
+        //java.net.CookieManager msCookieManager = userService.login(user.getUsername(), user.getPassword());
+        userService.login(user.getUsername(), user.getPassword());
         int status;
 
         StringWriter sw = new StringWriter();
 
         try {
             // Get current days back so users view is not broken.
-            String[] controlPanelSettings = getDaysBack(msCookieManager);
+            String[] controlPanelSettings = getDaysBack();
 
             // Set the days back to retrieve unwatched eps.
-            setDaysBack(controlPanelSettings, msCookieManager, false);
+            setDaysBack(controlPanelSettings, false);
 
             // set the filter to only show eps that have not yet been watched
             //setViewFilters(true, isWatched, httpClient);
@@ -605,7 +610,7 @@ public class EpisodesService {
                 Log.d(LOG_TAG, "Finished Download and RSS built");
                 Log.d(LOG_TAG, "Resetting  control panel settings");
                 //set the days back to what they are in the settigns
-                setDaysBack(controlPanelSettings, msCookieManager, true);
+                setDaysBack(controlPanelSettings, true);
                 // setViewFilters(false, false, httpClient);
             }
         } catch (UnknownHostException e) {
@@ -630,7 +635,7 @@ public class EpisodesService {
     }
 
     //get the users web browser settings to keep them the same
-    private String[] getDaysBack(java.net.CookieManager msCookieManager) {
+    private String[] getDaysBack() {
         String[] controlPanelSettings = new String[20];
 
 
@@ -728,7 +733,9 @@ public class EpisodesService {
                     cal_firstday = settingsHTML.substring(settingsHTML.indexOf("name=\"cal_firstday\""));
                     cal_firstday = cal_firstday.substring(cal_firstday.indexOf("selected") - 3, cal_firstday.indexOf("selected") - 2);
 
+                    //todo figure out whats wrong with this
                     /*
+
                     ERROR HERE SO IT ALL FAILS NEED TO CHECK WHATS IS HAPPENNING
 
                     Not logged in so fails as there is only 1 default option
@@ -749,7 +756,8 @@ public class EpisodesService {
                     }
 
 
-                    // eps_timezone = "US/Eastern";
+
+  //                   eps_timezone = "US/Eastern";
                     int loginpageIndex = settingsHTML.indexOf("name=\"loginpage\"") + 17;
                     loginpage = settingsHTML.substring(loginpageIndex);
                     int loginpageSelectedIndex = loginpage.indexOf("</select>");
@@ -845,7 +853,7 @@ public class EpisodesService {
         return result.toString();
     }
 
-    private void setDaysBack(String[] controlPanelSettings, java.net.CookieManager msCookieManager, Boolean restore) {
+    private void setDaysBack(String[] controlPanelSettings, Boolean restore) {
         //send POST to set just the number of days in the past to show..
         Log.d(LOG_TAG, "Setting number of days back");
         String[] controlPanelOrder = new String[20];
@@ -937,57 +945,117 @@ public class EpisodesService {
             Log.e(LOG_TAG, message, e);
         }
     }
-/*
-    //todo - make this actually work
-    private void setViewFilters(Boolean setForDownload, Boolean isWatched) {        HttpPost httppost = new HttpPost(MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING);
-        Log.e(LOG_TAG, "setViewFilters has been called");
-        try {
-            if (setForDownload) {
-                //send POST request to only show episodes with the filter Watch
-                //eps_filters[]=2&action=Filter
-                if (isWatched) {
-                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
-                    nameValuePairs.add(new BasicNameValuePair("eps_filters[]", "2"));
-                    nameValuePairs.add(new BasicNameValuePair("action", "Filter"));
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                } else {
-                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
-                    nameValuePairs.add(new BasicNameValuePair("eps_filters[]", "1"));
-                    nameValuePairs.add(new BasicNameValuePair("action", "Filter"));
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                }
-            } else {
-                //set back to user default settings for the view filters
-                // need to work on detecting the settings to use.
-                List<NameValuePair> nameValuePairs2 = new ArrayList<>(2);
-                nameValuePairs2.add(new BasicNameValuePair("eps_filters[]", "1"));
-                nameValuePairs2.add(new BasicNameValuePair("eps_filters[]", "2"));
-                nameValuePairs2.add(new BasicNameValuePair("action", "Filter"));
-                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs2));
-            }
-            // 	Execute HTTP Post Request
-            HttpResponse responsePost = httpClient.execute(httppost);
-            responsePost.getStatusLine();
 
-            EntityUtils.toString(responsePost.getEntity());
-            // Get hold of the response entity - need to read to the end to prevent "Invalid use of SingleClient...."
-            /*HttpEntity entity = responsePost.getEntity();
-            if (entity != null) {
-    			InputStream instream = entity.getContent();    			
-    			BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
-    			StringBuilder HTMLcp = new StringBuilder();
-    			String line;
-    			while ((line = reader.readLine()) != null) {
-    				HTMLcp.append(line);
-    			}
-    		}*/
-/*
-        } catch (IOException e) {
-            String message = "Error setting days back";
+    private void resetPageFilters(User user) {
+
+        try {
+            userService.login(user.getUsername(), user.getPassword());
+
+            //unaquired 1
+            //Unwatched 2
+            //Ignored 4
+            //Pilots 2048
+            //Localized Airdate 4096
+            String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
+
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
+                //unaquired 1
+                if(urlParameters.length() <1)
+                    urlParameters += "eps_filters%5B%5D=1";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=1";
+                }
+
+                Log.d(LOG_TAG, "SHOW_LISTING_UNACQUIRED_ENABLED" + " " + urlParameters);
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
+                //Unwatched 2
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=2";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " +urlParameters);
+
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
+                //Ignored 4
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=4";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
+                //Pilots 2048
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2048";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=2048";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
+
+            }
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
+                //Localized Airdate 4096
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4096";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=4096";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
+            };
+
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            String request = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
+            URL url = new URL(request);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("charset", "utf-8");
+            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+            conn.setUseCaches(false);
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
+                wr.flush();
+            }
+
+            InputStream stream = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"), 8);
+            String result = reader.readLine();
+
+        } catch (Exception e) {
+            String message = "Error resetting episode filter";
             Log.e(LOG_TAG, message, e);
         }
     }
-*/
+
+
+    private String getDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+        }
+        return result.toString();
+    }
+
 
 
     private Date parseDate(String date) {

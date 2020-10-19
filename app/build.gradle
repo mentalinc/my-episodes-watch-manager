@@ -6,16 +6,13 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
-
-
+    compileSdkVersion 29
     defaultConfig {
         applicationId "eu.vranckaert.episodeWatcher"
-        minSdkVersion 25
-        targetSdkVersion 28
-        versionCode 37
-        versionName "1.8.6"
+        minSdkVersion 26
+        targetSdkVersion 29
+        versionCode 38
+        versionName "1.8.7"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -55,11 +52,16 @@ android {
 }
 
 dependencies {
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.room:room-runtime:2.1.0-alpha03'
-    annotationProcessor "androidx.room:room-compiler:2.1.0-alpha03"
-    implementation 'androidx.test:runner:1.1.1'
-    implementation 'androidx.test.espresso:espresso-core:3.1.1'
-    implementation 'com.github.bumptech.glide:glide:4.8.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
+    implementation 'androidx.room:room-runtime:2.2.5'
+    annotationProcessor 'androidx.room:room-compiler:2.2.5'
+    // For Kotlin use kapt instead of annotationProcessor
+    implementation 'androidx.test:runner:1.2.0'
+    implementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+ //   implementation 'com.jakewharton:butterknife:10.1.0'
+ //   annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
+
 }

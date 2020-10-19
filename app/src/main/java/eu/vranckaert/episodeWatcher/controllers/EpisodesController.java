@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.controllers;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -122,7 +123,7 @@ public class EpisodesController {
             }
         }
 
-        Random r = new Random();
+        SecureRandom r = new SecureRandom();
         int randint = r.nextInt(shows.size());
         return shows.get(randint).getFirstEpisode();
     }

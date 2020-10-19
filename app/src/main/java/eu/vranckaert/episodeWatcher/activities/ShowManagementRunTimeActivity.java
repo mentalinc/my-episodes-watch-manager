@@ -13,6 +13,9 @@ import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,6 +35,8 @@ import eu.vranckaert.episodeWatcher.database.SeriesDAO;
 import eu.vranckaert.episodeWatcher.domain.Show;
 import eu.vranckaert.episodeWatcher.domain.ShowRuntimeAscendingComparator;
 import eu.vranckaert.episodeWatcher.domain.User;
+import eu.vranckaert.episodeWatcher.preferences.Preferences;
+import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
 import eu.vranckaert.episodeWatcher.utils.InputFilterMinMax;
 import roboguice.activity.GuiceListActivity;
@@ -57,7 +63,30 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.show_management_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.closePreferences:
+                finish();
+                return true;
+            case R.id.home:
+                finish();
+                return true;
+
+        }
+        return false;
+    }
+
     private void init(Bundle savedInstanceState) {
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management);
 
@@ -95,7 +124,10 @@ public class ShowManagementRunTimeActivity extends GuiceListActivity {
             EpisodeRuntime showRuntime = (EpisodeRuntime) runtimeList.get(i);
             shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
         }
-        shows.sort(new ShowRuntimeAscendingComparator());
+        //todo: add this in when bump the version up again
+        //shows.sort(new ShowRuntimeAscendingComparator());
+
+        Collections.sort(shows,new ShowRuntimeAscendingComparator());
     }
 
     @Override

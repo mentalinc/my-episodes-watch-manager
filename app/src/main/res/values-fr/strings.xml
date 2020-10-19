@@ -204,4 +204,7 @@
     <string name="watchListUnableToReadFeed">Erreur réseau !\nEssayez de nouveau.</string>
     <string name="watchListUnableToMarkWatched">Impossible de marquer cet épisode comme vu !\nVeuillez vérifier votre connexion Internet ou réinitialiser la liste!</string>
     <string name="searchShowUnabletoAdd">Impossible de rajouter l\'épisode. Veuillez essayer plus tard. Si l\'erreur persiste, merci de nous le notifier!</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 </resources>

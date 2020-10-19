@@ -202,4 +202,7 @@
     <string name="watchListUnableToReadFeed">Nätverksfel!\nFörsök uppdatera manuellt.</string>
     <string name="watchListUnableToMarkWatched">Misslyckades att markera avsnitt som sett!\nKontrollera nätverksanslutning eller uppdatera listan!</string>
     <string name="searchShowUnabletoAdd">Misslykades att lägga till TV-serie. Försök igen senare. Om detta fel återkommer, vänligen felrapportera till oss.</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 </resources>

@@ -6,7 +6,6 @@
         android:enabled="true"
         android:icon="@drawable/ic_title_home"
         android:showAsAction="ifRoom|withText"
-        android:inputType="textCapWords"
         android:title="@string/home"
         android:visible="true" />
     <item
@@ -14,7 +13,6 @@
         android:enabled="true"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:showAsAction="ifRoom|withText"
-        android:inputType="textCapWords"
         android:title="@string/close"
         android:visible="true" />
 </menu>

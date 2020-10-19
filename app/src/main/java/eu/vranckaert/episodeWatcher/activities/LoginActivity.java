@@ -3,22 +3,19 @@ package eu.vranckaert.episodeWatcher.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.User;
-import eu.vranckaert.episodeWatcher.exception.InternetConnectivityException;
 import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
+import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.UserService;
 import roboguice.activity.GuiceActivity;
 
@@ -37,7 +34,7 @@ public class LoginActivity extends GuiceActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
         init();
 
@@ -61,7 +58,9 @@ public class LoginActivity extends GuiceActivity {
                     AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
                         boolean loginStatus = false;
 
-                        java.net.CookieManager msCookieManager = new java.net.CookieManager();
+
+                        //probably don't need cookie manager - need to use the accept all cookies policy thing
+                      //  java.net.CookieManager msCookieManager = new java.net.CookieManager();
 
                         @Override
                         protected void onPreExecute() {
@@ -70,12 +69,12 @@ public class LoginActivity extends GuiceActivity {
 
                         @Override
                         protected Object doInBackground(Object... objects) {
-                            msCookieManager = login(user);
+                            login(user);
                             //todo add a test here to check for a type of cookie to show login has worked ok....
                             //remove true and add in the cookie test
-                            if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                                storeLoginCredentials(user);
-                            }
+                            //    if (msCookieManager.getCookieStore().getCookies().size() > 0) {
+                            storeLoginCredentials(user);
+                            //    }
                             return 100L;
                         }
 
@@ -84,14 +83,14 @@ public class LoginActivity extends GuiceActivity {
                             removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
                             //todo add a test here to check for a type of cookie to show login has worked ok....
                             //remove true and add in the cookie test
-                            if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                                Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
+                           // if (msCookieManager.getCookieStore().getCookies().size() > 0) {
+                                //  Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
                                 finalizeLogin();
-                            } else {
+                         //   } else {
                                 ((EditText) findViewById(R.id.loginUsername)).setText("");
                                 ((EditText) findViewById(R.id.loginPassword)).setText("");
                                 showDialog(MY_EPISODES_ERROR_DIALOG);
-                            }
+                         //   }
                         }
                     };
                     asyncTask.execute();
@@ -116,7 +115,7 @@ public class LoginActivity extends GuiceActivity {
                 break;
             case MY_EPISODES_ERROR_DIALOG:
                 dialog = new AlertDialog.Builder(this)
-                        .setMessage(exceptionMessageResId)
+                        //                   .setMessage(exceptionMessageResId)
                         .setCancelable(false)
                         .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> removeDialog(MY_EPISODES_ERROR_DIALOG)).create();
                 break;
@@ -133,14 +132,10 @@ public class LoginActivity extends GuiceActivity {
         return dialog;
     }
 
-    private java.net.CookieManager login(User user) {
-        java.net.CookieManager cookieManager = new java.net.CookieManager();
+    private void login(User user) {
+        //java.net.CookieManager cookieManager = new java.net.CookieManager();
         try {
-            cookieManager = service.login(user);
-        /*} catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
-            Log.e(LOG_TAG, message, e);
-            exceptionMessageResId = R.string.internetConnectionFailureTryAgain;*/
+            service.login(user);
         } catch (LoginFailedException e) {
             String message = "Login failed";
             Log.e(LOG_TAG, message, e);
@@ -150,7 +145,7 @@ public class LoginActivity extends GuiceActivity {
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.defaultExceptionMessage;
         }
-        return cookieManager;
+        // return cookieManager;
     }
 
     private boolean checkLoginCredentials() {

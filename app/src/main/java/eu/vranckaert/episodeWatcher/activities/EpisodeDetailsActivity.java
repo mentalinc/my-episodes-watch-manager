@@ -56,7 +56,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.episode_details);
 
@@ -134,7 +134,7 @@ public class EpisodeDetailsActivity extends GuiceActivity {
                 break;
             case EPISODES_COMING:
                 // show the acquired button on the "Coming" Screen
-                //	markAsAcquiredButton.setVisibility(View.GONE);
+                markAsAcquiredButton.setVisibility(View.GONE);
 
                 break;
         }

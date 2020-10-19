@@ -161,4 +161,7 @@
     <string name="watchListUnableToReadFeed">Nettverk error!\nPrøv å refreshe manuelt.</string>
     <string name="watchListUnableToMarkWatched">Kunne ikke markere episoden som sett!\nSjekk internettforbindelse eller refresh listen!</string>
     <string name="searchShowUnabletoAdd">Kunne ikke legge til serie. Prøv igjen senere. Om denne feilen gjenntar seg vennligst rapporter problemet.!</string>
- </resources>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
+</resources>

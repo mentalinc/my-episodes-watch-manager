@@ -204,4 +204,7 @@
     <string name="watchListUnableToReadFeed">Errore rete !\nRipristina.</string>
     <string name="watchListUnableToMarkWatched">Impossibile contrassegnare questo episodio!\nControllare il collegamento a Internet o ripristinare l\'elenco!</string>
     <string name="searchShowUnabletoAdd">Impossible di aggiungere l\'episodio. Prova più tardi. Se questo errore si verifica nuovamente annoti prego un nuovo errore!</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 </resources>

@@ -113,7 +113,9 @@
         <item>Enabled 200+ episodes</item>
         <item>Show runtime added</item>
         <item>Ability to update/edit show runtime</item>
-        <item>Show summary and image added to episode details</item>
+        <item>Show summary and image added to episode details and random episode</item>
+        <item>Updated all web code</item>
+        <item>Moved to Material Design theme from Halo</item>
     </string-array>
     <!-- logoutDialog -->
     <string name="logoutDialogTitle">Are you sure?</string>
@@ -142,6 +144,7 @@
     <string name="generalPreferences">General</string>
     <string name="showPreferences">Shows</string>
     <string name="orderPreferences">Order</string>
+    <string name="filterPreferences">Website Filters</string>
     <string name="disablePreferences">Disable</string>
     <string name="languagePreferences">Language</string>
 
@@ -173,6 +176,23 @@
 
     <!-- Run Time -->
     <string name="RunTime">Enable show runtime</string>
+
+
+    !-- Website Filter -->
+    <string name="listingUnacquired">List Unacquired Shows</string>
+    <string name="listingUnwatched">List Unwatched Shows</string>
+    <string name="listingIgnored">List Ignored Shows"</string>
+    <string name="listingPilots">List Pilots Shows</string>
+    <string name="listingLocalizedAirdates">List Localized Airdate Shows</string>
+
+    public static final String SHOW_LISTING_UNACQUIRED_KEY = "List Unacquired Shows";
+    public static final String SHOW_LISTING_UNWATCHED_KEY = "List Unwatched Shows";
+    public static final String SHOW_LISTING_IGNORED_KEY = "List Ignored Shows";
+    public static final String SHOW_LISTING_PILOTS_KEY = "List Pilots Shows";
+    public static final String SHOW_LISTING_LOCALIZED_AIRDATES_KEY = "List Localized Airdate Shows";
+
+
+
 
 
     <!-- Cache data -->

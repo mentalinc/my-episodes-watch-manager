@@ -4,17 +4,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <LinearLayout style="@style/TitleBar">
-
-        <ImageView
-            style="@style/TitleBarLogo"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/logo" />
-
-        <View style="@style/TitleBarSpring" />
-    </LinearLayout>
-
-
     <ScrollView
         android:id="@+id/ScrollView01"
         android:layout_width="fill_parent"
@@ -32,6 +21,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="15dp"
+                android:inputType="textCapWords"
                 android:text="@string/loginFormTitle" />
 
             <EditText
@@ -52,6 +42,7 @@
                 android:id="@+id/loginLogin"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textCapWords"
                 android:text="@string/loginLoginBtn" />
 
             <TextView
@@ -62,6 +53,7 @@
                 android:paddingStart="10dp"
                 android:paddingTop="5dp"
                 android:paddingEnd="15dp"
+                android:inputType="textCapWords"
                 android:text="@string/loginFormRegister"
                 android:textSize="12sp" />
 

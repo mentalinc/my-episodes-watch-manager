@@ -14,9 +14,19 @@ public class MyEpisodeConstants {
     public static Boolean SHOW_RUNTIME_ENABLED = false;
     public static String CACHE_EPISODES_CACHE_AGE = "Disabled";
 
+    public static Boolean SHOW_LISTING_UNACQUIRED_ENABLED = false;
+    public static Boolean SHOW_LISTING_UNWATCHED_ENABLED = false;
+    public static Boolean SHOW_LISTING_IGNORED_ENABLED = false;
+    public static Boolean SHOW_LISTING_PILOTS_ENABLED = false;
+    public static Boolean SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = false;
+
+
+
     public static Context CONTEXT = null;
 
     public static String EXTENDED_EPISODES_XML;
+
+    public  static final String TV_MAZE_SHOWS_URL = "https://www.tvmaze.com/shows/";
 
     public static final String UNWATCHED_EPISODES_URL = "https://www.myepisodes.com/rss.php" +
             "?feed=" + FEED +

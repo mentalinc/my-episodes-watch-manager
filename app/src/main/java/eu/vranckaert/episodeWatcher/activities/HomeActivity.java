@@ -17,8 +17,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.constants.ActivityConstants;
@@ -33,6 +41,7 @@ import eu.vranckaert.episodeWatcher.pager.PagerControl;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.EpisodesService;
+import eu.vranckaert.episodeWatcher.service.UserService;
 
 public class HomeActivity extends Activity {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
@@ -46,8 +55,8 @@ public class HomeActivity extends Activity {
     private static final int EXCEPTION_DIALOG = 2;
     private static final int LOGIN_RESULT = 5;
     private static final int SETTINGS_RESULT = 6;
+    private UserService userService;
     private static Context sContext;
-
 
     private boolean exception;
 
@@ -72,8 +81,10 @@ public class HomeActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         init();
+        userService = new UserService();
         checkPreferences();
         String LanguageCode = Preferences.getPreference(this, PreferencesKeys.LANGUAGE_KEY);
+
 
         //fix issue where app run and no days back has been set by the user.
         Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
@@ -96,11 +107,22 @@ public class HomeActivity extends Activity {
         MyEpisodeConstants.CACHE_EPISODES_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.CACHE_EPISODES_ENABLED_KEY, false);
         MyEpisodeConstants.SHOW_RUNTIME_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.RUNTIME_ENABLED_KEY, false);
 
+
+        MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_UNACQUIRED_KEY, false);
+        MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_UNWATCHED_KEY, false);
+        MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_IGNORED_KEY, false);
+        MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_PILOTS_KEY, false);
+        MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_LOCALIZED_AIRDATES_KEY, false);
+
+
+
+
+
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
         openLoginActivity();
 
-        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
         this.service = new EpisodesService();
         sContext = getApplicationContext();
@@ -207,6 +229,10 @@ public class HomeActivity extends Activity {
                             EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
                         }
                         episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
+
+
+                        resetPageFilters(user);
+
                     } catch (InternetConnectivityException e) {
                         exception = true;
                     } catch (Exception e) {
@@ -233,6 +259,103 @@ public class HomeActivity extends Activity {
                 }
             };
             asyncTask.execute();
+        }
+    }
+
+
+    private void resetPageFilters(User user) {
+
+        try {
+            userService.login(user.getUsername(), user.getPassword());
+            //this should read from preferences in time but manual building for now
+            //unaquired 1
+            //Unwatched 2
+            //Ignored 4
+            //Pilots 2048
+            //Localized Airdate 4096
+            String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
+
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
+                //unaquired 1
+                if(urlParameters.length() <1)
+                    urlParameters += "eps_filters%5B%5D=1";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=1";
+                }
+
+                Log.d(LOG_TAG, "SHOW_LISTING_UNACQUIRED_ENABLED" + " " + urlParameters);
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
+                //Unwatched 2
+                if(urlParameters.length() < 1)
+                urlParameters += "eps_filters%5B%5D=2";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=2";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " +urlParameters);
+
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
+                //Ignored 4
+                if(urlParameters.length() < 1)
+                urlParameters += "eps_filters%5B%5D=4";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=4";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
+                //Pilots 2048
+                if(urlParameters.length() < 1)
+                urlParameters += "eps_filters%5B%5D=2048";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=2048";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
+
+            }
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
+                //Localized Airdate 4096
+                if(urlParameters.length() < 1)
+                urlParameters += "eps_filters%5B%5D=4096";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=4096";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
+            }
+
+
+
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            String request = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
+            URL url = new URL(request);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("charset", "utf-8");
+            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+            conn.setUseCaches(false);
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
+                wr.flush();
+            }
+
+            InputStream stream = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"), 8);
+            String result = reader.readLine();
+
+        } catch (Exception e) {
+            String message = "Error resetting episode filter";
+            Log.e(LOG_TAG, message, e);
         }
     }
 

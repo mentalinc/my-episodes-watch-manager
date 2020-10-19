@@ -32,8 +32,8 @@ import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingExcepti
 public class UserService {
     private static final String LOG_TAG = UserService.class.getSimpleName();
 
-    public java.net.CookieManager login(User user) throws LoginFailedException {
-        return login(user.getUsername(), user.getPassword());
+    public void login(User user) throws LoginFailedException {
+         login(user.getUsername(), user.getPassword());
     }
 
     public boolean register(User user, String email) throws UnsupportedHttpPostEncodingException, InternetConnectivityException {
@@ -65,11 +65,11 @@ public class UserService {
         return result.toString();
     }
 
-    public java.net.CookieManager login(String username, String password) throws LoginFailedException {
+    public void login(String username, String password) throws LoginFailedException {
 
         URL url;
         String response = "";
-        java.net.CookieManager msCookieManager = new java.net.CookieManager();
+        //java.net.CookieManager msCookieManager = new java.net.CookieManager();
         CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
         try {
             url = new URL(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE);
@@ -143,7 +143,7 @@ public class UserService {
             Log.d(LOG_TAG, "Successful login to " + MyEpisodeConstants.MYEPISODES_LOGIN_PAGE);
             result = true;
         }
-        return msCookieManager;
+      //  return msCookieManager;
     }
 
     private boolean RegisterUser(String username, String password, String email) throws RegisterFailedException, UnsupportedHttpPostEncodingException {

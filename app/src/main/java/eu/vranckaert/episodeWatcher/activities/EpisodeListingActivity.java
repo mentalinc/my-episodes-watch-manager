@@ -17,14 +17,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
-import android.widget.ImageButton;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -61,12 +65,10 @@ import eu.vranckaert.episodeWatcher.exception.UnsupportedHttpPostEncodingExcepti
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.EpisodesService;
+import eu.vranckaert.episodeWatcher.service.UserService;
 import eu.vranckaert.episodeWatcher.utils.DateUtil;
 import roboguice.activity.GuiceExpandableListActivity;
 
-//import android.widget.ImageView;
-//import eu.vranckaert.episodeWatcher.enums.CustomTracker;
-//import eu.vranckaert.episodeWatcher.utils.CustomAnalyticsTracker;
 
 /**
  * @author Ivo Janssen
@@ -96,10 +98,14 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
     private boolean collapsed = true;
     //private boolean isOnelineCheck;
 
+    private final UserService userService;
+
+
     //private CustomAnalyticsTracker tracker;
 
     public EpisodeListingActivity() {
         super();
+        userService = new UserService();
         this.service = new EpisodesService();
     }
 
@@ -127,7 +133,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
             case R.id.btn_title_refresh :
                 onRefreshClick();
                 return true;
-
         }
         return false;
     }
@@ -321,7 +326,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Light_NoTitleBar : android.R.style.Theme_NoTitleBar);
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
 
         //  tracker = CustomAnalyticsTracker.getInstance(this);
@@ -657,6 +662,105 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         asyncTask.execute();
     }
 
+
+
+
+    private void resetPageFilters(User user) {
+
+        try {
+            userService.login(user.getUsername(), user.getPassword());
+            //this should read from preferences in time but manual building for now
+            //unaquired 1
+            //Unwatched 2
+            //Ignored 4
+            //Pilots 2048
+            //Localized Airdate 4096
+            String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
+
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
+                //unaquired 1
+                if(urlParameters.length() <1)
+                    urlParameters += "eps_filters%5B%5D=1";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=1";
+                }
+
+                Log.d(LOG_TAG, "SHOW_LISTING_UNACQUIRED_ENABLED" + " " + urlParameters);
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
+                //Unwatched 2
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=2";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " +urlParameters);
+
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
+                //Ignored 4
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=4";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
+                //Pilots 2048
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2048";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=2048";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
+
+            }
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
+                //Localized Airdate 4096
+                if(urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4096";
+                else{
+                    urlParameters += "&eps_filters%5B%5D=4096";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
+            }
+
+
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            String request = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
+            URL url = new URL(request);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("charset", "utf-8");
+            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+            conn.setUseCaches(false);
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
+                wr.flush();
+            }
+
+            InputStream stream = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"), 8);
+            String result = reader.readLine();
+
+        } catch (Exception e) {
+            String message = "Error resetting episode filter";
+            Log.e(LOG_TAG, message, e);
+        }
+    }
+
+
     private void getEpisodes() {
         episodes = EpisodesController.getInstance().getEpisodes(episodesType);
     }
@@ -689,6 +793,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         }
 
         getEpisodes();
+        resetPageFilters(user);
     }
 
     private void returnEpisodes() {
@@ -753,7 +858,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
 
         if (sorting.equals(showOrderOptions[1])) {
             Log.d(LOG_TAG, "Sorting episodes ascending");
-            showList.sort(new ShowAscendingComparator());
+            Collections.sort(showList,new ShowAscendingComparator());
         } else if (sorting.equals(showOrderOptions[2])) {
             Log.d(LOG_TAG, "Sorting episodes descending");
             Collections.sort(showList, new ShowDescendingComparator());
@@ -983,6 +1088,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 break;
         }
         reloadEpisodes();
+
     }
 
     public void onCollapseClick() {

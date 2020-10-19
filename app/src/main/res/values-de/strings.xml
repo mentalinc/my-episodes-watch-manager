@@ -202,4 +202,7 @@
     <string name="watchListUnableToReadFeed">Netzwerk Fehler!\nVersuche manuell zu aktualisieren.</string>
     <string name="watchListUnableToMarkWatched">Konnte diese Folge nicht als gesehen markieren!\nPrüfe die Internet Verbindung oder aktualisiere die Liste!</string>
     <string name="searchShowUnabletoAdd">Konnte Serie nicht hinzufügen. Versuche es später nochmal. Wenn dieser Fehler dauerhaft erscheint, melde ihn bitte!</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 </resources>

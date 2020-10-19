@@ -155,4 +155,7 @@
     <string name="watchListUnableToReadFeed">Savienojuma kļūda!\nMēģini atjaunināt manuāli.</string>
     <string name="watchListUnableToMarkWatched">Šo sēriju atzīmēt kā apskatītu nav izdevies!\nPārbaudi interneta pieejamību un atjaunini sarakstu!</string>
     <string name="searchShowUnabletoAdd">Kļūda pievienojot jaunu pārraidi. Mēģini atkal vēlāk. Ja šī kļūda parādās atkal un atkal, dod lūdzu ziņu!</string>
- </resources>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
+</resources>

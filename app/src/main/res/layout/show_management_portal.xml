@@ -1,46 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/home_root"
-    android:orientation="vertical"
+    android:id="@+id/show_management_portal_root"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-
-     <LinearLayout
-        android:orientation="vertical"
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="6dip">
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-            <Button android:id="@+id/selectionPanelFavoShows"
-                style="@style/HomeButton"
-                android:text="@string/favouriteShows"
-                android:drawableTop="@drawable/ic_menu_star"/>
-            <Button android:id="@+id/selectionPanelIgnoredShows"
-                style="@style/HomeButton"
-                android:text="@string/ignoredShows"
-                android:drawableTop="@drawable/ic_menu_stop"/>
-        </LinearLayout>
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-            <Button android:id="@+id/selectionPanelAddShows"
-                style="@style/HomeButton"
-                android:text="@string/addShow"
-                android:drawableTop="@drawable/ic_menu_add"/>
+        <Button
+            android:id="@+id/selectionPanelFavoShows"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/btn_menu_star_default"
+            android:text="@string/favouriteShows" />
 
-            <Button
-                android:id="@+id/selectionPanelShowsRuntime"
-                style="@style/HomeButton"
-                android:drawableTop="@drawable/btn_runtime"
-                android:text="@string/ShowRuntime" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/selectionPanelIgnoredShows"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/btn_menu_stop_default"
+            android:text="@string/ignoredShows" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/selectionPanelAddShows"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/btn_menu_add_default"
+            android:text="@string/addShow" />
+
+        <Button
+            android:id="@+id/selectionPanelShowsRuntime"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/btn_runtime_default"
+            android:text="@string/ShowRuntime" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/blank"
+            style="@style/HomeButton"
+            android:text=""/>
+
+        <Button
+            android:id="@+id/blank2"
+            style="@style/HomeButton"
+            android:text=""/>
     </LinearLayout>
 </LinearLayout>

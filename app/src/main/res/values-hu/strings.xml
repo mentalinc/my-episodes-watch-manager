@@ -202,4 +202,7 @@
     <string name="watchListUnableToReadFeed">Hálózati hiba!\nPróbálj frissíteni!</string>
     <string name="watchListUnableToMarkWatched">Hiba a rész megnézetté állítása közben!\nEllenőrizd az internet kapcsolatot vagy frissítsd a listát!</string>
     <string name="searchShowUnabletoAdd">Nem sikerült a műsor felvétele. Próbáld meg később! Ha ez a hiba akkor is fennáll, kérlek jelentsd be!</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 </resources>

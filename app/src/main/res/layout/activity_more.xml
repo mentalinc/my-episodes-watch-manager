@@ -17,6 +17,7 @@
             style="@style/HomeButton"
             android:drawableTop="@drawable/btn_about"
             android:onClick="onAboutClick"
+            android:inputType="textCapWords"
             android:text="@string/about" />
 
         <Button
@@ -24,6 +25,7 @@
             style="@style/HomeButton"
             android:drawableTop="@drawable/btn_new"
             android:onClick="onTodoClick"
+            android:inputType="textCapWords"
             android:text="@string/whatsNew" />
     </LinearLayout>
 
@@ -39,6 +41,7 @@
             android:layout_width="wrap_content"
             android:drawableTop="@drawable/btn_random"
             android:onClick="onRandomClick"
+            android:inputType="textCapWords"
             android:text="@string/randompicker" />
     </LinearLayout>
 

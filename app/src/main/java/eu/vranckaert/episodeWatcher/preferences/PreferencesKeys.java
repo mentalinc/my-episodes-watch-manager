@@ -19,4 +19,9 @@ public class PreferencesKeys {
     public static final String CACHE_EPISODES_ENABLED_KEY = "Cache Episodes Enabled";
     public static final String CACHE_EPISODES_CACHE_AGE = "Episodes Cache Age";
     public static final String RUNTIME_ENABLED_KEY = "Series Runtime Enabled";
+    public static final String SHOW_LISTING_UNACQUIRED_KEY = "List Unacquired Shows";
+    public static final String SHOW_LISTING_UNWATCHED_KEY = "List Unwatched Shows";
+    public static final String SHOW_LISTING_IGNORED_KEY = "List Ignored Shows";
+    public static final String SHOW_LISTING_PILOTS_KEY = "List Pilots Shows";
+    public static final String SHOW_LISTING_LOCALIZED_AIRDATES_KEY = "List Localized Airdate Shows";
 }

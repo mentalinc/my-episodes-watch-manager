@@ -4,24 +4,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <LinearLayout style="@style/TitleBar">
-
-        <ImageButton
-            style="@style/TitleBarAction"
-            android:contentDescription="@string/home"
-            android:onClick="onHomeClick"
-            android:src="@drawable/ic_title_home" />
-
-        <ImageView
-            style="@style/TitleBarSeparator"
-            android:contentDescription="@style/TitleBarSeparator" />
-
-        <TextView style="@style/TitleBarText" />
-
-        <ImageView
-            style="@style/TitleBarSeparator"
-            android:contentDescription="@style/TitleBarSeparator" />
-    </LinearLayout>
 
     <ListView
         android:id="@android:id/list"

@@ -154,5 +154,8 @@
     <string name="networkIssues">Erro de Rede!\nVerifique suas opções de rede e tente recarregar manualmente.</string>
     <string name="watchListUnableToReadFeed">Erro de Rede!\nTente recarregar manualmente.</string>
     <string name="watchListUnableToMarkWatched">Falha ao marcar este episódio como assistido!\nVerifique sua conexão com a Internet e tente recarregar a lista!</string>
+    <string name="aboutEmailValue">mentalinc@outlook.com</string>
+    <string name="aboutLicenseValue">GNU GPL V3 License</string>
+    <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>
 
 </resources>
