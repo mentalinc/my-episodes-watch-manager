@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -49,7 +51,7 @@ import roboguice.activity.GuiceActivity;
 /**
  * @author Ivo Janssen
  */
-public class EpisodeDetailsActivity extends GuiceActivity {
+public class EpisodeDetailsActivity extends Activity {
     private Episode episode = null;
     private EpisodeType episodesType;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();

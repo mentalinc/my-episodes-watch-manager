@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -17,9 +18,9 @@ import eu.vranckaert.episodeWatcher.exception.LoginFailedException;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.UserService;
-import roboguice.activity.GuiceActivity;
 
-public class LoginActivity extends GuiceActivity {
+
+public class LoginActivity extends Activity {
     //private Button loginButton;
     // private TextView register;
     private UserService service;

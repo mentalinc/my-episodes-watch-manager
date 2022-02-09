@@ -16,6 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -368,6 +370,7 @@ public class HomeActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == LOGIN_RESULT && resultCode == RESULT_OK)
             getEpisodesInLoadingDialog();
         if (requestCode == SETTINGS_RESULT && resultCode == RESULT_OK) {

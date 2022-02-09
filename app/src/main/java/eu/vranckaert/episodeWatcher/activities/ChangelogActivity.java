@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,16 +9,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.utils.ApplicationUtil;
-import roboguice.activity.GuiceActivity;
+
 
 import static eu.vranckaert.episodeWatcher.activities.HomeActivity.getContext;
 
-public class ChangelogActivity extends GuiceActivity {
+public class ChangelogActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.domain.User;
@@ -21,7 +23,7 @@ import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.UserService;
 import roboguice.activity.GuiceActivity;
 
-public class RegisterActivity extends GuiceActivity {
+public class RegisterActivity extends Activity {
     // private Button registerButton;
     private UserService service;
     private User user;

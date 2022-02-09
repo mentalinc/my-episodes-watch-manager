@@ -2,6 +2,7 @@ package eu.vranckaert.episodeWatcher.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,17 +31,14 @@ import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.service.ShowService;
 import roboguice.activity.GuiceListActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * @author Dirk Vranckaert
- *         Date: 18-sep-2010
- *         Time: 17:20:41
- */
-public class ShowManagementAddActivity extends GuiceListActivity {
+public class ShowManagementAddActivity extends ListActivity {
     private static final String LOG_TAG = ShowManagementAddActivity.class.getSimpleName();
 
     private static final int DIALOG_LOADING = 0;
@@ -57,8 +55,6 @@ public class ShowManagementAddActivity extends GuiceListActivity {
     private Integer showListPosition = null;
 
     private boolean showsAdded = false;
-
-    //CustomAnalyticsTracker tracker = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

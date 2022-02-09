@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,6 +8,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.enums.ShowType;
@@ -17,7 +20,7 @@ import roboguice.activity.GuiceActivity;
 /**
  * @author Ivo Janssen
  */
-public class ShowManagementPortalActivity extends GuiceActivity {
+public class ShowManagementPortalActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

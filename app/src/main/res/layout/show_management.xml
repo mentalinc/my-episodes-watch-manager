@@ -11,7 +11,7 @@
         android:choiceMode="singleChoice" />
 
     <TextView
-        android:id="@+id/android:empty"
+        android:id="@+id/text_view_id"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 

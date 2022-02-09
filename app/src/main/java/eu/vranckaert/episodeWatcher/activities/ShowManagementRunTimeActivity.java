@@ -2,6 +2,7 @@ package eu.vranckaert.episodeWatcher.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import androidx.room.Room;
 import android.content.Context;
@@ -23,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +43,7 @@ import eu.vranckaert.episodeWatcher.service.EpisodeRuntime;
 import eu.vranckaert.episodeWatcher.utils.InputFilterMinMax;
 import roboguice.activity.GuiceListActivity;
 
-public class ShowManagementRunTimeActivity extends GuiceListActivity {
+public class ShowManagementRunTimeActivity extends ListActivity {
     private static final String LOG_TAG = ShowManagementRunTimeActivity.class.getSimpleName();
 
     private static final int DIALOG_LOADING = 0;

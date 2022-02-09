@@ -16,11 +16,12 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material"
+        android:theme="@style/Theme">
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".activities.HomeActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -28,48 +29,60 @@
         </activity>
         <activity
             android:name=".activities.EpisodeListingActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/watch" />
         <activity
             android:name=".activities.LoginActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/loginLoginBtn" />
         <activity
             android:name=".activities.RegisterActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/registerBtn" />
         <activity
             android:name=".activities.EpisodeDetailsActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/details" />
         <activity
             android:name=".activities.PreferencesActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/preferences" />
         <activity
             android:name=".activities.ShowManagementPortalActivity"
+            android:exported="false"
             android:label="@string/manageShows" />
         <activity
             android:name=".activities.ShowManagementActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/favouriteShows" />
         <activity
             android:name=".activities.ShowManagementAddActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/addShow" />
         <activity
             android:name=".activities.ShowManagementRunTimeActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/ShowRuntime" />
         <activity
             android:name=".activities.RandomEpPickerActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/randompicker" />
         <activity
             android:name=".activities.AboutActivity"
+            android:exported="false"
             android:label="@string/about" />
         <activity
             android:name=".activities.ChangelogActivity"
+            android:exported="false"
             android:label="@string/whatsNewTitle" />
 
 

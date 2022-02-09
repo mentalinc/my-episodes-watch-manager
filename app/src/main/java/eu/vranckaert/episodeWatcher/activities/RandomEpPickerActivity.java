@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,7 +50,7 @@ import roboguice.activity.GuiceActivity;
 
 //import android.widget.ImageButton;
 
-public class RandomEpPickerActivity extends GuiceActivity {
+public class RandomEpPickerActivity extends Activity {
     private Episode random;
     private static final String LOG_TAG = RandomEpPickerActivity.class.getSimpleName();
 
@@ -153,7 +154,6 @@ public class RandomEpPickerActivity extends GuiceActivity {
             case R.id.home:
                 finish();
                 return true;
-
         }
         return false;
     }

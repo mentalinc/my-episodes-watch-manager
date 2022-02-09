@@ -2,6 +2,8 @@ package eu.vranckaert.episodeWatcher.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ExpandableListActivity;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -20,6 +22,7 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -74,7 +77,8 @@ import roboguice.activity.GuiceExpandableListActivity;
  * @author Ivo Janssen
  */
 
-public class EpisodeListingActivity extends GuiceExpandableListActivity {
+//public class EpisodeListingActivity extends GuiceExpandableListActivity {
+public class EpisodeListingActivity extends ExpandableListActivity {
     private static final int EPISODE_LOADING_DIALOG = 0;
     private static final int ONLINE_CHECK_DIALOG = 5;
     private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
@@ -329,7 +333,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
 
-        //  tracker = CustomAnalyticsTracker.getInstance(this);
         Bundle data = this.getIntent().getExtras();
         episodesType = (EpisodeType) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         listMode = (ListMode) data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE);
@@ -347,11 +350,9 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         selectedGroup = determineGroup(groupid);
         switch (item.getItemId()) {
             case R.id.episodeMenuWatched:
-                //   tracker.trackEvent(CustomTracker.Event.MARK_WATCHED);
                 markEpisodes(0, selectedEpisode);
                 return true;
             case R.id.episodeMenuAcquired:
-                //	tracker.trackEvent(CustomTracker.Event.MARK_ACQUIRED);
                 markEpisodes(1, selectedEpisode);
                 return true;
             case R.id.episodeTweet:
@@ -362,7 +363,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
                 startActivity(Intent.createChooser(i, getString(R.string.TweetTitle)));
                 return true;
             case R.id.episodeMenuDetails:
-                //	tracker.trackPageView(CustomTracker.PageView.EPISODE_DETAILS);
                 openEpisodeDetails(selectedEpisode, episodesType);
                 return true;
             case R.id.showMenuWatched:
@@ -376,9 +376,8 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         }
     }
 
-    @Override
+    //@Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        //	tracker.trackPageView(CustomTracker.PageView.EPISODE_DETAILS);
         openEpisodeDetails(determineEpisode(groupPosition, childPosition), episodesType);
         return true;
     }
@@ -422,7 +421,7 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
     }
 
     private void initExendableList() {
-        //TODO add here the runtime some how  - would require nesting the ListApaters somehow or using a different adaptoer to handle multi layer
+        //TODO add here the runtime some how  - would require nesting the ListAdapters somehow or using a different adapter to handle multi layer
         //https://github.com/kedzie/tree-view-list-android
         //https://stackoverflow.com/questions/8293538/multi-layered-expandablelistview
         episodeAdapter = new SimpleExpandableListAdapter(
@@ -439,9 +438,6 @@ public class EpisodeListingActivity extends GuiceExpandableListActivity {
         setListAdapter(episodeAdapter);
         episodeAdapter.notifyDataSetChanged();
         registerForContextMenu(getExpandableListView());
-
-        //(findViewById(R.id.separator_collapse)).setVisibility(View.VISIBLE);
-        //(findViewById(R.id.btn_title_collapse)).setVisibility(View.VISIBLE);
 
         int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
 

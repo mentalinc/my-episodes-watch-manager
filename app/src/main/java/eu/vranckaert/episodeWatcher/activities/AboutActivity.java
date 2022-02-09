@@ -1,5 +1,6 @@
 package eu.vranckaert.episodeWatcher.activities;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -9,20 +10,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+
 import eu.vranckaert.episodeWatcher.R;
 import eu.vranckaert.episodeWatcher.preferences.Preferences;
 import eu.vranckaert.episodeWatcher.preferences.PreferencesKeys;
 import eu.vranckaert.episodeWatcher.utils.ApplicationUtil;
-import roboguice.activity.GuiceActivity;
 
 
-public class AboutActivity extends GuiceActivity {
+
+public class AboutActivity extends Activity {
     private static final String LOG_TAG = AboutActivity.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
-        init(savedInstanceState);
+        //init(savedInstanceState);
+        setContentView(R.layout.about);
 
         //Application version
         String version = ApplicationUtil.getCurrentApplicationVersion(this);
@@ -39,11 +43,11 @@ public class AboutActivity extends GuiceActivity {
         Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
     }
 
-    private void init(Bundle savedInstanceState) {
+  /*  private void init(Bundle savedInstanceState) {
         setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.about);
-    }
+       // setContentView(R.layout.about);
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

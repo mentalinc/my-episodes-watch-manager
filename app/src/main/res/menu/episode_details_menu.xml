@@ -5,9 +5,9 @@
         android:contentDescription="@string/home"
         android:enabled="true"
         android:icon="@drawable/ic_title_home"
-        android:showAsAction="ifRoom|withText"
         android:title="@string/home"
-        android:visible="true" />
+        android:visible="true"
+        android:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/markAsSeen"
