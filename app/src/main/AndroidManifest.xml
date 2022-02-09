@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="eu.vranckaert.episodeWatcher"
+    package="nz.mentalinc.episodeWatcher"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 
 
     <application
         android:name="MyEpisodes"
-        android:allowBackup="false"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -20,7 +18,6 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".activities.HomeActivity"
-            android:label="@string/app_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -88,14 +85,5 @@
 
         <uses-library android:name="android.test.runner" />
     </application>
-
-
-    <!--
-Profielnaam: 	myepisodeswatchmanager-android.vranckaert.eu
-Website-URL: 	http://myepisodeswatchmanager-android.vranckaert.eu
-Webeigendom-id [?] : 	UA-3183255-2
-Status voor het bijhouden van conversies: 	waarschuwing   Bijhouden van conversies niet geïnstalleerd (Laatst gecontroleerd op: 3-apr-2010 8:25:44 )
-De conversiecode van Google Analytics is niet gedetecteerd op de startpagina van uw website. Voor een correcte werking van Analytics moet de conversiecode door u of uw webbeheerder aan elke pagina van uw website worden toegevoegd. 
-     -->
 
 </manifest>

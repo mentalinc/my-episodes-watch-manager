@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <eu.vranckaert.episodeWatcher.pager.HorizontalPager
+    <nz.mentalinc.episodeWatcher.pager.HorizontalPager
         android:id="@+id/pager"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
@@ -21,9 +21,9 @@
             android:id="@+id/acquirePage"
             layout="@layout/activity_more" />
 
-    </eu.vranckaert.episodeWatcher.pager.HorizontalPager>
+    </nz.mentalinc.episodeWatcher.pager.HorizontalPager>
 
-    <eu.vranckaert.episodeWatcher.pager.PagerControl
+    <nz.mentalinc.episodeWatcher.pager.PagerControl
         android:id="@+id/control"
         android:layout_width="fill_parent"
         android:layout_height="4dip"
