@@ -2,22 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/home_root"
     android:orientation="horizontal"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="1">
-    <Button android:id="@+id/btn_watched"
+
+
+    <Button
+        android:id="@+id/btn_logout"
         style="@style/HomeButton"
-        android:text="@string/about"
-        android:drawableTop="@drawable/btn_about"
-        android:onClick="onAboutClick"/>
-    <Button android:id="@+id/btn_acquired"
-        style="@style/HomeButton"
-        android:text="@string/whatsNew"
-        android:drawableTop="@drawable/btn_new"
-        android:onClick="onTodoClick"/>
-    <Button android:id="@+id/btn_coming"
-        style="@style/HomeButton"
-        android:text="@string/randompickershort"
-        android:drawableTop="@drawable/btn_random"
-        android:onClick="onRandomClick"/>
+        android:drawableTop="@drawable/outline_logout_white_48"
+        android:onClick="onLogoutClick"
+        android:text="@string/logout" />
+
+
 </LinearLayout>

@@ -37,6 +37,7 @@
     <string name="acquirehome">Acquire (%d)</string>
     <string name="coming">Coming</string>
     <string name="more">More</string>
+    <string name="settings">Settings</string>
     <string name="watchListTitle">List of shows/episodes</string>
     <string name="watchListSubTitleWatch" tools:ignore="PluralsCandidate">%d episode to watch</string>
     <string name="watchListSubTitleAcquire" tools:ignore="PluralsCandidate">%d episode to acquire</string>
@@ -46,6 +47,18 @@
     <string name="watchListSubTitleComingPlural" tools:ignore="PluralsCandidate">%d future episodes</string>
     <string name="watchListEmpty">No episodes found.</string>
     <string name="watchListFull">Reached the limit of 200 episodes, consider enabling 200+ episodes in preferences.</string>
+
+
+
+    <!-- Show info -->
+
+    <string name="show_menu_overflow">More options</string>
+    <string name="norating">n/a</string>
+    <string name="list_empty">You can add shows to this list</string>
+
+
+
+
 
     <!-- Episode details -->
     <string name="details">Details</string>
@@ -57,7 +70,8 @@
     <string name="TweetTitle">Share</string>
     <string name="Tweet">I have watched \'%s\' #MyEpisodesManager #Android</string>
 
-    <string name="randompickertext">The random episode picker demands you to watch: </string>
+    <string name="randompickertext">The random episode picker recommends you watch: </string>
+    <string name="CoverArtFromShow">Show cover art image</string>
 
     <!-- Show management -->
     <!-- Show Panel -->
@@ -83,8 +97,8 @@
     <string name="favoIgnoredConfirmationUnignoreMessage">Are you sure you want to unignore this show?</string>
 
     <!-- random episode picker -->
-    <string name="randompicker">Random Episode Picker</string>
-    <string name="randompickershort">Random Picker</string>
+    <string name="randompicker">Random Episode</string>
+    <string name="randompickershort">Random Episode</string>
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Loading&#8230;</string>
@@ -95,6 +109,7 @@
     <!-- aboutDialog -->
     <string name="aboutTitle">About&#8230;</string>
     <string name="aboutVersion">Version:</string>
+    <string name="aboutVersionNumber">""</string>
     <string name="aboutLicense">License:</string>
     <string name="aboutWebsite">Website:</string>
     <string name="aboutEmail">Email:</string>
@@ -103,20 +118,33 @@
     <!-- whatsNewDialog -->
     <string name="whatsNewTitle">What\'s new</string>
     <string name="whatsNewVersion">Version:</string>
+    <string name="current_version">You\'re using Version 1.8.8 - Debug</string>
     <string name="whatsNewText">What has changed:</string>
     <string-array name="whatsNewValues">
         <!-- TODO update! -->
         <item>Disable Acquire / Coming</item>
         <item>Sort options</item>
         <item>Code refactoring</item>
-        <item>New icons</item>
         <item>Enabled 200+ episodes</item>
         <item>Show runtime added</item>
         <item>Ability to update/edit show runtime</item>
         <item>Show summary and image added to episode details and random episode</item>
         <item>Updated all web code</item>
         <item>Moved to Material Design theme from Halo</item>
+        <item>Updated icons to Material Icons</item>
     </string-array>
+    <string name="whatsNewValuesString">
+          \u25CF Disable Acquire / Coming  \n
+         \u25CF Sort options  \n
+         \u25CF Code refactoring \n
+         \u25CF Enabled 200+ episodes \n
+         \u25CF Show runtime added \n
+         \u25CF Ability to update/edit show runtime \n
+         \u25CF Show summary and image added to episode details and random episode \n
+         \u25CF Updated all web code \n
+         \u25CF Moved to Material Design theme from Halo \n
+         \u25CF Updated icons to Material Icons
+    </string>
     <!-- logoutDialog -->
     <string name="logoutDialogTitle">Are you sure?</string>
     <string name="logoutDialogMessage">Your credentials will no longer be stored on the device.</string>
@@ -151,8 +179,8 @@
     <!-- preferences -->
     <string name="applyPreferences">Because settings are changed, the episodes will be refreshed now!</string>
     <!-- Show sorting -->
-    <string name="showWatchOrderPrompt">Order of watched shows</string>
-    <string name="showAcquireOrderPrompt">Order of acquired shows</string>
+    <string name="showWatchOrderPrompt">Order of shows to watch</string>
+    <string name="showAcquireOrderPrompt">Order of shows to acquire</string>
     <string name="showComingOrderPrompt">Order of coming shows</string>
     <string name="showRuntimeOrderPrompt">Order of show runtime</string>
     <string-array name="showOrderOptions">
@@ -173,10 +201,8 @@
     <string name="daysBackwardCP">Days Backward</string>
     <string name="daysBackwardCPExtra">Number of days backward to search for new episodes to watch</string>
 
-
     <!-- Run Time -->
     <string name="RunTime">Enable show runtime</string>
-
 
     !-- Website Filter -->
     <string name="listingUnacquired">List Unacquired Shows</string>
@@ -192,14 +218,13 @@
     public static final String SHOW_LISTING_LOCALIZED_AIRDATES_KEY = "List Localized Airdate Shows";
 
 
-
-
-
     <!-- Cache data -->
     <string name="CacheEpisodes">Cache Episodes</string>
+    <string name="CacheEpisodesSummary">Cache episodes on the device to speed up load times</string>
 
     <!-- Cache Data File Age -->
     <string name="CacheFileAge">Age of Cache Files</string>
+    <string name="CacheFileAgeSummary">Define how long to cache files on the device</string>
     <string-array name="CacheFileAgeArray">
         <item>Disabled</item>
         <item>6 hours</item>
@@ -235,7 +260,7 @@
 
     <!-- Acquire Settings -->
     <string name="openAcquirePrompt">Acquire Settings</string>
-    <string name="openAcquirePromptExtra">All shows or only shows of yesterday</string>
+    <string name="openAcquirePromptExtra">Display all shows that need to be acquired or only shows from yesterday</string>
     <string-array name="openAcquireOptions">
         <item>All</item>
         <item>Only yesterday</item>
@@ -252,14 +277,29 @@
     <string name="ThemePrompt">Choose Theme</string>
     <string name="ThemePromptExtra">Select your theme</string>
     <string-array name="ThemeOptions">
+        <item>System</item>
         <item>Light</item>
         <item>Dark</item>
+    </string-array>
+
+    <string-array name="ThemeValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="ThemeMaterial3Values">`
+        <item>R.style.ThemeDayNight</item>
+        <item>R.style.ThemeLight</item>
+        <item>R.style.ThemeDark</item>
+
     </string-array>
     <!-- Store password -->
     <string name="storePasswordPrompt">Store password</string>
     <!-- Disable -->
     <string name="disableAcquire">Disable Acquire</string>
+    <string name="disableAcquireSummary">Disable listing shows that need to be acquired</string>
     <string name="disableComing">Disable Coming</string>
+    <string name="disableComingSummary">Disable shows that are coming</string>
     <!-- Change Language -->
     <string name="showLanguagePrompt">Change Language</string>
 
@@ -300,10 +340,8 @@
         <item>oldest_on_top</item>
         <item>newest_on_top</item>
     </string-array>
-    <string-array name="ThemeValues">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
+
+
     <string-array name="AcquireValues">
         <item>0</item>
         <item>1</item>

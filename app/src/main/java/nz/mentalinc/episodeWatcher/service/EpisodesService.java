@@ -906,7 +906,7 @@ public class EpisodesService {
                     new OutputStreamWriter(os, "UTF-8"));
 
 
-            HashMap postDataParams = new HashMap<String, String>() {{
+            HashMap<String, String> postDataParams = new HashMap<>() {{
                 put("A", "B");
             }};
 
@@ -1031,7 +1031,7 @@ public class EpisodesService {
             }
 
             InputStream stream = conn.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"), 8);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 8);
             String result = reader.readLine();
 
         } catch (Exception e) {

@@ -102,6 +102,4 @@ public class MyEpisodeConstants {
     public static final String MYEPISODES_FAVO_UNIGNORE_URL = "https://www.myepisodes.com/myshows.php?action=Ignore&Ignore=0&showid=";
     public static final String MYEPISODES_FAVO_REMOVE_ULR = "https://www.myepisodes.com/myshows.php?action=Remove&Remove=1&showid=";
 
-
-
 }

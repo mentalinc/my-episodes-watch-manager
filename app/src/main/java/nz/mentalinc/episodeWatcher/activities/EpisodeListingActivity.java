@@ -1,11 +1,12 @@
 package nz.mentalinc.episodeWatcher.activities;
 
-import android.app.AlertDialog;
+
 import android.app.Dialog;
 import android.app.ExpandableListActivity;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,7 +14,6 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +22,10 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -64,20 +67,16 @@ import nz.mentalinc.episodeWatcher.exception.FeedUrlParsingException;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
 import nz.mentalinc.episodeWatcher.exception.ShowUpdateFailedException;
-import nz.mentalinc.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.UserService;
 import nz.mentalinc.episodeWatcher.utils.DateUtil;
-import roboguice.activity.GuiceExpandableListActivity;
+
 
 
 /**
- * @author Ivo Janssen
+ * @author Ivo Janssen, maintained and updated by mentalinc
  */
 
-//public class EpisodeListingActivity extends GuiceExpandableListActivity {
 public class EpisodeListingActivity extends ExpandableListActivity {
     private static final int EPISODE_LOADING_DIALOG = 0;
     private static final int ONLINE_CHECK_DIALOG = 5;
@@ -96,6 +95,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     private Integer exceptionMessageResId = null;
     private static EpisodeType episodesType;
     private ListMode listMode;
+    private String title;
     //private Resources res; // Resource object to get Drawables
     // private android.content.res.Configuration conf;
     private Map<Date, List<Episode>> listedAirDates = null;
@@ -104,42 +104,12 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
     private final UserService userService;
 
-
-    //private CustomAnalyticsTracker tracker;
-
     public EpisodeListingActivity() {
         super();
         userService = new UserService();
         this.service = new EpisodesService();
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        //inflater.inflate(R.menu.home_menu, menu);
-        inflater.inflate(R.menu.episode_listing_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.preferences:
-                openPreferencesActivity();
-                return true;
-            case R.id.btn_title_collapse:
-                onCollapseClick();
-                return true;
-            case R.id.home:
-                exit();
-                return true;
-            case R.id.btn_title_refresh :
-                onRefreshClick();
-                return true;
-        }
-        return false;
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -216,10 +186,10 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 episode = shows.get(listGroupId).getEpisodes().get(listChildId);
                 break;
             case EPISODES_BY_DATE:
-                Iterator iter = listedAirDates.entrySet().iterator();
+                Iterator<Map.Entry<Date, List<Episode>>> iter = listedAirDates.entrySet().iterator();
                 int i = 0;
                 while (iter.hasNext()) {
-                    Map.Entry entry = (Map.Entry) iter.next();
+                    Map.Entry entry = iter.next();
                     if (i == listGroupId) {
                         episode = listedAirDates.get(entry.getKey()).get(listChildId);
                         break;
@@ -244,10 +214,10 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 episodes = shows.get(listGroupId).getEpisodes();
                 break;
             case EPISODES_BY_DATE:
-                Iterator iter = listedAirDates.entrySet().iterator();
+                Iterator<Map.Entry<Date, List<Episode>>> iter = listedAirDates.entrySet().iterator();
                 int i = 0;
                 while (iter.hasNext()) {
-                    Map.Entry entry = (Map.Entry) iter.next();
+                    Map.Entry entry = iter.next();
                     if (i == listGroupId) {
                         episodes = listedAirDates.get(entry.getKey());
                         break;
@@ -262,7 +232,6 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
     private Date determineDate(int listGroupId) {
 
-
         if (listGroupId < 0) {
             return null;
         }
@@ -271,10 +240,10 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             case EPISODES_BY_SHOW:
                 return shows.get(listGroupId).getEpisodes().get(0).getAirDate();
             case EPISODES_BY_DATE:
-                Iterator iter = listedAirDates.entrySet().iterator();
+                Iterator<Map.Entry<Date, List<Episode>>> iter = listedAirDates.entrySet().iterator();
                 int i = 0;
                 while (iter.hasNext()) {
-                    Map.Entry entry = (Map.Entry) iter.next();
+                    Map.Entry entry = iter.next();
                     if (i == listGroupId) {
                         return (Date) entry.getKey();
                     } else {
@@ -310,17 +279,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 //progressDialogOnline.show();
                 dialog = progressDialogOnline;
                 break;
-            case EXCEPTION_DIALOG:
-                if (exceptionMessageResId == null) {
-                    exceptionMessageResId = R.string.defaultExceptionMessage;
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.exceptionDialogTitle)
-                        .setMessage(exceptionMessageResId)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialogOK, (dialog1, id1) -> removeDialog(EXCEPTION_DIALOG));
-                dialog = builder.create();
-                break;
+
             default:
                 dialog = super.onCreateDialog(id);
                 break;
@@ -328,16 +287,80 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         return dialog;
     }
 
+
+    public void exceptionDialog(Context context) {
+
+        if (exceptionMessageResId == null) {
+            exceptionMessageResId = R.string.defaultExceptionMessage;
+        }
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(exceptionMessageResId);
+        dialog.setPositiveButton(R.string.dialogOK, (dialog1, which) -> {
+            exceptionMessageResId = null;
+            dialog1.dismiss();
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+
+
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
 
         Bundle data = this.getIntent().getExtras();
         episodesType = (EpisodeType) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         listMode = (ListMode) data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE);
-
+        title = (String) data.getSerializable("Title");
         init();
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        appBarHome.setOnClickListener(v -> {
+
+            Log.w(LOG_TAG, "Home button clicked.");
+            exit();
+        });
+
+
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_collapse =  findViewById(R.id.btn_title_collapse);
+        appBarbtn_title_collapse.setOnClickListener(v -> {
+
+            Log.w(LOG_TAG, "Collapse button clicked.");
+            onCollapseClick();
+        });
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_refresh =  findViewById(R.id.btn_title_refresh);
+        appBarbtn_title_refresh.setOnClickListener(v -> {
+
+            Log.w(LOG_TAG, "Refresh button clicked.");
+            onRefreshClick();
+        });
+
+
+
+
     }
 
     @Override
@@ -385,15 +408,15 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     private void init() {
         setContentView(R.layout.episode_listing_tab);
         episodes = new ArrayList<>();
-
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                Preferences.getPreference(this, User.USERNAME),
-                Preferences.getPreference(this, User.PASSWORD)
+                sharedPref.getString("username",null),
+                sharedPref.getString("UserPassword",null)
         );
         Resources res = getResources();
         android.content.res.Configuration conf = res.getConfiguration();
-
-        String LanguageCode = Preferences.getPreference(this, PreferencesKeys.LANGUAGE_KEY);
+        
+        String LanguageCode = sharedPref.getString("language","en");
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
 
@@ -409,15 +432,16 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             Episode episode = (Episode) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
 
             if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)) {
-                //tracker.trackEvent(CustomTracker.Event.MARK_WATCHED);
                 markEpisodes(0, episode);
             } else if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_ACQUIRE)) {
-                //  tracker.trackEvent(CustomTracker.Event.MARK_ACQUIRED);
                 markEpisodes(1, episode);
             }
         }
         getEpisodes();
         returnEpisodes();
+        //set actionbar  title
+        Toolbar toolbar = findViewById(R.id.topAppBarEpListing);
+        toolbar.setTitle(title);
     }
 
     private void initExendableList() {
@@ -449,6 +473,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 case EPISODES_TO_WATCH:
                     subTitle.setText(getString(R.string.watchListSubTitleWatch, countEpisodes));
                     this.setTitle(R.string.watch);
+
                     openListRows(RowController.getInstance().getOpenWatchRows());
                     break;
                 case EPISODES_TO_YESTERDAY1:
@@ -619,12 +644,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title",title);
         startActivity(episodeDetailsSubActivity);
-    }
-
-    private void openPreferencesActivity() {
-        Intent preferencesActivity = new Intent(this.getApplicationContext(), PreferencesActivity.class);
-        startActivityForResult(preferencesActivity, SETTINGS_RESULT);
     }
 
     private void reloadEpisodes() {
@@ -747,7 +768,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             }
 
             InputStream stream = conn.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"), 8);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 8);
             String result = reader.readLine();
 
         } catch (Exception e) {
@@ -764,7 +785,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     private void getEpisodesMyEpisodes() {
         try {
             if (episodesType == EpisodeType.EPISODES_TO_ACQUIRE) {
-                String acquire = Preferences.getPreference(EpisodeListingActivity.this, PreferencesKeys.ACQUIRE_KEY);
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                String acquire = sharedPref.getString("ACQUIRE_KEY","0");
                 if (acquire != null && acquire.equals("1")) {
                     EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
                     EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
@@ -808,7 +830,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         initExendableList();
 
         if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-            showDialog(EXCEPTION_DIALOG);
+            //showDialog(EXCEPTION_DIALOG);
+            exceptionDialog(EpisodeListingActivity.this);
             exceptionMessageResId = null;
         }
     }
@@ -836,42 +859,47 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     }
 
     private void sortShows(List<Show> showList) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String sorting = "";
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting =  sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
                 break;
             case EPISODES_COMING:
-                sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
         }
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
         if (sorting.equals(showOrderOptions[1])) {
             Log.d(LOG_TAG, "Sorting episodes ascending");
-            Collections.sort(showList,new ShowAscendingComparator());
+            showList.sort(new ShowAscendingComparator());
         } else if (sorting.equals(showOrderOptions[2])) {
             Log.d(LOG_TAG, "Sorting episodes descending");
-            Collections.sort(showList, new ShowDescendingComparator());
+            showList.sort(new ShowDescendingComparator());
         } else if (sorting.equals(showOrderOptions[0])) {
             Log.d(LOG_TAG, "Default my episodes show sorting, nothing to do!");
         }
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {
-        String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+       // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
+        String sorting = sharedPref.getString("episodeOrder","oldest_on_top");
+
         String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
 
         for (Show show : showList) {
             if (sorting.equals(episodeOrderOptions[0])) {
-                Collections.sort(show.getEpisodes(), new EpisodeAscendingComparator());
+                show.getEpisodes().sort(new EpisodeAscendingComparator());
             } else if (sorting.equals(episodeOrderOptions[1])) {
-                Collections.sort(show.getEpisodes(), new EpisodeDescendingComparator());
+                show.getEpisodes().sort(new EpisodeDescendingComparator());
             }
         }
     }
@@ -897,7 +925,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             protected void onPostExecute(Object o) {
                 removeDialog(EPISODE_LOADING_DIALOG);
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    showDialog(EXCEPTION_DIALOG);
+                    //showDialog(EXCEPTION_DIALOG);
+                    exceptionDialog(EpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
                     EpisodesController.getInstance().deleteEpisode(episode.getType(), episode);
@@ -929,7 +958,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             protected void onPostExecute(Object o) {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(EPISODE_LOADING_DIALOG);
-                    showDialog(EXCEPTION_DIALOG);
+                    //showDialog(EXCEPTION_DIALOG);
+                    exceptionDialog(EpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
                     removeDialog(EPISODE_LOADING_DIALOG);
@@ -961,11 +991,13 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             protected void onPostExecute(Object o) {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(EPISODE_LOADING_DIALOG);
-                    showDialog(EXCEPTION_DIALOG);
+                    //showDialog(EXCEPTION_DIALOG);
+                    exceptionDialog(EpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     returnEpisodes();
+
                 }
             }
         };
@@ -1085,6 +1117,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         }
         reloadEpisodes();
 
+
     }
 
     public void onCollapseClick() {
@@ -1095,7 +1128,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 //((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse2);
             } else {
                 this.getExpandableListView().collapseGroup(i);
-               // ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse);
+               // ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.outline_expand_white_24);
             }
         }
 
@@ -1107,7 +1140,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     }
 
     public void SetOnline(Boolean online) {
-        boolean isOnelineCheck = online;
+        boolean isOnlineCheck = online;
     }
 
     private Boolean isOnline() {

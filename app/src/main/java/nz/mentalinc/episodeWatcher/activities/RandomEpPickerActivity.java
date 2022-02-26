@@ -2,20 +2,19 @@ package nz.mentalinc.episodeWatcher.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.preference.PreferenceManager;
 import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
@@ -31,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -42,13 +42,8 @@ import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.utils.DateUtil;
-import roboguice.activity.GuiceActivity;
-
-//import android.widget.ImageButton;
 
 public class RandomEpPickerActivity extends Activity {
     private Episode random;
@@ -56,7 +51,19 @@ public class RandomEpPickerActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.randompicker);
 
@@ -70,10 +77,13 @@ public class RandomEpPickerActivity extends Activity {
         if (EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH) > 0) {
             random = EpisodesController.getInstance().getRandomWatchEpisode();
 
+            String seasonString = " " + random.getSeasonString();
+            String episodeString = " " + random.getEpisodeString();
+
             showNameText.setText(random.getShowName());
             episodeNameText.setText(random.getName());
-            seasonText.setText(" " + random.getSeasonString());
-            episodeText.setText(" " + random.getEpisodeString());
+            seasonText.setText(seasonString);
+            episodeText.setText(episodeString);
             //runtimeText.setText(random.get);
 
             //Air date in specifc format
@@ -85,7 +95,8 @@ public class RandomEpPickerActivity extends Activity {
                 formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
             }
 
-            airdateText.setText(" " + formattedAirDate);
+            String airdateString =" " + formattedAirDate ;
+            airdateText.setText(airdateString);
             TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
             if (!TextUtils.isEmpty(random.getTVMazeWebSite())) {
                 //aboutWebsite.setText(episode.getTVMazeWebSite());
@@ -99,10 +110,10 @@ public class RandomEpPickerActivity extends Activity {
 
 
                 //create hashmap's to prevent build fails, they get replaced
-                HashMap episodeSummaryHashMap = new HashMap<String, String>() {{
+                HashMap<String, String> episodeSummaryHashMap = new HashMap<>() {{
                     put("a", "b");
                 }};
-                HashMap showSummaryHashMap = new HashMap<String, String>() {{
+                HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
                     put("a", "b");
                 }};
 
@@ -129,33 +140,13 @@ public class RandomEpPickerActivity extends Activity {
 
 
 
-        markAsSeenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeAndMarkWatched(random);
-            }
+        markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        appBarHome.setOnClickListener(v -> {
+            Log.w(LOG_TAG, "Home button clicked.");
+            exit();
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.show_management_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.closePreferences:
-                finish();
-                return true;
-            case R.id.home:
-                finish();
-                return true;
-        }
-        return false;
     }
 
 
@@ -226,14 +217,13 @@ public class RandomEpPickerActivity extends Activity {
                 }
 
                 JSONObject jObj;
-                String episodeSummary = "";
-                String episodeURL = "";
+                String episodeSummary;
+                String episodeURL;
                 String episodeImageURL = "";
 
                 try {
                     jObj = new JSONObject(jsonString);
-                    //      showNameString = jObj.getString("name");
-                    //     showRuntimeString = jObj.getString("runtime");
+
                     episodeSummary = jObj.getString("summary");
                     episodeURL = jObj.getString("url");
                     if (!jObj.getString("image").equals("null")) {
@@ -377,8 +367,7 @@ public class RandomEpPickerActivity extends Activity {
 
                     try {
                         jObj = new JSONObject(jsonString);
-                        //      showNameString = jObj.getString("name");
-                        //     showRuntimeString = jObj.getString("runtime");
+
                         showSummary = jObj.getString("summary");
                         ShowName = jObj.getString("name");
                         showURL = jObj.getString("url");
@@ -438,7 +427,8 @@ public class RandomEpPickerActivity extends Activity {
             ShowName.setText(showSummaryHash.get("ShowName"));
 
             TextView ShowRuntime = findViewById(R.id.episodeRuntime);
-            ShowRuntime.setText(showSummaryHash.get("ShowRuntime") + " mins");
+            String showruntimeText =showSummaryHash.get("ShowRuntime") + " mins";
+            ShowRuntime.setText(showruntimeText);
 
             TextView aboutShowWebsite = findViewById(R.id.tvMazeShowWebsite);
             aboutShowWebsite.setText(showSummaryHash.get("showURL"));
@@ -446,7 +436,7 @@ public class RandomEpPickerActivity extends Activity {
 
             TextView aboutShowOfficialWebsite = findViewById(R.id.officialShowWebsite);
             String showOfficialWebsite = showSummaryHash.get("officialSite");
-            if (!showOfficialWebsite.equals("null")) { //not a type want to check for the string null not null no object
+            if (!Objects.requireNonNull(showOfficialWebsite).equals("null")) { //not a type want to check for the string null not null no object
                 aboutShowOfficialWebsite.setText(showOfficialWebsite);
                 Linkify.addLinks(aboutShowOfficialWebsite, Linkify.WEB_URLS);
             } else {
@@ -457,7 +447,7 @@ public class RandomEpPickerActivity extends Activity {
 
             String episodeSummary = showSummaryHash.get("showSummary");
 
-            if (!episodeSummary.equals("null")) { //not a type want to check for the string null not null no object
+            if (!Objects.requireNonNull(episodeSummary).equals("null")) { //not a type want to check for the string null not null no object
                 tvMazeShowSummary.setText(episodeSummary);
             } else {
                 tvMazeShowSummary.setVisibility(View.GONE);
@@ -468,7 +458,7 @@ public class RandomEpPickerActivity extends Activity {
             String showImageURL = showSummaryHash.get("showImageURL");
             // add in here to download tv series info...and the show level info to a database!
 
-            if (!showImageURL.equals("")) {
+            if (!Objects.requireNonNull(showImageURL).equals("")) {
 
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions.placeholder(R.drawable.placeholder);

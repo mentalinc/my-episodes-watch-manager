@@ -3,12 +3,14 @@ package nz.mentalinc.episodeWatcher.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
@@ -17,8 +19,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
+import androidx.preference.PreferenceManager;
 
 import java.io.File;
 
@@ -26,13 +28,12 @@ import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.preferences.Preferences;
 import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
-import roboguice.activity.GuicePreferenceActivity;
 
 /**
- * @author Ivo Janssen
+ * @author Ivo Janssen, maintained and updated by mentalinc
  */
 
-public class PreferencesActivity extends GuicePreferenceActivity {
+public class PreferencesActivity extends PreferenceActivity {
     private static final int RELOAD_DIALOG = 0;
     private boolean refreshDialog;
     private EditTextPreference daysBackCP;
@@ -47,7 +48,7 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.preferences_menu, menu);
+        inflater.inflate(R.menu.home_menu, menu);
         return true;
     }
 
@@ -55,9 +56,6 @@ public class PreferencesActivity extends GuicePreferenceActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.closePreferences:
-                finish();
-                return true;
             case R.id.home:
                 finish();
                 return true;
@@ -68,7 +66,15 @@ public class PreferencesActivity extends GuicePreferenceActivity {
 
     @Override
     public void onCreate(Bundle savedInstance) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        if(themeSetting.equals("0")){
+            setTheme( R.style.ThemeDayNight);
+        }else if(themeSetting.equals("1")){
+            setTheme( R.style.ThemeLight);
+        }else if(themeSetting.equals("2")){
+            setTheme( R.style.ThemeDark);
+        }
         super.onCreate(savedInstance);
 
         getPreferenceManager().setSharedPreferencesName(Preferences.PREF_NAME);
@@ -381,20 +387,6 @@ public class PreferencesActivity extends GuicePreferenceActivity {
         episodeOrderingPref.setEntries(R.array.episodeOrderOptions);
         episodeOrderingPref.setEntryValues(R.array.episodeOrderOptionsValues);
         root.addPreference(episodeOrderingPref);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         PreferenceCategory filterSettings = new PreferenceCategory(this);
         filterSettings.setTitle(R.string.filterPreferences);

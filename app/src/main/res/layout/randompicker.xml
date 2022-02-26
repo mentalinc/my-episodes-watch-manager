@@ -1,22 +1,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorPrimary"/>
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/randompicker"
+        app:titleTextColor="@color/on_text_white"
+        android:background="?attr/colorSurface"
+        android:textColor="@color/on_text_white"
+        app:menu="@menu/home_menu"
+        style="@style/Widget.MaterialComponents.Toolbar.Primary"
+        />
 
     <ScrollView
         android:id="@+id/ScrollView01"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/LinearLayout03"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/randomtexttitle"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10sp"
                 android:textStyle="bold"
@@ -25,7 +44,7 @@
 
             <TextView
                 android:id="@+id/episodeDetShowName"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:paddingTop="10dp"
@@ -33,12 +52,12 @@
 
             <TextView
                 android:id="@+id/episodeDetName"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal" />
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingTop="25dp">
@@ -53,12 +72,12 @@
 
                 <TextView
                     android:id="@+id/episodeDetSeason"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -72,12 +91,12 @@
 
                 <TextView
                     android:id="@+id/episodeDetEpisode"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -91,12 +110,12 @@
 
                 <TextView
                     android:id="@+id/episodeDetAirdate"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingBottom="10dp">
@@ -111,20 +130,20 @@
 
                 <TextView
                     android:id="@+id/episodeRuntime"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tvMazeWebsite"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingBottom="5dp" />
 
             <TextView
                 android:id="@+id/tvMazeEpisodeSummary"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingBottom="5dp" />
@@ -136,22 +155,25 @@
                 android:layout_height="30dp"
                 android:orientation="horizontal" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/markAsSeenButton"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight=".025"
+                app:icon="@drawable/outline_done_white_48"
+                style="@style/EpisodeDetailButton"
                 android:text="@string/menuEpisodeMarkWatched" />
 
             <LinearLayout
                 android:id="@+id/LinearLayout02"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="horizontal" />
 
             <TextView
                 android:id="@+id/ShowName"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:paddingTop="5dp"
@@ -160,27 +182,27 @@
 
             <TextView
                 android:id="@+id/tvMazeShowWebsite"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingBottom="5dp" />
 
             <TextView
                 android:id="@+id/officialShowWebsite"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingBottom="5dp" />
 
             <TextView
                 android:id="@+id/tvMazeShowSummary"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingBottom="5dp" />
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.50"
                 android:gravity="center"
@@ -191,7 +213,7 @@
                     android:id="@+id/showImage"
                     android:layout_width="210dp"
                     android:layout_height="295dp"
-                    android:contentDescription="ImageFromShow"
+                    android:contentDescription="@string/CoverArtFromShow"
                     android:gravity="center"
                     android:scaleType="fitXY" />
             </LinearLayout>

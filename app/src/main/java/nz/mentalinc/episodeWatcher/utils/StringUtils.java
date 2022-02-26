@@ -1,9 +1,8 @@
 package nz.mentalinc.episodeWatcher.utils;
 
 /**
- * @author Dirk Vranckaert
- * Date: 11-mei-2010
- * Time: 18:29:04
+ * @author Dirk Vranckaert, maintained and updated by mentalinc
+ *
  */
 public class StringUtils {
     public static final String EMPTY = "";

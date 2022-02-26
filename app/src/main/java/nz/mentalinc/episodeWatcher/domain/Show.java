@@ -95,6 +95,18 @@ public class Show {
         TVMazeWebSite = tVMazeWebSite;
     }
 
+    private static int lastShowID = 0;
+
+    public static ArrayList<Show> createShowsList(int numShows) {
+        ArrayList<Show> shows = new ArrayList<Show>();
+
+        for (int i = 1; i <= numShows; i++) {
+            shows.add(new Show("Show  " + ++lastShowID));
+        }
+
+        return shows;
+    }
+
     @Override
     public String toString() {
         return this.runTime + " mins - " + this.showName;

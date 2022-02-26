@@ -5,13 +5,14 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +36,9 @@ import nz.mentalinc.episodeWatcher.enums.ShowAction;
 import nz.mentalinc.episodeWatcher.enums.ShowType;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.ShowService;
-import roboguice.activity.GuiceListActivity;
 
+//use RecyclerView instead of ListActivty
 public class ShowManagementActivity extends ListActivity {
     private static final String LOG_TAG = ShowManagementActivity.class.getSimpleName();
     private ShowType showType;
@@ -51,7 +53,6 @@ public class ShowManagementActivity extends ListActivity {
     private Integer exceptionMessageResId = null;
 
     private static final int DIALOG_LOADING = 0;
-    private static final int DIALOG_EXCEPTION = 1;
 
     private static final int CONTEXT_MENU_DELETE = 0;
     private static final int CONTEXT_MENU_UNIGNORE = 1;
@@ -59,43 +60,40 @@ public class ShowManagementActivity extends ListActivity {
     private static final int CONFIRMATION_DIALOG = 3;
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.show_management_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.closePreferences:
-                finish();
-                return true;
-            case R.id.home:
-                finish();
-                return true;
-
-        }
-        return false;
-    }
-
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
         init(savedInstanceState);
 
         reloadShows();
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
+        appBarHome.setOnClickListener(v -> finish());
     }
 
     private void init(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.show_management);
 
         Bundle data = this.getIntent().getExtras();
         showType = (ShowType) Objects.requireNonNull(data).get(ShowType.class.getSimpleName());
+        String title = (String) data.getSerializable("Title");
+        Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
+        toolbar.setTitle(title);
+
 
         if (Objects.requireNonNull(showType).equals(ShowType.FAVOURITE_SHOWS)) {
             Log.d(LOG_TAG, "Opening the favourite shows");
@@ -107,10 +105,10 @@ public class ShowManagementActivity extends ListActivity {
 
             this.setTitle(R.string.ignoredShows);
         }
-
-        user = new User(
-                Preferences.getPreference(this, User.USERNAME),
-                Preferences.getPreference(this, User.PASSWORD)
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        user = new User(                
+                    sharedPref.getString("username",null),
+                    sharedPref.getString("UserPassword",null)  
         );
 
         initializeShowList();
@@ -118,6 +116,24 @@ public class ShowManagementActivity extends ListActivity {
         service = new ShowService();
     }
 
+    public void exceptionDialog(Context context) {
+
+        if (exceptionMessageResId == null) {
+            exceptionMessageResId = R.string.defaultExceptionMessage;
+        }
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(exceptionMessageResId);
+        dialog.setPositiveButton(R.string.dialogOK, (dialog1, which) -> {
+            exceptionMessageResId = null;
+            dialog1.dismiss();
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -129,45 +145,6 @@ public class ShowManagementActivity extends ListActivity {
                 progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
                 progressDialog.setCancelable(false);
                 dialog = progressDialog;
-                break;
-            }
-            case DIALOG_EXCEPTION: {
-                if (exceptionMessageResId == null) {
-                    exceptionMessageResId = R.string.defaultExceptionMessage;
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.exceptionDialogTitle)
-                        .setMessage(exceptionMessageResId)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialogOK, (dialog13, id13) -> {
-                            exceptionMessageResId = null;
-                            removeDialog(DIALOG_EXCEPTION);
-                        });
-                dialog = builder.create();
-                break;
-            }
-            case CONFIRMATION_DIALOG: {
-                if (selectedShow > -1) {
-                    final Show show = shows.get(selectedShow);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(show.getShowName())
-                            .setMessage(confirmationMessageResId)
-                            .setNegativeButton(R.string.no, (dialog12, id12) -> {
-                                selectedShow = -1;
-                                confirmationMessageResId = -1;
-                                showAction = null;
-                                removeDialog(CONFIRMATION_DIALOG);
-                            })
-                            .setPositiveButton(R.string.yes, (dialog1, id1) -> {
-                                removeDialog(CONFIRMATION_DIALOG);
-                                markShow(show, showAction);
-
-                                selectedShow = -1;
-                                confirmationMessageResId = -1;
-                                showAction = null;
-                            });
-                    dialog = builder.create();
-                }
                 break;
             }
         }
@@ -191,7 +168,8 @@ public class ShowManagementActivity extends ListActivity {
             protected void onPostExecute(Object o) {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
-                    showDialog(DIALOG_EXCEPTION);
+                    //showDialog(DIALOG_EXCEPTION);
+                    exceptionDialog(ShowManagementActivity.this);
                 } else {
                     updateShowList();
                     removeDialog(DIALOG_LOADING);
@@ -250,7 +228,7 @@ public class ShowManagementActivity extends ListActivity {
             Show show = shows.get(position);
             topText.setText(show.getShowName());
 
-            row.setOnClickListener(view -> openContextMenu(view));
+            row.setOnClickListener(ShowManagementActivity.this::openContextMenu);
 
             return row;
         }
@@ -297,7 +275,32 @@ public class ShowManagementActivity extends ListActivity {
         this.showAction = action;
         this.confirmationMessageResId = messageId;
 
-        showDialog(ShowManagementActivity.CONFIRMATION_DIALOG);
+        if (selectedShow > -1) {
+            final Show show = shows.get(selectedShow);
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(ShowManagementActivity.this);
+        dialog.setTitle(show.getShowName());
+        dialog.setMessage(confirmationMessageResId);
+        dialog.setNegativeButton(R.string.no, (dialog1, which) -> {
+            selectedShow = -1;
+            confirmationMessageResId = -1;
+            showAction = null;
+            dialog1.dismiss();
+        });
+        dialog.setPositiveButton(R.string.yes, (dialog12, which) -> {
+            markShow(show, showAction);
+
+            selectedShow = -1;
+            confirmationMessageResId = -1;
+            showAction = null;
+            dialog12.dismiss();
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+
+        }
     }
 
     private void markShow(final Show show, final ShowAction action) {
@@ -311,13 +314,8 @@ public class ShowManagementActivity extends ListActivity {
             protected Object doInBackground(Object... objects) {
                 switch (action) {
                     case IGNORE:
-                        //   tracker.trackEvent(CustomTracker.Event.SHOW_INGORE);
-                        break;
                     case UNIGNORE:
-                        //       tracker.trackEvent(CustomTracker.Event.SHOW_UNIGNORE);
-                        break;
                     case DELETE:
-                        //        tracker.trackEvent(CustomTracker.Event.SHOW_DELETE);
                         break;
                 }
 
@@ -329,7 +327,8 @@ public class ShowManagementActivity extends ListActivity {
             protected void onPostExecute(Object o) {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
-                    showDialog(DIALOG_EXCEPTION);
+                    //showDialog(DIALOG_EXCEPTION);
+                    exceptionDialog(ShowManagementActivity.this);
                 } else {
                     updateShowList();
                     removeDialog(DIALOG_LOADING);

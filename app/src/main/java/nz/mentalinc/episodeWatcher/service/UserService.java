@@ -134,7 +134,7 @@ public class UserService {
 
         String responsePage = response;
 
-        if (responsePage.contains("Wrong username/password") || responsePage.contains("ERR_INVALID_REQ")) { // || !responsePage.contains(username)) {
+        if (responsePage.contains("Invalid password") || responsePage.contains("Username not found") || responsePage.contains("ERR_INVALID_REQ")) { // || !responsePage.contains(username)) {
             String message = "Login to MyEpisodes failed. Login page: " + MyEpisodeConstants.MYEPISODES_LOGIN_PAGE + " Username: " + username +
                     " Password: ***** Leaving with status code " + result;
             Log.w(LOG_TAG, message);
@@ -222,8 +222,7 @@ public class UserService {
         return result;
     }
 
-    public String encryptPassword(final String password) throws
-            PasswordEnctyptionFailedException {
+    public String encryptPassword(final String password) throws PasswordEnctyptionFailedException {
         String encryptedPwd;
         MessageDigest digest;
         try {

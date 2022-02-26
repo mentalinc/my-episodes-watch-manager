@@ -1,36 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Base application theme is the default theme. -->
-    <style name="Theme" parent="Theme.MaterialComponents" />
 
-    <!-- Variation on the Light theme that turns off the title -->
-    <style name="Theme.IOSched" parent="Theme.MaterialComponents.Light">
+    <style name="ThemeDayNight" parent="Theme.Material3.DayNight.NoActionBar" >
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowContentOverlay">@null</item>
+
     </style>
 
-    <style name="HomeButton">
+    <style name="ThemeLight" parent="Theme.Material3.Light.NoActionBar" >
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="ThemeDark" parent="Theme.Material3.Dark.NoActionBar" >
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+
+    <!-- Text styles -->
+    <style name="TextAppearance.SeriesGuide.Body1" parent="TextAppearance.Material3.BodyLarge" />
+
+    <style name="TextAppearance.SeriesGuide.Body2" parent="TextAppearance.Material3.BodyMedium" />
+
+    <style name="TextAppearance.SeriesGuide.Body2.Bold">
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="TextAppearance.SeriesGuide.Body2.Bold.Accent">
+        <item name="android:textColor">?attr/sgTextColorSecondaryDim</item>
+    </style>
+    <style name="TextAppearance.SeriesGuide.Body2.Bold.Dim">
+        <item name="android:textColor">?attr/sgTextColorSecondaryDim</item>
+    </style>
+    <style name="TextAppearance.SeriesGuide.Caption" parent="TextAppearance.Material3.BodySmall" />
+    <style name="TextAppearance.SeriesGuide.Caption.Dim">
+        <item name="android:textColor">?attr/sgTextColorSecondaryDim</item>
+    </style>
+
+
+
+
+    <style name="HomeButton" style="?android:attr/materialButtonOutlinedStyle" parent="android:Widget.Material.Button">
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:gravity">center_horizontal</item>
+        <item name="android:gravity">center</item>
         <item name="android:textSize">@dimen/text_size_medium</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@null</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="rippleColor">@color/colorPrimary </item>
+        <item name="android:textColor">@color/on_text_white</item>
+        <item name="backgroundTint">@color/colorPrimary </item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+    </style>
+
+
+    <style name="EpisodeDetailButton" style="?android:attr/materialButtonOutlinedStyle" parent="android:Widget.Material.Button">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">25dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@null</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="rippleColor">@color/colorPrimary </item>
+        <item name="android:textColor">@color/on_text_white</item>
+        <item name="backgroundTint">@color/colorPrimary </item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
     <style name="TitleBar">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/title_height</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:background">@color/title_background</item>
+        <item name="android:background">@color/colorBackground</item>
     </style>
 
     <style name="TitleBarAction">
         <item name="android:layout_width">@dimen/title_height</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:background">@drawable/title_button</item>
     </style>
 
@@ -43,36 +100,35 @@
         <item name="android:indeterminate">true</item>
     </style>
 
-    <style name="TitleBarSeparator">
+    <style name="TitleBarSeparator" style="?attr/materialDividerStyle">
         <item name="android:layout_width">1px</item>
-        <item name="android:layout_height">fill_parent</item>
-        <item name="android:background">@color/title_separator</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 
     <style name="TitleBarLogo">
         <item name="android:id">@id/title_logo</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:clickable">true</item>
     </style>
 
     <style name="TitleBarSpring">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">1</item>
     </style>
 
     <style name="TitleBarText">
         <item name="android:id">@id/title_text</item>
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textSize">@dimen/text_size_medium</item>
         <item name="android:paddingLeft">12dip</item>
         <item name="android:paddingRight">12dip</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/title_text</item>
+        <item name="android:textColor">@color/on_text_white</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>

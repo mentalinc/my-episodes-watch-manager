@@ -1,32 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <nz.mentalinc.episodeWatcher.pager.HorizontalPager
-        android:id="@+id/pager"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <!-- Watch tab -->
         <include
             android:id="@+id/watchPage"
             layout="@layout/activity_home" />
 
-        <!-- Acquire tab -->
-        <include
-            android:id="@+id/acquirePage"
-            layout="@layout/activity_more" />
-
-    </nz.mentalinc.episodeWatcher.pager.HorizontalPager>
-
-    <nz.mentalinc.episodeWatcher.pager.PagerControl
-        android:id="@+id/control"
-        android:layout_width="fill_parent"
-        android:layout_height="4dip"
-        android:layout_margin="8dip"
-        android:visibility="gone" />
 </LinearLayout>

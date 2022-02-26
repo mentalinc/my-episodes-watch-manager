@@ -1,9 +1,8 @@
 package nz.mentalinc.episodeWatcher.database;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
+
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
 
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 

@@ -2,23 +2,19 @@ package nz.mentalinc.episodeWatcher.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.enums.ShowType;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
-import roboguice.activity.GuiceActivity;
 
 /**
- * @author Ivo Janssen
+ * @author Ivo Janssen, maintained and updated by mentalinc
  */
 public class ShowManagementPortalActivity extends Activity {
     @Override
@@ -28,40 +24,36 @@ public class ShowManagementPortalActivity extends Activity {
         loadButtons();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.show_management_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.closePreferences:
-                finish();
-                return true;
-            case R.id.home:
-                finish();
-                return true;
-
-        }
-        return false;
-    }
-
     private void init(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management_portal);
+
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
+        appBarHome.setOnClickListener(v -> {
+            finish();
+        });
     }
 
     private void loadButtons() {
-        Button favoShowsButton = findViewById(R.id.selectionPanelFavoShows);
+        Button favShowsButton = findViewById(R.id.selectionPanelFavoShows);
         Button ignoredShowsButton = findViewById(R.id.selectionPanelIgnoredShows);
         Button addShowsButton = findViewById(R.id.selectionPanelAddShows);
         Button ShowsRuntimeButton = findViewById(R.id.selectionPanelShowsRuntime);
-        favoShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS));
+        favShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS));
         ignoredShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS));
         addShowsButton.setOnClickListener(view -> openSearchActivity());
         ShowsRuntimeButton.setOnClickListener(view -> openRunTimeActivity());
@@ -69,17 +61,24 @@ public class ShowManagementPortalActivity extends Activity {
 
     private void openSearchActivity() {
         Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);
+        searchIntent.putExtra("Title", getString(R.string.addShow));
         startActivity(searchIntent);
     }
 
     private void openRunTimeActivity() {
         Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
+        runTimeIntent.putExtra("Title", getString(R.string.ShowRuntime));
         startActivity(runTimeIntent);
     }
 
     private void openFavouriteOrIgnoredShows(ShowType showType) {
         Intent intent = new Intent(this.getApplicationContext(), ShowManagementActivity.class);
         intent.putExtra(ShowType.class.getSimpleName(), showType);
+        Log.e("Fav or Ignore show type", showType.toString());
+        if (showType.toString().equals("FAVOURITE_SHOWS"))
+            intent.putExtra("Title", getString(R.string.favouriteShows));
+        else if (showType.toString().equals("IGNORED_SHOWS"))
+            intent.putExtra("Title", getString(R.string.ignoredShows));
         startActivity(intent);
     }
 

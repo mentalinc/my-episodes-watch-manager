@@ -1,10 +1,12 @@
 package nz.mentalinc.episodeWatcher.controllers;
 
+import androidx.room.Room;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
+import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
@@ -133,6 +135,11 @@ public class EpisodesController {
         watchEpisodes = tempList;
         acquireEpisodes = tempList;
         comingEpisodes = tempList;
+        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .fallbackToDestructiveMigration()
+                .build();
+        database.clearAllTables();
     }
 
     public void addEpisode(EpisodeType episodesType, Episode episode) {

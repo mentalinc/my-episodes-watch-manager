@@ -1,66 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/home_root"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorPrimary"/>
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBarMenu"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+
+        app:titleTextColor="@color/on_text_white"
+        android:background="?attr/colorSurface"
+        android:textColor="@color/on_text_white"
+        app:menu="@menu/home_settings_menu"
+        app:navigationIcon="@drawable/logo_default"
+        style="@style/Widget.MaterialComponents.Toolbar.Primary"
+        />
+
+
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_watched"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_watched"
+            android:drawableTop="@drawable/outline_visibility_white_48"
             android:text="@string/watchhome" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_acquired"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_acquired"
+            android:drawableTop="@drawable/outline_upcoming_white_48"
             android:text="@string/acquirehome" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_coming"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_coming"
+            android:drawableTop="@drawable/outline_next_week_white_48"
             android:text="@string/coming" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_settings"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_settings"
+            android:drawableTop="@drawable/outline_create_white_48"
             android:onClick="onManageClick"
             android:text="@string/manageShows" />
     </LinearLayout>
 
+
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_logout"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_random"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_logout"
-            android:onClick="onLogoutClick"
-            android:text="@string/logout" />
+            android:drawableTop="@drawable/outline_shuffle_white_48"
+            android:onClick="onRandomClick"
+            android:text="@string/randompicker" />
 
-        <Button
-            android:id="@+id/btn_more"
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ShowListing"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_more"
-            android:text="@string/more" />
+            android:drawableTop="@drawable/outline_visibility_white_48"
+            android:onClick="onShowListingClick"
+            android:text="Show Listing" />
+
     </LinearLayout>
+
+
+
+
+
 </LinearLayout>

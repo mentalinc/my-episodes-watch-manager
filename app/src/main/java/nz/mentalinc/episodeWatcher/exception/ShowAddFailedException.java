@@ -1,9 +1,8 @@
 package nz.mentalinc.episodeWatcher.exception;
 
 /**
- * @author Dirk Vranckaert
- * Date: 23-sep-2010
- * Time: 18:44:45
+ * @author Dirk Vranckaert, maintained and updated by mentalinc
+ *
  */
 public class ShowAddFailedException extends Exception {
     private static final long serialVersionUID = 3656857588312135601L;

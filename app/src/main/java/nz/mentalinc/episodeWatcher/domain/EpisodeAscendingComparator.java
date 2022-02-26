@@ -3,9 +3,8 @@ package nz.mentalinc.episodeWatcher.domain;
 import java.util.Comparator;
 
 /**
- * @author Dirk Vranckaert
- * Date: 11-mei-2010
- * Time: 18:45:35
+ * @author Dirk Vranckaert, maintained and updated by mentalinc
+ *
  */
 public class EpisodeAscendingComparator implements Comparator<Episode> {
     @Override

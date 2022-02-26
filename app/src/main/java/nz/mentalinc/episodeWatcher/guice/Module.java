@@ -10,12 +10,6 @@ class Module extends AbstractAndroidModule {
     @Override
     protected void configure() {
         Log.i(LOG_TAG, "Configuring module " + getClass().getSimpleName());
-
-        /*bindDaos();
-        Log.d(LOG_TAG, "DAO's are bound!");
-        bindServices();
-        Log.d(LOG_TAG, "Services are bound!");
-*/
         Log.i(LOG_TAG, "DAO's and services are now bound!");
     }
 

@@ -4,27 +4,30 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
+
+
 import nz.mentalinc.episodeWatcher.service.UserService;
-import roboguice.activity.GuiceActivity;
+
 
 public class RegisterActivity extends Activity {
-    // private Button registerButton;
+    
     private UserService service;
     private User user;
     private boolean registerStatus;
@@ -35,25 +38,35 @@ public class RegisterActivity extends Activity {
     private static final int MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS = 2;
 
     private static final String LOG_TAG = RegisterActivity.class.getSimpleName();
-    // CustomAnalyticsTracker tracker;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
 
         init();
 
-        //tracker = CustomAnalyticsTracker.getInstance(this);
-
         if (!checkLoginCredentials()) {
-            //tracker.trackPageView(CustomTracker.PageView.REGISTER_USER);
             setContentView(R.layout.register);
 
             Button registerButton = findViewById(R.id.registerRegister);
             registerButton.setOnClickListener(v -> {
                 String username = ((EditText) findViewById(R.id.registerUsername)).getText().toString();
                 String password = ((EditText) findViewById(R.id.registerPassword)).getText().toString();
+                //TODO work out what this email is used for as says always null
                 email = ((EditText) findViewById(R.id.registerEmail)).getText().toString();
                 if (username.length() > 0 && password.length() > 0 && email != null && email.length() > 0) {
                     user = new User(
@@ -95,13 +108,18 @@ public class RegisterActivity extends Activity {
                                 ((EditText) findViewById(R.id.registerUsername)).setText("");
                                 ((EditText) findViewById(R.id.registerPassword)).setText("");
                                 ((EditText) findViewById(R.id.registerEmail)).setText("");
-                                showDialog(MY_EPISODES_ERROR_DIALOG);
+                                //showDialog(MY_EPISODES_ERROR_DIALOG);
+                                validationErrorUserExists(RegisterActivity.this);
+
+
+
                             }
                         }
                     };
                     asyncTask.execute();
                 } else {
-                    showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
+                    //showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
+                    validationError(RegisterActivity.this);
                 }
             });
         } else {
@@ -119,26 +137,53 @@ public class RegisterActivity extends Activity {
                 progressDialog.setCancelable(false);
                 dialog = progressDialog;
                 break;
-            case MY_EPISODES_ERROR_DIALOG:
-                dialog = new AlertDialog.Builder(this)
-                        .setMessage(R.string.registerFailed)
-                        .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> dialog1.cancel()).create();
-                break;
-            case MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS:
-                dialog = new AlertDialog.Builder(this)
-                        .setMessage(R.string.fillInAllFields)
-                        .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> dialog1.cancel()).create();
-                break;
         }
         return dialog;
     }
 
-    private boolean checkLoginCredentials() {
-        String username = Preferences.getPreference(this, User.USERNAME);
-        String password = Preferences.getPreference(this, User.PASSWORD);
+    public void validationError(Context context) {
 
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(R.string.fillInAllFields);
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+    public void validationErrorUserExists(Context context) {
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(R.string.registerFailed);
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+
+
+    private boolean checkLoginCredentials() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String username = sharedPref.getString("username",null);
+        String password = sharedPref.getString("UserPassword",null);        
         return username != null && password != null;
     }
 
@@ -147,8 +192,11 @@ public class RegisterActivity extends Activity {
     }
 
     private void storeLoginCredentials(User user) {
-        Preferences.setPreference(this, User.USERNAME, user.getUsername());
-        Preferences.setPreference(this, User.PASSWORD, user.getPassword());
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        prefEditor.putString("username",user.getUsername());
+        prefEditor.putString("UserPassword", user.getPassword());
+        prefEditor.apply();
     }
 
     private void finalizeLogin() {

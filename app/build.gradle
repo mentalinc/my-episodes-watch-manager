@@ -1,5 +1,4 @@
 
-
 apply plugin: 'com.android.application'
 
 
@@ -11,7 +10,7 @@ android {
         minSdk 29
         targetSdk 31
         versionCode 38
-        versionName "1.8.7"
+        versionName "1.8.8"
 
 
         javaCompileOptions {
@@ -44,26 +43,30 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     productFlavors {
     }
     buildToolsVersion '30.0.3'
 }
 
+
+
 dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.room:room-runtime:2.4.1'
+    implementation 'androidx.fragment:fragment:1.4.1'
     annotationProcessor 'androidx.room:room-compiler:2.4.1'
     // For Kotlin use kapt instead of annotationProcessor
     implementation 'androidx.test:runner:1.4.0'
     implementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation 'com.github.bumptech.glide:glide:4.13.0'
+    implementation 'com.github.bumptech.glide:glide:4.13.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
-
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.preference:preference:1.2.0'
 
  //   implementation 'com.jakewharton:butterknife:10.1.0'
  //   annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'

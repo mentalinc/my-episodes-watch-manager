@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <PreferenceCategory android:title="@string/showPreferences">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="daysBackwardEnable"
+            android:title="@string/daysBackwardEnable" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="RunTime"
+            android:icon="@drawable/outline_schedule_white_24"
+            android:title="@string/RunTime"/>
+
+        <EditTextPreference
+            android:key="daysBack"
+            android:title="@string/daysBackwardCP"
+            android:defaultValue="1825"
+            android:inputType="number"
+            android:digits="1234567890"
+            app:summary="@string/daysBackwardCPExtra"
+            android:dialogTitle="@string/daysBackwardCPExtra"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="CacheEpisodes"
+            android:title="@string/CacheEpisodes"
+            app:summary="@string/CacheEpisodesSummary"/>
+
+        <ListPreference
+            android:key="CacheFileAge"
+            android:title="@string/CacheFileAge"
+            android:defaultValue="1"
+            app:summary="@string/CacheFileAgeSummary"
+            android:entries="@array/CacheFileAgeArray"
+            android:entryValues="@array/CacheFileAgeValues"/>
+
+
+        <ListPreference
+            android:key="AquireSettings"
+            android:title="@string/openAcquirePrompt"
+            android:defaultValue="All"
+            app:summary="@string/openAcquirePromptExtra"
+            android:entries="@array/openAcquireOptions"
+            android:entryValues="@array/openAcquireOptions"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="@string/disablePreferences">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="disableAcquire"
+            android:title="@string/disableAcquire"
+            android:icon="@drawable/outline_visibility_white_24"
+            app:summary="@string/disableAcquireSummary"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="disableComing"
+            android:title="@string/disableComing"
+            android:icon="@drawable/outline_upcoming_white_24"
+            app:summary="@string/disableComingSummary"/>
+    </PreferenceCategory>
+
+
+
+    <PreferenceCategory android:title="@string/orderPreferences">
+
+        <ListPreference
+            android:key="showWatchOrder"
+            android:defaultValue="show_myepisodes_default_sort"
+            android:title="@string/showWatchOrderPrompt"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/showOrderOptions"
+            android:icon="@drawable/outline_visibility_white_24"
+            android:entryValues="@array/showOrderOptionsValues"/>
+
+        <ListPreference
+            android:key="showAcquireOrder"
+            android:title="@string/showAcquireOrderPrompt"
+            android:defaultValue="show_myepisodes_default_sort"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/showOrderOptions"
+            android:icon="@drawable/outline_upcoming_white_24"
+            android:entryValues="@array/showOrderOptionsValues"/>
+
+        <ListPreference
+            android:key="showComingOrder"
+            android:title="@string/showComingOrderPrompt"
+            android:defaultValue="show_myepisodes_default_sort"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/showOrderOptions"
+            android:icon="@drawable/outline_next_week_white_24"
+            android:entryValues="@array/showOrderOptionsValues"/>
+
+        <ListPreference
+            android:key="showRuntimeOrder"
+            android:title="@string/showRuntimeOrderPrompt"
+            android:defaultValue="show_by_date"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/showOrderOptions"
+            android:icon="@drawable/outline_schedule_white_24"
+            android:entryValues="@array/showOrderOptionsValues"/>
+
+        <ListPreference
+            android:key="episodeOrder"
+            android:title="@string/episodeOrderPrompt"
+            app:summary="@string/episodeOrderPromptExtra"
+            android:entries="@array/episodeOrderOptions"
+            android:defaultValue="oldest_on_top"
+            android:entryValues="@array/episodeOrderOptionsValues"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="@string/filterPreferences">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="listingUnacquiredFilter"
+            android:title="@string/listingUnacquired" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="listingUnwatchedFilter"
+            android:title="@string/listingUnwatched"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="listingIgnoredFilter"
+            android:title="@string/listingIgnored"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="listingPilotsFilter"
+            android:title="@string/listingPilots"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="listingLocalizedAirdatesFilter"
+            android:title="@string/listingLocalizedAirdates"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="Personalisation">
+
+        <ListPreference
+            android:key="ThemeSetting"
+            android:title="@string/ThemePrompt"
+            android:defaultValue="System"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/ThemeOptions"
+            android:entryValues="@array/ThemeValues"/>
+
+        <ListPreference
+            android:key="language"
+            android:title="@string/showLanguagePrompt"
+            android:defaultValue="English"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/showLanguageOptions"
+            android:icon="@drawable/outline_language_white_24"
+            android:entryValues="@array/showLanguageOptionsValues"/>
+
+        <EditTextPreference
+            android:key="username"
+            android:title="@string/loginUsernameHint"
+            app:summary="@string/loginUsernameHint"
+            app:isPreferenceVisible="false"
+            android:icon="@drawable/outline_account_circle_white_24"
+            android:dialogTitle="@string/loginUsernameHint"/>
+
+        <EditTextPreference
+            android:key="UserPassword"
+            android:title="@string/loginPasswordHint"
+            app:summary="@string/loginPasswordHint"
+            app:isPreferenceVisible="false"
+            android:inputType="textPassword"
+            android:icon="@drawable/outline_password_white_24"
+            android:dialogMessage="Enter your password"
+            android:dialogTitle="@string/loginPasswordHint"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="StorePassword"
+            android:title="@string/storePasswordPrompt"
+            android:summary="Store myepisodes.com account password?" />
+
+    </PreferenceCategory>
+
+    <EditTextPreference
+        android:key="ACQUIRE_KEY"
+        android:defaultValue="0"
+        android:title="@string/loginUsernameHint"
+        app:summary="@string/loginUsernameHint"
+        app:isPreferenceVisible="false"/>
+
+
+
+    <PreferenceCategory android:title="@string/about">
+
+
+        <Preference
+            android:id="@+id/aboutVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:title="@string/aboutVersion"
+            android:summary="@string/current_version"/>
+
+        <Preference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:title="@string/aboutLicense"
+            android:summary="@string/aboutLicenseValue" />
+
+
+        <Preference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="@string/aboutOriginalIdea"
+            android:summary="@string/aboutOriginalIdeaValue" />
+
+
+        <Preference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="@string/aboutProgrammer"
+            android:summary="@string/aboutProgrammerValue" />
+
+        <!-- Website -->
+
+        <Preference
+            android:id="@+id/aboutWebsite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/on_text_white"
+            android:title="@string/aboutWebsite"
+            android:summary="@string/aboutWebsiteValue" />
+
+        <!-- Email -->
+
+        <Preference
+            android:id="@+id/aboutEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="@string/aboutEmail"
+            android:summary="@string/aboutEmailValue"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/whatsNewTitle">
+
+        <Preference
+            android:id="@+id/aboutNew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:iconSpaceReserved="false"
+            android:summary="@string/whatsNewValuesString"/>
+
+    </PreferenceCategory>
+
+
+</androidx.preference.PreferenceScreen>

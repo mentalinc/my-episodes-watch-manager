@@ -1,49 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/home_root"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_watched"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_new"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_about"
+            android:drawableTop="@drawable/outline_new_label_white_48"
+            android:onClick="onTodoClick"
+            android:text="@string/whatsNew" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_about"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_info_white_48"
             android:onClick="onAboutClick"
-            android:inputType="textCapWords"
             android:text="@string/about" />
 
-        <Button
-            android:id="@+id/btn_acquired"
-            style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_new"
-            android:onClick="onTodoClick"
-            android:inputType="textCapWords"
-            android:text="@string/whatsNew" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_coming"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_more"
             style="@style/HomeButton"
-            android:layout_width="wrap_content"
-            android:drawableTop="@drawable/btn_random"
-            android:onClick="onRandomClick"
-            android:inputType="textCapWords"
-            android:text="@string/randompicker" />
+            android:drawableTop="@drawable/outline_settings_white_48"
+            android:onClick="onSettingsClick"
+            android:text="@string/settings" />
+
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_logout"
+                style="@style/HomeButton"
+                android:drawableTop="@drawable/outline_logout_white_48"
+                android:onClick="onLogoutClick"
+                android:text="@string/logout"
+            />
+
+        /LinearLayout>
     </LinearLayout>
-
-
 </LinearLayout>

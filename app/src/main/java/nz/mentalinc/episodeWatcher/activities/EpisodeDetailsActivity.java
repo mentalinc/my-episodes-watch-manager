@@ -2,6 +2,7 @@ package nz.mentalinc.episodeWatcher.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,8 +16,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -34,6 +33,7 @@ import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import androidx.preference.PreferenceManager;
 import androidx.room.Room;
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
@@ -42,43 +42,57 @@ import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
+//import nz.mentalinc.episodeWatcher.preferences.Preferences;
+//import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.utils.DateUtil;
-import roboguice.activity.GuiceActivity;
 
 /**
- * @author Ivo Janssen
+ * @author Ivo Janssen, maintained and updated by mentalinc
  */
 public class EpisodeDetailsActivity extends Activity {
     private Episode episode = null;
     private EpisodeType episodesType;
+    private String title;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.episode_details);
 
-        Bundle data = this.getIntent().getExtras();
 
+        Bundle data = this.getIntent().getExtras();
+        title = (String) data.getSerializable("Title");
         TextView showNameText = findViewById(R.id.episodeDetShowName);
         TextView episodeNameText = findViewById(R.id.episodeDetName);
         TextView seasonText = findViewById(R.id.episodeDetSeason);
         TextView episodeText = findViewById(R.id.episodeDetEpisode);
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
 
-
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-
 
         showNameText.setText(episode.getShowName());
         episodeNameText.setText(episode.getName());
         seasonText.setText(episode.getSeasonString());
         episodeText.setText(episode.getEpisodeString());
+
 
         //Air date in specifc format
         Date airdate = episode.getAirDate();
@@ -128,7 +142,6 @@ public class EpisodeDetailsActivity extends Activity {
         switch (episodesType) {
             case EPISODES_TO_WATCH:
                 markAsAcquiredButton.setVisibility(View.GONE);
-
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
@@ -137,7 +150,6 @@ public class EpisodeDetailsActivity extends Activity {
             case EPISODES_COMING:
                 // show the acquired button on the "Coming" Screen
                 markAsAcquiredButton.setVisibility(View.GONE);
-
                 break;
         }
 
@@ -149,6 +161,37 @@ public class EpisodeDetailsActivity extends Activity {
                 closeAndMarkWatched(episode);
             }
         });
+
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        appBarHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.w(LOG_TAG, "Home button clicked.");
+                exit();
+            }
+        });
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsSeen =  findViewById(R.id.markAsSeen);
+        appBarmarkAsSeen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.w(LOG_TAG, "markAsSeen button clicked.");
+                closeAndMarkWatched(episode);
+            }
+        });
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsAquired=  findViewById(R.id.markAsAquired);
+        appBarmarkAsAquired.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.w(LOG_TAG, "markAsAquired button clicked.");
+                closeAndAcquireEpisode(episode);
+            }
+        });
+
     }
 
 
@@ -274,6 +317,36 @@ public class EpisodeDetailsActivity extends Activity {
                     tvMazeEpisodeSummary.setVisibility(View.GONE);
                 }
             }
+
+
+            //set the Episode Image
+            String episodeImageURL = episodeSummaryHash.get("episodeImageURL");
+            ImageView episodeImage = findViewById(R.id.episodeImage);
+            if (!episodeImageURL.equals("")) {
+
+                RequestOptions requestOptions = new RequestOptions();
+                requestOptions.placeholder(R.drawable.placeholder);
+                requestOptions.error(R.drawable.error);
+
+                Glide.with(findViewById(R.id.showImage))
+                        .load(episodeImageURL)
+                        .apply(requestOptions)
+                        .into(episodeImage);
+
+
+                //this doesn't work or add as a background. look to have a large image view background
+               /* Glide.with(findViewById(R.id.showBackgroundImage))
+                        .load(episodeImageURL)
+                        .apply(requestOptions)
+                        .into(episodeImage);*/
+
+
+
+
+            } else {
+                episodeImage.setVisibility(View.GONE);
+            }
+
         }
     }
 
@@ -491,7 +564,7 @@ public class EpisodeDetailsActivity extends Activity {
         }
     }
 
-
+/*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -522,7 +595,7 @@ public class EpisodeDetailsActivity extends Activity {
         }
         return false;
     }
-
+*/
     private void closeAndAcquireEpisode(Episode episode) {
         finish();
 
@@ -541,22 +614,25 @@ public class EpisodeDetailsActivity extends Activity {
         Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
-                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType)
+                .putExtra("Title",title);
 
         String sorting = "";
-
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
-
+               // sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                //sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort");
                 break;
             case EPISODES_COMING:
-                sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                //sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort");
                 break;
         }
 
@@ -576,18 +652,21 @@ public class EpisodeDetailsActivity extends Activity {
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
 
         String sorting = "";
-
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                //sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);                
+                sorting = sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                //sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort");
                 break;
             case EPISODES_COMING:
-                sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                //sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort");
                 break;
         }
 
@@ -596,7 +675,7 @@ public class EpisodeDetailsActivity extends Activity {
         } else {
             episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
-
+        episodeListingActivity.putExtra("Title",title);
         startActivity(episodeListingActivity);
     }
 

@@ -5,14 +5,13 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -26,18 +25,17 @@ import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
 import nz.mentalinc.episodeWatcher.exception.ShowAddFailedException;
-import nz.mentalinc.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
+
 import nz.mentalinc.episodeWatcher.service.ShowService;
-import roboguice.activity.GuiceListActivity;
-import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.preference.PreferenceManager;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+//use RecyclerView instead of ListActivty
 public class ShowManagementAddActivity extends ListActivity {
     private static final String LOG_TAG = ShowManagementAddActivity.class.getSimpleName();
 
@@ -71,39 +69,24 @@ public class ShowManagementAddActivity extends ListActivity {
                 ShowManagementAddActivity.this.searchShows(query.toString());
             }
         });
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.show_management_menu, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.closePreferences:
-                finish();
-                return true;
-            case R.id.home:
-                finish();
-                return true;
-
-        }
-        return false;
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
+        appBarHome.setOnClickListener(v -> {
+            finish();
+        });
     }
 
     private void init(Bundle savedInstanceState) {
-    	setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management_add);
 
         service = new ShowService();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-            Preferences.getPreference(this, User.USERNAME),
-            Preferences.getPreference(this, User.PASSWORD)
+                sharedPref.getString("username",null),
+                sharedPref.getString("UserPassword",null)
         );
 
         initializeShowList();
@@ -282,7 +265,6 @@ removeDialog(DIALOG_ADD_SHOW);
 
             @Override
             protected Object doInBackground(Object... objects) {
-             //   tracker.trackEvent(CustomTracker.Event.SHOW_ADD_NEW);
                 Show show = shows.get(position);
                 addShow(show);
                 return 100L;

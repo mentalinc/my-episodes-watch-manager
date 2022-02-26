@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,17 +15,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.preference.PreferenceManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.UserService;
 
 
 public class LoginActivity extends Activity {
-    //private Button loginButton;
-    // private TextView register;
     private UserService service;
     private int exceptionMessageResId = -1;
 
@@ -31,11 +34,23 @@ public class LoginActivity extends Activity {
     private static final int MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS = 2;
 
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
-    //CustomAnalyticsTracker tracker;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
         init();
 
@@ -52,10 +67,10 @@ public class LoginActivity extends Activity {
                 String password = ((EditText) findViewById(R.id.loginPassword)).getText().toString().trim();
 
                 if (username.length() > 0 && password.length() > 0) {
-                    final User user = new User(
-                            username, password
-                    );
+                    final User user = new User(username, password);
 
+                    //TODO login failed exception doesn't get shown to the user or stop and login takes user to homeactivity but is blank, so need to logout to try again.
+                    //todo remove AsyncTask
                     AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
                         boolean loginStatus = false;
 
@@ -66,6 +81,7 @@ public class LoginActivity extends Activity {
                         @Override
                         protected void onPreExecute() {
                             showDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
+                            //loginDialog(LoginActivity.this); //--Need to make this work with the thread so will fix and solve as part of moving away from AsyncTask
                         }
 
                         @Override
@@ -91,12 +107,14 @@ public class LoginActivity extends Activity {
                                 ((EditText) findViewById(R.id.loginUsername)).setText("");
                                 ((EditText) findViewById(R.id.loginPassword)).setText("");
                                 showDialog(MY_EPISODES_ERROR_DIALOG);
+
                          //   }
                         }
                     };
                     asyncTask.execute();
                 } else {
-                    showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
+                    //showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
+                    validationError(LoginActivity.this);
                 }
             });
         } else {
@@ -116,22 +134,61 @@ public class LoginActivity extends Activity {
                 break;
             case MY_EPISODES_ERROR_DIALOG:
                 dialog = new AlertDialog.Builder(this)
-                        //                   .setMessage(exceptionMessageResId)
+                        //.setMessage(exceptionMessageResId)
                         .setCancelable(false)
                         .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> removeDialog(MY_EPISODES_ERROR_DIALOG)).create();
                 break;
-            case MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS:
-                dialog = new AlertDialog.Builder(this)
-                        .setMessage(R.string.fillInAllFields)
-                        .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> dialog1.cancel()).create();
-                break;
+
             default:
                 dialog = super.onCreateDialog(id);
                 break;
         }
         return dialog;
     }
+
+
+    public void validationError(Context context) {
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(R.string.fillInAllFields);
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+
+
+    public void loginDialog(Context context) {
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(R.string.fillInAllFields);
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+
+
 
     private void login(User user) {
         //java.net.CookieManager cookieManager = new java.net.CookieManager();
@@ -150,16 +207,24 @@ public class LoginActivity extends Activity {
     }
 
     private boolean checkLoginCredentials() {
-        String username = Preferences.getPreference(this, User.USERNAME);
-        String password = Preferences.getPreference(this, User.PASSWORD);
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String username = sharedPref.getString("username",null);
+        String password = sharedPref.getString("UserPassword",null);        
         return username != null && password != null;
     }
 
     private void storeLoginCredentials(User user) {
-        Preferences.setPreference(this, User.USERNAME, user.getUsername());
-        Preferences.setPreference(this, User.PASSWORD, user.getPassword());
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        prefEditor.putString("username",user.getUsername());
+        prefEditor.putString("UserPassword", user.getPassword());
+        prefEditor.apply();
+
     }
+
+
 
     private void finalizeLogin() {
         setResult(RESULT_OK);

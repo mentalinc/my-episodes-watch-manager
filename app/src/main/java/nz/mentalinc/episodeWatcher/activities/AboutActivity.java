@@ -1,6 +1,7 @@
 package nz.mentalinc.episodeWatcher.activities;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -11,9 +12,9 @@ import android.view.View;
 import android.widget.TextView;
 
 
+import androidx.preference.PreferenceManager;
+
 import nz.mentalinc.episodeWatcher.R;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.utils.ApplicationUtil;
 
 
@@ -23,7 +24,24 @@ public class AboutActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                Log.d(LOG_TAG, "Theme Preference set as ThemeDayNight");
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                Log.d(LOG_TAG, "Theme Preference set as ThemeLight");
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                Log.d(LOG_TAG, "Theme Preference set as ThemeDark");
+                setTheme(R.style.ThemeDark);
+                break;
+        }
+
+
         super.onCreate(savedInstanceState);
         //init(savedInstanceState);
         setContentView(R.layout.about);
@@ -41,38 +59,24 @@ public class AboutActivity extends Activity {
 
         TextView aboutWebsite = findViewById(R.id.aboutWebsite);
         Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        appBarHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.w(LOG_TAG, "Home button clicked.");
+                exit();
+            }
+        });
     }
 
-  /*  private void init(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
-        super.onCreate(savedInstanceState);
-       // setContentView(R.layout.about);
-    }*/
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.show_management_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.closePreferences:
-                finish();
-                return true;
-            case R.id.home:
-                finish();
-                return true;
-
-        }
-        return false;
-    }
 
 
     public void onHomeClick(View v) {
+        finish();
+    }
+
+    private void exit() {
         finish();
     }
 }

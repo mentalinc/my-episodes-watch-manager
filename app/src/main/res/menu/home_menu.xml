@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/preferences"
+        android:id="@+id/home"
+        android:contentDescription="@string/settings"
         android:enabled="true"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:showAsAction="ifRoom|withText"
-        android:title="@string/preferences"
+        android:icon="@drawable/outline_home_white_36"
+        app:showAsAction="ifRoom|withText"
+        android:inputType="textCapWords"
+        android:title="@string/settings"
         android:visible="true" />
 
 </menu>

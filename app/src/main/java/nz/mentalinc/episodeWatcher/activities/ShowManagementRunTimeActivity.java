@@ -4,9 +4,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 import androidx.room.Room;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -14,9 +18,6 @@ import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -24,7 +25,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,11 +40,9 @@ import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.domain.ShowRuntimeAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.User;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.utils.InputFilterMinMax;
-import roboguice.activity.GuiceListActivity;
+
 
 public class ShowManagementRunTimeActivity extends ListActivity {
     private static final String LOG_TAG = ShowManagementRunTimeActivity.class.getSimpleName();
@@ -57,40 +58,41 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
+    private String title;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         init(savedInstanceState);
 
-    }
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
+        appBarHome.setOnClickListener(v -> {
+            finish();
+        });
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.show_management_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.closePreferences:
-                finish();
-                return true;
-            case R.id.home:
-                finish();
-                return true;
-
-        }
-        return false;
     }
 
     private void init(Bundle savedInstanceState) {
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management);
+
+        Bundle data = this.getIntent().getExtras();
+        title = (String) data.getSerializable("Title");
+        Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
+        toolbar.setTitle(title);
 
         initializeShowList();
     }
@@ -120,10 +122,10 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                 .build();
 
         SeriesDAO seriesDAO = database.getSeriesDAO();
-        List runtimeList = seriesDAO.getEpisodeRuntime();
+        List<EpisodeRuntime> runtimeList = seriesDAO.getEpisodeRuntime();
 
         for (int i = 0; i < runtimeList.size(); i++) {
-            EpisodeRuntime showRuntime = (EpisodeRuntime) runtimeList.get(i);
+            EpisodeRuntime showRuntime = runtimeList.get(i);
             shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
         }
         //todo: add this in when bump the version up again
@@ -131,6 +133,125 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
         Collections.sort(shows,new ShowRuntimeAscendingComparator());
     }
+
+
+    public void exceptionDialog(Context context) {
+
+        if (exceptionMessageResId == null) {
+            exceptionMessageResId = R.string.defaultExceptionMessage;
+        }
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(exceptionMessageResId);
+        dialog.setPositiveButton(R.string.dialogOK, (dialog1, which) -> {
+            exceptionMessageResId = null;
+            dialog1.dismiss();
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+    public void dialogUpdateRuntime(Context context) {
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(this);
+        final EditText runTimeInput = new EditText(this);
+        runTimeInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        runTimeInput.setTransformationMethod(new NumericKeyBoardTransformationMethod());
+        runTimeInput.setText(shows.get(showListPosition).getRunTime());
+
+        runTimeInput.setFilters(new InputFilter[]{new InputFilterMinMax("1", "150")}); //set 150 minutes as longest runtime
+        // consider using this if it doesn't work properly due to entering values that are not ok - https://stackoverflow.com/questions/8806492/monodroid-set-max-value-for-edittext/13812853#13812853
+        final InputMethodManager imm = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        Objects.requireNonNull(imm).showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
+        runTimeInput.requestFocus();
+
+
+        dialog.setView(runTimeInput);
+        dialog.setTitle(shows.get(showListPosition).getShowName());
+        dialog.setMessage((R.string.runTimeEditMessage));
+        dialog.setCancelable(true);
+        dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                        {
+                            String newRuntimeValue = runTimeInput.getText().toString();
+                            //silent fail if user has entered a blank runtime
+                            if (runTimeInput.getText().toString().trim().length() < 1) {
+                                // runTimeInput.setError("Error: Can't be blank");
+                                String text = "Error: Runtime can't be blank!";
+                               // int duration = Toast.LENGTH_SHORT;
+                                //Toast toast = Toast.makeText(ShowManagementRunTimeActivity.this, text, duration);
+                                //toast.show();
+
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                snackbar.show();
+
+
+                            } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
+                                Context context = getApplicationContext();
+                                String text = "Runtime unchanged";
+                               /* int duration = Toast.LENGTH_SHORT;
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();*/
+
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                snackbar.show();
+
+                            } else {
+                                runTimeInput.setError(null);
+
+
+                                AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                                        .allowMainThreadQueries()   //Allows room to do operation on main thread
+                                        .fallbackToDestructiveMigration()
+                                        .build();
+                                SeriesDAO seriesDAO = database.getSeriesDAO();
+
+                                //Updating an episodeRuntime
+                                EpisodeRuntime epsRunTime = new EpisodeRuntime();
+                                epsRunTime.setshowMyepsID(shows.get(showListPosition).getMyEpisodeID());
+                                epsRunTime.setShowName(shows.get(showListPosition).getShowName());
+                                // epsRunTime.setShowTVMazeID(epsRunTime.getShowTVMazeID());
+                                epsRunTime.setShowRuntime(newRuntimeValue);
+                                Log.d("epsRunTime: ", epsRunTime.toString());
+                                seriesDAO.update(epsRunTime);
+
+
+                                Context context = getApplicationContext();
+                                String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
+                               /* int duration = Toast.LENGTH_SHORT;
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();*/
+
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                snackbar.show();
+
+                                populateShowRuntimeList();
+                                showListPosition = null;
+                            }
+                            dialog.dismiss();
+                        }
+                });
+        dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                showListPosition = null;
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -143,21 +264,8 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                 dialog = progressDialog;
                 break;
             }
-            case DIALOG_EXCEPTION: {
-                if (exceptionMessageResId == null) {
-                    exceptionMessageResId = R.string.defaultExceptionMessage;
-                }
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.exceptionDialogTitle)
-                        .setMessage(exceptionMessageResId)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.dialogOK, (dialog15, id15) -> {
-                            exceptionMessageResId = null;
-                            removeDialog(DIALOG_EXCEPTION);
-                        });
-                dialog = builder.create();
-                break;
-            }
+
+
             case DIALOG_FINISHED: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.showSearchFinished)
@@ -182,6 +290,8 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                 final InputMethodManager imm = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 Objects.requireNonNull(imm).showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
                 runTimeInput.requestFocus();
+
+
                 builder.setView(runTimeInput);
 
 
@@ -197,15 +307,22 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                                 // runTimeInput.setError("Error: Can't be blank");
                                 Context context = getApplicationContext();
                                 String text = "Error: Runtime can't be blank!";
-                                int duration = Toast.LENGTH_SHORT;
+                              /*  int duration = Toast.LENGTH_SHORT;
                                 Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();
+                                toast.show();*/
+
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                snackbar.show();
+
                             } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
                                 Context context = getApplicationContext();
                                 String text = "Runtime unchanged";
-                                int duration = Toast.LENGTH_SHORT;
+                                /*int duration = Toast.LENGTH_SHORT;
                                 Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();
+                                toast.show();*/
+
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                snackbar.show();
                             } else {
                                 runTimeInput.setError(null);
 
@@ -228,9 +345,12 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                                 Context context = getApplicationContext();
                                 String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
-                                int duration = Toast.LENGTH_SHORT;
+                                /*int duration = Toast.LENGTH_SHORT;
                                 Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();
+                                toast.show();*/
+
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                snackbar.show();
 
                                 populateShowRuntimeList();
                                 showListPosition = null;
@@ -242,6 +362,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                             removeDialog(DIALOG_UPDATE_RUNTIME);
                         });
                 dialog = builder.create();
+
                 dialog.setOnShowListener(dialogInterface -> runTimeInput.post(() -> {
                     final InputMethodManager imm1 = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm1.showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
@@ -277,7 +398,8 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             protected void onPostExecute(Object o) {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
-                    showDialog(DIALOG_EXCEPTION);
+                    //showDialog(DIALOG_EXCEPTION);
+                    exceptionDialog(ShowManagementRunTimeActivity.this);
                 } else {
 
                     try {
@@ -329,10 +451,12 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             TextView topText = row.findViewById(R.id.showNameSearchResult);
 
             Show show = shows.get(position);
-            topText.setText(show.getRunTime() + " mins - " + show.getShowName());
+            String topTextString = show.getRunTime() + " mins - " + show.getShowName();
+            topText.setText(topTextString);
             row.setOnClickListener(view -> {
                 showListPosition = i;
-                showDialog(DIALOG_UPDATE_RUNTIME);
+                //showDialog(DIALOG_UPDATE_RUNTIME);
+                dialogUpdateRuntime(ShowManagementRunTimeActivity.this);
             });
 
             return row;

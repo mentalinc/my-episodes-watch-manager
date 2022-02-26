@@ -1,61 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorPrimary">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:titleTextColor="@color/on_text_white"
+            app:title="@string/loginLoginBtn"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
 
     <ScrollView
         android:id="@+id/ScrollView01"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/LinearLayout01"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/loginFormTitle"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="15dp"
-                android:inputType="textCapWords"
                 android:text="@string/loginFormTitle" />
 
             <EditText
                 android:id="@+id/loginUsername"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/loginUsernameHint"
                 android:inputType="text" />
 
             <EditText
                 android:id="@+id/loginPassword"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/loginPasswordHint"
                 android:inputType="textPassword" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/loginLogin"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapWords"
+                android:layout_weight=".025"
+                android:gravity="center"
+                style="@style/HomeButton"
                 android:text="@string/loginLoginBtn" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/registerForm"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="end"
+                android:gravity="center"
                 android:paddingStart="10dp"
                 android:paddingTop="5dp"
                 android:paddingEnd="15dp"
-                android:inputType="textCapWords"
+                style="@style/HomeButton"
                 android:text="@string/loginFormRegister"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
 
         </LinearLayout>
     </ScrollView>

@@ -1,23 +1,24 @@
 package nz.mentalinc.episodeWatcher.activities;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import androidx.appcompat.app.AppCompatActivity;
 
+import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -26,11 +27,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.episodeWatcher.R;
+import nz.mentalinc.episodeWatcher.ShowListingFrag;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
@@ -38,14 +39,10 @@ import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
-import nz.mentalinc.episodeWatcher.pager.HorizontalPager;
-import nz.mentalinc.episodeWatcher.pager.PagerControl;
-import nz.mentalinc.episodeWatcher.preferences.Preferences;
-import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.UserService;
 
-public class HomeActivity extends Activity {
+public class HomeActivity extends AppCompatActivity {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
     private EpisodesService service;
     private User user;
@@ -60,6 +57,7 @@ public class HomeActivity extends Activity {
     private UserService userService;
     private static Context sContext;
 
+
     private boolean exception;
 
     private Button btnWatched;
@@ -70,140 +68,136 @@ public class HomeActivity extends Activity {
     private Intent comingIntent;
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.home_menu, menu);
-        return true;
-    }
-
     /**
      * Called when the activity is first created.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         init();
+
+
         userService = new UserService();
-        checkPreferences();
-        String LanguageCode = Preferences.getPreference(this, PreferencesKeys.LANGUAGE_KEY);
 
+        //Below makes sure all settings have their default value set to limit null errors etc
+        PreferenceManager.setDefaultValues(getBaseContext(),R.xml.settings_screen,false);
 
-        //fix issue where app run and no days back has been set by the user.
-        Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
-        if (Objects.equals(Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE), "")) {
-            MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = "Disabled";
-            Preferences.setPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
-        } else {
-            MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = Preferences.getPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String LanguageCode = sharedPref.getString("language","en");
+        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
         }
 
-        Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
-        if (Objects.equals(Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP), "")) {
-            MyEpisodeConstants.DAYS_BACK_CP = "365";
-            Preferences.setPreference(this, PreferencesKeys.DAYS_BACKWARDCP, MyEpisodeConstants.DAYS_BACK_CP);
-        } else {
-            MyEpisodeConstants.DAYS_BACK_CP = Preferences.getPreference(this, PreferencesKeys.DAYS_BACKWARDCP);
-        }
+        MyEpisodeConstants.DAYS_BACK_CP =sharedPref.getString("daysBack","365");
+        MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = sharedPref.getString("CacheFileAge","false");
+        MyEpisodeConstants.DAYS_BACK_ENABLED = sharedPref.getBoolean("daysBackwardEnable",false);
+        MyEpisodeConstants.CACHE_EPISODES_ENABLED =  sharedPref.getBoolean("CacheEpisodes",false);
+        MyEpisodeConstants.SHOW_RUNTIME_ENABLED = sharedPref.getBoolean("RunTime", false);
 
-        MyEpisodeConstants.DAYS_BACK_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.DAYS_BACKWARD_ENABLED_KEY, false);
-        MyEpisodeConstants.CACHE_EPISODES_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.CACHE_EPISODES_ENABLED_KEY, false);
-        MyEpisodeConstants.SHOW_RUNTIME_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.RUNTIME_ENABLED_KEY, false);
-
-
-        MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_UNACQUIRED_KEY, false);
-        MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_UNWATCHED_KEY, false);
-        MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_IGNORED_KEY, false);
-        MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_PILOTS_KEY, false);
-        MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = Preferences.getPreferenceBoolean(this, PreferencesKeys.SHOW_LISTING_LOCALIZED_AIRDATES_KEY, false);
-
-
-
-
+        MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED = sharedPref.getBoolean("listingUnacquiredFilter", true);
+        MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED = sharedPref.getBoolean("listingUnwatchedFilter", true);
+        MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED = sharedPref.getBoolean("listingIgnoredFilter", false);
+        MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED = sharedPref.getBoolean("listingPilotsFilter", false);
+        MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = sharedPref.getBoolean("listingLocalizedAirdatesFilter", true);
 
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
+
         openLoginActivity();
 
-        setTheme(Preferences.getPreferenceInt(this, PreferencesKeys.THEME_KEY) == 0 ? android.R.style.Theme_Material_Light : android.R.style.Theme_Material);
         super.onCreate(savedInstanceState);
         this.service = new EpisodesService();
         sContext = getApplicationContext();
 
         setContentView(R.layout.main);
         user = new User(
-                Preferences.getPreference(this, User.USERNAME),
-                Preferences.getPreference(this, User.PASSWORD)
+                sharedPref.getString("username",User.USERNAME),
+                sharedPref.getString("UserPassword",User.PASSWORD)
         );
 
-        final PagerControl control = findViewById(R.id.control);
-        final HorizontalPager pager = findViewById(R.id.pager);
-        control.setNumPages(pager.getChildCount());
 
         MyEpisodeConstants.CONTEXT = getApplicationContext();
 
-        pager.addOnScrollListener(new HorizontalPager.OnScrollListener() {
-            public void onScroll(int scrollX) {
-                float scale = (float) (pager.getPageWidth() * pager.getChildCount()) / (float) control.getWidth();
-                control.setPosition((int) (scrollX / scale));
-            }
-
-            public void onViewScrollFinished(int currentPage) {
-                control.setCurrentPage(currentPage);
-/*
-                if (currentPage == 0)
-                    ((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator1);
-                else
-                    ((ImageView) findViewById(R.id.menu_indicator)).setImageResource(R.drawable.home_indicator2)*/
-            }
-        });
 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
         btnWatched = findViewById(R.id.btn_watched);
         watchIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
-        String watch_sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+
+        String watch_sorting = sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");
         if (watch_sorting.equals(showOrderOptions[3])) {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
+        watchIntent.putExtra("Title", getString(R.string.watch));
         btnWatched.setOnClickListener(v -> startActivity(watchIntent));
 
-        acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
-        String acquire_sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+        acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE );
+
+        String acquire_sorting =sharedPref.getString("ACQUIRE_KEY","0");
         if (acquire_sorting.equals(showOrderOptions[3])) {
             acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
             acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
+        acquireIntent.putExtra("Title", getString(R.string.acquire));
         btnAcquired = findViewById(R.id.btn_acquired);
         btnAcquired.setOnClickListener(v -> startActivity(acquireIntent));
-        if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_ACQUIRE, false)) {
+
+
+        if (sharedPref.getBoolean("disableAcquire",false)) {
             btnAcquired.setVisibility(View.GONE);
         }
 
         Button btnComing = findViewById(R.id.btn_coming);
         comingIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
-        String coming_sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+
+        String coming_sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort");
         if (coming_sorting.equals(showOrderOptions[3])) {
             comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
             comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
+        comingIntent.putExtra("Title", getString(R.string.coming));
         btnComing.setOnClickListener(v -> startActivity(comingIntent));
-        if (Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false)) {
+
+        if (sharedPref.getBoolean("disableComing",false)) {
             btnComing.setVisibility(View.GONE);
         }
 
-        Button btnMore = findViewById(R.id.btn_more);
-        btnMore.setOnClickListener(v -> pager.scrollRight());
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarLogout =  findViewById(R.id.logout);
+        appBarLogout.setOnClickListener(v -> {
+
+            Log.w(LOG_TAG, "logout button clicked.");
+            onLogoutClick(HomeActivity.this);
+        });
+
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarSettings =  findViewById(R.id.btn_settings);
+        appBarSettings.setOnClickListener(v -> {
+
+            Log.w(LOG_TAG, "Settings button clicked.");
+            onSettingsClick(v);
+        });
     }
 
     private void getEpisodesInLoadingDialog() {
         final EpisodesController episodesController = EpisodesController.getInstance();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                Preferences.getPreference(this, User.USERNAME),
-                Preferences.getPreference(this, User.PASSWORD)
+
+                sharedPref.getString("username",User.USERNAME),
+                sharedPref.getString("UserPassword",User.PASSWORD)
         );
         if (episodesController.areListsEmpty()) {
             AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
@@ -221,9 +215,12 @@ public class HomeActivity extends Activity {
 
                 @Override
                 protected Object doInBackground(Object... objects) {
+
                     try {
                         episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
-                        String acquire = Preferences.getPreference(HomeActivity.this, PreferencesKeys.ACQUIRE_KEY);
+
+                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                        String acquire = sharedPref.getString("ACQUIRE_KEY","0");
                         if (acquire != null && acquire.equals("1")) {
                             EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
                             EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
@@ -239,7 +236,7 @@ public class HomeActivity extends Activity {
                         exception = true;
                     } catch (Exception e) {
                         //e.printStackTrace();
-                        String message = "Error in backgroud task";
+                        String message = "Error in background task";
                         Log.e(LOG_TAG, message, e);
 
                     }
@@ -253,7 +250,8 @@ public class HomeActivity extends Activity {
 
                     if (exception) {
                         exception = false;
-                        showDialog(EXCEPTION_DIALOG);
+
+                        exceptionErrorDialog(HomeActivity.this);
                     } else {
                         btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
                         btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
@@ -333,7 +331,6 @@ public class HomeActivity extends Activity {
             }
 
 
-
             byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
             int postDataLength = postData.length;
             String request = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
@@ -364,6 +361,11 @@ public class HomeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+/*
+        //pass a value that a setting has changed.
+        if() {
+            super.recreate();
+        }*/
         btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
         btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
     }
@@ -389,30 +391,7 @@ public class HomeActivity extends Activity {
     protected Dialog onCreateDialog(int id) {
         Dialog dialog;
         switch (id) {
-            case LOGOUT_DIALOG:
-                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-                alertBuilder.setTitle(R.string.logoutDialogTitle)
-                        .setMessage(R.string.logoutDialogMessage)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.yes, (dialog14, which) -> logout())
-                        .setNegativeButton(R.string.no, (dialog13, which) -> dialog13.cancel());
-                dialog = alertBuilder.create();
-                break;
-            case EXCEPTION_DIALOG:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.exceptionDialogTitle)
-                        .setMessage(R.string.internetConnectionFailureTryAgain)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.refresh, (dialog12, id12) -> {
-                            removeDialog(EXCEPTION_DIALOG);
-                            getEpisodesInLoadingDialog();
-                        })
-                        .setNegativeButton(R.string.close, (dialog1, id1) -> {
-                            removeDialog(EXCEPTION_DIALOG);
-                            finish();
-                        });
-                dialog = builder.create();
-                break;
+
             case EPISODE_LOADING_DIALOG:
                 ProgressDialog progressDialog = new ProgressDialog(this);
                 progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
@@ -433,57 +412,81 @@ public class HomeActivity extends Activity {
         return dialog;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.preferences:
-                openPreferencesActivity();
-                return true;
-        }
-        return false;
-    }
-
     private void init() {
         res = getResources();
         conf = res.getConfiguration();
     }
 
-    /**
-     * Check if all preferences exist upon loading the application.
-     */
-    private void checkPreferences() {
-        //Checks preference for show sorting and sets the default to ascending (A-Z)
-        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
-        Preferences.checkDefaultPreference(this, PreferencesKeys.EPISODE_SORTING_KEY, episodeOrderOptions[0]);
-        //Checks preference for episode sorting and sets default to ascending (oldest episode on top)
-        String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
-        Preferences.checkDefaultPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY, showOrderOptions[0]);
-        Preferences.checkDefaultPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY, showOrderOptions[0]);
-        Preferences.checkDefaultPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY, showOrderOptions[3]);
-        Preferences.checkDefaultPreference(this, PreferencesKeys.LANGUAGE_KEY, conf.locale.getLanguage());
-        Preferences.checkDefaultPreference(this, PreferencesKeys.ACQUIRE_KEY, "0");
-        Preferences.checkDefaultPreference(this, PreferencesKeys.DAYS_BACKWARDCP, "365");
-        Preferences.checkDefaultPreference(this, PreferencesKeys.CACHE_EPISODES_CACHE_AGE, "0");
-        Preferences.getPreferenceBoolean(this, PreferencesKeys.DISABLE_COMING, false);
-    }
-
-    private void openPreferencesActivity() {
-        Intent preferencesActivity = new Intent(this.getApplicationContext(), PreferencesActivity.class);
-        startActivityForResult(preferencesActivity, SETTINGS_RESULT);
-    }
 
     public void onManageClick(View v) {
         Intent manageShowsActivity = new Intent(this.getApplicationContext(), ShowManagementPortalActivity.class);
         startActivity(manageShowsActivity);
     }
 
-    public void onLogoutClick(View v) {
-        showDialog(LOGOUT_DIALOG);
+    public void onLogoutClick(Context context) {
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.logoutDialogTitle);
+        dialog.setMessage(R.string.logoutDialogMessage);
+        dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                logout();
+            }
+        });
+        dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+
+    public void exceptionErrorDialog(Context context) {
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(R.string.internetConnectionFailureTryAgain);
+        dialog.setPositiveButton(R.string.refresh, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                getEpisodesInLoadingDialog();
+                dialog.dismiss();
+            }
+        });
+        dialog.setNegativeButton(R.string.close, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
     }
 
     private void logout() {
-        Preferences.removePreference(this, User.USERNAME);
-        Preferences.removePreference(this, User.PASSWORD);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        prefEditor.remove("username");
+        prefEditor.remove("UserPassword");
+        prefEditor.apply();
         EpisodesController.getInstance().deleteAll();
         openLoginActivity();
     }
@@ -494,13 +497,13 @@ public class HomeActivity extends Activity {
     }
 
     public void onAboutClick(View v) {
-        Intent manageShowsActivity = new Intent(this.getApplicationContext(), AboutActivity.class);
-        startActivity(manageShowsActivity);
+        Intent aboutApp = new Intent(this.getApplicationContext(), AboutActivity.class);
+        startActivity(aboutApp);
     }
 
     public void onTodoClick(View v) {
-        Intent manageShowsActivity = new Intent(this.getApplicationContext(), ChangelogActivity.class);
-        startActivity(manageShowsActivity);
+        Intent changeLog = new Intent(this.getApplicationContext(), ChangelogActivity.class);
+        startActivity(changeLog);
     }
 
     public void onRandomClick(View v) {
@@ -508,6 +511,18 @@ public class HomeActivity extends Activity {
         startActivity(randomActivity);
     }
 
+    public void onSettingsClick(View v) {
+        SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
+        Intent settingsActivity = new Intent(this.getApplicationContext(), SettingsScreenActivity.class);
+        startActivity(settingsActivity);
+    }
+
+
+    public void onShowListingClick(View v) {
+        Intent showListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
+        //need to start a fragment here not activity
+        startActivity(showListing);
+    }
 
     public static Context getContext() {
         return sContext;

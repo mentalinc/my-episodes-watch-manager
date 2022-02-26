@@ -1,62 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/show_management_portal_root"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorPrimary"/>
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/manageShows"
+        app:titleTextColor="@color/on_text_white"
+        app:menu="@menu/home_menu"
+        android:background="?attr/colorSurface"
+        android:textColor="@color/on_text_white"
+        style="@style/Widget.MaterialComponents.Toolbar.Primary"
+        />
+
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+
+        android:orientation="horizontal">
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/selectionPanelFavoShows"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_menu_star_default"
+            android:drawableTop="@drawable/outline_favorite_white_48"
+            android:background="@null"
+
+
             android:text="@string/favouriteShows" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/selectionPanelIgnoredShows"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_menu_stop_default"
+            android:drawableTop="@drawable/outline_block_white_48"
             android:text="@string/ignoredShows" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/selectionPanelAddShows"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_menu_add_default"
+            android:drawableTop="@drawable/outline_add_circle_outline_white_48"
             android:text="@string/addShow" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/selectionPanelShowsRuntime"
             style="@style/HomeButton"
-            android:drawableTop="@drawable/btn_runtime_default"
+            android:drawableTop="@drawable/outline_schedule_white_48"
             android:text="@string/ShowRuntime" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/blank"
-            style="@style/HomeButton"
-            android:text=""/>
-
-        <Button
-            android:id="@+id/blank2"
-            style="@style/HomeButton"
-            android:text=""/>
     </LinearLayout>
+
 </LinearLayout>
