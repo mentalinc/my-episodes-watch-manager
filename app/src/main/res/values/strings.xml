@@ -62,6 +62,7 @@
 
     <!-- Episode details -->
     <string name="details">Details</string>
+    <string name="action_watched">Mark Watched</string>
     <string name="episodeDetailsSeasonLabel">Season: </string>
     <string name="episodeDetailsEpisodeLabel">Episode: </string>
     <string name="episodeDetailsAirDateLabel">Airdate: </string>

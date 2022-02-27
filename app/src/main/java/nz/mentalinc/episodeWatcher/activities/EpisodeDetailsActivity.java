@@ -76,7 +76,6 @@ public class EpisodeDetailsActivity extends Activity {
 
         setContentView(R.layout.episode_details);
 
-
         Bundle data = this.getIntent().getExtras();
         title = (String) data.getSerializable("Title");
         TextView showNameText = findViewById(R.id.episodeDetShowName);
@@ -334,12 +333,11 @@ public class EpisodeDetailsActivity extends Activity {
                         .into(episodeImage);
 
 
-                //this doesn't work or add as a background. look to have a large image view background
+                //this doesn't work when trying to set the show cover art as the background.
                /* Glide.with(findViewById(R.id.showBackgroundImage))
                         .load(episodeImageURL)
                         .apply(requestOptions)
                         .into(episodeImage);*/
-
 
 
 

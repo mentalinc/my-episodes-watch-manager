@@ -7,7 +7,6 @@
         android:enabled="true"
         android:icon="@drawable/outline_home_white_36"
         app:showAsAction="ifRoom|withText"
-        android:inputType="textCapWords"
         android:title="@string/settings"
         android:visible="true" />
 

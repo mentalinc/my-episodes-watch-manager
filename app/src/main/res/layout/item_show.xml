@@ -31,21 +31,28 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- 20dp dense icon, though 48dp touch target -->
-    <ImageView
-        android:id="@+id/favoritedLabel"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:paddingLeft="14dp"
-        android:paddingTop="14dp"
-        android:paddingRight="14dp"
-        android:paddingBottom="14dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription"
-        tools:src="@drawable/ic_star_black_24dp" />
+    <!--  TODO: Hidden from view as NO idea how to have this clickable. the other app does something tricky
+       -->
+       <androidx.appcompat.widget.AppCompatImageView
+           android:id="@+id/imageViewShowsSetWatched"
+           android:layout_width="48dp"
+           android:layout_height="48dp"
+           android:background="?attr/selectableItemBackgroundBorderless"
+           android:contentDescription="@string/action_watched"
+           android:paddingStart="14dp"
+           android:paddingTop="14dp"
+           android:paddingEnd="14dp"
+           android:paddingBottom="14dp"
+           android:visibility="invisible"
+           app:layout_constraintEnd_toEndOf="parent"
+           app:layout_constraintTop_toTopOf="parent"
+           app:srcCompat="@drawable/ic_watch_black_24dp" />
 
-    <!-- 20dp dense icon, though 48dp touch target -->
+
+
+       <!-- 20dp dense icon, though 48dp touch target -->
+
+    <!-- TODO: Hidden from view as NO idea how to have this clickable. the other app does something tricky
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imageViewShowsContextMenu"
         android:layout_width="48dp"
@@ -57,6 +64,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:srcCompat="@drawable/ic_more_vert_black_20dp"
         tools:ignore="ContentDescription" />
+ -->
 
     <TextView
         android:id="@+id/textViewShowsRemaining"
@@ -72,7 +80,7 @@
         tools:text="42 remaining" />
 
     <TextView
-        android:id="@+id/textViewShowsTimeAndNetwork"
+        android:id="@+id/textViewShowsRunTime"
         android:singleLine="true"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -85,7 +93,7 @@
         app:layout_constraintLeft_toRightOf="@+id/textViewShowsRemaining"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Showtime Network · Tue 08:00 PM" />
+        tools:text="30 Mins" />
 
     <!-- remaining count may be hidden, so to bottom of network -->
     <TextView
@@ -98,8 +106,8 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.SeriesGuide.Body2.Bold"
         app:layout_constraintLeft_toRightOf="@+id/cardView"
-        app:layout_constraintRight_toLeftOf="@+id/favoritedLabel"
-        app:layout_constraintTop_toBottomOf="@+id/textViewShowsTimeAndNetwork"
+        app:layout_constraintRight_toLeftOf="@+id/imageViewShowsSetWatched"
+        app:layout_constraintTop_toBottomOf="@+id/textViewShowsRunTime"
         tools:text="Some Show Title" />
 
     <TextView
@@ -112,7 +120,7 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.SeriesGuide.Body2"
         app:layout_constraintLeft_toRightOf="@+id/cardView"
-        app:layout_constraintRight_toLeftOf="@+id/favoritedLabel"
+        app:layout_constraintRight_toLeftOf="@+id/imageViewShowsSetWatched"
         app:layout_constraintTop_toBottomOf="@+id/seriesname"
         tools:text="10x456 Some Very Cool Episode Title Therefore" />
 
@@ -128,7 +136,7 @@
         android:textAppearance="@style/TextAppearance.SeriesGuide.Caption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/cardView"
-        app:layout_constraintRight_toLeftOf="@+id/favoritedLabel"
+        app:layout_constraintRight_toLeftOf="@+id/imageViewShowsSetWatched"
         app:layout_constraintTop_toBottomOf="@+id/TextViewShowListNextEpisode"
         app:layout_constraintVertical_bias="0.0"
         tools:text="Jan 8, 2009 (Thur)" />

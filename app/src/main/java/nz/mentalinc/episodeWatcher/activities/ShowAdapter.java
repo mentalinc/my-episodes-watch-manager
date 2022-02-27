@@ -1,24 +1,49 @@
 package nz.mentalinc.episodeWatcher.activities;
 
+import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.CONTEXT;
+import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.TV_MAZE_SHOWS_URL;
+
 import android.content.Context;
+
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.snackbar.Snackbar;
+
+
+import java.text.DateFormat;
 
 import java.util.List;
 
+
 import nz.mentalinc.episodeWatcher.R;
+import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
+import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
+import nz.mentalinc.episodeWatcher.database.AppDatabase;
+import nz.mentalinc.episodeWatcher.database.SeriesDAO;
+import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.Show;
+import nz.mentalinc.episodeWatcher.enums.EpisodeType;
+import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 
 public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
-
+    private static final String LOG_TAG = ShowAdapter.class.getSimpleName();
     private List<Show> showsList;
+    Context context = CONTEXT.getApplicationContext();
 
 
 
@@ -43,12 +68,18 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
                 }
             };
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder { //implements View.OnClickListener{
         //
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView seriesnameView;
         public TextView TextViewShowListNextEpisode;
+        public TextView episodetime;
+        public TextView textViewShowsRemaining;
+        public TextView textViewShowsRunTime;
+        public ImageView setWatchedButton;
+        public ImageView showposter;
+
 
 
         // We also create a constructor that accepts the entire item row
@@ -60,8 +91,42 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
 
             seriesnameView = (TextView) itemView.findViewById(R.id.seriesname);
             TextViewShowListNextEpisode = (TextView) itemView.findViewById(R.id.TextViewShowListNextEpisode);
+            episodetime = (TextView) itemView.findViewById(R.id.episodetime);
+            textViewShowsRemaining = (TextView) itemView.findViewById(R.id.textViewShowsRemaining);
+            textViewShowsRunTime = (TextView) itemView.findViewById(R.id.textViewShowsRunTime);
+            setWatchedButton =  (ImageView) itemView.findViewById(R.id.imageViewShowsSetWatched);
+
+
+            showposter = (ImageView) itemView.findViewById(R.id.showposter);
+
         }
+/*
+        public ViewHolder(Context context, View itemView) {
+            super(itemView);
+            this.seriesnameView = (TextView) itemView.findViewById(R.id.seriesname);
+            this.episodetime = (TextView) itemView.findViewById(R.id.episodetime);
+            // Store the context
+          //  this.context = context;
+            // Attach a click listener to the entire row view
+            itemView.setOnClickListener(this);
+        }
+
+        // Handles the row being being clicked
+        @Override
+        public void onClick(View view) {
+            int position = 0; //RecyclerView.getAbsoluteAdapterPosition(); // gets item position
+            if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                Show showClicked = showsList.get(position);
+                // We can access the data within the views
+                Toast.makeText(context, showClicked.getShowName(), Toast.LENGTH_SHORT).show();
+
+            /*    Snackbar snackbar = Snackbar.make(findViewById(R.id.ShowAdapter),"Postition: " + position,Snackbar.LENGTH_LONG);
+                snackbar.show();*/
+     //       }
+    //    }
     }
+
+
 
     @Override
     public ShowAdapter.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
@@ -80,16 +145,69 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
 
         //TODO Add in all the other bits required to populate the show tile thing
-
-        // Get the data model based on position
         Show show = getItem(position);
 
-        // Set item views based on your views and data model
-        TextView showName = holder.seriesnameView;
-        showName.setText(show.getShowName());
-        TextView nextEpisode = holder.TextViewShowListNextEpisode;
-        //need to build the show array up with eppisodes attached to the show before adding complex data.
-        nextEpisode.setText(show.getMyEpisodeID());
+        try {
 
+            // Set item views based on your views and data model
+            TextView showName = holder.seriesnameView;
+            showName.setText(show.getShowName());
+            TextView nextEpisode = holder.TextViewShowListNextEpisode;
+            //need to build the show array up with episodes attached to the show before adding complex data.
+            String seasonNumber = show.getFirstEpisode().getSeasonString();
+            String episodeNumber = show.getFirstEpisode().getEpisodeString();
+            String episodeName = show.getFirstEpisode().getName();
+            String episodeFullNumbering = "S" + seasonNumber + "E" + episodeNumber + " " + episodeName;
+            nextEpisode.setText(episodeFullNumbering);
+
+            TextView episodeAirTime = holder.episodetime;
+            episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
+
+
+            TextView textViewShowsRemaining = holder.textViewShowsRemaining;
+            String episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
+            textViewShowsRemaining.setText(episodesRemaining);
+
+            TextView textViewShowsRunTime = holder.textViewShowsRunTime;
+
+            Episode nextEpisodeToWatch = show.getFirstEpisode();
+
+
+            String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                    .allowMainThreadQueries()   //Allows room to do operation on main thread
+                    .fallbackToDestructiveMigration()
+                    .build();
+
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(myepisodeID);
+
+            String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
+            textViewShowsRunTime.setText(showRuntimeText);
+
+            String showImageURL = showRuntime.getShowImageURL();
+            ImageView showPoster = holder.showposter;
+
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.placeholder(R.drawable.placeholder);
+            requestOptions.error(R.drawable.error);
+
+            Glide.with(holder.showposter)
+                    .load(showImageURL)
+                    .apply(requestOptions)
+                    .into(showPoster);
+
+
+        } catch (NullPointerException e) {
+            if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+                show.setShowName("Error mins" + " - " + show.getShowName());
+            } else {
+                show.setShowName(show.getShowName());
+            }
+            String message = "Problem reading runtime for " + show.getShowName();
+            Log.e(LOG_TAG, message);
+        }
     }
+
+
 }

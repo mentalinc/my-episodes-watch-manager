@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -317,6 +318,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String themeSetting = sharedPref.getString("ThemeSetting","0");
 
+
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);
@@ -467,6 +469,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
         if (countEpisodes == 200)
             Toast.makeText(EpisodeListingActivity.this, R.string.watchListFull, Toast.LENGTH_LONG).show();
+            //Snackbar snackbar = Snackbar.make() ( R.string.watchListFull ,Snackbar.LENGTH_LONG);
+            //snackbar.show();
 
         if (countEpisodes == 1) {
             switch (episodesType) {

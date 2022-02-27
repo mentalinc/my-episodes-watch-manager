@@ -76,7 +76,6 @@ public class RandomEpPickerActivity extends Activity {
 
         if (EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH) > 0) {
             random = EpisodesController.getInstance().getRandomWatchEpisode();
-
             String seasonString = " " + random.getSeasonString();
             String episodeString = " " + random.getEpisodeString();
 

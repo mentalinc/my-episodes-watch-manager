@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/btn_settings"
-        android:contentDescription="@string/logout"
+        android:contentDescription="@string/settings"
         android:icon="@drawable/outline_settings_24"
         app:showAsAction="ifRoom"
         android:title="@string/settings"

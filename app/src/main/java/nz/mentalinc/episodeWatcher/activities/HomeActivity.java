@@ -522,6 +522,8 @@ public class HomeActivity extends AppCompatActivity {
         Intent showListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
         //need to start a fragment here not activity
         startActivity(showListing);
+
+
     }
 
     public static Context getContext() {

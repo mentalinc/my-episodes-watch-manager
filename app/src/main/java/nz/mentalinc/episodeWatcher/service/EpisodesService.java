@@ -173,7 +173,9 @@ public class EpisodesService {
                             seriesDAO = database.getSeriesDAO();
 
                             EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-                            episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
+                            //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
+                            //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
+                            episode.setShowName(episode.getShowName());
                             episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
 
                         } else {
@@ -183,7 +185,8 @@ public class EpisodesService {
 
                     } catch (NullPointerException e) {
                         if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
-                            episode.setShowName("Error mins" + " - " + episode.getShowName());
+                            //episode.setShowName("Error mins" + " - " + episode.getShowName());
+                            episode.setShowName(episode.getShowName());
                         } else {
                             episode.setShowName(episode.getShowName());
                         }
@@ -204,7 +207,9 @@ public class EpisodesService {
                     seriesDAO = database.getSeriesDAO();
 
                     EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-                    episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
+                    //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
+                    //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
+                    episode.setShowName(episode.getShowName());
                     episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
 
                     //episode.setTVMazeWebSite("Link to episode description coming soon");
