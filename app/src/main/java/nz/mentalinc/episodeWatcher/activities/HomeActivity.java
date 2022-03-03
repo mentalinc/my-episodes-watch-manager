@@ -519,9 +519,21 @@ public class HomeActivity extends AppCompatActivity {
 
 
     public void onShowListingClick(View v) {
-        Intent showListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
-        //need to start a fragment here not activity
-        startActivity(showListing);
+
+
+       if(EpisodeType.EPISODES_COMING.toString().equals("EPISODES_COMING")) {
+            //  openEpisodeListing(, episodesType);
+
+            Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+            updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+            updatedEpisodeListActivity.putExtra("Title", "Coming");
+            startActivity(updatedEpisodeListActivity);
+        }else{
+            Intent showListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
+            //need to start a fragment here not activity
+            startActivity(showListing);
+        }
+
 
 
     }

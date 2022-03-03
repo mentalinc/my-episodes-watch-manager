@@ -310,9 +310,6 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
 
 
-
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());

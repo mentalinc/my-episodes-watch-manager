@@ -674,7 +674,7 @@ public class EpisodeDetailsActivity extends Activity {
             episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
         episodeListingActivity.putExtra("Title",title);
-        startActivity(episodeListingActivity);
+       // startActivity(episodeListingActivity);
     }
 
     private void tweetThis() {

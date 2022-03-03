@@ -135,6 +135,7 @@ public class EpisodesController {
         watchEpisodes = tempList;
         acquireEpisodes = tempList;
         comingEpisodes = tempList;
+        shows.clear();
         AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
                 .fallbackToDestructiveMigration()
@@ -175,6 +176,11 @@ public class EpisodesController {
         } else {
             currentShow.addEpisode(episode);
         }
+    }
+
+    public ArrayList returnShows(){
+
+        return shows;
     }
 
     private Show CheckShowDublicate(String episodename) {

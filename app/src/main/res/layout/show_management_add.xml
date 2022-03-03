@@ -45,6 +45,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="50dp"
+
             android:textColor="@color/on_text_white"
             android:hint="@string/showSearchHint"            />
 
@@ -56,11 +57,12 @@
             android:layout_centerVertical="true"
             android:layout_marginTop="4dp"
             android:layout_toStartOf="@id/searchButton"
-            android:textColor="@color/on_text_white"
-            android:backgroundTint="@color/colorAccent"
+            android:backgroundTint="@color/colorPrimary"
             android:hint="@string/showSearchHint"
             android:inputType="text"
-            android:singleLine="true" />
+            android:singleLine="true"
+
+            android:textColor="@color/on_text_white" />
 
     </RelativeLayout>
 

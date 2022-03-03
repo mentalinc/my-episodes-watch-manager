@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="nz.mentalinc.episodeWatcher"
     android:installLocation="auto">
 
@@ -13,11 +12,10 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/ThemeDayNight"
-        android:supportsRtl="true"        >
-        tools:ignore="GoogleAppIndexingWarning">
+        android:supportsRtl="true">
+
         <activity
             android:name=".activities.HomeActivity"
-
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -91,6 +89,13 @@
             android:exported="false"
             android:configChanges="orientation|keyboardHidden"
             android:label="ShowListing" />
+        <activity
+            android:name=".activities.UpdatedEpisodeListingActivity"
+            android:exported="false"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="UpdatedEpisodeListing" />
+
+
 
 
         <uses-library android:name="android.test.runner" />

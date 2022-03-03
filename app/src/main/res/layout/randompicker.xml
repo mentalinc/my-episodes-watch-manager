@@ -215,7 +215,7 @@
                     android:layout_height="295dp"
                     android:contentDescription="@string/CoverArtFromShow"
                     android:gravity="center"
-                    android:scaleType="fitXY" />
+                    android:scaleType="centerCrop" />
             </LinearLayout>
 
         </LinearLayout>

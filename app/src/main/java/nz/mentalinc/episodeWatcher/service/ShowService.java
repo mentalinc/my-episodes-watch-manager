@@ -1,5 +1,6 @@
 package nz.mentalinc.episodeWatcher.service;
 
+import android.net.Uri;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -350,8 +351,9 @@ public class ShowService {
         System.out.println(show);
         // Log.d("Response: ", "> " + show);
         show = show.replace("#", "");
+        show = Uri.encode(show, "utf-8");
         tvMazeAPIURL += show;
-
+        System.out.println(show);
         try {
             URL url = new URL(tvMazeAPIURL);
             connection = (HttpsURLConnection) url.openConnection();

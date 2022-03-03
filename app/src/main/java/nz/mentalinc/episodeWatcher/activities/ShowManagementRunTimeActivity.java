@@ -4,10 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-
-import androidx.appcompat.widget.Toolbar;
-import androidx.preference.PreferenceManager;
-import androidx.room.Room;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -24,7 +20,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
+import androidx.room.Room;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -106,31 +105,23 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
     }
 
-    private void updateShowList() {
-        for (Show show : shows) {
-            showAdapter.add(show);
-        }
-        showAdapter.notifyDataSetChanged();
-    }
 
 
     private void getRuntimeShows() {
 
         AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                .allowMainThreadQueries()   //Allows room to do operation on main thread
+               // .allowMainThreadQueries()   //Allows room to do operation on main thread
                 .fallbackToDestructiveMigration()
                 .build();
 
         SeriesDAO seriesDAO = database.getSeriesDAO();
         List<EpisodeRuntime> runtimeList = seriesDAO.getEpisodeRuntime();
 
+
         for (int i = 0; i < runtimeList.size(); i++) {
             EpisodeRuntime showRuntime = runtimeList.get(i);
             shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
         }
-        //todo: add this in when bump the version up again
-        //shows.sort(new ShowRuntimeAscendingComparator());
-
         Collections.sort(shows,new ShowRuntimeAscendingComparator());
     }
 
@@ -183,9 +174,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                             if (runTimeInput.getText().toString().trim().length() < 1) {
                                 // runTimeInput.setError("Error: Can't be blank");
                                 String text = "Error: Runtime can't be blank!";
-                               // int duration = Toast.LENGTH_SHORT;
-                                //Toast toast = Toast.makeText(ShowManagementRunTimeActivity.this, text, duration);
-                                //toast.show();
 
                                 Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
                                 snackbar.show();
@@ -194,9 +182,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                             } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
                                 Context context = getApplicationContext();
                                 String text = "Runtime unchanged";
-                               /* int duration = Toast.LENGTH_SHORT;
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();*/
 
                                 Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
                                 snackbar.show();
@@ -223,9 +208,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                                 Context context = getApplicationContext();
                                 String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
-                               /* int duration = Toast.LENGTH_SHORT;
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();*/
 
                                 Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
                                 snackbar.show();
@@ -307,9 +289,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                                 // runTimeInput.setError("Error: Can't be blank");
                                 Context context = getApplicationContext();
                                 String text = "Error: Runtime can't be blank!";
-                              /*  int duration = Toast.LENGTH_SHORT;
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();*/
 
                                 Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
                                 snackbar.show();
@@ -317,9 +296,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                             } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
                                 Context context = getApplicationContext();
                                 String text = "Runtime unchanged";
-                                /*int duration = Toast.LENGTH_SHORT;
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();*/
 
                                 Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
                                 snackbar.show();
@@ -345,9 +321,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                                 Context context = getApplicationContext();
                                 String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
-                                /*int duration = Toast.LENGTH_SHORT;
-                                Toast toast = Toast.makeText(context, text, duration);
-                                toast.show();*/
 
                                 Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
                                 snackbar.show();
@@ -398,12 +371,13 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             protected void onPostExecute(Object o) {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
-                    //showDialog(DIALOG_EXCEPTION);
                     exceptionDialog(ShowManagementRunTimeActivity.this);
                 } else {
 
                     try {
-                        updateShowList();
+
+                        showAdapter.notifyDataSetChanged();
+
                     } catch (Exception e) {
                         String message = "ShowFailure";
                         Log.e(LOG_TAG, message, e);
@@ -418,12 +392,12 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
     @Override
     public void finish() {
-        boolean showsAdded = false;
-        if (showsAdded) {
+     //   boolean showsAdded = false;
+    //    if (showsAdded) {
             setResult(RESULT_OK);
-        } else {
-            setResult(RESULT_CANCELED);
-        }
+    //    } else {
+    //        setResult(RESULT_CANCELED);
+   //     }
         super.finish();
     }
 
@@ -462,6 +436,5 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             return row;
         }
     }
-
 }
 

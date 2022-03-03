@@ -1,19 +1,14 @@
 package nz.mentalinc.episodeWatcher.activities;
 
 import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.CONTEXT;
-import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.TV_MAZE_SHOWS_URL;
 
 import android.content.Context;
-
-import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -22,22 +17,18 @@ import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.material.snackbar.Snackbar;
-
 
 import java.text.DateFormat;
-
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
-
 import nz.mentalinc.episodeWatcher.R;
-import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.Show;
-import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 
 public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
@@ -96,34 +87,9 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             textViewShowsRunTime = (TextView) itemView.findViewById(R.id.textViewShowsRunTime);
             setWatchedButton =  (ImageView) itemView.findViewById(R.id.imageViewShowsSetWatched);
 
-
             showposter = (ImageView) itemView.findViewById(R.id.showposter);
 
         }
-/*
-        public ViewHolder(Context context, View itemView) {
-            super(itemView);
-            this.seriesnameView = (TextView) itemView.findViewById(R.id.seriesname);
-            this.episodetime = (TextView) itemView.findViewById(R.id.episodetime);
-            // Store the context
-          //  this.context = context;
-            // Attach a click listener to the entire row view
-            itemView.setOnClickListener(this);
-        }
-
-        // Handles the row being being clicked
-        @Override
-        public void onClick(View view) {
-            int position = 0; //RecyclerView.getAbsoluteAdapterPosition(); // gets item position
-            if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
-                Show showClicked = showsList.get(position);
-                // We can access the data within the views
-                Toast.makeText(context, showClicked.getShowName(), Toast.LENGTH_SHORT).show();
-
-            /*    Snackbar snackbar = Snackbar.make(findViewById(R.id.ShowAdapter),"Postition: " + position,Snackbar.LENGTH_LONG);
-                snackbar.show();*/
-     //       }
-    //    }
     }
 
 
@@ -165,15 +131,22 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
 
 
             TextView textViewShowsRemaining = holder.textViewShowsRemaining;
-            String episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
+            String episodesRemaining;
+
+            Date today = Calendar.getInstance().getTime();
+            if(show.getFirstEpisode().getAirDate().after(today)){
+                episodesRemaining = show.getNumberEpisodes() + " episodes coming";
+            }else{
+                episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
+            }
+
             textViewShowsRemaining.setText(episodesRemaining);
 
             TextView textViewShowsRunTime = holder.textViewShowsRunTime;
 
             Episode nextEpisodeToWatch = show.getFirstEpisode();
-
-
             String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                     .allowMainThreadQueries()   //Allows room to do operation on main thread
                     .fallbackToDestructiveMigration()
@@ -208,6 +181,4 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             Log.e(LOG_TAG, message);
         }
     }
-
-
 }
