@@ -18,7 +18,7 @@
         app:titleTextColor="@color/on_text_white"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface"
+        android:background="@color/primaryColor"
         android:textColor="@color/on_text_white"
         app:menu="@menu/episode_details_menu"
         style="@style/Widget.MaterialComponents.Toolbar.Primary"
@@ -203,12 +203,12 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/markAsAcquiredButton"
+                style="@style/EpisodeDetailButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight=".025"
-                app:icon="@drawable/outline_upcoming_white_48"
-                style="@style/EpisodeDetailButton"
-                android:text="@string/menuEpisodeMarkAcquired" />
+                android:text="@string/menuEpisodeMarkAcquired"
+                app:icon="@drawable/outline_upcoming_white_48" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/markAsSeenButton"

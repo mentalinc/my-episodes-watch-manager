@@ -1,7 +1,5 @@
 package nz.mentalinc.episodeWatcher.activities;
 
-import static org.acra.ACRA.LOG_TAG;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nz.mentalinc.episodeWatcher.R;
+import nz.mentalinc.episodeWatcher.ShowDetailFrag;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
 import nz.mentalinc.episodeWatcher.domain.Episode;
@@ -30,7 +29,7 @@ import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
 
 public class UpdatedEpisodeListingActivity extends Activity {
-
+    private static final String LOG_TAG = UpdatedEpisodeListingActivity.class.getSimpleName();
 
     List<Show> shows;
 
@@ -41,7 +40,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
 
-        //TODO get the episodes to watch add some sort of if statement or something here depending episodes to show
+        //todo add the refesh icon to the screen and then the methods to do that
         Bundle data = this.getIntent().getExtras();
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
@@ -76,8 +75,11 @@ public class UpdatedEpisodeListingActivity extends Activity {
         // Attach the adapter to the recyclerview to populate items
         rvEpisode.setAdapter(adapter);
         // Set layout manager to position the items
-        rvEpisode.setLayoutManager(new LinearLayoutManager(this));
-        rvEpisode.setHasFixedSize(true);
+        //rvEpisode.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        rvEpisode.setLayoutManager(linearLayoutManager);
+        //rvEpisode.setHasFixedSize(true);
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -89,28 +91,25 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
-        ItemClickSupport.addTo(rvEpisode).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-               @Override
-               public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                   // do stuff
+        ItemClickSupport.addTo(rvEpisode).setOnItemClickListener((recyclerView, position, v) -> {
+            // do stuff
 
-                   Episode episodeSelected =  episodes.get(position);
-                   //Show Show = episodeSelected.getShowName();
+            Episode episodeSelected =  episodes.get(position);
+            //Show Show = episodeSelected.getShowName();
 
-                   //TODO in here link to the to be built SHOW screen. So it opens on the next episode detail to watch
-                   // then gives tabs to look at what needs to be acquire, and coming to the right, and left of the detail
-                   //it gives a show overview.
-                   // which also means episode details tab can have all the show info removed as will be to the right
-                   //also need to create a view just like the show one for episodes.
+            //TODO in here link to the to be built SHOW screen. So it opens on the next episode detail to watch
+            // then gives tabs to look at what needs to be acquire, and coming to the right, and left of the detail
+            //it gives a show overview.
+            // which also means episode details tab can have all the show info removed as will be to the right
+            //also need to create a view just like the show one for episodes.
 
 
-                   openEpisodeDetails(episodeSelected, episodesType );
+            openEpisodeDetails(episodeSelected, episodesType );
 
-                   //Show testEpisode = (Show) adapter.getItemId(position);
-                   // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
-                   // snackbar.show();
-               }
-           }
+            //Show testEpisode = (Show) adapter.getItemId(position);
+            // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
+            // snackbar.show();
+        }
         );
 
 
@@ -120,7 +119,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", "New Show click");
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -154,10 +153,12 @@ public class UpdatedEpisodeListingActivity extends Activity {
         sortShows(shows);
         sortEpisodesOfShows(shows);
 
-        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar) findViewById(R.id.topAppBarEpisodesView);
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
         ShowNameTitle.setTitle(ShowTitle);
 
     }
+
+
 
 
     private void sortEpisodesOfShows(List<Show> showList) {
@@ -165,8 +166,6 @@ public class UpdatedEpisodeListingActivity extends Activity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
         String sorting = sharedPref.getString("episodeOrder","oldest_on_top");
-
-        //TODO add a sort by runtime might need to be on the below somehow EpisodeAscendingComparator()??
 
         String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
 

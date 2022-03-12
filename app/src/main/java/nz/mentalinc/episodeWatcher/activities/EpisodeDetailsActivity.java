@@ -147,8 +147,9 @@ public class EpisodeDetailsActivity extends Activity {
             case EPISODES_TO_ACQUIRE:
                 break;
             case EPISODES_COMING:
-                // show the acquired button on the "Coming" Screen
+                // Cant see or acquire future episdodes (unless same day?), just remove the buttons.
                 markAsAcquiredButton.setVisibility(View.GONE);
+                markAsSeenButton.setVisibility(View.GONE);
                 break;
         }
 
@@ -331,15 +332,6 @@ public class EpisodeDetailsActivity extends Activity {
                         .load(episodeImageURL)
                         .apply(requestOptions)
                         .into(episodeImage);
-
-
-                //this doesn't work when trying to set the show cover art as the background.
-               /* Glide.with(findViewById(R.id.showBackgroundImage))
-                        .load(episodeImageURL)
-                        .apply(requestOptions)
-                        .into(episodeImage);*/
-
-
 
             } else {
                 episodeImage.setVisibility(View.GONE);
@@ -545,6 +537,8 @@ public class EpisodeDetailsActivity extends Activity {
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
 
+
+
             EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
 
 
@@ -609,11 +603,16 @@ public class EpisodeDetailsActivity extends Activity {
     private void OpenListingActivity(Episode episode, String type) {
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
+        //todo need to have it call the new show home tab, but the buttons fail to work when clicking acquire.
+        //Intent episodeListingActivity = new Intent(this.getApplicationContext(), ShowHomeTabActivity.class);
         Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
+
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType)
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID())
                 .putExtra("Title",title);
+
 
         String sorting = "";
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());

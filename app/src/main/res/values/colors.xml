@@ -23,10 +23,14 @@
     <color name="on_text_white">#ffffffff</color>
     <color name="on_text_black">#000000</color>
 
-    <color name="primaryColor">#607d8b</color>
-    <color name="primaryLightColor">#8eacbb</color>
-    <color name="primaryDarkColor">#34515e</color>
-    <color name="primaryTextColor">#000000</color>
+    <color name="primaryColor">#546e7a</color>
+    <color name="primaryLightColor">#819ca9</color>
+    <color name="primaryDarkColor">#29434e</color>
+    <color name="secondaryColor">#90a4ae</color>
+    <color name="secondaryLightColor">#c1d5e0</color>
+    <color name="secondaryDarkColor">#62757f</color>
+    <color name="primaryTextColor">#ffffff</color>
+    <color name="secondaryTextColor">#000000</color>
 
 
     <color name="colorBackground">#F0F0F0</color>

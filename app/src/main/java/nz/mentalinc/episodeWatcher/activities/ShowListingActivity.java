@@ -1,6 +1,6 @@
 package nz.mentalinc.episodeWatcher.activities;
 
-import static org.acra.ACRA.LOG_TAG;
+
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,11 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
-import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import nz.mentalinc.episodeWatcher.EpisodeListingFrag;
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
@@ -36,35 +37,19 @@ import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
 
 public class ShowListingActivity extends Activity {
 
+    private static final String LOG_TAG = ShowListingActivity.class.getSimpleName();
     List<Show> shows;
     private List<Episode> episodes = new ArrayList<>();
     private static EpisodeType episodesType;
 
 
     protected void onCreate(Bundle savedInstanceState) {
-
-        //TODO get the episodes to watch add some sort of if statement or something here depending episodes to show
-       // episodesType = EpisodeType.EPISODES_TO_WATCH;
-        //episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
-       episodesType = EpisodeType.EPISODES_COMING;
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recycle_view_shows);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting", "0");
-        switch (themeSetting) {
-            case "0":
-                setTheme(R.style.ThemeDayNight);
-                break;
-            case "1":
-                setTheme(R.style.ThemeLight);
-                break;
-            case "2":
-                setTheme(R.style.ThemeDark);
-                break;
-        }
-
+        Bundle data = this.getIntent().getExtras();
+        //episodeType is set based on the button on the home page that is press.
+        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
 
         com.google.android.material.appbar.MaterialToolbar episodeTypeTitle = (com.google.android.material.appbar.MaterialToolbar) findViewById(R.id.topAppBarShowsView);
         if(episodesType.toString().equals("EPISODES_TO_WATCH")) {
@@ -77,9 +62,15 @@ public class ShowListingActivity extends Activity {
 
         episodes = EpisodesController.getInstance().getEpisodes(episodesType);
 
+        int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
+
+        if (countEpisodes == 200) {
+
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowsView), R.string.watchListFull, Snackbar.LENGTH_LONG);
+            snackbar.show();
+        }
+
         returnEpisodes();
-
-
 
         ShowAdapter adapter = new ShowAdapter(shows);
         adapter.submitList(shows);
@@ -90,7 +81,7 @@ public class ShowListingActivity extends Activity {
         rvShows.setAdapter(adapter);
         // Set layout manager to position the items
         rvShows.setLayoutManager(new LinearLayoutManager(this));
-        rvShows.setHasFixedSize(true);
+      //  rvShows.setHasFixedSize(true);
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -99,7 +90,10 @@ public class ShowListingActivity extends Activity {
         });
 
 
+        //todo add LONG click listener to popup the options to either mark as watched or acquired, details etc (per existing screnshopws.
+
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
+
         ItemClickSupport.addTo(rvShows).setOnItemClickListener((recyclerView, position, v) -> {
             // do stuff
 
@@ -107,17 +101,24 @@ public class ShowListingActivity extends Activity {
             //to go straight to details if there is only 1 episode - saves clicking through the list when it would only show one anyway.
             Episode nextEpisodeToWatch = showSelected.getFirstEpisode();
 
-            if(showSelected.getNumberEpisodes() == 1) {
+        /*    if(showSelected.getNumberEpisodes() == 1) {
                 openEpisodeDetails(nextEpisodeToWatch, episodesType);
             }else {
                 openEpisodeListing(showSelected, episodesType);
             }
+*/
+            //TODO this is just the test
+
+
 
             //TODO in here link to the to be built SHOW screen. So it opens on the next episode detail to watch
             // then gives tabs to look at what needs to be acquire, and coming to the right, and left of the detail
             //it gives a show overview.
             // which also means episode details tab can have all the show info removed as will be to the right
             //also need to create a view just like the show one for episodes.
+
+
+            openShowHomePage(showSelected, episodesType);
 
 
             //Show testEpisode = (Show) adapter.getItemId(position);
@@ -128,6 +129,8 @@ public class ShowListingActivity extends Activity {
         }
         );
     }
+
+
 
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
 
@@ -142,12 +145,28 @@ public class ShowListingActivity extends Activity {
         startActivity(updatedEpisodeListActivity);
     }
 
+
+
+    //this is the new view.
+    private void openShowHomePage(Show show, EpisodeType episodeType) {
+
+        Intent ShowHomeTabActivity = new Intent(this.getApplicationContext(), ShowHomeTabActivity.class);
+
+        Episode nextEpisodeToWatch = show.getFirstEpisode();
+        String myEpisodeID = nextEpisodeToWatch.getMyEpisodeID();
+
+        ShowHomeTabActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
+        ShowHomeTabActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        ShowHomeTabActivity.putExtra("Title", show.getShowName());
+        startActivity(ShowHomeTabActivity);
+    }
+
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
 
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", "New Show click");
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -257,4 +276,5 @@ public class ShowListingActivity extends Activity {
         }
         return null;
     }
+
 }

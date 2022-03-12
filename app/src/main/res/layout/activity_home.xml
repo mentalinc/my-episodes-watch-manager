@@ -18,12 +18,59 @@
         android:layout_height="?attr/actionBarSize"
 
         app:titleTextColor="@color/on_text_white"
-        android:background="?attr/colorSurface"
+        android:background="@color/primaryColor"
         android:textColor="@color/on_text_white"
         app:menu="@menu/home_settings_menu"
         app:navigationIcon="@drawable/logo_default"
         style="@style/Widget.MaterialComponents.Toolbar.Primary"
         />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ShowWatchNew"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_visibility_white_48"
+            android:onClick="onNewWatchShowListingClick"
+            android:text="@string/newWatchhome" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ShowAcquireNew"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_upcoming_white_48"
+            android:onClick="onNewAcquireShowListingClick"
+            android:text="@string/newAcquirehome" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ShowListing"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_next_week_white_48"
+            android:onClick="onNewComingShowListingClick"
+            android:text="New Coming" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_settings"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_create_white_48"
+            android:onClick="onManageClick"
+            android:text="@string/manageShows" />
+
+    </LinearLayout>
 
 
     <LinearLayout
@@ -58,39 +105,11 @@
             android:text="@string/coming" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_settings"
-            style="@style/HomeButton"
-            android:drawableTop="@drawable/outline_create_white_48"
-            android:onClick="onManageClick"
-            android:text="@string/manageShows" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_random"
             style="@style/HomeButton"
             android:drawableTop="@drawable/outline_shuffle_white_48"
             android:onClick="onRandomClick"
             android:text="@string/randompicker" />
-
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_ShowListing"
-            style="@style/HomeButton"
-            android:drawableTop="@drawable/outline_visibility_white_48"
-            android:onClick="onShowListingClick"
-            android:text="Show Listing" />
-
     </LinearLayout>
-
-
-
-
 
 </LinearLayout>

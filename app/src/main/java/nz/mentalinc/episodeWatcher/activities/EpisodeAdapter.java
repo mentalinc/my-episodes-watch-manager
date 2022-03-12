@@ -39,6 +39,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         super(DIFF_CALLBACK);
     }
 
+
     public void addMoreEpisodes(List<Episode> newEpisodes) {
         episodeList.addAll(newEpisodes);
         submitList(episodeList); // DiffUtil takes care of the check
@@ -64,7 +65,6 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         public TextView episodeNumber;
         public TextView episodeName;
         public TextView episodeRuntime;
-
         public ImageView showposter;
 
 
@@ -82,9 +82,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
             episodeName = (TextView) itemView.findViewById(R.id.textViewActivityEpisode);
             episodeRuntime = (TextView) itemView.findViewById(R.id.textViewActivityRunTime);
 
-
             showposter = (ImageView) itemView.findViewById(R.id.imageViewActivityPoster);
-
         }
     }
 
@@ -92,15 +90,11 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
 
     @Override
     public EpisodeAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
 
-        // Inflate the custom layout
-        View episodeView = inflater.inflate(R.layout.item_episode, parent, false);
-
-        // Return a new holder instance
-       EpisodeAdapter.ViewHolder viewHolder = new EpisodeAdapter.ViewHolder(episodeView);
+        View episodeView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_episode, parent, false);
+        EpisodeAdapter.ViewHolder viewHolder =  new EpisodeAdapter.ViewHolder(episodeView);
         return viewHolder;
+
     }
 
     @Override
@@ -108,6 +102,8 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
 
         //TODO Add in all the other bits required to populate the show tile thing
         Episode episode = getItem(position);
+
+        Log.e(LOG_TAG, "Episode Bindholder: " + episode.getName());
 
         try {
 
@@ -121,14 +117,10 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
             String episodeNameFull = episode.getName();
             String episodeFullNumbering = "S" + seasonNumber + "E" + episodeNumber + " " + episodeNameFull;
 
-
             episodeName.setText(episodeFullNumbering);
 
             TextView episodeAirTime = holder.episodetime;
             episodeAirTime.setText(DateFormat.getDateInstance().format(episode.getAirDate()));
-
-
-
 
             TextView textViewEpisodeShowsRunTime = holder.episodeRuntime;
             String myepisodeID = episode.getMyEpisodeID();

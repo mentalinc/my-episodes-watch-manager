@@ -15,7 +15,9 @@ public class EpisodesController {
     private List<Episode> watchEpisodes = new ArrayList<>();
     private List<Episode> acquireEpisodes = new ArrayList<>();
     private List<Episode> comingEpisodes = new ArrayList<>();
+    private List<Episode> allEpisodes = new ArrayList<>();
     private ArrayList<Show> shows;
+    private ArrayList<Show> allShows;
     private static EpisodesController Instance;
 
     public List<Episode> getEpisodes(EpisodeType episodesType) {
@@ -28,6 +30,8 @@ public class EpisodesController {
                 return acquireEpisodes;
             case EPISODES_COMING:
                 return comingEpisodes;
+           // case EPISODES_ALL:
+            //    return allEpisodes;
             default:
                 return null;
         }
@@ -135,7 +139,9 @@ public class EpisodesController {
         watchEpisodes = tempList;
         acquireEpisodes = tempList;
         comingEpisodes = tempList;
+        allEpisodes = tempList;
         shows.clear();
+        allShows.clear();
         AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
                 .fallbackToDestructiveMigration()
@@ -178,9 +184,27 @@ public class EpisodesController {
         }
     }
 
-    public ArrayList returnShows(){
+    public ArrayList returnAllShows(){
 
-        return shows;
+        //this still needs work to add all the episodes
+        allEpisodes = new ArrayList<>();
+        allEpisodes.addAll(acquireEpisodes);
+        allEpisodes.addAll(watchEpisodes);
+        allEpisodes.addAll(comingEpisodes);
+
+        for (Episode episode : allEpisodes) {
+            Show currentShow = CheckShowDublicate(episode.getShowName());
+            if (currentShow == null) {
+                Show tempShow = new Show(episode.getShowName());
+                tempShow.addEpisode(episode);
+                allShows.add(tempShow);
+            } else {
+                currentShow.addEpisode(episode);
+            }
+        }
+
+        //do more stuff here
+        return allShows;
     }
 
     private Show CheckShowDublicate(String episodename) {

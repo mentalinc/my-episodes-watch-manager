@@ -3,6 +3,7 @@ package nz.mentalinc.episodeWatcher.activities;
 import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.CONTEXT;
 
 import android.content.Context;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +19,6 @@ import androidx.room.Room;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import nz.mentalinc.episodeWatcher.R;
@@ -31,22 +29,18 @@ import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 
-public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
-    private static final String LOG_TAG = ShowAdapter.class.getSimpleName();
+
+public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewHolder> {
+
+    private static final String LOG_TAG = ShowDetailAdapter.class.getSimpleName();
     private List<Show> showsList;
     Context context = CONTEXT.getApplicationContext();
 
 
-
-    public ShowAdapter(List<Show> shows) {
+    public ShowDetailAdapter(List<Show> shows) {
         super(DIFF_CALLBACK);
     }
 
-
-    public void addMoreShows(List<Show> newShows) {
-        showsList.addAll(newShows);
-        submitList(showsList); // DiffUtil takes care of the check
-    }
 
     public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<Show>() {
         @Override
@@ -59,56 +53,51 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
         }
     };
 
+
     public class ViewHolder extends RecyclerView.ViewHolder { //implements View.OnClickListener{
-        //
-        // Your holder should contain a member variable
-        // for any view that will be set as you render a row
+
         public TextView seriesnameView;
-        public TextView TextViewShowListNextEpisode;
+        public TextView tvMazeShowWebsite;
         public TextView episodetime;
         public TextView textViewShowsRemaining;
-        public TextView textViewShowsRunTime;
-        public ImageView setWatchedButton;
+        public TextView officialShowDetailWebsite;
+        public TextView tvMazeShowDetailSummary;
+
         public ImageView showposter;
 
 
-
-        // We also create a constructor that accepts the entire item row
-        // and does the view lookups to find each subview
         public ViewHolder(View itemView) {
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
 
-            seriesnameView = (TextView) itemView.findViewById(R.id.seriesname);
-            TextViewShowListNextEpisode = (TextView) itemView.findViewById(R.id.TextViewShowListNextEpisode);
-            episodetime = (TextView) itemView.findViewById(R.id.episodetime);
+            seriesnameView = (TextView) itemView.findViewById(R.id.ShowName);
+            tvMazeShowWebsite = (TextView) itemView.findViewById(R.id.tvMazeShowWebsite);
+            episodetime = (TextView) itemView.findViewById(R.id.showDetailRuntime);
             textViewShowsRemaining = (TextView) itemView.findViewById(R.id.textViewShowsRemaining);
-            textViewShowsRunTime = (TextView) itemView.findViewById(R.id.textViewShowsRunTime);
-            setWatchedButton =  (ImageView) itemView.findViewById(R.id.imageViewShowsSetWatched);
+            officialShowDetailWebsite = (TextView) itemView.findViewById(R.id.officialShowDetailWebsite);
+            tvMazeShowDetailSummary = (TextView) itemView.findViewById(R.id.tvMazeShowDetailSummary);
 
-            showposter = (ImageView) itemView.findViewById(R.id.showposter);
+
+            showposter = (ImageView) itemView.findViewById(R.id.showDetailposter);
 
         }
     }
 
 
-
     @Override
-    public ShowAdapter.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
+    public ShowDetailAdapter.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
 
-        View showView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_show, parent, false);
+        View showView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_show_detail, parent, false);
         ViewHolder viewHolder =  new ViewHolder(showView);
         return viewHolder;
     }
 
-
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ShowDetailAdapter.ViewHolder holder, int position) {
 
         //TODO Add in all the other bits required to populate the show tile thing
         Show show = getItem(position);
-
 
 
         try {
@@ -116,22 +105,22 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             // Set item views based on your views and data model
             TextView showName = holder.seriesnameView;
             showName.setText(show.getShowName());
-            TextView nextEpisode = holder.TextViewShowListNextEpisode;
+            /* nextEpisode = holder.TextViewShowListNextEpisode;
             //need to build the show array up with episodes attached to the show before adding complex data.
             String seasonNumber = show.getFirstEpisode().getSeasonString();
             String episodeNumber = show.getFirstEpisode().getEpisodeString();
             String episodeName = show.getFirstEpisode().getName();
             String episodeFullNumbering = "S" + seasonNumber + "E" + episodeNumber + " " + episodeName;
-            nextEpisode.setText(episodeFullNumbering);
+            nextEpisode.setText(episodeFullNumbering);*/
 
-            TextView episodeAirTime = holder.episodetime;
-            episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
+            //TextView episodeAirTime = holder.episodeAirDateTime;
+           // episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
 
 
             TextView textViewShowsRemaining = holder.textViewShowsRemaining;
             String episodesRemaining;
 
-            Date today = Calendar.getInstance().getTime();
+           /* Date today = Calendar.getInstance().getTime();
             if(show.getFirstEpisode().getAirDate().after(today)){
                 episodesRemaining = show.getNumberEpisodes() + " episodes coming";
             }else{
@@ -139,8 +128,11 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             }
 
             textViewShowsRemaining.setText(episodesRemaining);
+            */
 
-            TextView textViewShowsRunTime = holder.textViewShowsRunTime;
+
+
+
 
             Episode nextEpisodeToWatch = show.getFirstEpisode();
             String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
@@ -153,8 +145,27 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(myepisodeID);
 
+
+            TextView textViewShowDetail = holder.tvMazeShowDetailSummary;
+            textViewShowDetail.setText(showRuntime.getShowSummary());
+
+            TextView textViewShowDetailWebsite = holder.officialShowDetailWebsite;
+            textViewShowDetailWebsite.setText(showRuntime.getOfficialSite());
+            Linkify.addLinks(textViewShowDetailWebsite, Linkify.WEB_URLS);
+
+            TextView textViewTvMazeWebsite = holder.tvMazeShowWebsite;
+            textViewTvMazeWebsite.setText(showRuntime.getShowURL());
+            Linkify.addLinks(textViewTvMazeWebsite, Linkify.WEB_URLS);
+
+
+            TextView textViewShowsRunTime = holder.episodetime;
             String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
             textViewShowsRunTime.setText(showRuntimeText);
+
+
+
+
+
 
             String showImageURL = showRuntime.getShowImageURL();
             ImageView showPoster = holder.showposter;

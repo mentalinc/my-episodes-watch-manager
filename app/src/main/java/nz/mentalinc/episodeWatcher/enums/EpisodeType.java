@@ -15,6 +15,7 @@ public enum EpisodeType {
     EPISODES_TO_YESTERDAY1(3),
     EPISODES_TO_YESTERDAY2(4);
 
+
     EpisodeType(int type) {
         this.episodeListingType = type;
     }

@@ -541,8 +541,6 @@ public class EpisodesService {
                         int indexEpLink = rowProcess[4].indexOf("a href=") + 8;
                         String episodeLink = rowProcess[4].substring(indexEpLink);
                         int indexEpLink1 = episodeLink.indexOf("\"");
-                        //TODO check why setting to ""
-                        //  episodeLink = "";
 
                         //get air date
                         int indexAirDate = rowProcess[0].length() - 15;

@@ -31,8 +31,12 @@
     <string name="registerFailed">Username already exists, please choose another username.</string>
 
     <!-- episode_listing_tab -->
+    <string name="newWatch">New Watch</string>
+    <string name="newWatchhome">New Watch (%d)</string>
     <string name="watch">Watch</string>
     <string name="watchhome">Watch (%d)</string>
+    <string name="newAcquire">New Acquire</string>
+    <string name="newAcquirehome">Acquire (%d)</string>
     <string name="acquire">Acquire</string>
     <string name="acquirehome">Acquire (%d)</string>
     <string name="coming">Coming</string>
@@ -46,8 +50,7 @@
     <string name="watchListSubTitleAcquirePlural" tools:ignore="PluralsCandidate">%d episodes to acquire</string>
     <string name="watchListSubTitleComingPlural" tools:ignore="PluralsCandidate">%d future episodes</string>
     <string name="watchListEmpty">No episodes found.</string>
-    <string name="watchListFull">Reached the limit of 200 episodes, consider enabling 200+ episodes in preferences.</string>
-
+    <string name="watchListFull">Reached the limit of 200 episodes, consider enabling 200+ episodes in settings.</string>
 
 
     <!-- Show info -->
@@ -55,9 +58,6 @@
     <string name="show_menu_overflow">More options</string>
     <string name="norating">n/a</string>
     <string name="list_empty">You can add shows to this list</string>
-
-
-
 
 
     <!-- Episode details -->

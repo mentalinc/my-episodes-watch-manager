@@ -4,15 +4,19 @@
 
     <style name="ThemeDayNight" parent="Theme.Material3.DayNight.NoActionBar" >
         <item name="android:windowNoTitle">true</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
 
     </style>
 
     <style name="ThemeLight" parent="Theme.Material3.Light.NoActionBar" >
         <item name="android:windowNoTitle">true</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+
     </style>
 
     <style name="ThemeDark" parent="Theme.Material3.Dark.NoActionBar" >
         <item name="android:windowNoTitle">true</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
 
 

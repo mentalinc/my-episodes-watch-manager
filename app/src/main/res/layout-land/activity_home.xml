@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
 
             android:background="?attr/colorSurface"
-            app:menu="@menu/logout_menu"
+            app:menu="@menu/home_settings_menu"
             app:navigationIcon="@drawable/logo_default"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
             />
@@ -29,19 +29,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-            <Button android:id="@+id/btn_watched"
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_ShowWatchNew"
                 style="@style/HomeButton"
-                android:text="@string/watchhome"
-                android:drawableTop="@drawable/outline_visibility_white_48"/>
-            <Button android:id="@+id/btn_acquired"
+                android:drawableTop="@drawable/outline_visibility_white_48"
+                android:onClick="onNewWatchShowListingClick"
+                android:text="@string/newWatchhome" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_ShowAcquireNew"
                 style="@style/HomeButton"
-                android:text="@string/acquirehome"
-                android:drawableTop="@drawable/outline_upcoming_white_48"/>
-            <Button android:id="@+id/btn_coming"
+                android:drawableTop="@drawable/outline_upcoming_white_48"
+                android:onClick="onNewAcquireShowListingClick"
+                android:text="@string/newAcquirehome" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_ShowListing"
                 style="@style/HomeButton"
-                android:text="@string/coming"
-                android:drawableTop="@drawable/outline_next_week_white_48"/>
-            <Button android:id="@+id/btn_settings"
+                android:drawableTop="@drawable/outline_next_week_white_48"
+                android:onClick="onNewComingShowListingClick"
+                android:text="New Coming" />
+
+
+
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn_settings"
                 style="@style/HomeButton"
                 android:text="@string/manageShows"
                 android:drawableTop="@drawable/outline_create_white_48"
@@ -54,32 +67,33 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1">
-    <Button
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_watched"
+            style="@style/HomeButton"
+            android:text="@string/watchhome"
+            android:drawableTop="@drawable/outline_visibility_white_48"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_acquired"
+            style="@style/HomeButton"
+            android:text="@string/acquirehome"
+            android:drawableTop="@drawable/outline_upcoming_white_48"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_coming"
+            style="@style/HomeButton"
+            android:text="@string/coming"
+            android:drawableTop="@drawable/outline_next_week_white_48"/>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_random"
         style="@style/HomeButton"
         android:drawableTop="@drawable/outline_shuffle_white_48"
         android:onClick="onRandomClick"
         android:text="@string/randompicker" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_more"
         style="@style/HomeButton"
         android:drawableTop="@drawable/outline_settings_white_48"
         android:onClick="onSettingsClick"
         android:text="@string/settings" />
 
-    <Button
-        android:id="@+id/btn_new"
-        style="@style/HomeButton"
-        android:drawableTop="@drawable/outline_new_label_white_48"
-        android:onClick="onTodoClick"
-        android:text="@string/whatsNew" />
 
-    <Button
-        android:id="@+id/btn_about"
-        style="@style/HomeButton"
-        android:drawableTop="@drawable/outline_info_white_48"
-        android:onClick="onAboutClick"
-        android:text="@string/about" />
     </LinearLayout>
 </LinearLayout>

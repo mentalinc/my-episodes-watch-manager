@@ -22,8 +22,6 @@
     <dimen name="text_size_large">22sp</dimen>
 
 
-
-
     <dimen name="inline_padding">4dp</dimen>
     <dimen name="default_padding">8dp</dimen>
     <dimen name="large_padding">16dp</dimen>
@@ -105,7 +103,6 @@
     <dimen name="dialog_min_width">300dp</dimen>
     <dimen name="empty_view_width">250dp</dimen>
     <dimen name="tab_padding_horizontal">12dp</dimen>
-
 
 
 </resources>

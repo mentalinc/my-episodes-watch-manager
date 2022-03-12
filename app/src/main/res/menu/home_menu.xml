@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/home"
-        android:contentDescription="@string/settings"
+        android:contentDescription="@string/home"
         android:enabled="true"
         android:icon="@drawable/outline_home_white_36"
         app:showAsAction="ifRoom|withText"
-        android:title="@string/settings"
+        android:title="@string/home"
         android:visible="true" />
 
 </menu>

@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:titleTextColor="@color/on_text_white"
-        android:background="?attr/colorSurface"
+        android:background="@color/primaryColor"
         android:textColor="@color/on_text_white"
         app:menu="@menu/home_menu"
         style="@style/Widget.MaterialComponents.Toolbar.Primary"

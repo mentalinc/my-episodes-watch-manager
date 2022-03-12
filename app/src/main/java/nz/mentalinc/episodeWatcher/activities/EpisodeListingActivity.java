@@ -464,12 +464,13 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
         int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
 
-        if (countEpisodes == 200)
-            Toast.makeText(EpisodeListingActivity.this, R.string.watchListFull, Toast.LENGTH_LONG).show();
-            //Snackbar snackbar = Snackbar.make() ( R.string.watchListFull ,Snackbar.LENGTH_LONG);
-            //snackbar.show();
+        if (countEpisodes == 200) {
+            //Toast.makeText(EpisodeListingActivity.this, R.string.watchListFull, Toast.LENGTH_LONG).show();
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarEpisodesView), R.string.watchListFull, Snackbar.LENGTH_LONG);
+            snackbar.show();
 
-        if (countEpisodes == 1) {
+
+        }if (countEpisodes == 1) {
             switch (episodesType) {
                 case EPISODES_TO_WATCH:
                     subTitle.setText(getString(R.string.watchListSubTitleWatch, countEpisodes));
@@ -937,6 +938,9 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         };
         asyncTask.execute();
     }
+
+    //todo need to move these and the methods below to the new show listing or list where to return user to when clicking on watch or acquire?
+    // i.e. if click watch, take to the episodes to watch or maybe the next episode screen(noto built yet). and mark aquire, return tot he episode aquire listing maybe?
 
     private void markEpisodes(final int episodeStatus, final List<Episode> episodes) {
         AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {

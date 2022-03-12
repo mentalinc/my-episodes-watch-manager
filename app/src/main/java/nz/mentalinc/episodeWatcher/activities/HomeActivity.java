@@ -14,11 +14,16 @@ import android.view.View;
 
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
+import androidx.viewpager2.widget.ViewPager2;
 
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -26,11 +31,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.episodeWatcher.R;
+import nz.mentalinc.episodeWatcher.ShowDetailFrag;
 import nz.mentalinc.episodeWatcher.ShowListingFrag;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
@@ -39,10 +46,11 @@ import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
+import nz.mentalinc.episodeWatcher.pager.ViewPager2Adapter;
 import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.UserService;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity  {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
     private EpisodesService service;
     private User user;
@@ -63,6 +71,13 @@ public class HomeActivity extends AppCompatActivity {
     private Button btnWatched;
     private Button btnAcquired;
 
+    private com.google.android.material.button.MaterialButton btn_ShowWatchNew;
+    private com.google.android.material.button.MaterialButton btn_ShowAcquireNew;
+
+
+
+
+
     private Intent watchIntent;
     private Intent acquireIntent;
     private Intent comingIntent;
@@ -77,6 +92,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
         userService = new UserService();
+        setContentView(R.layout.main);
 
         //Below makes sure all settings have their default value set to limit null errors etc
         PreferenceManager.setDefaultValues(getBaseContext(),R.xml.settings_screen,false);
@@ -117,7 +133,6 @@ public class HomeActivity extends AppCompatActivity {
         this.service = new EpisodesService();
         sContext = getApplicationContext();
 
-        setContentView(R.layout.main);
         user = new User(
                 sharedPref.getString("username",User.USERNAME),
                 sharedPref.getString("UserPassword",User.PASSWORD)
@@ -127,9 +142,11 @@ public class HomeActivity extends AppCompatActivity {
         MyEpisodeConstants.CONTEXT = getApplicationContext();
 
 
+
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
         btnWatched = findViewById(R.id.btn_watched);
+        btn_ShowWatchNew = findViewById(R.id.btn_ShowWatchNew);
         watchIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
 
         String watch_sorting = sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");
@@ -152,6 +169,7 @@ public class HomeActivity extends AppCompatActivity {
         acquireIntent.putExtra("Title", getString(R.string.acquire));
         btnAcquired = findViewById(R.id.btn_acquired);
         btnAcquired.setOnClickListener(v -> startActivity(acquireIntent));
+        btn_ShowAcquireNew = findViewById(R.id.btn_ShowAcquireNew);
 
 
         if (sharedPref.getBoolean("disableAcquire",false)) {
@@ -189,6 +207,9 @@ public class HomeActivity extends AppCompatActivity {
             Log.w(LOG_TAG, "Settings button clicked.");
             onSettingsClick(v);
         });
+
+
+
     }
 
     private void getEpisodesInLoadingDialog() {
@@ -255,6 +276,9 @@ public class HomeActivity extends AppCompatActivity {
                     } else {
                         btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
                         btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+
+                        btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
+                        btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
                     }
                 }
             };
@@ -368,6 +392,8 @@ public class HomeActivity extends AppCompatActivity {
         }*/
         btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
         btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+        btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
+        btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
     }
 
     @Override
@@ -518,27 +544,31 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    public void onShowListingClick(View v) {
+    public void onNewComingShowListingClick(View v) {
 
-
-       if(EpisodeType.EPISODES_COMING.toString().equals("EPISODES_COMING")) {
-            //  openEpisodeListing(, episodesType);
-
-            Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
-            updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
-            updatedEpisodeListActivity.putExtra("Title", "Coming");
-            startActivity(updatedEpisodeListActivity);
-        }else{
-            Intent showListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
-            //need to start a fragment here not activity
-            startActivity(showListing);
-        }
-
-
-
+        Intent newComingShowListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
+        newComingShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+        startActivity(newComingShowListing);
     }
+
+    public void onNewWatchShowListingClick(View v) {
+
+        Intent newWatchShowListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
+        newWatchShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+        startActivity(newWatchShowListing);
+    }
+
+
+    public void onNewAcquireShowListingClick(View v) {
+
+        Intent newWatchShowListing = new Intent(this.getApplicationContext(), ShowListingActivity.class);
+        newWatchShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
+        startActivity(newWatchShowListing);
+    }
+
 
     public static Context getContext() {
         return sContext;
     }
+
 }

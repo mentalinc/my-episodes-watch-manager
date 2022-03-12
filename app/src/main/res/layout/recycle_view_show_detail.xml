@@ -14,7 +14,7 @@
         android:background="@color/colorPrimary"/>
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBarEpisodesView"
+        android:id="@+id/topAppBarShowsDetailView"
         tools:text="Testing Title"
         app:titleTextColor="@color/on_text_white"
         android:layout_width="match_parent"
@@ -24,20 +24,9 @@
         app:menu="@menu/home_menu"
         style="@style/Widget.MaterialComponents.Toolbar.Primary">
 
+    </com.google.android.material.appbar.MaterialToolbar>
 
-<!--
-    <TextView
-        android:id="@+id/TitleRVEpisodes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="10dp"
-        tools:text="Testing Title"
-        tools:textSize="16sp"
-        tools:textStyle="bold"
-        tools:drawableTint="?attr/sgColorIcon"/>
--->
-        </com.google.android.material.appbar.MaterialToolbar>
+
 
     <TextView
         android:id="@+id/emptyViewList"
@@ -53,12 +42,12 @@
         tools:drawableTop="@drawable/ic_list_white_24dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewListItems"
+        android:id="@+id/recyclerViewListShowItems"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="true"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        tools:listitem="@layout/item_episode" />
+        tools:listitem="@layout/item_show_detail" />
 
 </LinearLayout>
