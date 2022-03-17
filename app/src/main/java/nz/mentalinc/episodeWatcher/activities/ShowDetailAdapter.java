@@ -42,6 +42,11 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
     }
 
 
+    public void addMoreShows(List<Show> newShows) {
+        showsList.addAll(newShows);
+        submitList(showsList); // DiffUtil takes care of the check
+    }
+
     public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<Show>() {
         @Override
         public boolean areItemsTheSame(Show oldItem, Show newItem) {
@@ -87,7 +92,7 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
 
     @Override
     public ShowDetailAdapter.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
-
+        Log.w(LOG_TAG, "Item_show_detail from ShowDetail Adapater");
         View showView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_show_detail, parent, false);
         ViewHolder viewHolder =  new ViewHolder(showView);
         return viewHolder;
@@ -98,6 +103,7 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
 
         //TODO Add in all the other bits required to populate the show tile thing
         Show show = getItem(position);
+        showsList.add(show);
 
 
         try {
@@ -161,10 +167,6 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
             TextView textViewShowsRunTime = holder.episodetime;
             String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
             textViewShowsRunTime.setText(showRuntimeText);
-
-
-
-
 
 
             String showImageURL = showRuntime.getShowImageURL();

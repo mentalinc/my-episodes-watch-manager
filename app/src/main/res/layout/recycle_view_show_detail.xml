@@ -27,20 +27,6 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
 
-
-    <TextView
-        android:id="@+id/emptyViewList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:padding="10dp"
-        android:text="@string/list_empty"
-        android:textAppearance="?attr/sgTextColorSecondaryDim"
-        android:visibility="gone"
-        tools:drawableTint="?attr/sgColorIcon"
-        tools:drawableTop="@drawable/ic_list_white_24dp" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewListShowItems"
         android:layout_width="match_parent"

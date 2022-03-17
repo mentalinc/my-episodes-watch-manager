@@ -42,7 +42,7 @@
         tools:drawableTop="@drawable/ic_list_white_24dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewListItems"
+        android:id="@+id/recyclerViewListItemsShows"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="true"

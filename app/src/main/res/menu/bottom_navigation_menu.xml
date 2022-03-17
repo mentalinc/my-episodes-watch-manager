@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/barShowDetail"
+        android:icon="@drawable/outline_tv_white_48"
+        android:title="@string/barShowDetail"></item>
+
+    <item android:id="@+id/barEpisodeOverview"
+        android:icon="@drawable/outline_next_week_white_48"
+        android:title="@string/barEpisodeOverview"></item>
+
+    <item android:id="@+id/barWatch"
+        android:icon="@drawable/outline_visibility_white_48"
+        android:title="@string/barWatch"></item>
+
+    <item android:id="@+id/barAcquire"
+        android:icon="@drawable/outline_upcoming_white_48"
+        android:title="@string/barAcquire"></item>
+
+    <item android:id="@+id/barComing"
+        android:icon="@drawable/outline_next_week_white_48"
+        android:title="@string/BarComing"></item>
+
+</menu>

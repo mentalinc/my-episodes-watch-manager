@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +56,7 @@ public class EpisodeDetailsActivity extends Activity {
     private EpisodeType episodesType;
     private String title;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,9 @@ public class EpisodeDetailsActivity extends Activity {
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
+
+        bottomNavigationView = findViewById(R.id.bottom_navigationEpisodeDetail);
+        bottomNavigationView.getMenu().getItem(1).setChecked(true);
 
         showNameText.setText(episode.getShowName());
         episodeNameText.setText(episode.getName());
@@ -328,7 +333,7 @@ public class EpisodeDetailsActivity extends Activity {
                 requestOptions.placeholder(R.drawable.placeholder);
                 requestOptions.error(R.drawable.error);
 
-                Glide.with(findViewById(R.id.showImage))
+                Glide.with(findViewById(R.id.episodeImage))
                         .load(episodeImageURL)
                         .apply(requestOptions)
                         .into(episodeImage);
@@ -478,13 +483,13 @@ public class EpisodeDetailsActivity extends Activity {
          */
         protected void onPostExecute(HashMap<String, String> result) {
             //episodeSummaryHash = result;
-
+/*
             TextView ShowName = findViewById(R.id.ShowName);
             ShowName.setText(showSummaryHash.get("ShowName"));
-
+*/
             TextView ShowRuntime = findViewById(R.id.episodeRuntime);
             ShowRuntime.setText(showSummaryHash.get("ShowRuntime") + " mins");
-
+/*
             TextView aboutShowWebsite = findViewById(R.id.tvMazeShowWebsite);
             aboutShowWebsite.setText(showSummaryHash.get("showURL"));
             Linkify.addLinks(aboutShowWebsite, Linkify.WEB_URLS);
@@ -528,7 +533,7 @@ public class EpisodeDetailsActivity extends Activity {
                 showImage.setVisibility(View.GONE);
             }
 
-
+*/
             //add the info into the show database to limit the need to api call the info all the time for static show info
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                     .allowMainThreadQueries()   //Allows room to do operation on main thread

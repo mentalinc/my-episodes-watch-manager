@@ -345,6 +345,14 @@
     </string-array>
 
 
+    <!-- bottom navigation bar text -->
+    <string name="barShowDetail">Show</string>
+    <string name="barEpisodeOverview">Summary</string>
+    <string name="barAcquire">Acquire</string>
+    <string name="barWatch">Watch</string>
+    <string name="BarComing">Coming</string>
+
+
     <string-array name="AcquireValues">
         <item>0</item>
         <item>1</item>

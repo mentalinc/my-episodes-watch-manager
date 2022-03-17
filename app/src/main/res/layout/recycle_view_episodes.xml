@@ -1,64 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground">
+    tools:context=".activities.UpdatedEpisodeListingActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/colorPrimary"/>
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBarEpisodesView"
-        tools:text="Testing Title"
-        app:titleTextColor="@color/on_text_white"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primaryColor"
-        android:textColor="@color/on_text_white"
-        app:menu="@menu/home_menu"
-        style="@style/Widget.MaterialComponents.Toolbar.Primary">
-
-
-<!--
-    <TextView
-        android:id="@+id/TitleRVEpisodes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="10dp"
-        tools:text="Testing Title"
-        tools:textSize="16sp"
-        tools:textStyle="bold"
-        tools:drawableTint="?attr/sgColorIcon"/>
--->
-        </com.google.android.material.appbar.MaterialToolbar>
-
-    <TextView
-        android:id="@+id/emptyViewList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:padding="10dp"
-        android:text="@string/list_empty"
-        android:textAppearance="?attr/sgTextColorSecondaryDim"
-        android:visibility="gone"
-        tools:drawableTint="?attr/sgColorIcon"
-        tools:drawableTop="@drawable/ic_list_white_24dp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewListItems"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="true"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        tools:listitem="@layout/item_episode" />
+        android:orientation="vertical">
 
-</LinearLayout>
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/colorPrimary"/>
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBarEpisodesView"
+            tools:Title="Testing Title"
+            app:titleTextColor="@color/on_text_white"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primaryColor"
+            android:textColor="@color/on_text_white"
+            app:menu="@menu/home_menu"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewListItems"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:textColor="@color/on_text_white"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_episode" />
+    </LinearLayout>
+
+
+
+    <FrameLayout
+    android:id="@+id/frame_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigationviewShowHome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:backgroundTint="@color/colorPrimary"
+        app:menu="@menu/bottom_navigation_menu"
+        />
+
+</FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

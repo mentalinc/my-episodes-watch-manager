@@ -18,7 +18,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import nz.mentalinc.episodeWatcher.EpisodeListingFrag;
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
@@ -51,7 +50,7 @@ public class ShowListingActivity extends Activity {
         //episodeType is set based on the button on the home page that is press.
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
 
-        com.google.android.material.appbar.MaterialToolbar episodeTypeTitle = (com.google.android.material.appbar.MaterialToolbar) findViewById(R.id.topAppBarShowsView);
+        com.google.android.material.appbar.MaterialToolbar episodeTypeTitle = findViewById(R.id.topAppBarShowsView);
         if(episodesType.toString().equals("EPISODES_TO_WATCH")) {
             episodeTypeTitle.setTitle("Watch");
         }if(episodesType.toString().equals("EPISODES_TO_ACQUIRE")) {
@@ -77,11 +76,11 @@ public class ShowListingActivity extends Activity {
         adapter.notifyItemInserted(0);
 
         // Attach the adapter to the recyclerview to populate items
-        RecyclerView rvShows = findViewById(R.id.recyclerViewListItems);
+        RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
         rvShows.setAdapter(adapter);
         // Set layout manager to position the items
         rvShows.setLayoutManager(new LinearLayoutManager(this));
-      //  rvShows.setHasFixedSize(true);
+        rvShows.setHasFixedSize(true);
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -117,7 +116,7 @@ public class ShowListingActivity extends Activity {
             // which also means episode details tab can have all the show info removed as will be to the right
             //also need to create a view just like the show one for episodes.
 
-
+            //openEpisodeListing(showSelected, episodesType);
             openShowHomePage(showSelected, episodesType);
 
 
@@ -130,14 +129,13 @@ public class ShowListingActivity extends Activity {
         );
     }
 
-
-
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
 
         Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
 
         Episode nextEpisodeToWatch = show.getFirstEpisode();
         String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
@@ -158,6 +156,7 @@ public class ShowListingActivity extends Activity {
         ShowHomeTabActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         ShowHomeTabActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         ShowHomeTabActivity.putExtra("Title", show.getShowName());
+        Log.w(LOG_TAG, "openShowHomePage method called");
         startActivity(ShowHomeTabActivity);
     }
 

@@ -5,26 +5,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import nz.mentalinc.episodeWatcher.R;
-import nz.mentalinc.episodeWatcher.ShowDetailFrag;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.episodeWatcher.domain.Show;
-import nz.mentalinc.episodeWatcher.domain.ShowAscendingComparator;
-import nz.mentalinc.episodeWatcher.domain.ShowDescendingComparator;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
 
@@ -37,39 +36,37 @@ public class UpdatedEpisodeListingActivity extends Activity {
     private List<Episode> episodes = new ArrayList<>();
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
+    private BottomNavigationView bottomNavigationView;
+    Bundle data;
+    EpisodeAdapter adapter;
 
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         //todo add the refesh icon to the screen and then the methods to do that
-        Bundle data = this.getIntent().getExtras();
+        data = this.getIntent().getExtras();
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+        String title = data.getString("Title");
 
-       // episodesType = EpisodeType.EPISODES_TO_WATCH;
-        //episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
-
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.recycle_view_episodes);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting", "0");
-        switch (themeSetting) {
-            case "0":
-                setTheme(R.style.ThemeDayNight);
-                break;
-            case "1":
-                setTheme(R.style.ThemeLight);
-                break;
-            case "2":
-                setTheme(R.style.ThemeDark);
-                break;
-        }
+        bottomNavigationView = findViewById(R.id.bottom_navigationviewShowHome);
+        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
+        if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
+            bottomNavigationView.getMenu().getItem(3).setChecked(true);
+        } else if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
+            bottomNavigationView.getMenu().getItem(2).setChecked(true);
+
+        } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
+            bottomNavigationView.getMenu().getItem(4).setChecked(true);
+        }
 
         returnEpisodes();
 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItems);
-        EpisodeAdapter adapter = new EpisodeAdapter(episodes);
+        adapter = new EpisodeAdapter(episodes);
         adapter.submitList(episodes);
         adapter.notifyItemInserted(0);
         // Attach the adapter to the recyclerview to populate items
@@ -77,46 +74,118 @@ public class UpdatedEpisodeListingActivity extends Activity {
         // Set layout manager to position the items
         //rvEpisode.setLayoutManager(new LinearLayoutManager(this));
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvEpisode.setLayoutManager(linearLayoutManager);
-        //rvEpisode.setHasFixedSize(true);
+        rvEpisode.setHasFixedSize(true);
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
+        title = title + " (" + episodes.size()+ ")";
+        ShowNameTitle.setTitle(title);
+
+
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
             finish();
 
         });
 
-
-
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
         ItemClickSupport.addTo(rvEpisode).setOnItemClickListener((recyclerView, position, v) -> {
-            // do stuff
+                    // do stuff
 
-            Episode episodeSelected =  episodes.get(position);
-            //Show Show = episodeSelected.getShowName();
+                    Episode episodeSelected = episodes.get(position);
+                    //Show Show = episodeSelected.getShowName();
 
-            //TODO in here link to the to be built SHOW screen. So it opens on the next episode detail to watch
-            // then gives tabs to look at what needs to be acquire, and coming to the right, and left of the detail
-            //it gives a show overview.
-            // which also means episode details tab can have all the show info removed as will be to the right
-            //also need to create a view just like the show one for episodes.
+                    //TODO in here link to the to be built SHOW screen. So it opens on the next episode detail to watch
+                    // then gives tabs to look at what needs to be acquire, and coming to the right, and left of the detail
+                    //it gives a show overview.
+                    // which also means episode details tab can have all the show info removed as will be to the right
+                    //also need to create a view just like the show one for episodes.
 
 
-            openEpisodeDetails(episodeSelected, episodesType );
+                    openEpisodeDetails(episodeSelected, episodesType);
 
-            //Show testEpisode = (Show) adapter.getItemId(position);
-            // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
-            // snackbar.show();
-        }
+                    //Show testEpisode = (Show) adapter.getItemId(position);
+                    // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
+                    // snackbar.show();
+                }
         );
-
-
     }
 
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
+            showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+            String Title = data.getString("Title");
+
+
+            Bundle BundleInfoShowDetail = new Bundle();
+            BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
+            BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+            BundleInfoShowDetail.putString("Title", Title);
+
+          //  episodesRaw.clear();
+          //  episodes.clear();
+
+            switch (item.getItemId()) {
+                case R.id.barShowDetail:
+                    Log.w(LOG_TAG, "barShowDetail selected");
+
+                    //TODO need to build an activity to use the showDetail content.
+
+                    return true;
+                case R.id.barEpisodeOverview:
+                    Log.w(LOG_TAG, "barEpisodeOverview selected");
+                    if (shows.size() > 0) {
+                        openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                    }
+                    return true;
+                case R.id.barWatch:
+                    Log.w(LOG_TAG, "barWatch selected");
+
+                    if (shows.size() > 0) {
+                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                    }
+                    return true;
+                case R.id.barAcquire:
+                    Log.w(LOG_TAG, "barAcquire selected");
+                    if (shows.size() > 0) {
+                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                    }
+                    return true;
+                case R.id.barComing:
+                    Log.w(LOG_TAG, "barComing selected");
+                    if (shows.size() > 0) {
+                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                    }
+                    return true;
+            }
+            return false;
+        }
+    };
+
+
+    private void openEpisodeListing(Show show, EpisodeType episodeType) {
+        finish();
+        Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        Episode nextEpisodeToWatch = show.getFirstEpisode();
+        String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        startActivity(updatedEpisodeListActivity);
+    }
+
+
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
+
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
@@ -128,44 +197,31 @@ public class UpdatedEpisodeListingActivity extends Activity {
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
         shows = new ArrayList<>();
+        episodes = new ArrayList<>();
 
         String ShowTitle = "";
         if (episodesRaw != null && episodesRaw.size() > 0) {
             for (Episode ep : episodesRaw) {
-
-                if(episodesType.toString().equals("EPISODES_COMING")) {
+                if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
+                    //add to the episode List to show next
                     episodes.add(ep);
-                    ShowTitle = "Coming";
-
-                }else{
-                        if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
-                            //add to the episode List to show next
-                            episodes.add(ep);
-                            ShowTitle = ep.getShowName();
-                        }
-                    }
-                //AddEpisodeToShow(ep);
+                    ShowTitle = ep.getShowName();
+                    AddEpisodeToShow(ep);
+                }
             }
         } else {
             Log.d(LOG_TAG, "Episode can't be added to show.");
         }
+        Log.w(LOG_TAG, "returnEpisodes() completed");
 
-        sortShows(shows);
         sortEpisodesOfShows(shows);
-
-        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
-        ShowNameTitle.setTitle(ShowTitle);
-
     }
-
-
-
 
     private void sortEpisodesOfShows(List<Show> showList) {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
-        String sorting = sharedPref.getString("episodeOrder","oldest_on_top");
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
 
         String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
 
@@ -180,7 +236,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
     private void AddEpisodeToShow(Episode episode) {
 
-        Show currentShow = CheckShowDublicate(episode.getShowName());
+        Show currentShow = CheckShowDuplicate(episode.getShowName());
 
         if (currentShow == null) {
             Show tempShow = new Show(episode.getShowName());
@@ -191,36 +247,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
         }
     }
 
-    private void sortShows(List<Show> showList) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String sorting = "";
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                sorting =  sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
-                break;
-            case EPISODES_TO_YESTERDAY1:
-            case EPISODES_TO_YESTERDAY2:
-            case EPISODES_TO_ACQUIRE:
-                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
-                break;
-            case EPISODES_COMING:
-                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
-                break;
-        }
-        String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
-        if (sorting.equals(showOrderOptions[1])) {
-            Log.d(LOG_TAG, "Sorting episodes ascending");
-            showList.sort(new ShowAscendingComparator());
-        } else if (sorting.equals(showOrderOptions[2])) {
-            Log.d(LOG_TAG, "Sorting episodes descending");
-            showList.sort(new ShowDescendingComparator());
-        } else if (sorting.equals(showOrderOptions[0])) {
-            Log.d(LOG_TAG, "Default my episodes show sorting, nothing to do!");
-        }
-    }
-
-    private Show CheckShowDublicate(String episodename) {
+    private Show CheckShowDuplicate(String episodename) {
         for (Show show : shows) {
             if (show.getShowName().equals(episodename)) {
                 return show;
@@ -228,6 +256,4 @@ public class UpdatedEpisodeListingActivity extends Activity {
         }
         return null;
     }
-
-
 }

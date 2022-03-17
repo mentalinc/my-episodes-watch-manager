@@ -43,7 +43,6 @@ public class EpisodeListingFrag extends Fragment {
     private List<Episode> episodes = new ArrayList<>();
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
-    TabLayout tabLayout;
     RecyclerView rvEpisode;
 
     public EpisodeListingFrag() {
@@ -53,6 +52,12 @@ public class EpisodeListingFrag extends Fragment {
         @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.recycle_view_episodes, container, false);
+        return rootView;
+    }
+
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
 
         episodesRaw = new ArrayList<>();
         episodes = new ArrayList<>();
@@ -61,7 +66,7 @@ public class EpisodeListingFrag extends Fragment {
         showMyEpisodeID = getArguments().getString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
         String ShowTitleHeader = getArguments().getString("Title");
 
-        tabLayout = (TabLayout) getActivity().findViewById(R.id.tabLayoutShowHome);
+        /*tabLayout = (TabLayout) getActivity().findViewById(R.id.tabLayoutShowHome);
 
 
         Log.w(LOG_TAG, "Tab selected position: " + tabLayout.getSelectedTabPosition());
@@ -69,39 +74,28 @@ public class EpisodeListingFrag extends Fragment {
         Log.w(LOG_TAG, "Tab selected - " + tab.getText());
         tab.select();*/
 
-            //todo need to increase by one when add next episode frag
-        if (tabLayout.getSelectedTabPosition() == 1) {
-            episodesType = EpisodeType.EPISODES_TO_WATCH;
-            returnEpisodes();
-        }else if (tabLayout.getSelectedTabPosition() == 2){
-            episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
-            returnEpisodes();
-        }else if (tabLayout.getSelectedTabPosition() == 3){
-            episodesType = EpisodeType.EPISODES_COMING;
-            returnEpisodes();
-        }
 
         ShowTitleHeader = ShowTitleHeader + " (" + episodes.size() + ")";
-        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar)  super.getActivity().findViewById(R.id.toolbarShowHome);
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar) view.findViewById(R.id.topAppBarEpisodesView);
         ShowNameTitle.setTitle(ShowTitleHeader);
 
-        rvEpisode = this.getActivity().findViewById(R.id.recyclerViewListItemsEps);
+        rvEpisode = (RecyclerView) view.findViewById(R.id.recyclerViewListItems);
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvEpisode.setLayoutManager(layoutManager);
         EpisodeAdapter adapter= new EpisodeAdapter(episodes);
         adapter.submitList(episodes);
 
         //this doesn't seem to be called each time the tab is clicked on.
-        //adapter.notifyItemInserted(0);
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemInserted(0);
+        //adapter.notifyDataSetChanged();
         //rvEpisode.setLayoutManager(new LinearLayoutManager(this.getContext()));
         // Attach the adapter to the recyclerview to populate items
         rvEpisode.setAdapter(adapter);
 
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
-       ItemClickSupport.addTo(rvEpisode).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+        ItemClickSupport.addTo(rvEpisode).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                  @Override
                  public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                      // do stuff
@@ -131,28 +125,6 @@ public class EpisodeListingFrag extends Fragment {
             Log.w(LOG_TAG, "Home button clicked.");
             //not sure how to stop the view yet.
         });
-
-
-
-
-        return rootView;
-    }
-
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-     /*   RecyclerView rvEpisode = this.getActivity().findViewById(R.id.recyclerViewListItemsEps);
-        //  RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        //  rvEpisode.setLayoutManager(layoutManager);
-        EpisodeAdapter adapter= new EpisodeAdapter(episodes);
-        adapter.submitList(episodes);
-
-        //this doesn't seem to be called each time the tab is clicked on.
-        adapter.notifyItemInserted(0);
-        //adapter.notifyDataSetChanged();
-        rvEpisode.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        // Attach the adapter to the recyclerview to populate items
-        rvEpisode.setAdapter(adapter);*/
 
     }
 

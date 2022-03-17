@@ -1,143 +1,215 @@
 package nz.mentalinc.episodeWatcher.activities;
 
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.viewpager2.widget.ViewPager2;
+import androidx.preference.PreferenceManager;
 
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import nz.mentalinc.episodeWatcher.EpisodeListingFrag;
 import nz.mentalinc.episodeWatcher.R;
-import nz.mentalinc.episodeWatcher.ShowDetailFrag;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
+import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
+import nz.mentalinc.episodeWatcher.domain.Episode;
+import nz.mentalinc.episodeWatcher.domain.EpisodeAscendingComparator;
+import nz.mentalinc.episodeWatcher.domain.EpisodeDescendingComparator;
+import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
-import nz.mentalinc.episodeWatcher.pager.ViewPager2Adapter;
 
-public class ShowHomeTabActivity extends AppCompatActivity  {
+public class ShowHomeTabActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = ShowHomeTabActivity.class.getSimpleName();
-    private AppBarConfiguration appBarConfiguration;
-    ViewPager2 viewPager2;
-    TabLayout tabLayout;
-    ViewPager2Adapter viewPager2Adapter;
+
+    Bundle data;
+
+    List<Show> shows;
+    private List<Episode> episodesRaw = new ArrayList<>();
+    private List<Episode> episodes = new ArrayList<>();
 
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
 
-   // String tabNames[] = {"Show Overview","Episode Summary","Episodes to Watch","Episodes to Acquire","Episodes Coming"};
-   String tabNames[] = {"Show Overview","Episodes to Watch","Episodes to Acquire","Episodes Coming"};
+    // String tabNames[] = {"Show Overview","Episode Summary","Episodes to Watch","Episodes to Acquire","Episodes Coming"};
+    String menus[] = {"Show Overview", "Episodes to Watch", "Episodes to Acquire", "Episodes Coming"};
 
-  // String[] tabNames = {"Episodes to Watch","Episodes to Acquire","Episodes Coming"};
+
+    // String[] tabNames = {"Episodes to Watch","Episodes to Acquire","Episodes Coming"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_home_tab);
+        data = this.getIntent().getExtras();
 
-        viewPager2 = findViewById(R.id.showHomeViewPager2);
-        viewPager2.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
-        viewPager2.setUserInputEnabled(true);
-        tabLayout = findViewById(R.id.tabLayoutShowHome);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigationview);
+        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
-        setViewPagerAdapter();
-
-        //TODO this is being called twice I think when the tab is clicked.
-
-        //tab names are defined in the show_home_tab.xml file
-        new TabLayoutMediator(
-                tabLayout,
-                viewPager2,
-                true,
-                new TabLayoutMediator.TabConfigurationStrategy() {
-                    @Override
-                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                        tab.setText(tabNames[position]);
-                        Log.w(LOG_TAG, "Tab names: " + tab.getText().toString());
-                    }
-                }
-                ).attach();
-
-
-
-    }
-
-    public void setViewPagerAdapter() {
-        viewPager2Adapter = new ViewPager2Adapter(this);
-        ArrayList<Fragment> fragmentList = new ArrayList<>(); //creates an ArrayList of Fragments
-
-        Bundle data = this.getIntent().getExtras();
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
-        String Title = data.getString("Title");
+        String title = data.getString("Title");
+        returnEpisodes();
 
-        Log.w(LOG_TAG, "setViewPagerAdapter: Called");
+        //  Title = Title + " (" + episodesRaw.size() + ")";
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarShowHomeTab);
+        title = title + " (" + episodes.size()+ ")";
+        ShowNameTitle.setTitle(title);
 
-
-
-        Fragment showDetailOverview = new ShowDetailFrag();
         Bundle BundleInfoShowDetail = new Bundle();
         BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
-        BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID ,showMyEpisodeID);
-        BundleInfoShowDetail.putString("Title",Title);
-        showDetailOverview.setArguments(BundleInfoShowDetail);
-        fragmentList.add(showDetailOverview);
+        BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+        BundleInfoShowDetail.putString("Title", title);
 
-        //fragmentList.add(new NextEpisodeToWatchFrag()); //Need to Build a "detailed" episode Frag
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
+        appBarHome.setOnClickListener(v -> {
+            Log.w(LOG_TAG, "Home button clicked.");
+            finish();
+        });
+    }
+
+    private void openEpisodeListing(Show show, EpisodeType episodeType) {
+
+        Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        Episode nextEpisodeToWatch = show.getFirstEpisode();
+        String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        startActivity(updatedEpisodeListActivity);
+    }
 
 
+    private void returnEpisodes() {
+        //ideally this just grabs the data from the show somehow, loop is slow with lots of data
+        episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
+        shows = new ArrayList<>();
 
-       //add the info for shows to watch.
-        Fragment episodesWatchListing = new EpisodeListingFrag();
-        Bundle BundleInfoWatch = new Bundle();
-        BundleInfoWatch.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
-        BundleInfoWatch.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID ,showMyEpisodeID);
-        BundleInfoWatch.putString("Title",Title);
-        episodesWatchListing.setArguments(BundleInfoWatch);
-        fragmentList.add(episodesWatchListing);
-
-        //add the info for shows to acquire
-        Fragment episodesAcquireListing = new EpisodeListingFrag();
-        Bundle BundleInfoAcquire = new Bundle();
-        BundleInfoAcquire.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
-        BundleInfoAcquire.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID ,showMyEpisodeID);
-        BundleInfoAcquire.putString("Title",Title);
-        episodesAcquireListing.setArguments(BundleInfoAcquire);
-        fragmentList.add(episodesAcquireListing);
-
-        //add the info for shows coming
-        Fragment episodesComingListing = new EpisodeListingFrag();
-        Bundle BundleInfoComing = new Bundle();
-        BundleInfoComing.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
-        BundleInfoComing.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID ,showMyEpisodeID);
-        BundleInfoComing.putString("Title",Title);
-        episodesComingListing.setArguments(BundleInfoComing);
-        fragmentList.add(episodesComingListing);
-
-        viewPager2Adapter.setData(fragmentList); //sets the data for the adapter
-
-        viewPager2.setAdapter(viewPager2Adapter);
-/*
-        int tabToOpen = 0;
-        //TODO update the ID when adding show overview and next episode tabs,
-        if(episodesType.equals(EpisodeType.EPISODES_TO_WATCH)){
-            tabToOpen = 1;
-        }else if(episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)){
-            tabToOpen = 2;
+        if (episodesRaw != null && episodesRaw.size() > 0) {
+            for (Episode ep : episodesRaw) {
+                if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
+                    AddEpisodeToShow(ep);
+                }
+            }
+        } else {
+            Log.d(LOG_TAG, "Episode can't be added to show.");
         }
-        else if(episodesType.equals(EpisodeType.EPISODES_COMING)){
-            tabToOpen = 3;
+        Log.d(LOG_TAG, "Episodes type being added: " + episodesType);
+
+        sortEpisodesOfShows(shows);
+    }
+
+
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
+            showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+            String Title = data.getString("Title");
+
+            Bundle BundleInfoShowDetail = new Bundle();
+            BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
+            BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+            BundleInfoShowDetail.putString("Title", Title);
+
+
+            switch (item.getItemId()) {
+                case R.id.barShowDetail:
+                    Log.w(LOG_TAG, "barShowDetail selected");
+                    //TODO need to build an activity to use the showDetail content.
+
+                    return true;
+                case R.id.barEpisodeOverview:
+                    Log.w(LOG_TAG, "barEpisodeOverview selected");
+                    if (shows.size() > 0) {
+                        openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                    }
+                    return true;
+                case R.id.barWatch:
+                    Log.w(LOG_TAG, "barWatch selected");
+                    if (shows.size() > 0) {
+                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                    }
+                    return true;
+                case R.id.barAcquire:
+                    Log.w(LOG_TAG, "barAcquire selected");
+                    if (shows.size() > 0) {
+                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+
+                    }
+                    return true;
+                case R.id.barComing:
+                    Log.w(LOG_TAG, "barComing selected");
+                    if (shows.size() > 0) {
+                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                    }
+                    return true;
+            }
+            return false;
+
         }
-        viewPager2.setCurrentItem(tabToOpen,true);
-*/
+
+        ;
+    };
+
+    private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        startActivity(episodeDetailsSubActivity);
+    }
+
+    private void AddEpisodeToShow(Episode episode) {
+
+        Show currentShow = CheckShowDuplicate(episode.getShowName());
+
+        if (currentShow == null) {
+            Show tempShow = new Show(episode.getShowName(),episode.getMyEpisodeID());
+            tempShow.addEpisode(episode);
+            shows.add(tempShow);
+        } else {
+            currentShow.addEpisode(episode);
+        }
+    }
+
+    private Show CheckShowDuplicate(String episodename) {
+        for (Show show : shows) {
+            if (show.getShowName().equals(episodename)) {
+                return show;
+            }
+        }
+        return null;
+    }
+
+    private void sortEpisodesOfShows(List<Show> showList) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
+
+        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
+
+        for (Show show : showList) {
+            if (sorting.equals(episodeOrderOptions[0])) {
+                show.getEpisodes().sort(new EpisodeAscendingComparator());
+            } else if (sorting.equals(episodeOrderOptions[1])) {
+                show.getEpisodes().sort(new EpisodeDescendingComparator());
+            }
+        }
     }
 }

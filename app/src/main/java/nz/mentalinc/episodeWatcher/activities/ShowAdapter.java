@@ -36,12 +36,9 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
     private List<Show> showsList;
     Context context = CONTEXT.getApplicationContext();
 
-
-
     public ShowAdapter(List<Show> shows) {
         super(DIFF_CALLBACK);
     }
-
 
     public void addMoreShows(List<Show> newShows) {
         showsList.addAll(newShows);
@@ -70,7 +67,6 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
         public TextView textViewShowsRunTime;
         public ImageView setWatchedButton;
         public ImageView showposter;
-
 
 
         // We also create a constructor that accepts the entire item row
@@ -108,8 +104,6 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
 
         //TODO Add in all the other bits required to populate the show tile thing
         Show show = getItem(position);
-
-
 
         try {
 
