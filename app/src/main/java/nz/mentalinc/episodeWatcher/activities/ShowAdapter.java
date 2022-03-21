@@ -50,9 +50,10 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
         public boolean areItemsTheSame(Show oldItem, Show newItem) {
             return oldItem.getShowName().equals(newItem.getShowName());
         }
+
         @Override
         public boolean areContentsTheSame(Show oldItem, Show newItem) {
-            return (oldItem.getShowName().equals( newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
+            return (oldItem.getShowName().equals(newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
         }
     };
 
@@ -81,7 +82,7 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             episodetime = (TextView) itemView.findViewById(R.id.episodetime);
             textViewShowsRemaining = (TextView) itemView.findViewById(R.id.textViewShowsRemaining);
             textViewShowsRunTime = (TextView) itemView.findViewById(R.id.textViewShowsRunTime);
-            setWatchedButton =  (ImageView) itemView.findViewById(R.id.imageViewShowsSetWatched);
+            setWatchedButton = (ImageView) itemView.findViewById(R.id.imageViewShowsSetWatched);
 
             showposter = (ImageView) itemView.findViewById(R.id.showposter);
 
@@ -89,12 +90,11 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
     }
 
 
-
     @Override
-    public ShowAdapter.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
+    public ShowAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View showView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_show, parent, false);
-        ViewHolder viewHolder =  new ViewHolder(showView);
+        ViewHolder viewHolder = new ViewHolder(showView);
         return viewHolder;
     }
 
@@ -126,9 +126,9 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             String episodesRemaining;
 
             Date today = Calendar.getInstance().getTime();
-            if(show.getFirstEpisode().getAirDate().after(today)){
+            if (show.getFirstEpisode().getAirDate().after(today)) {
                 episodesRemaining = show.getNumberEpisodes() + " episodes coming";
-            }else{
+            } else {
                 episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
             }
 

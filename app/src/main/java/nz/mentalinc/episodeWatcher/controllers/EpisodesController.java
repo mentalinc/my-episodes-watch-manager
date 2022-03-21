@@ -1,9 +1,12 @@
 package nz.mentalinc.episodeWatcher.controllers;
 
+import android.util.Log;
+
 import androidx.room.Room;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
@@ -15,10 +18,12 @@ public class EpisodesController {
     private List<Episode> watchEpisodes = new ArrayList<>();
     private List<Episode> acquireEpisodes = new ArrayList<>();
     private List<Episode> comingEpisodes = new ArrayList<>();
-    private List<Episode> allEpisodes = new ArrayList<>();
     private ArrayList<Show> shows;
-    private ArrayList<Show> allShows;
+    private HashMap<String, Show> watchShows = new HashMap<>();
+    private HashMap<String, Show> acquireShows = new HashMap<>();
+    private HashMap<String, Show> comingShows = new HashMap<>();
     private static EpisodesController Instance;
+    private static final String LOG_TAG = EpisodesController.class.getSimpleName();
 
     public List<Episode> getEpisodes(EpisodeType episodesType) {
         switch (episodesType) {
@@ -30,8 +35,36 @@ public class EpisodesController {
                 return acquireEpisodes;
             case EPISODES_COMING:
                 return comingEpisodes;
-           // case EPISODES_ALL:
-            //    return allEpisodes;
+
+            default:
+                return null;
+        }
+    }
+
+
+    public HashMap<String, Show> getEpisodesShows(EpisodeType episodesType) {
+        switch (episodesType) {
+            case WATCH_BY_SHOW:
+                return watchShows;
+            case ACQUIRE_BY_SHOW:
+                return acquireShows;
+            case COMING_BY_SHOW:
+                return comingShows;
+
+            default:
+                return null;
+        }
+    }
+
+    public List<Episode> getShowTypeEpisodes(EpisodeType episodesType, String myEpisodeID) {
+        switch (episodesType) {
+            case WATCH_BY_SHOW:
+                return watchShows.get(myEpisodeID).getEpisodes();
+            case ACQUIRE_BY_SHOW:
+                return acquireShows.get(myEpisodeID).getEpisodes();
+            case COMING_BY_SHOW:
+                return comingShows.get(myEpisodeID).getEpisodes();
+
             default:
                 return null;
         }
@@ -47,6 +80,29 @@ public class EpisodesController {
                 return acquireEpisodes.size();
             case EPISODES_COMING:
                 return comingEpisodes.size();
+            default:
+                return 0;
+        }
+    }
+
+
+    public int getEpisodesCount(EpisodeType episodesType, String myEpisodeID) {
+        switch (episodesType) {
+            case WATCH_BY_SHOW:
+                if (watchShows.get(myEpisodeID) != null)
+                    return watchShows.get(myEpisodeID).getEpisodes().size();
+                else
+                    return 0;
+            case ACQUIRE_BY_SHOW:
+                if (acquireShows.get(myEpisodeID) != null)
+                    return acquireShows.get(myEpisodeID).getEpisodes().size();
+                else
+                    return 0;
+            case COMING_BY_SHOW:
+                if (comingShows.get(myEpisodeID) != null)
+                    return comingShows.get(myEpisodeID).getEpisodes().size();
+                else
+                    return 0;
             default:
                 return 0;
         }
@@ -91,26 +147,78 @@ public class EpisodesController {
     public void deleteEpisode(EpisodeType episodesType, Episode episode) {
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                for (int i = 0; i < watchEpisodes.size(); i++)
-                    if (watchEpisodes.get(i).toString().equals(episode.toString()))
+                for (int i = 0; i < watchEpisodes.size(); i++) {
+                    if (watchEpisodes.get(i).toString().equals(episode.toString())) {
                         watchEpisodes.remove(i);
+                    }
+                }
                 break;
             case EPISODES_TO_ACQUIRE:
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
-                for (int i = 0; i < acquireEpisodes.size(); i++)
-                    if (acquireEpisodes.get(i).toString().equals(episode.toString()))
+                for (int i = 0; i < acquireEpisodes.size(); i++) {
+                    if (acquireEpisodes.get(i).toString().equals(episode.toString())) {
                         acquireEpisodes.remove(i);
+                    }
+                }
                 break;
             case EPISODES_COMING:
-                for (int i = 0; i < comingEpisodes.size(); i++)
-                    if (comingEpisodes.get(i).toString().equals(episode.toString()))
+                for (int i = 0; i < comingEpisodes.size(); i++) {
+                    if (comingEpisodes.get(i).toString().equals(episode.toString())) {
                         comingEpisodes.remove(i);
+                    }
+                }
                 break;
             default:
                 break;
         }
     }
+
+    public void deleteShowEpisode(EpisodeType episodesType, Episode episode, String myEpisodeID) {
+
+        //TODO this hasn't been tested yet - 100% guessing based on the code needed.
+        //TEST works on the WATCH episodes then try the other CASES.
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                Show tempShow = watchShows.get(myEpisodeID);
+                List<Episode> episodesListing = tempShow.getEpisodes();
+                for (int i = 0; i < episodesListing.size(); i++) {
+                    if (episodesListing.get(i).toString().equals(episode.toString())) {
+                        episodesListing.remove(i);
+                    }
+                }
+                //NEED TO ADD SOMETHING HERE TO HELP WITH adding th
+                Show showNew = new Show(episode.getShowName(), myEpisodeID);
+                for (Episode eps : episodesListing) {
+                    showNew.addEpisode(eps);
+                }
+                watchShows.replace(myEpisodeID, showNew);
+
+                break;
+         /*   case EPISODES_TO_ACQUIRE:
+            case EPISODES_TO_YESTERDAY1:
+            case EPISODES_TO_YESTERDAY2:
+                Show tempShow = acquireShows.get(myEpisodeID);
+                List<Episode> episodesListing = tempShow.getEpisodes();
+                for (int i = 0; i < episodesListing.size(); i++) {
+                    if ( episodesListing.get(i).toString().equals(episode.toString())) {
+                        episodesListing.remove(i);
+                        break;
+                    }
+                }
+                break;
+            case EPISODES_COMING:
+                for (int i = 0; i < comingEpisodes.size(); i++) {
+                    if (comingEpisodes.get(i).toString().equals(episode.toString())) {
+                        comingEpisodes.remove(i);
+                    }
+                }
+                break;*/
+            default:
+                break;
+        }
+    }
+
 
     public boolean areListsEmpty() {
         if (watchEpisodes.isEmpty()) {
@@ -139,14 +247,16 @@ public class EpisodesController {
         watchEpisodes = tempList;
         acquireEpisodes = tempList;
         comingEpisodes = tempList;
-        allEpisodes = tempList;
         shows.clear();
-        allShows.clear();
+        watchShows.clear();
+        acquireShows.clear();
+        comingShows.clear();
         AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
                 .fallbackToDestructiveMigration()
                 .build();
         database.clearAllTables();
+        database.close();
     }
 
     public void addEpisode(EpisodeType episodesType, Episode episode) {
@@ -174,7 +284,7 @@ public class EpisodesController {
     }
 
     private void AddEpisodeToShow(Episode episode) {
-        Show currentShow = CheckShowDublicate(episode.getShowName());
+        Show currentShow = CheckShowDuplicate(episode.getShowName());
         if (currentShow == null) {
             Show tempShow = new Show(episode.getShowName());
             tempShow.addEpisode(episode);
@@ -184,30 +294,8 @@ public class EpisodesController {
         }
     }
 
-    public ArrayList returnAllShows(){
 
-        //this still needs work to add all the episodes
-        allEpisodes = new ArrayList<>();
-        allEpisodes.addAll(acquireEpisodes);
-        allEpisodes.addAll(watchEpisodes);
-        allEpisodes.addAll(comingEpisodes);
-
-        for (Episode episode : allEpisodes) {
-            Show currentShow = CheckShowDublicate(episode.getShowName());
-            if (currentShow == null) {
-                Show tempShow = new Show(episode.getShowName());
-                tempShow.addEpisode(episode);
-                allShows.add(tempShow);
-            } else {
-                currentShow.addEpisode(episode);
-            }
-        }
-
-        //do more stuff here
-        return allShows;
-    }
-
-    private Show CheckShowDublicate(String episodename) {
+    private Show CheckShowDuplicate(String episodename) {
         for (Show show : shows) {
             if (show.getShowName().equals(episodename)) {
                 return show;
@@ -215,4 +303,86 @@ public class EpisodesController {
         }
         return null;
     }
+
+    public void AddToWatchShow(List<Episode> episodeList) {
+        //pass the full episode type list to then split into all the shows.
+        //need to get the array list and loop the episodes putting each episode in the array into its own show, then once have all the shows created, then add them finally to the ArrayMap using the myepisodeid as the key
+
+        for (Episode eps : episodeList) {
+
+            //check if show is in the array map if yes return from the ArrayMap, add the episode then update the ArrayMap with new.
+            String myEpID = eps.getMyEpisodeID();
+            //current show for the if statement below maybe?
+
+            Show showTemp = watchShows.get(myEpID); //may need to test for null to determine if in the arraymayp
+            if (showTemp != null) { //use code below
+                //Add episode to the show then add back to the the array,/update
+                showTemp.addEpisode(eps);
+                watchShows.replace(myEpID, showTemp);
+            } else {
+                Show showNew = new Show(eps.getShowName(), eps.getMyEpisodeID());
+                showNew.addEpisode(eps);
+                watchShows.put(myEpID, showNew);
+            }
+        } //end for loop
+
+        Log.w(LOG_TAG, "AddToWatchShow method completed.");
+    }
+
+
+    public void AddToAcquireShow(List<Episode> episodeList) { //pass the full episode type list to then split into all the shows.
+
+        // TODO Consider passing episode type and making same method work for all types but get working for watch first
+        //need to get the array list and loop the episodes putting each episode in the array into its own show, then once have all the shows created, then add them finally to the ArrayMap using the myepisodeid as the key
+
+        for (Episode eps : episodeList) {
+
+            //check if show is in the array map if yes return from the ArrayMap, add the episode then update the ArrayMap with new.
+            String myEpID = eps.getMyEpisodeID();
+            //current show for the if statement below maybe?
+
+            Show showTemp = acquireShows.get(myEpID); //may need to test for null to determine if in the arraymayp
+            if (showTemp != null) { //use code below
+                //Add episode to the show then add back to the the array,/update
+                showTemp.addEpisode(eps);
+                acquireShows.replace(myEpID, showTemp);
+            } else {
+                Show showNew = new Show(eps.getShowName(), eps.getMyEpisodeID());
+                showNew.addEpisode(eps);
+                acquireShows.put(myEpID, showNew);
+
+            }
+        } //end for loop
+
+        Log.w(LOG_TAG, "AddToWatchShow method completed.");
+    }
+
+
+    public void AddToComingShow(List<Episode> episodeList) { //pass the full episode type list to then split into all the shows.
+
+        // TODO Consider passing episode type and making same method work for all types but get working for watch first
+        //need to get the array list and loop the episodes putting each episode in the array into its own show, then once have all the shows created, then add them finally to the ArrayMap using the myepisodeid as the key
+
+        for (Episode eps : episodeList) {
+
+            //check if show is in the array map if yes return from the ArrayMap, add the episode then update the ArrayMap with new.
+            String myEpID = eps.getMyEpisodeID();
+            //current show for the if statement below maybe?
+
+            Show showTemp = comingShows.get(myEpID); //may need to test for null to determine if in the arraymayp
+            if (showTemp != null) { //use code below
+                //Add episode to the show then add back to the the array,/update
+                showTemp.addEpisode(eps);
+                comingShows.replace(myEpID, showTemp);
+            } else {
+                Show showNew = new Show(eps.getShowName(), eps.getMyEpisodeID());
+                showNew.addEpisode(eps);
+                comingShows.put(myEpID, showNew);
+
+            }
+        } //end for loop
+
+        Log.w(LOG_TAG, "AddToWatchShow method completed.");
+    }
+
 }

@@ -10,20 +10,16 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
-import androidx.viewpager2.widget.ViewPager2;
 
-
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -31,14 +27,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.episodeWatcher.R;
-import nz.mentalinc.episodeWatcher.ShowDetailFrag;
-import nz.mentalinc.episodeWatcher.ShowListingFrag;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
@@ -46,11 +39,10 @@ import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
-import nz.mentalinc.episodeWatcher.pager.ViewPager2Adapter;
 import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.UserService;
 
-public class HomeActivity extends AppCompatActivity  {
+public class HomeActivity extends AppCompatActivity {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
     private EpisodesService service;
     private User user;
@@ -64,6 +56,7 @@ public class HomeActivity extends AppCompatActivity  {
     private static final int SETTINGS_RESULT = 6;
     private UserService userService;
     private static Context sContext;
+    private BottomNavigationView bottomNavigationView;
 
 
     private boolean exception;
@@ -73,9 +66,6 @@ public class HomeActivity extends AppCompatActivity  {
 
     private com.google.android.material.button.MaterialButton btn_ShowWatchNew;
     private com.google.android.material.button.MaterialButton btn_ShowAcquireNew;
-
-
-
 
 
     private Intent watchIntent;
@@ -95,11 +85,11 @@ public class HomeActivity extends AppCompatActivity  {
         setContentView(R.layout.main);
 
         //Below makes sure all settings have their default value set to limit null errors etc
-        PreferenceManager.setDefaultValues(getBaseContext(),R.xml.settings_screen,false);
+        PreferenceManager.setDefaultValues(getBaseContext(), R.xml.settings_screen, false);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String LanguageCode = sharedPref.getString("language","en");
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String LanguageCode = sharedPref.getString("language", "en");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);
@@ -112,10 +102,14 @@ public class HomeActivity extends AppCompatActivity  {
                 break;
         }
 
-        MyEpisodeConstants.DAYS_BACK_CP =sharedPref.getString("daysBack","365");
-        MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = sharedPref.getString("CacheFileAge","false");
-        MyEpisodeConstants.DAYS_BACK_ENABLED = sharedPref.getBoolean("daysBackwardEnable",false);
-        MyEpisodeConstants.CACHE_EPISODES_ENABLED =  sharedPref.getBoolean("CacheEpisodes",false);
+        bottomNavigationView = findViewById(R.id.bottom_navigationActivityHome);
+        bottomNavigationView.getMenu().getItem(0).setChecked(true);
+        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
+
+        MyEpisodeConstants.DAYS_BACK_CP = sharedPref.getString("daysBack", "365");
+        MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = sharedPref.getString("CacheFileAge", "false");
+        MyEpisodeConstants.DAYS_BACK_ENABLED = sharedPref.getBoolean("daysBackwardEnable", false);
+        MyEpisodeConstants.CACHE_EPISODES_ENABLED = sharedPref.getBoolean("CacheEpisodes", false);
         MyEpisodeConstants.SHOW_RUNTIME_ENABLED = sharedPref.getBoolean("RunTime", false);
 
         MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED = sharedPref.getBoolean("listingUnacquiredFilter", true);
@@ -134,13 +128,12 @@ public class HomeActivity extends AppCompatActivity  {
         sContext = getApplicationContext();
 
         user = new User(
-                sharedPref.getString("username",User.USERNAME),
-                sharedPref.getString("UserPassword",User.PASSWORD)
+                sharedPref.getString("username", User.USERNAME),
+                sharedPref.getString("UserPassword", User.PASSWORD)
         );
 
 
         MyEpisodeConstants.CONTEXT = getApplicationContext();
-
 
 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
@@ -149,7 +142,7 @@ public class HomeActivity extends AppCompatActivity  {
         btn_ShowWatchNew = findViewById(R.id.btn_ShowWatchNew);
         watchIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
 
-        String watch_sorting = sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");
+        String watch_sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");
         if (watch_sorting.equals(showOrderOptions[3])) {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
@@ -158,9 +151,9 @@ public class HomeActivity extends AppCompatActivity  {
         watchIntent.putExtra("Title", getString(R.string.watch));
         btnWatched.setOnClickListener(v -> startActivity(watchIntent));
 
-        acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE );
+        acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
 
-        String acquire_sorting =sharedPref.getString("ACQUIRE_KEY","0");
+        String acquire_sorting = sharedPref.getString("ACQUIRE_KEY", "0");
         if (acquire_sorting.equals(showOrderOptions[3])) {
             acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
@@ -172,14 +165,14 @@ public class HomeActivity extends AppCompatActivity  {
         btn_ShowAcquireNew = findViewById(R.id.btn_ShowAcquireNew);
 
 
-        if (sharedPref.getBoolean("disableAcquire",false)) {
+        if (sharedPref.getBoolean("disableAcquire", false)) {
             btnAcquired.setVisibility(View.GONE);
         }
 
         Button btnComing = findViewById(R.id.btn_coming);
         comingIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
 
-        String coming_sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort");
+        String coming_sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
         if (coming_sorting.equals(showOrderOptions[3])) {
             comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
@@ -188,12 +181,12 @@ public class HomeActivity extends AppCompatActivity  {
         comingIntent.putExtra("Title", getString(R.string.coming));
         btnComing.setOnClickListener(v -> startActivity(comingIntent));
 
-        if (sharedPref.getBoolean("disableComing",false)) {
+        if (sharedPref.getBoolean("disableComing", false)) {
             btnComing.setVisibility(View.GONE);
         }
 
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarLogout =  findViewById(R.id.logout);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarLogout = findViewById(R.id.logout);
         appBarLogout.setOnClickListener(v -> {
 
             Log.w(LOG_TAG, "logout button clicked.");
@@ -201,7 +194,7 @@ public class HomeActivity extends AppCompatActivity  {
         });
 
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarSettings =  findViewById(R.id.btn_settings);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarSettings = findViewById(R.id.btn_settings);
         appBarSettings.setOnClickListener(v -> {
 
             Log.w(LOG_TAG, "Settings button clicked.");
@@ -209,16 +202,59 @@ public class HomeActivity extends AppCompatActivity  {
         });
 
 
-
     }
+
+
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            switch (item.getItemId()) {
+
+                case R.id.barHome:
+                    //finish();
+                    bottomNavigationView.getMenu().getItem(0).setChecked(true);
+
+                    return true;
+                case R.id.barWatch:
+                    Log.w(LOG_TAG, "barWatch selected");
+                    Intent newWatchShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    newWatchShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    newWatchShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+                    startActivity(newWatchShowListing);
+
+                    return true;
+                case R.id.barAcquire:
+                    Log.w(LOG_TAG, "barAcquire selected");
+                    Intent newAcquireShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    newAcquireShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    newAcquireShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
+                    startActivity(newAcquireShowListing);
+
+                    return true;
+                case R.id.barComing:
+                    Log.w(LOG_TAG, "barComing selected");
+                    Intent newComingShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    newComingShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    newComingShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+                    startActivity(newComingShowListing);
+
+                    return true;
+            }
+            return false;
+        }
+
+
+    };
+
 
     private void getEpisodesInLoadingDialog() {
         final EpisodesController episodesController = EpisodesController.getInstance();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
 
-                sharedPref.getString("username",User.USERNAME),
-                sharedPref.getString("UserPassword",User.PASSWORD)
+                sharedPref.getString("username", User.USERNAME),
+                sharedPref.getString("UserPassword", User.PASSWORD)
         );
         if (episodesController.areListsEmpty()) {
             AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
@@ -239,16 +275,24 @@ public class HomeActivity extends AppCompatActivity  {
 
                     try {
                         episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
+                        //todo removed as fails when myEpisodeID doesn't work
+                        episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
 
                         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                        String acquire = sharedPref.getString("ACQUIRE_KEY","0");
+                        String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
                         if (acquire != null && acquire.equals("1")) {
                             EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
                             EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
+                            //todo removed as fails when myEpisodeID doesn't work
+                            episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));
                         } else {
                             EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
+                            //todo removed as fails when myEpisodeID doesn't work
+                            episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
                         }
                         episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
+                        //todo removed as fails when myEpisodeID doesn't work
+                        episodesController.AddToComingShow(episodesController.getEpisodes(EpisodeType.EPISODES_COMING));
 
 
                         resetPageFilters(user);
@@ -268,6 +312,7 @@ public class HomeActivity extends AppCompatActivity  {
                 protected void onPostExecute(Object o) {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     removeDialog(EPISODE_LOADING_DIALOG_CACHE);
+
 
                     if (exception) {
                         exception = false;
@@ -300,12 +345,11 @@ public class HomeActivity extends AppCompatActivity  {
             String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
 
 
-
             if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
                 //unaquired 1
-                if(urlParameters.length() <1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=1";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=1";
                 }
 
@@ -313,20 +357,20 @@ public class HomeActivity extends AppCompatActivity  {
             }
             if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
                 //Unwatched 2
-                if(urlParameters.length() < 1)
-                urlParameters += "eps_filters%5B%5D=2";
-                else{
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2";
+                else {
                     urlParameters += "&eps_filters%5B%5D=2";
                 }
-                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " +urlParameters);
+                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " + urlParameters);
 
             }
 
             if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
                 //Ignored 4
-                if(urlParameters.length() < 1)
-                urlParameters += "eps_filters%5B%5D=4";
-                else{
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4";
+                else {
                     urlParameters += "&eps_filters%5B%5D=4";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
@@ -334,9 +378,9 @@ public class HomeActivity extends AppCompatActivity  {
 
             if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
                 //Pilots 2048
-                if(urlParameters.length() < 1)
-                urlParameters += "eps_filters%5B%5D=2048";
-                else{
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2048";
+                else {
                     urlParameters += "&eps_filters%5B%5D=2048";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
@@ -346,9 +390,9 @@ public class HomeActivity extends AppCompatActivity  {
 
             if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
                 //Localized Airdate 4096
-                if(urlParameters.length() < 1)
-                urlParameters += "eps_filters%5B%5D=4096";
-                else{
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4096";
+                else {
                     urlParameters += "&eps_filters%5B%5D=4096";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
@@ -390,6 +434,7 @@ public class HomeActivity extends AppCompatActivity  {
         if() {
             super.recreate();
         }*/
+        bottomNavigationView.getMenu().getItem(0).setChecked(true);
         btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
         btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
         btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
@@ -454,19 +499,15 @@ public class HomeActivity extends AppCompatActivity  {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.logoutDialogTitle);
         dialog.setMessage(R.string.logoutDialogMessage);
-        dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
-        {
+        dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 logout();
             }
         });
-        dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener()
-        {
+        dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
@@ -482,20 +523,16 @@ public class HomeActivity extends AppCompatActivity  {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.internetConnectionFailureTryAgain);
-        dialog.setPositiveButton(R.string.refresh, new DialogInterface.OnClickListener()
-        {
+        dialog.setPositiveButton(R.string.refresh, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 getEpisodesInLoadingDialog();
                 dialog.dismiss();
             }
         });
-        dialog.setNegativeButton(R.string.close, new DialogInterface.OnClickListener()
-        {
+        dialog.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 finish();
             }

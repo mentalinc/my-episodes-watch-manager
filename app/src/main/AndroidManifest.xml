@@ -27,6 +27,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activities.ShowSummaryActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:label="ShowSummaryActivity" />
+        <activity
             android:name=".activities.EpisodeListingActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="false"

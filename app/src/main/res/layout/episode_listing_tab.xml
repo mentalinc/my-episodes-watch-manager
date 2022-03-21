@@ -19,7 +19,7 @@
             android:background="@color/primaryColor"
             android:textColor="@color/on_text_white"
             app:menu="@menu/episode_listing_menu"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"/>
+            style="@style/Widget.MaterialComponents.Toolbar.Primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <TextView

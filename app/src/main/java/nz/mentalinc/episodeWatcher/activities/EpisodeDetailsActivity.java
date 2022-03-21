@@ -8,14 +8,17 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
+import androidx.room.Room;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -28,23 +31,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import androidx.preference.PreferenceManager;
-import androidx.room.Room;
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
+import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
+import nz.mentalinc.episodeWatcher.domain.EpisodeAscendingComparator;
+import nz.mentalinc.episodeWatcher.domain.EpisodeDescendingComparator;
+import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
-//import nz.mentalinc.episodeWatcher.preferences.Preferences;
-//import nz.mentalinc.episodeWatcher.preferences.PreferencesKeys;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.utils.DateUtil;
 
@@ -53,15 +58,20 @@ import nz.mentalinc.episodeWatcher.utils.DateUtil;
  */
 public class EpisodeDetailsActivity extends Activity {
     private Episode episode = null;
+    private List<Episode> episodesRaw = new ArrayList<>();
     private EpisodeType episodesType;
     private String title;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
     private BottomNavigationView bottomNavigationView;
+    Bundle data;
+    private String showMyEpisodeID;
+    List<Show> shows = new ArrayList<>();
+    ;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);
@@ -88,9 +98,23 @@ public class EpisodeDetailsActivity extends Activity {
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
+        showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+
+        AddEpisodeToShow(episode);
+
+        //returnEpisodes();
+
+        String seasonNumber = episode.getSeasonString();
+        String episodeNumber = episode.getEpisodeString();
+        String episodeFullNumbering = "S" + seasonNumber + "E" + episodeNumber;
+
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodeDetails);
+        title = title + " - " + episodeFullNumbering;
+        ShowNameTitle.setTitle(title);
 
         bottomNavigationView = findViewById(R.id.bottom_navigationEpisodeDetail);
         bottomNavigationView.getMenu().getItem(1).setChecked(true);
+        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
         showNameText.setText(episode.getShowName());
         episodeNameText.setText(episode.getName());
@@ -98,7 +122,7 @@ public class EpisodeDetailsActivity extends Activity {
         episodeText.setText(episode.getEpisodeString());
 
 
-        //Air date in specifc format
+        //Air date in specific format
         Date airdate = episode.getAirDate();
         String formattedAirDate;
         if (airdate != null) {
@@ -135,7 +159,7 @@ public class EpisodeDetailsActivity extends Activity {
 
 
             //       episodeSummaryHashMap.get("episodeURL");
-
+            database.close();
         } else {
             aboutWebsite.setVisibility(View.GONE);
         }
@@ -168,16 +192,17 @@ public class EpisodeDetailsActivity extends Activity {
         });
 
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.w(LOG_TAG, "Home button clicked.");
-                exit();
+                //exit();
+                finish();
             }
         });
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsSeen =  findViewById(R.id.markAsSeen);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsSeen = findViewById(R.id.markAsSeen);
         appBarmarkAsSeen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -187,7 +212,7 @@ public class EpisodeDetailsActivity extends Activity {
             }
         });
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsAquired=  findViewById(R.id.markAsAquired);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsAquired = findViewById(R.id.markAsAquired);
         appBarmarkAsAquired.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,7 +222,78 @@ public class EpisodeDetailsActivity extends Activity {
             }
         });
 
+
     }
+
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            final int previousItem = bottomNavigationView.getSelectedItemId();
+            final int nextItem = item.getItemId();
+            if (previousItem != nextItem) {
+                switch (nextItem) {
+                    case R.id.barShowDetail:
+                        Log.w(LOG_TAG, "barShowDetail selected");
+                        //TODO need to build an activity to use the showDetail content.
+                        if (shows.size() > 0) {
+                            openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
+                        }
+                        return true;
+                    case R.id.barEpisodeOverview:
+                        Log.w(LOG_TAG, "barEpisodeOverview selected");
+
+                        if (shows.size() > 0) {
+                         //   episodesType = EpisodeType.EPISODES_TO_WATCH;
+                         //   returnEpisodes();
+                            if (shows.size() > 0) {
+                                openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                            }
+                        }
+                        return true;
+                    case R.id.barWatch:
+                        Log.w(LOG_TAG, "barWatch selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                        } else {
+                         //   episodesType = EpisodeType.EPISODES_TO_WATCH;
+                         //   returnEpisodes();
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                            }
+                        }
+                        return true;
+                    case R.id.barAcquire:
+                        Log.w(LOG_TAG, "barAcquire selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                        } else {
+                        //    episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
+                        //    returnEpisodes();
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                            }
+                        }
+                        return true;
+                    case R.id.barComing:
+                        Log.w(LOG_TAG, "barComing selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                        } else {
+                            episodesType = EpisodeType.EPISODES_COMING;
+                            returnEpisodes();
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                            }
+                        }
+                        return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+    };
 
 
     private class downloadEpisodeSummary extends AsyncTask<String, String, HashMap<String, String>> {
@@ -543,7 +639,6 @@ public class EpisodeDetailsActivity extends Activity {
             SeriesDAO seriesDAO = database.getSeriesDAO();
 
 
-
             EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
 
 
@@ -561,38 +656,38 @@ public class EpisodeDetailsActivity extends Activity {
         }
     }
 
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.episode_details_menu, menu);
-        if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
-            menu.removeItem(R.id.markAsAquired);
-        } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
-            menu.removeItem(R.id.markAsAquired);
+    /*
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.episode_details_menu, menu);
+            if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
+                menu.removeItem(R.id.markAsAquired);
+            } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
+                menu.removeItem(R.id.markAsAquired);
+            }
+            return true;
         }
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.markAsSeen:
-                closeAndMarkWatched(episode);
-                return true;
-            case R.id.markAsAquired:
-                closeAndAcquireEpisode(episode);
-                return true;
-            case R.id.btn_title_share:
-                tweetThis();
-                return true;
-            case R.id.home:
-                exit();
-                return true;
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.markAsSeen:
+                    closeAndMarkWatched(episode);
+                    return true;
+                case R.id.markAsAquired:
+                    closeAndAcquireEpisode(episode);
+                    return true;
+                case R.id.btn_title_share:
+                    tweetThis();
+                    return true;
+                case R.id.home:
+                    exit();
+                    return true;
+            }
+            return false;
         }
-        return false;
-    }
-*/
+    */
     private void closeAndAcquireEpisode(Episode episode) {
         finish();
 
@@ -616,25 +711,25 @@ public class EpisodeDetailsActivity extends Activity {
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID())
-                .putExtra("Title",title);
+                .putExtra("Title", title);
 
 
         String sorting = "";
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-               // sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
-                sorting = sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");
+                // sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
                 //sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
-                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort");
+                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort");
                 break;
             case EPISODES_COMING:
                 //sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
-                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort");
+                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
                 break;
         }
 
@@ -658,17 +753,17 @@ public class EpisodeDetailsActivity extends Activity {
         switch (episodesType) {
             case EPISODES_TO_WATCH:
                 //sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);                
-                sorting = sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");
+                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
                 //sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
-                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort");
+                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort");
                 break;
             case EPISODES_COMING:
                 //sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
-                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort");
+                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
                 break;
         }
 
@@ -677,8 +772,8 @@ public class EpisodeDetailsActivity extends Activity {
         } else {
             episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
-        episodeListingActivity.putExtra("Title",title);
-       // startActivity(episodeListingActivity);
+        episodeListingActivity.putExtra("Title", title);
+        // startActivity(episodeListingActivity);
     }
 
     private void tweetThis() {
@@ -708,5 +803,102 @@ public class EpisodeDetailsActivity extends Activity {
         OpenListingActivity();
     }
 
+    private void openEpisodeListing(Show show, EpisodeType episodeType) {
+        //finish();
+        Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+
+        Episode nextEpisodeToWatch = show.getFirstEpisode();
+        String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+
+        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        startActivity(updatedEpisodeListActivity);
+    }
+
+    private void openShowSummary(Episode episode, EpisodeType episodeType) {
+        //finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
+        String myEpisodeID = episode.getMyEpisodeID();
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        startActivity(episodeDetailsSubActivity);
+    }
+
+    private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
+        //finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
+        String myEpisodeID = episode.getMyEpisodeID();
+
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        startActivity(episodeDetailsSubActivity);
+    }
+
+    private void returnEpisodes() {
+        //ideally this just grabs the data from the show somehow, loop is slow with lots of data
+        episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
+        //shows = new ArrayList<>();
+
+        if (episodesRaw != null && episodesRaw.size() > 0) {
+            for (Episode ep : episodesRaw) {
+                if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
+                    AddEpisodeToShow(ep);
+                }
+            }
+        } else {
+            Log.d(LOG_TAG, "Episode can't be added to show.");
+        }
+        Log.d(LOG_TAG, "Episodes type being added: " + episodesType);
+
+        sortEpisodesOfShows(shows);
+    }
+
+    private void AddEpisodeToShow(Episode episode) {
+
+        Show currentShow = CheckShowDuplicate(episode.getShowName());
+
+        if (currentShow == null) {
+            Show tempShow = new Show(episode.getShowName(), episode.getMyEpisodeID());
+            tempShow.addEpisode(episode);
+            shows.add(tempShow);
+        } else {
+            currentShow.addEpisode(episode);
+        }
+    }
+
+    private Show CheckShowDuplicate(String episodename) {
+        for (Show show : shows) {
+            if (show.getShowName().equals(episodename)) {
+                return show;
+            }
+        }
+        return null;
+    }
+
+    private void sortEpisodesOfShows(List<Show> showList) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
+
+        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
+
+        for (Show show : showList) {
+            if (sorting.equals(episodeOrderOptions[0])) {
+                show.getEpisodes().sort(new EpisodeAscendingComparator());
+            } else if (sorting.equals(episodeOrderOptions[1])) {
+                show.getEpisodes().sort(new EpisodeDescendingComparator());
+            }
+        }
+    }
 
 }

@@ -1,11 +1,9 @@
 package nz.mentalinc.episodeWatcher.activities;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -62,7 +60,7 @@ public class ShowManagementActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);
@@ -106,9 +104,9 @@ public class ShowManagementActivity extends ListActivity {
             this.setTitle(R.string.ignoredShows);
         }
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        user = new User(                
-                    sharedPref.getString("username",null),
-                    sharedPref.getString("UserPassword",null)  
+        user = new User(
+                sharedPref.getString("username", null),
+                sharedPref.getString("UserPassword", null)
         );
 
         initializeShowList();
@@ -278,27 +276,27 @@ public class ShowManagementActivity extends ListActivity {
         if (selectedShow > -1) {
             final Show show = shows.get(selectedShow);
 
-        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(ShowManagementActivity.this);
-        dialog.setTitle(show.getShowName());
-        dialog.setMessage(confirmationMessageResId);
-        dialog.setNegativeButton(R.string.no, (dialog1, which) -> {
-            selectedShow = -1;
-            confirmationMessageResId = -1;
-            showAction = null;
-            dialog1.dismiss();
-        });
-        dialog.setPositiveButton(R.string.yes, (dialog12, which) -> {
-            markShow(show, showAction);
+            MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(ShowManagementActivity.this);
+            dialog.setTitle(show.getShowName());
+            dialog.setMessage(confirmationMessageResId);
+            dialog.setNegativeButton(R.string.no, (dialog1, which) -> {
+                selectedShow = -1;
+                confirmationMessageResId = -1;
+                showAction = null;
+                dialog1.dismiss();
+            });
+            dialog.setPositiveButton(R.string.yes, (dialog12, which) -> {
+                markShow(show, showAction);
 
-            selectedShow = -1;
-            confirmationMessageResId = -1;
-            showAction = null;
-            dialog12.dismiss();
-        });
+                selectedShow = -1;
+                confirmationMessageResId = -1;
+                showAction = null;
+                dialog12.dismiss();
+            });
 
-        dialog.setCancelable(false);
-        dialog.create();
-        dialog.show();
+            dialog.setCancelable(false);
+            dialog.create();
+            dialog.show();
 
         }
     }

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/colorPrimary"/>
+        android:background="@color/colorPrimary" />
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
@@ -21,8 +21,7 @@
         android:background="?attr/colorSurface"
         android:textColor="@color/on_text_white"
         app:menu="@menu/home_menu"
-        style="@style/Widget.MaterialComponents.Toolbar.Primary"
-        />
+        style="@style/Widget.MaterialComponents.Toolbar.Primary" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollview"

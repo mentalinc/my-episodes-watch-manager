@@ -13,7 +13,10 @@ public enum EpisodeType {
     EPISODES_TO_ACQUIRE(1),
     EPISODES_COMING(2),
     EPISODES_TO_YESTERDAY1(3),
-    EPISODES_TO_YESTERDAY2(4);
+    EPISODES_TO_YESTERDAY2(4),
+    WATCH_BY_SHOW(5),
+    ACQUIRE_BY_SHOW(6),
+    COMING_BY_SHOW(7);
 
 
     EpisodeType(int type) {
@@ -31,6 +34,9 @@ public enum EpisodeType {
         episodeTypes.add(EPISODES_TO_WATCH.getEpisodeListingType());
         episodeTypes.add(EPISODES_TO_ACQUIRE.getEpisodeListingType());
         episodeTypes.add(EPISODES_COMING.getEpisodeListingType());
+        episodeTypes.add(WATCH_BY_SHOW.getEpisodeListingType());
+        episodeTypes.add(ACQUIRE_BY_SHOW.getEpisodeListingType());
+        episodeTypes.add(COMING_BY_SHOW.getEpisodeListingType());
         return episodeTypes;
     }
 
@@ -38,7 +44,10 @@ public enum EpisodeType {
         return new CharSequence[]{
                 String.valueOf(EPISODES_TO_WATCH.getEpisodeListingType()),
                 String.valueOf(EPISODES_TO_ACQUIRE.getEpisodeListingType()),
-                String.valueOf(EPISODES_COMING.getEpisodeListingType())
+                String.valueOf(EPISODES_COMING.getEpisodeListingType()),
+                String.valueOf(WATCH_BY_SHOW.getEpisodeListingType()),
+                String.valueOf(ACQUIRE_BY_SHOW.getEpisodeListingType()),
+                String.valueOf(COMING_BY_SHOW.getEpisodeListingType())
         };
     }
 }

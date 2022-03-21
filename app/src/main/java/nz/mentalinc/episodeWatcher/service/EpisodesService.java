@@ -1,5 +1,7 @@
 package nz.mentalinc.episodeWatcher.service;
 
+import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.TV_MAZE_SHOWS_URL;
+
 import android.util.Log;
 import android.util.Xml;
 
@@ -53,8 +55,6 @@ import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
 import nz.mentalinc.episodeWatcher.exception.ShowUpdateFailedException;
 import nz.mentalinc.episodeWatcher.utils.DateUtil;
-
-import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.TV_MAZE_SHOWS_URL;
 
 
 public class EpisodesService {
@@ -117,7 +117,7 @@ public class EpisodesService {
         Feed rssFeed;
         rssFeed = rssFeedParser.parseFeed(episodesType, feedUrl);
 
-        List<Episode> episodes = new ArrayList<>(0);
+        List<Episode> episodes = new ArrayList<>(rssFeed.getItems().size());
 
         AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                 .allowMainThreadQueries()   //Allows room to do operation on main thread
@@ -130,6 +130,10 @@ public class EpisodesService {
 
         for (FeedItem item : rssFeed.getItems()) {
             Episode episode = new Episode();
+
+            String guid = item.getGuid();
+            String myEpisodeID = item.getGuid().split("-")[0].trim();
+
 
             StringBuilder title = new StringBuilder(item.getTitle());
 
@@ -160,6 +164,8 @@ public class EpisodesService {
                     // Log.d(LOG_TAG, "airDateString: " + airDateString);
 
                     episode.setAirDate(airDate);
+           //         String guid = item.getGuid();
+         //           String myEpisodeID = item.getGuid().split("-")[0].trim();
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
                     //episode.setTVMazeWebSite(item.getLink());
 
@@ -197,7 +203,7 @@ public class EpisodesService {
 
                     //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
 
-                    Log.d(LOG_TAG, "Episode from feed: " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
+                    Log.d(LOG_TAG, "Episode from feed: ID=" + episode.getMyEpisodeID() + " " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
                 } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
                     //Solves problem mentioned in Issue 20
                     episode.setName(episodeInfo[2].trim() + "...");
@@ -759,8 +765,7 @@ public class EpisodesService {
                     }
 
 
-
-  //                   eps_timezone = "US/Eastern";
+                    //                   eps_timezone = "US/Eastern";
                     int loginpageIndex = settingsHTML.indexOf("name=\"loginpage\"") + 17;
                     loginpage = settingsHTML.substring(loginpageIndex);
                     int loginpageSelectedIndex = loginpage.indexOf("</select>");
@@ -962,12 +967,11 @@ public class EpisodesService {
             String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
 
 
-
             if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
                 //unaquired 1
-                if(urlParameters.length() <1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=1";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=1";
                 }
 
@@ -975,20 +979,20 @@ public class EpisodesService {
             }
             if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
                 //Unwatched 2
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=2";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=2";
                 }
-                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " +urlParameters);
+                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " + urlParameters);
 
             }
 
             if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
                 //Ignored 4
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=4";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=4";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
@@ -996,9 +1000,9 @@ public class EpisodesService {
 
             if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
                 //Pilots 2048
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=2048";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=2048";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
@@ -1008,13 +1012,14 @@ public class EpisodesService {
 
             if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
                 //Localized Airdate 4096
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=4096";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=4096";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
-            };
+            }
+            ;
 
             byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
             int postDataLength = postData.length;
@@ -1058,7 +1063,6 @@ public class EpisodesService {
         }
         return result.toString();
     }
-
 
 
     private Date parseDate(String date) {

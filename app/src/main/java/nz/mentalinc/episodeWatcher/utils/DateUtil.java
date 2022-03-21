@@ -1,6 +1,5 @@
 package nz.mentalinc.episodeWatcher.utils;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.text.DateFormat;
@@ -23,7 +22,7 @@ public final class DateUtil {
     /**
      * Formats a given date in the {@link java.text.DateFormat#FULL} format.
      *
-     * @param date   The date to format.
+     * @param date The date to format.
      * @return The date representation in a string.
      */
     public static String formatDateFull(Date date) {
@@ -34,8 +33,7 @@ public final class DateUtil {
     /**
      * Formats a given date in the {@link java.text.DateFormat#LONG} format.
      *
-     * @param date   The date to format.
-     *
+     * @param date The date to format.
      * @return The date representation in a string.
      */
     public static String formatDateLong(Date date) {

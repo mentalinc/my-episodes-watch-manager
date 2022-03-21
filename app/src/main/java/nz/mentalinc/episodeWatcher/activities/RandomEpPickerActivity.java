@@ -52,7 +52,7 @@ public class RandomEpPickerActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);
@@ -94,7 +94,7 @@ public class RandomEpPickerActivity extends Activity {
                 formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
             }
 
-            String airdateString =" " + formattedAirDate ;
+            String airdateString = " " + formattedAirDate;
             airdateText.setText(airdateString);
             TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
             if (!TextUtils.isEmpty(random.getTVMazeWebSite())) {
@@ -118,7 +118,7 @@ public class RandomEpPickerActivity extends Activity {
 
 
                 new RandomEpPickerActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
-               new RandomEpPickerActivity.downloadEpisodeSummary(episodeSummaryHashMap).execute(showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
+                new RandomEpPickerActivity.downloadEpisodeSummary(episodeSummaryHashMap).execute(showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
 
 
                 //       episodeSummaryHashMap.get("episodeURL");
@@ -138,10 +138,9 @@ public class RandomEpPickerActivity extends Activity {
         }
 
 
-
         markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
             exit();
@@ -326,6 +325,7 @@ public class RandomEpPickerActivity extends Activity {
                 showSummaryHash.put("showImageURL", showImageURL);
                 showSummaryHash.put("ShowRuntime", ShowRuntime);
 
+                database.close();
                 //not in database so download from API
             } else {
 
@@ -426,7 +426,7 @@ public class RandomEpPickerActivity extends Activity {
             ShowName.setText(showSummaryHash.get("ShowName"));
 
             TextView ShowRuntime = findViewById(R.id.episodeRuntime);
-            String showruntimeText =showSummaryHash.get("ShowRuntime") + " mins";
+            String showruntimeText = showSummaryHash.get("ShowRuntime") + " mins";
             ShowRuntime.setText(showruntimeText);
 
             TextView aboutShowWebsite = findViewById(R.id.tvMazeShowWebsite);
@@ -494,12 +494,9 @@ public class RandomEpPickerActivity extends Activity {
             //  Log.d("epsRunTime: ", epsRunTime.toString());
 
             seriesDAO.update(showSummaryInfo);
-
+            database.close();
         }
     }
-
-
-
 
 
     public void onHomeClick(View v) {

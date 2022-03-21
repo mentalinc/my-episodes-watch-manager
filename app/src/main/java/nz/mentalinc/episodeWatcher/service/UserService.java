@@ -33,7 +33,7 @@ public class UserService {
     private static final String LOG_TAG = UserService.class.getSimpleName();
 
     public void login(User user) throws LoginFailedException {
-         login(user.getUsername(), user.getPassword());
+        login(user.getUsername(), user.getPassword());
     }
 
     public boolean register(User user, String email) throws UnsupportedHttpPostEncodingException, InternetConnectivityException {
@@ -143,7 +143,7 @@ public class UserService {
             Log.d(LOG_TAG, "Successful login to " + MyEpisodeConstants.MYEPISODES_LOGIN_PAGE);
             result = true;
         }
-      //  return msCookieManager;
+        //  return msCookieManager;
     }
 
     private boolean RegisterUser(String username, String password, String email) throws RegisterFailedException, UnsupportedHttpPostEncodingException {

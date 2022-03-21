@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import nz.mentalinc.episodeWatcher.R;
@@ -30,7 +31,7 @@ import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
 public class UpdatedEpisodeListingActivity extends Activity {
     private static final String LOG_TAG = UpdatedEpisodeListingActivity.class.getSimpleName();
 
-    List<Show> shows;
+    List<Show> shows = new ArrayList<>();
 
     private List<Episode> episodesRaw = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
@@ -56,14 +57,22 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
         if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
             bottomNavigationView.getMenu().getItem(3).setChecked(true);
+            // episodes = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.ACQUIRE_BY_SHOW,showMyEpisodeID);
         } else if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
             bottomNavigationView.getMenu().getItem(2).setChecked(true);
+            //  episodes = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.WATCH_BY_SHOW,showMyEpisodeID);
 
         } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
             bottomNavigationView.getMenu().getItem(4).setChecked(true);
+            //  episodes = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.COMING_BY_SHOW,showMyEpisodeID);
         }
 
         returnEpisodes();
+
+       /* if (shows.size() < 1) {
+            Show holderShow = new Show(title, showMyEpisodeID);
+            shows.add(holderShow);
+        }*/
 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItems);
         adapter = new EpisodeAdapter(episodes);
@@ -79,7 +88,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
         rvEpisode.setHasFixedSize(true);
 
         com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
-        title = title + " (" + episodes.size()+ ")";
+        title = title + " (" + episodes.size() + ")";
         ShowNameTitle.setTitle(title);
 
 
@@ -92,23 +101,20 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
         ItemClickSupport.addTo(rvEpisode).setOnItemClickListener((recyclerView, position, v) -> {
-                    // do stuff
-
                     Episode episodeSelected = episodes.get(position);
                     //Show Show = episodeSelected.getShowName();
-
-                    //TODO in here link to the to be built SHOW screen. So it opens on the next episode detail to watch
-                    // then gives tabs to look at what needs to be acquire, and coming to the right, and left of the detail
-                    //it gives a show overview.
-                    // which also means episode details tab can have all the show info removed as will be to the right
-                    //also need to create a view just like the show one for episodes.
-
-
                     openEpisodeDetails(episodeSelected, episodesType);
+                }
+        );
 
-                    //Show testEpisode = (Show) adapter.getItemId(position);
-                    // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
-                    // snackbar.show();
+
+        ItemClickSupport.addTo(rvEpisode).setOnItemLongClickListener((recyclerView, position, v) -> {
+                    //Episode episodeSelected = episodes.get(position);
+                    //openEpisodeDetails(episodeSelected, episodesType);
+
+                    Log.w(LOG_TAG, "Long clicked on an episode - pop up the marked watch material box.");
+
+                    return true;
                 }
         );
     }
@@ -121,73 +127,139 @@ public class UpdatedEpisodeListingActivity extends Activity {
             showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
             String Title = data.getString("Title");
 
-
             Bundle BundleInfoShowDetail = new Bundle();
             BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
             BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
             BundleInfoShowDetail.putString("Title", Title);
 
-          //  episodesRaw.clear();
-          //  episodes.clear();
+            final int previousItem = bottomNavigationView.getSelectedItemId();
+            final int nextItem = item.getItemId();
 
-            switch (item.getItemId()) {
-                case R.id.barShowDetail:
-                    Log.w(LOG_TAG, "barShowDetail selected");
+            //TODO need to do something to open a blank list instead of failing back when clicking on a button that has no shows to watch.
+            if (previousItem != nextItem) {
+                switch (nextItem) {
+                    case R.id.barShowDetail:
+                        Log.w(LOG_TAG, "barShowDetail selected");
+                        if (shows.size() > 0) {
+                            //issue where is the epiosdetype doesn't have any episode then this will fail as show.size=0.
+                            //need to figure out how to keep the show value current?
+                            openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
+                        }
 
-                    //TODO need to build an activity to use the showDetail content.
+                        //TODO need to build an activity to use the showDetail content.
+                        if (episodes.size() > 0) {
+                            Log.w(LOG_TAG, "barShowDetail Executing openShowSummary");
+                            openShowSummary(episodes.get(0), episodesType);
+                        }
+                        return true;
+                    case R.id.barEpisodeOverview:
+                        Log.w(LOG_TAG, "barEpisodeOverview selected");
+                        if (shows.size() > 0) {
+                            //make sure it opens the next WATCH episode details.
+                            episodesType = EpisodeType.EPISODES_TO_WATCH;
+                            returnEpisodes();
+                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+                            if (shows.size() > 0) {
+                                openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                            }
+                        }
+                        return true;
+                    case R.id.barWatch:
+                        Log.w(LOG_TAG, "barWatch selected");
 
-                    return true;
-                case R.id.barEpisodeOverview:
-                    Log.w(LOG_TAG, "barEpisodeOverview selected");
-                    if (shows.size() > 0) {
-                        openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
-                    }
-                    return true;
-                case R.id.barWatch:
-                    Log.w(LOG_TAG, "barWatch selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                        } else {
+                            episodesType = EpisodeType.EPISODES_TO_WATCH;
+                            //changed to the new hash feature
+                            returnEpisodes();
+                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
 
-                    if (shows.size() > 0) {
-                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
-                    }
-                    return true;
-                case R.id.barAcquire:
-                    Log.w(LOG_TAG, "barAcquire selected");
-                    if (shows.size() > 0) {
-                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
-                    }
-                    return true;
-                case R.id.barComing:
-                    Log.w(LOG_TAG, "barComing selected");
-                    if (shows.size() > 0) {
-                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
-                    }
-                    return true;
+                            } else {
+                                //   bottomNavigationView.getMenu().getItem(2).setChecked(true);
+                            }
+                        }
+                        return true;
+                    case R.id.barAcquire:
+                        Log.w(LOG_TAG, "barAcquire selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                        } else {
+                            episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
+                            //changed to the new hash feature
+                            returnEpisodes();
+                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
+
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                            }
+                        }
+                        return true;
+                    case R.id.barComing:
+                        Log.w(LOG_TAG, "barComing selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                        } else {
+                            episodesType = EpisodeType.EPISODES_COMING;
+                            //changed to the new hash feature
+                            returnEpisodes();
+                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                            }
+                        }
+                        return true;
+                }
+                return false;
             }
             return false;
         }
     };
 
+    private void returnEpisodesShowHash(HashMap<String, Show> hashMap) {
+
+        //TODO - try to add the runtime to the show here? so show has runime early (OR add when first created in the episode service?)
+        hashMap.size();
+        hashMap.forEach((k, v) -> shows.add(v));
+
+        //shows don't have runtime added yet?
+        sortEpisodesOfShows(shows);
+
+    }
 
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
         finish();
         Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
         updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         Episode nextEpisodeToWatch = show.getFirstEpisode();
-        String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+        String myEpisodeID = nextEpisodeToWatch.getMyEpisodeID();
 
-        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         updatedEpisodeListActivity.putExtra("Title", show.getShowName());
         startActivity(updatedEpisodeListActivity);
     }
 
+    private void openShowSummary(Episode episode, EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        startActivity(episodeDetailsSubActivity);
+    }
 
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
-
+        finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
-                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
@@ -196,7 +268,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
-        shows = new ArrayList<>();
+        //setting to a new list when this is called risks there being now show left to work with if there are no episodes of a particualr type left.
+        //shows = new ArrayList<>();
         episodes = new ArrayList<>();
 
         String ShowTitle = "";

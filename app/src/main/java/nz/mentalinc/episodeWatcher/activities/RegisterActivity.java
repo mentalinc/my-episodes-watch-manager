@@ -1,7 +1,6 @@
 package nz.mentalinc.episodeWatcher.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -13,6 +12,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -21,13 +21,11 @@ import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.UnsupportedHttpPostEncodingException;
-
-
 import nz.mentalinc.episodeWatcher.service.UserService;
 
 
 public class RegisterActivity extends Activity {
-    
+
     private UserService service;
     private User user;
     private boolean registerStatus;
@@ -43,7 +41,7 @@ public class RegisterActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);
@@ -112,7 +110,6 @@ public class RegisterActivity extends Activity {
                                 validationErrorUserExists(RegisterActivity.this);
 
 
-
                             }
                         }
                     };
@@ -146,11 +143,9 @@ public class RegisterActivity extends Activity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.fillInAllFields);
-        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
-        {
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
@@ -164,11 +159,9 @@ public class RegisterActivity extends Activity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.registerFailed);
-        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
-        {
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
@@ -179,11 +172,10 @@ public class RegisterActivity extends Activity {
     }
 
 
-
     private boolean checkLoginCredentials() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String username = sharedPref.getString("username",null);
-        String password = sharedPref.getString("UserPassword",null);        
+        String username = sharedPref.getString("username", null);
+        String password = sharedPref.getString("UserPassword", null);
         return username != null && password != null;
     }
 
@@ -194,7 +186,7 @@ public class RegisterActivity extends Activity {
     private void storeLoginCredentials(User user) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor prefEditor = sharedPref.edit();
-        prefEditor.putString("username",user.getUsername());
+        prefEditor.putString("username", user.getUsername());
         prefEditor.putString("UserPassword", user.getPassword());
         prefEditor.apply();
     }

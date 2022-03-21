@@ -5,13 +5,11 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -19,21 +17,20 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.preference.PreferenceManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
 import nz.mentalinc.episodeWatcher.exception.ShowAddFailedException;
-
 import nz.mentalinc.episodeWatcher.service.ShowService;
-
-import androidx.preference.PreferenceManager;
-
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 //use RecyclerView instead of ListActivty
 public class ShowManagementAddActivity extends ListActivity {
@@ -63,8 +60,8 @@ public class ShowManagementAddActivity extends ListActivity {
         ImageButton searchButton = findViewById(R.id.searchButton);
         searchButton.setOnClickListener(view -> {
             CharSequence query = ((EditText) findViewById(R.id.searchQuery)).getText();
-            if(query.length() > 0) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (query.length() > 0) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 Objects.requireNonNull(imm).hideSoftInputFromWindow(view.getWindowToken(), 0);
                 ShowManagementAddActivity.this.searchShows(query.toString());
             }
@@ -79,14 +76,14 @@ public class ShowManagementAddActivity extends ListActivity {
 
     private void init(Bundle savedInstanceState) {
 
-    	super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management_add);
 
         service = new ShowService();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString("username",null),
-                sharedPref.getString("UserPassword",null)
+                sharedPref.getString("username", null),
+                sharedPref.getString("UserPassword", null)
         );
 
         initializeShowList();
@@ -99,7 +96,7 @@ public class ShowManagementAddActivity extends ListActivity {
 
     private void updateShowList() {
         showAdapter.clear();
-        for(Show show : shows) {
+        for (Show show : shows) {
             showAdapter.add(show);
         }
         showAdapter.notifyDataSetChanged();
@@ -108,10 +105,10 @@ public class ShowManagementAddActivity extends ListActivity {
     private void updateNumberOfResults() {
         TextView numberOfResults = findViewById(R.id.showNameSearchNumberOfResults);
 
-        if(shows.size() > 0) {
+        if (shows.size() > 0) {
             String text = shows.size() + " ";
 
-            if(shows.size() == 1) {
+            if (shows.size() == 1) {
                 text += getText(R.string.showSearchOneFound);
             } else {
                 text += getText(R.string.showSearchMoreFound);
@@ -124,57 +121,57 @@ public class ShowManagementAddActivity extends ListActivity {
     }
 
     @Override
-	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
-		switch (id) {
-			case DIALOG_LOADING: {
-				ProgressDialog progressDialog = new ProgressDialog(this);
-				progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = null;
+        switch (id) {
+            case DIALOG_LOADING: {
+                ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
                 progressDialog.setCancelable(false);
-				dialog = progressDialog;
-				break;
+                dialog = progressDialog;
+                break;
             }
             case DIALOG_EXCEPTION: {
-				if (exceptionMessageResId == null) {
-					exceptionMessageResId = R.string.defaultExceptionMessage;
-				}
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.exceptionDialogTitle)
-					   .setMessage(exceptionMessageResId)
-					   .setCancelable(false)
-					   .setPositiveButton(R.string.dialogOK, (dialog15, id15) -> {
+                if (exceptionMessageResId == null) {
+                    exceptionMessageResId = R.string.defaultExceptionMessage;
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.exceptionDialogTitle)
+                        .setMessage(exceptionMessageResId)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.dialogOK, (dialog15, id15) -> {
                             exceptionMessageResId = null;
                             removeDialog(DIALOG_EXCEPTION);
-                       });
-				dialog = builder.create();
+                        });
+                dialog = builder.create();
                 break;
             }
             case DIALOG_FINISHED: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.showSearchFinished)
-                       .setCancelable(false)
-                       .setPositiveButton(R.string.done, (dialog14, id14) -> {
-dialog14.dismiss();
-finish();
-                       })
-                       .setNegativeButton(R.string.search, (dialog13, id13) -> dialog13.dismiss());
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.done, (dialog14, id14) -> {
+                            dialog14.dismiss();
+                            finish();
+                        })
+                        .setNegativeButton(R.string.search, (dialog13, id13) -> dialog13.dismiss());
                 dialog = builder.create();
                 break;
             }
             case DIALOG_ADD_SHOW: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(shows.get(showListPosition).getShowName())
-                       .setMessage(R.string.showSearchAddShow)
-                       .setCancelable(false)
-                       .setPositiveButton(R.string.yes, (dialog12, id12) -> {
-removeDialog(DIALOG_ADD_SHOW);
-addShowByListPosition(showListPosition);
-showListPosition = null;
-                       })
-                       .setNegativeButton(R.string.no, (dialog1, id1) -> {
-showListPosition = null;
-removeDialog(DIALOG_ADD_SHOW);
-                       });
+                        .setMessage(R.string.showSearchAddShow)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.yes, (dialog12, id12) -> {
+                            removeDialog(DIALOG_ADD_SHOW);
+                            addShowByListPosition(showListPosition);
+                            showListPosition = null;
+                        })
+                        .setNegativeButton(R.string.no, (dialog1, id1) -> {
+                            showListPosition = null;
+                            removeDialog(DIALOG_ADD_SHOW);
+                        });
                 dialog = builder.create();
                 break;
             }
@@ -183,7 +180,7 @@ removeDialog(DIALOG_ADD_SHOW);
     }
 
     private void searchShows(final String query) {
-    	AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
             @Override
             protected void onPreExecute() {
                 showDialog(DIALOG_LOADING);
@@ -197,7 +194,7 @@ removeDialog(DIALOG_ADD_SHOW);
 
             @Override
             protected void onPostExecute(Object o) {
-                if(exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
                     showDialog(DIALOG_EXCEPTION);
                 } else {
@@ -217,12 +214,12 @@ removeDialog(DIALOG_ADD_SHOW);
             exceptionMessageResId = null;
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.internetConnectionFailureReload;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
             String message = "Login failure";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
         }
     }
 
@@ -238,7 +235,7 @@ removeDialog(DIALOG_ADD_SHOW);
         public View getView(int position, View convertView, ViewGroup parent) {
             final int i = position;
             View row = convertView;
-            if (row==null) {
+            if (row == null) {
                 LayoutInflater inflater = getLayoutInflater();
                 row = inflater.inflate(R.layout.show_management_add_row, parent, false);
             }
@@ -257,7 +254,7 @@ removeDialog(DIALOG_ADD_SHOW);
     }
 
     private void addShowByListPosition(final int position) {
-    	AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
             @Override
             protected void onPreExecute() {
                 showDialog(DIALOG_LOADING);
@@ -273,7 +270,7 @@ removeDialog(DIALOG_ADD_SHOW);
             @Override
             protected void onPostExecute(Object o) {
                 removeDialog(DIALOG_LOADING);
-                if(exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     showDialog(DIALOG_EXCEPTION);
                 } else {
                     showDialog(DIALOG_FINISHED);
@@ -290,31 +287,31 @@ removeDialog(DIALOG_ADD_SHOW);
             showsAdded = true;
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.internetConnectionFailureReload;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
             String message = "Login failure";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.networkIssues;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
         } catch (ShowAddFailedException e) {
             String message = "Could not add show";
-			Log.e(LOG_TAG, message, e);
-			exceptionMessageResId = R.string.searchShowUnabletoAdd;
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.searchShowUnabletoAdd;
         }
     }
 
     @Override
     public void finish() {
-        if(showsAdded) {
+        if (showsAdded) {
             setResult(RESULT_OK);
         } else {
             setResult(RESULT_CANCELED);
         }
         super.finish();
     }
-    
+
     public void onHomeClick(View v) {
-    	finish();
+        finish();
     }
 
 }

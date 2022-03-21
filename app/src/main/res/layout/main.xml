@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-        <include
-            android:id="@+id/watchPage"
-            layout="@layout/activity_home" />
+    <include
+        android:id="@+id/watchPage"
+        layout="@layout/activity_home" />
 
 </LinearLayout>

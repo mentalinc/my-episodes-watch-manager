@@ -26,7 +26,6 @@ import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
-import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 
 public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHolder> {
@@ -50,13 +49,15 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         public boolean areItemsTheSame(Episode oldItem, Episode newItem) {
             return oldItem.getShowName().equals(newItem.getShowName());
         }
+
         @Override
         public boolean areContentsTheSame(Episode oldItem, Episode newItem) {
-            return (oldItem.getShowName().equals( newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
+            return (oldItem.getShowName().equals(newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
         }
     };
 
-    public class ViewHolder extends RecyclerView.ViewHolder { //implements View.OnClickListener{
+
+    public class ViewHolder extends RecyclerView.ViewHolder { //implements View.OnLongClickListener{
         //
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
@@ -66,7 +67,6 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         public TextView episodeName;
         public TextView episodeRuntime;
         public ImageView showposter;
-
 
 
         // We also create a constructor that accepts the entire item row
@@ -87,12 +87,11 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
     }
 
 
-
     @Override
     public EpisodeAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View episodeView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_episode, parent, false);
-        EpisodeAdapter.ViewHolder viewHolder =  new EpisodeAdapter.ViewHolder(episodeView);
+        EpisodeAdapter.ViewHolder viewHolder = new EpisodeAdapter.ViewHolder(episodeView);
         return viewHolder;
 
     }
@@ -147,6 +146,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
                     .apply(requestOptions)
                     .into(showPoster);
 
+            database.close();
 
         } catch (NullPointerException e) {
             if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {

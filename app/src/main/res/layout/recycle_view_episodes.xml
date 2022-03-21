@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/colorPrimary"/>
+            android:background="@color/colorPrimary" />
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBarEpisodesView"
@@ -26,8 +26,7 @@
             android:background="@color/primaryColor"
             android:textColor="@color/on_text_white"
             app:menu="@menu/home_menu"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            />
+            style="@style/Widget.MaterialComponents.Toolbar.Primary" />
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -42,22 +41,20 @@
     </LinearLayout>
 
 
-
     <FrameLayout
-    android:id="@+id/frame_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigationviewShowHome"
+        android:id="@+id/frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:backgroundTint="@color/colorPrimary"
-        app:menu="@menu/bottom_navigation_menu"
-        />
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-</FrameLayout>
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigationviewShowHome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:backgroundTint="@color/colorPrimary"
+            app:menu="@menu/bottom_navigation_menu" />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

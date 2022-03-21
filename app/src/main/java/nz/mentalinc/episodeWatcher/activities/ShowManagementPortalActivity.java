@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import androidx.preference.PreferenceManager;
 
+import androidx.preference.PreferenceManager;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.enums.ShowType;
@@ -26,7 +26,7 @@ public class ShowManagementPortalActivity extends Activity {
 
     private void init(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);

@@ -1,7 +1,6 @@
 package nz.mentalinc.episodeWatcher;
 
 
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,14 +15,11 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.tabs.TabLayout;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import nz.mentalinc.episodeWatcher.activities.EpisodeAdapter;
 import nz.mentalinc.episodeWatcher.activities.EpisodeDetailsActivity;
-import nz.mentalinc.episodeWatcher.activities.UpdatedEpisodeListingActivity;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
 import nz.mentalinc.episodeWatcher.domain.Episode;
@@ -49,7 +45,7 @@ public class EpisodeListingFrag extends Fragment {
         // Required empty public constructor
     }
 
-        @Override
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.recycle_view_episodes, container, false);
         return rootView;
@@ -83,7 +79,7 @@ public class EpisodeListingFrag extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvEpisode.setLayoutManager(layoutManager);
-        EpisodeAdapter adapter= new EpisodeAdapter(episodes);
+        EpisodeAdapter adapter = new EpisodeAdapter(episodes);
         adapter.submitList(episodes);
 
         //this doesn't seem to be called each time the tab is clicked on.
@@ -96,31 +92,24 @@ public class EpisodeListingFrag extends Fragment {
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
         ItemClickSupport.addTo(rvEpisode).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-                 @Override
-                 public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                     // do stuff
+                                                                     @Override
+                                                                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                                                                         // do stuff
 
-                     Log.w(LOG_TAG, "Recycle view area clicked.");
-                     Episode episodeSelected =  episodes.get(position);
-                     //Show Show = episodeSelected.getShowName();
+                                                                         Log.w(LOG_TAG, "Recycle view area clicked.");
+                                                                         Episode episodeSelected = episodes.get(position);
+                                                                         //Show Show = episodeSelected.getShowName();
 
-                     //TODO in here link to the to be built SHOW screen. So it opens on the next episode detail to watch
-                     // then gives tabs to look at what needs to be acquire, and coming to the right, and left of the detail
-                     //it gives a show overview.
-                     // which also means episode details tab can have all the show info removed as will be to the right
-                     //also need to create a view just like the show one for episodes.
+                                                                         openEpisodeDetails(episodeSelected, episodesType);
 
-
-                     openEpisodeDetails(episodeSelected, episodesType );
-
-                     //Show testEpisode = (Show) adapter.getItemId(position);
-                     // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
-                     // snackbar.show();
-                 }
-             }
+                                                                         //Show testEpisode = (Show) adapter.getItemId(position);
+                                                                         // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
+                                                                         // snackbar.show();
+                                                                     }
+                                                                 }
         );
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  getActivity().findViewById(R.id.home);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = getActivity().findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
             //not sure how to stop the view yet.
@@ -176,7 +165,7 @@ public class EpisodeListingFrag extends Fragment {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(super.getActivity());
         // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
-        String sorting = sharedPref.getString("episodeOrder","oldest_on_top");
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
 
         //TODO add a sort by runtime might need to be on the below somehow EpisodeAscendingComparator()??
 
@@ -197,15 +186,15 @@ public class EpisodeListingFrag extends Fragment {
         String sorting = "";
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting =  sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
                 break;
             case EPISODES_COMING:
-                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
         }
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);

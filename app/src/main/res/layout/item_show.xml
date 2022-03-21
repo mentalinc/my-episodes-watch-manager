@@ -33,24 +33,23 @@
     <!-- 20dp dense icon, though 48dp touch target -->
     <!--  TODO: Hidden from view as NO idea how to have this clickable. the other app does something tricky
        -->
-       <androidx.appcompat.widget.AppCompatImageView
-           android:id="@+id/imageViewShowsSetWatched"
-           android:layout_width="48dp"
-           android:layout_height="48dp"
-           android:background="?attr/selectableItemBackgroundBorderless"
-           android:contentDescription="@string/action_watched"
-           android:paddingStart="14dp"
-           android:paddingTop="14dp"
-           android:paddingEnd="14dp"
-           android:paddingBottom="14dp"
-           android:visibility="invisible"
-           app:layout_constraintEnd_toEndOf="parent"
-           app:layout_constraintTop_toTopOf="parent"
-           app:srcCompat="@drawable/ic_watch_black_24dp" />
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageViewShowsSetWatched"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_watched"
+        android:paddingStart="14dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="14dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_watch_black_24dp" />
 
 
-
-       <!-- 20dp dense icon, though 48dp touch target -->
+    <!-- 20dp dense icon, though 48dp touch target -->
 
     <!-- TODO: Hidden from view as NO idea how to have this clickable. the other app does something tricky
     <androidx.appcompat.widget.AppCompatImageView

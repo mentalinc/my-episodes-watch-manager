@@ -1,8 +1,8 @@
 package nz.mentalinc.episodeWatcher.service;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.annotation.NonNull;
 
 
 @Entity(tableName = "EpisodeRuntime")
@@ -14,6 +14,7 @@ public class EpisodeRuntime {
     private String showImageURL;
     private String officialSite;
     private String showURL;
+    private String ShowStatus;
 
     @PrimaryKey
     @NonNull
@@ -65,9 +66,20 @@ public class EpisodeRuntime {
         return showImageURL;
     }
 
+
     public void setShowImageURL(String showImageURL) {
         this.showImageURL = showImageURL;
     }
+
+
+    public String getShowStatus() {
+        return ShowStatus;
+    }
+
+    public void setShowStatus(String ShowStatus) {
+        this.ShowStatus = ShowStatus;
+    }
+
 
     public String getOfficialSite() {
         return officialSite;
@@ -84,8 +96,6 @@ public class EpisodeRuntime {
     public void setShowURL(String showURL) {
         this.showURL = showURL;
     }
-
-
 
 
 }

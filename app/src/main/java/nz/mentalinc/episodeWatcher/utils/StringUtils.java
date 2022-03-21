@@ -2,7 +2,6 @@ package nz.mentalinc.episodeWatcher.utils;
 
 /**
  * @author Dirk Vranckaert, maintained and updated by mentalinc
- *
  */
 public class StringUtils {
     public static final String EMPTY = "";

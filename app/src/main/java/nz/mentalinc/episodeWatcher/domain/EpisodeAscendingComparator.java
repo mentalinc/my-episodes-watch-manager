@@ -4,7 +4,6 @@ import java.util.Comparator;
 
 /**
  * @author Dirk Vranckaert, maintained and updated by mentalinc
- *
  */
 public class EpisodeAscendingComparator implements Comparator<Episode> {
     @Override

@@ -21,7 +21,7 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
@@ -37,7 +37,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -71,7 +70,6 @@ import nz.mentalinc.episodeWatcher.exception.ShowUpdateFailedException;
 import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.UserService;
 import nz.mentalinc.episodeWatcher.utils.DateUtil;
-
 
 
 /**
@@ -309,11 +307,10 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     }
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
 
 
         switch (themeSetting) {
@@ -334,7 +331,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         listMode = (ListMode) data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE);
         title = (String) data.getSerializable("Title");
         init();
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
 
             Log.w(LOG_TAG, "Home button clicked.");
@@ -342,22 +339,19 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         });
 
 
-
-        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_collapse =  findViewById(R.id.btn_title_collapse);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_collapse = findViewById(R.id.btn_title_collapse);
         appBarbtn_title_collapse.setOnClickListener(v -> {
 
             Log.w(LOG_TAG, "Collapse button clicked.");
             onCollapseClick();
         });
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_refresh =  findViewById(R.id.btn_title_refresh);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_refresh = findViewById(R.id.btn_title_refresh);
         appBarbtn_title_refresh.setOnClickListener(v -> {
 
             Log.w(LOG_TAG, "Refresh button clicked.");
             onRefreshClick();
         });
-
-
 
 
     }
@@ -409,13 +403,13 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         episodes = new ArrayList<>();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString("username",null),
-                sharedPref.getString("UserPassword",null)
+                sharedPref.getString("username", null),
+                sharedPref.getString("UserPassword", null)
         );
         Resources res = getResources();
         android.content.res.Configuration conf = res.getConfiguration();
-        
-        String LanguageCode = sharedPref.getString("language","en");
+
+        String LanguageCode = sharedPref.getString("language", "en");
         conf.locale = new Locale(LanguageCode);
         res.updateConfiguration(conf, null);
 
@@ -466,11 +460,13 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
         if (countEpisodes == 200) {
             //Toast.makeText(EpisodeListingActivity.this, R.string.watchListFull, Toast.LENGTH_LONG).show();
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarEpisodesView), R.string.watchListFull, Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarEpListing), R.string.watchListFull, Snackbar.LENGTH_LONG);
+
             snackbar.show();
 
 
-        }if (countEpisodes == 1) {
+        }
+        if (countEpisodes == 1) {
             switch (episodesType) {
                 case EPISODES_TO_WATCH:
                     subTitle.setText(getString(R.string.watchListSubTitleWatch, countEpisodes));
@@ -586,8 +582,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 }*/
                 for (Show show : shows) {
                     Map<String, String> map = new HashMap<>();
-                     map.put("episodeRowTitle", show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
-                   // map.put("episodeRowTitle", show.toString() + " [ " + show.getNumberEpisodes() + " ]");
+                    map.put("episodeRowTitle", show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
+                    // map.put("episodeRowTitle", show.toString() + " [ " + show.getNumberEpisodes() + " ]");
                     headerList.add(map);
                 }
 
@@ -646,7 +642,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title",title);
+        episodeDetailsSubActivity.putExtra("Title", title);
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -682,8 +678,6 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     }
 
 
-
-
     private void resetPageFilters(User user) {
 
         try {
@@ -697,12 +691,11 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
 
 
-
             if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
                 //unaquired 1
-                if(urlParameters.length() <1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=1";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=1";
                 }
 
@@ -710,20 +703,20 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             }
             if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
                 //Unwatched 2
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=2";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=2";
                 }
-                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " +urlParameters);
+                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " + urlParameters);
 
             }
 
             if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
                 //Ignored 4
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=4";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=4";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
@@ -731,9 +724,9 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
             if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
                 //Pilots 2048
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=2048";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=2048";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
@@ -743,9 +736,9 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
             if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
                 //Localized Airdate 4096
-                if(urlParameters.length() < 1)
+                if (urlParameters.length() < 1)
                     urlParameters += "eps_filters%5B%5D=4096";
-                else{
+                else {
                     urlParameters += "&eps_filters%5B%5D=4096";
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
@@ -788,7 +781,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         try {
             if (episodesType == EpisodeType.EPISODES_TO_ACQUIRE) {
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                String acquire = sharedPref.getString("ACQUIRE_KEY","0");
+                String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
                 if (acquire != null && acquire.equals("1")) {
                     EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
                     EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
@@ -865,15 +858,15 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         String sorting = "";
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting =  sharedPref.getString("showWatchOrder","show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = sharedPref.getString("showAcquireOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
                 break;
             case EPISODES_COMING:
-                sorting = sharedPref.getString("showComingOrder","show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
         }
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
@@ -892,8 +885,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     private void sortEpisodesOfShows(List<Show> showList) {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-       // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
-        String sorting = sharedPref.getString("episodeOrder","oldest_on_top");
+        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
 
         String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
 
@@ -905,6 +898,9 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             }
         }
     }
+
+    //todo need to move these and the methods below to the new show listing or list where to return user to when clicking on watch or acquire?
+    // i.e. if click watch, take to the episodes to watch or maybe the next episode screen(noto built yet). and mark aquire, return tot he episode aquire listing maybe?z
 
     private void markEpisodes(final int EpisodeStatus, final Episode episode) {
         AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
@@ -939,8 +935,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         asyncTask.execute();
     }
 
-    //todo need to move these and the methods below to the new show listing or list where to return user to when clicking on watch or acquire?
-    // i.e. if click watch, take to the episodes to watch or maybe the next episode screen(noto built yet). and mark aquire, return tot he episode aquire listing maybe?
+
 
     private void markEpisodes(final int episodeStatus, final List<Episode> episodes) {
         AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
@@ -1133,7 +1128,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 //((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse2);
             } else {
                 this.getExpandableListView().collapseGroup(i);
-               // ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.outline_expand_white_24);
+                // ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.outline_expand_white_24);
             }
         }
 

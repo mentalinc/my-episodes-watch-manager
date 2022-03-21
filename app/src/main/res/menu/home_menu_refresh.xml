@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/home"
+        android:contentDescription="@string/home"
+        android:enabled="true"
+        android:icon="@drawable/outline_home_white_36"
+        app:showAsAction="ifRoom|withText"
+        android:title="@string/home"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/btn_title_refresh"
+        android:enabled="true"
+        android:icon="@drawable/outline_refresh_white_24"
+        app:showAsAction="ifRoom|withText"
+        android:title="@string/refresh"
+        android:visible="true" />
+
+</menu>

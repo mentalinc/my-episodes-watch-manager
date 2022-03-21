@@ -44,7 +44,6 @@ public class PreferencesActivity extends PreferenceActivity {
     private ListPreference showRuntimeOrderingPref;
 
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -67,13 +66,13 @@ public class PreferencesActivity extends PreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstance) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
-        if(themeSetting.equals("0")){
-            setTheme( R.style.ThemeDayNight);
-        }else if(themeSetting.equals("1")){
-            setTheme( R.style.ThemeLight);
-        }else if(themeSetting.equals("2")){
-            setTheme( R.style.ThemeDark);
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
+        if (themeSetting.equals("0")) {
+            setTheme(R.style.ThemeDayNight);
+        } else if (themeSetting.equals("1")) {
+            setTheme(R.style.ThemeLight);
+        } else if (themeSetting.equals("2")) {
+            setTheme(R.style.ThemeDark);
         }
         super.onCreate(savedInstance);
 
@@ -393,7 +392,6 @@ public class PreferencesActivity extends PreferenceActivity {
         root.addPreference(filterSettings);
 
 
-
         final CheckBoxPreference showListingUnacquired = new CheckBoxPreference(this);
         showListingUnacquired.setDefaultValue(false);
         showListingUnacquired.setKey(PreferencesKeys.SHOW_LISTING_UNACQUIRED_KEY);
@@ -450,7 +448,6 @@ public class PreferencesActivity extends PreferenceActivity {
         root.addPreference(showListingPilots);
 
 
-
         final CheckBoxPreference showListingLocalizedAirdate = new CheckBoxPreference(this);
         showListingLocalizedAirdate.setDefaultValue(false);
         showListingLocalizedAirdate.setKey(PreferencesKeys.SHOW_LISTING_LOCALIZED_AIRDATES_KEY);
@@ -463,10 +460,6 @@ public class PreferencesActivity extends PreferenceActivity {
             }
         });
         root.addPreference(showListingLocalizedAirdate);
-
-
-
-
 
 
         PreferenceCategory languageSettings = new PreferenceCategory(this);

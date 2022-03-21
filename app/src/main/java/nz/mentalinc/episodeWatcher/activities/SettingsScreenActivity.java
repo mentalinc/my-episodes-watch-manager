@@ -1,22 +1,13 @@
 package nz.mentalinc.episodeWatcher.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceManager;
-
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.SettingScreenFrag;
-import nz.mentalinc.episodeWatcher.utils.ApplicationUtil;
 
 public class SettingsScreenActivity extends AppCompatActivity {
     @Override

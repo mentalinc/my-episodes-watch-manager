@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Show {
-    private final List<Episode> episodes = new ArrayList<>(0);
+    private final List<Episode> episodes = new ArrayList<>(50);
     private String showName;
     private String myEpisodeID;
     private String runTime;
@@ -94,7 +94,6 @@ public class Show {
     public void setTVMazeWebSite(String tVMazeWebSite) {
         TVMazeWebSite = tVMazeWebSite;
     }
-
 
 
     @Override

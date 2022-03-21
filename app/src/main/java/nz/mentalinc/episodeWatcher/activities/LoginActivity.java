@@ -38,19 +38,7 @@ public class LoginActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
-        switch (themeSetting) {
-            case "0":
-                setTheme(R.style.ThemeDayNight);
-                break;
-            case "1":
-                setTheme(R.style.ThemeLight);
-                break;
-            case "2":
-                setTheme(R.style.ThemeDark);
-                break;
-        }
+
         super.onCreate(savedInstanceState);
         init();
 
@@ -76,7 +64,7 @@ public class LoginActivity extends Activity {
 
 
                         //probably don't need cookie manager - need to use the accept all cookies policy thing
-                      //  java.net.CookieManager msCookieManager = new java.net.CookieManager();
+                        //  java.net.CookieManager msCookieManager = new java.net.CookieManager();
 
                         @Override
                         protected void onPreExecute() {
@@ -100,15 +88,15 @@ public class LoginActivity extends Activity {
                             removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
                             //todo add a test here to check for a type of cookie to show login has worked ok....
                             //remove true and add in the cookie test
-                           // if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                                //  Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
-                                finalizeLogin();
-                         //   } else {
-                                ((EditText) findViewById(R.id.loginUsername)).setText("");
-                                ((EditText) findViewById(R.id.loginPassword)).setText("");
-                                showDialog(MY_EPISODES_ERROR_DIALOG);
+                            // if (msCookieManager.getCookieStore().getCookies().size() > 0) {
+                            //  Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
+                            finalizeLogin();
+                            //   } else {
+                            ((EditText) findViewById(R.id.loginUsername)).setText("");
+                            ((EditText) findViewById(R.id.loginPassword)).setText("");
+                            showDialog(MY_EPISODES_ERROR_DIALOG);
 
-                         //   }
+                            //   }
                         }
                     };
                     asyncTask.execute();
@@ -152,11 +140,9 @@ public class LoginActivity extends Activity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.fillInAllFields);
-        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
-        {
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
@@ -165,7 +151,6 @@ public class LoginActivity extends Activity {
         dialog.create();
         dialog.show();
     }
-
 
 
     public void loginDialog(Context context) {
@@ -173,11 +158,9 @@ public class LoginActivity extends Activity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.fillInAllFields);
-        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener()
-        {
+        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
@@ -186,8 +169,6 @@ public class LoginActivity extends Activity {
         dialog.create();
         dialog.show();
     }
-
-
 
 
     private void login(User user) {
@@ -209,8 +190,8 @@ public class LoginActivity extends Activity {
     private boolean checkLoginCredentials() {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String username = sharedPref.getString("username",null);
-        String password = sharedPref.getString("UserPassword",null);        
+        String username = sharedPref.getString("username", null);
+        String password = sharedPref.getString("UserPassword", null);
         return username != null && password != null;
     }
 
@@ -218,12 +199,11 @@ public class LoginActivity extends Activity {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor prefEditor = sharedPref.edit();
-        prefEditor.putString("username",user.getUsername());
+        prefEditor.putString("username", user.getUsername());
         prefEditor.putString("UserPassword", user.getPassword());
         prefEditor.apply();
 
     }
-
 
 
     private void finalizeLogin() {

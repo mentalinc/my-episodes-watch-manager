@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 
 
-@Database(entities = {EpisodeRuntime.class}, version = 3)
+@Database(entities = {EpisodeRuntime.class}, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract SeriesDAO getSeriesDAO();
 

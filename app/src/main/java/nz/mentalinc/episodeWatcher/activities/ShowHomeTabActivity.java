@@ -31,18 +31,13 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
     Bundle data;
 
-    List<Show> shows;
+    List<Show> shows = new ArrayList<>();
     private List<Episode> episodesRaw = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
 
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
-
-    // String tabNames[] = {"Show Overview","Episode Summary","Episodes to Watch","Episodes to Acquire","Episodes Coming"};
-    String menus[] = {"Show Overview", "Episodes to Watch", "Episodes to Acquire", "Episodes Coming"};
-
-
-    // String[] tabNames = {"Episodes to Watch","Episodes to Acquire","Episodes Coming"};
+    BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +46,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         setContentView(R.layout.show_home_tab);
         data = this.getIntent().getExtras();
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigationview);
+        bottomNavigationView = findViewById(R.id.bottom_navigationview);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
@@ -61,7 +56,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
         //  Title = Title + " (" + episodesRaw.size() + ")";
         com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarShowHomeTab);
-        title = title + " (" + episodes.size()+ ")";
+        title = title + " (" + episodes.size() + ")";
         ShowNameTitle.setTitle(title);
 
         Bundle BundleInfoShowDetail = new Bundle();
@@ -77,7 +72,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
     }
 
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
-
+        finish();
         Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
         updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
@@ -94,7 +89,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
     private void returnEpisodes() {
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
-        shows = new ArrayList<>();
+        //  shows = new ArrayList<>();
 
         if (episodesRaw != null && episodesRaw.size() > 0) {
             for (Episode ep : episodesRaw) {
@@ -124,52 +119,74 @@ public class ShowHomeTabActivity extends AppCompatActivity {
             BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
             BundleInfoShowDetail.putString("Title", Title);
 
+            final int previousItem = bottomNavigationView.getSelectedItemId();
+            final int nextItem = item.getItemId();
+            if (previousItem != nextItem) {
+                switch (nextItem) {
+                    case R.id.barShowDetail:
+                        Log.w(LOG_TAG, "barShowDetail selected");
+                        //TODO need to build an activity to use the showDetail content.
+                        if (shows.size() > 0) {
+                            openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
+                        }
+                        return true;
+                    case R.id.barEpisodeOverview:
+                        Log.w(LOG_TAG, "barEpisodeOverview selected");
+                        if (shows.size() > 0) {
+                            //make sure it opens the next WATCH episode details.
+                            episodesType = EpisodeType.EPISODES_TO_WATCH;
+                            returnEpisodes();
+                            if (shows.size() > 0) {
+                                openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                            }
+                        }
+                        return true;
+                    case R.id.barWatch:
+                        Log.w(LOG_TAG, "barWatch selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                        }
+                        return true;
+                    case R.id.barAcquire:
+                        Log.w(LOG_TAG, "barAcquire selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
 
-            switch (item.getItemId()) {
-                case R.id.barShowDetail:
-                    Log.w(LOG_TAG, "barShowDetail selected");
-                    //TODO need to build an activity to use the showDetail content.
-
-                    return true;
-                case R.id.barEpisodeOverview:
-                    Log.w(LOG_TAG, "barEpisodeOverview selected");
-                    if (shows.size() > 0) {
-                        openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
-                    }
-                    return true;
-                case R.id.barWatch:
-                    Log.w(LOG_TAG, "barWatch selected");
-                    if (shows.size() > 0) {
-                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
-                    }
-                    return true;
-                case R.id.barAcquire:
-                    Log.w(LOG_TAG, "barAcquire selected");
-                    if (shows.size() > 0) {
-                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
-
-                    }
-                    return true;
-                case R.id.barComing:
-                    Log.w(LOG_TAG, "barComing selected");
-                    if (shows.size() > 0) {
-                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
-                    }
-                    return true;
+                        }
+                        return true;
+                    case R.id.barComing:
+                        Log.w(LOG_TAG, "barComing selected");
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                        }
+                        return true;
+                }
+                return false;
             }
             return false;
-
         }
 
-        ;
     };
 
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
         finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
-                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        startActivity(episodeDetailsSubActivity);
+    }
+
+
+    private void openShowSummary(Episode episode, EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
@@ -179,7 +196,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         Show currentShow = CheckShowDuplicate(episode.getShowName());
 
         if (currentShow == null) {
-            Show tempShow = new Show(episode.getShowName(),episode.getMyEpisodeID());
+            Show tempShow = new Show(episode.getShowName(), episode.getMyEpisodeID());
             tempShow.addEpisode(episode);
             shows.add(tempShow);
         } else {

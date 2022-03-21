@@ -99,20 +99,20 @@
                 tools:src="?attr/sgColorShadow" />
 
         </com.google.android.material.card.MaterialCardView>
-<!---
-        <com.battlelancer.seriesguide.widgets.WatchedBox
-            android:id="@+id/watchedBoxActivity"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:scaleType="centerInside"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
--->
+        <!---
+                <com.battlelancer.seriesguide.widgets.WatchedBox
+                    android:id="@+id/watchedBoxActivity"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:scaleType="centerInside"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+        -->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

@@ -1,15 +1,14 @@
 package nz.mentalinc.episodeWatcher.pager;
 
 
-
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
-import java.util.List;
 
+import java.util.List;
 
 
 public class ViewPager2Adapter extends FragmentStateAdapter {

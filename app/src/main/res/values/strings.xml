@@ -133,6 +133,7 @@
         <item>Updated all web code</item>
         <item>Moved to Material Design theme from Halo</item>
         <item>Updated icons to Material Icons</item>
+        <item>Created a show landing page to see show detail, and watch, acquire and coming episodes</item>
     </string-array>
     <string name="whatsNewValuesString">
           \u25CF Disable Acquire / Coming  \n
@@ -346,8 +347,8 @@
 
 
     <!-- bottom navigation bar text -->
-    <string name="barShowDetail">Show</string>
-    <string name="barEpisodeOverview">Summary</string>
+    <string name="barShowDetail">Show Info</string>
+    <string name="barEpisodeOverview">Episode Info</string>
     <string name="barAcquire">Acquire</string>
     <string name="barWatch">Watch</string>
     <string name="BarComing">Coming</string>

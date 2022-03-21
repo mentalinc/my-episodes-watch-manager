@@ -31,8 +31,4 @@ public class ShowListingFrag extends Fragment {
         super.onDestroyView();
 
     }
-
-
-
-
 }

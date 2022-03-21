@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -47,46 +48,8 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     private FeedItem item = null;
 
     public Feed parseFeed(final URL url) {
-
         //replaced by parseFeed(EpisodeType episodesType, final URL url)
         Log.e(LOG_TAG, "This will no longer be called. Replaced by parseFeed(EpisodeType episodesType, final URL url)");
-       /*
-        InputStream inputStream;
-		try {
-			
-			//Log.e(LOG_TAG, "URL???: " + url.toString().substring(0, 16));
-			if(url.toString().substring(0, 16).equalsIgnoreCase("http://127.0.0.1")){
-				inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes("UTF-8"));
-			}else{
-				inputStream = url.openConnection().getInputStream();
-			}
-		} catch (UnknownHostException e) {
-			String message = "Could not connect to host.";
-			Log.e(LOG_TAG, message, e);
-			throw new InternetConnectivityException(message, e);
-		} catch (IOException e) {
-			String message = "Could not parse the URL for the feed.";
-			Log.e(LOG_TAG, message, e);
-			throw new FeedUrlParsingException(message, e);
-		}
-
-        SAXParserFactory saxFactory = SAXParserFactory.newInstance();
-        SAXParser parser = saxFactory.newSAXParser();
-        
-        try {
-			parser.parse(inputStream, this);
-		} catch (SAXException e) {
-			String message = "Exception occured during the RSS parsing process.";
-			Log.e(LOG_TAG, message, e);
-			throw new RssFeedParserException(message, e);
-		} catch (IOException e) {
-			String message = "Exception occured during the RSS parsing process.";
-			Log.e(LOG_TAG, message, e);
-			throw new RssFeedParserException(message, e);
-		}
-
-        //Log.d(LOG_TAG, " Feed size: " + feed.getItems().size());
-        */
         return feed;
     }
 
@@ -106,12 +69,12 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     case EPISODES_TO_WATCH:
                         if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                             Log.d(LOG_TAG, "MyEpisodeConstants.EXTENDED_EPISODES_XML:  " + MyEpisodeConstants.EXTENDED_EPISODES_XML);
-                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes("UTF-8"));
+                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
                         } else {
                             inputStream = url.openConnection().getInputStream();
                             FILENAME = "Watch.xml";
                             FileContents = ReadFile(FILENAME);
-                            inputStream = new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
+                            inputStream = new ByteArrayInputStream(FileContents.getBytes(StandardCharsets.UTF_8));
 
 
                             //xml file not found
@@ -127,7 +90,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                                 Log.d(LOG_TAG, FILENAME + " saved to disk");
 
                                 //inputStream is closed
-                                inputStream = new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
+                                inputStream = new ByteArrayInputStream(stringInputStream.getBytes(StandardCharsets.UTF_8));
                             }
                         }
                         break;
@@ -138,7 +101,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     case EPISODES_TO_ACQUIRE:
                         FILENAME = "Acquire.xml";
                         FileContents = ReadFile(FILENAME);
-                        inputStream = new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
+                        inputStream = new ByteArrayInputStream(FileContents.getBytes(StandardCharsets.UTF_8));
 
                         //xml file not found
                         if (FileContents.equalsIgnoreCase("FileNotFound")) {
@@ -153,14 +116,14 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             Log.d(LOG_TAG, FILENAME + " saved to disk");
 
                             //inputStream is closed
-                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
+                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes(StandardCharsets.UTF_8));
                         }
 
                         break;
                     case EPISODES_COMING:
                         FILENAME = "Coming.xml";
                         FileContents = ReadFile(FILENAME);
-                        inputStream = new ByteArrayInputStream(FileContents.getBytes("UTF-8"));
+                        inputStream = new ByteArrayInputStream(FileContents.getBytes(StandardCharsets.UTF_8));
 
                         //xml file not found
                         if (FileContents.equalsIgnoreCase("FileNotFound")) {
@@ -175,7 +138,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             Log.d(LOG_TAG, FILENAME + " saved to disk");
 
                             //inputStream is closed
-                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes("UTF-8"));
+                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes(StandardCharsets.UTF_8));
                         }
 
                         break;
@@ -190,11 +153,13 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             } else {
                 //Cache is not enabled using standard RSS feeds
                 if (url.toString().substring(0, 16).equalsIgnoreCase("http://127.0.0.1")) {
-                    inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes("UTF-8"));
+                    inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
                 } else {
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet RSS Feeds");
                     inputStream = url.openConnection().getInputStream();
                 }
+
+                Log.w(LOG_TAG, "check inputStream");
             }
 
         } catch (UnknownHostException e) {

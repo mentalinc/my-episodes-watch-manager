@@ -52,9 +52,10 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
         public boolean areItemsTheSame(Show oldItem, Show newItem) {
             return oldItem.getShowName().equals(newItem.getShowName());
         }
+
         @Override
         public boolean areContentsTheSame(Show oldItem, Show newItem) {
-            return (oldItem.getShowName().equals( newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
+            return (oldItem.getShowName().equals(newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
         }
     };
 
@@ -91,10 +92,10 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
 
 
     @Override
-    public ShowDetailAdapter.ViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
+    public ShowDetailAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.w(LOG_TAG, "Item_show_detail from ShowDetail Adapater");
         View showView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_show_detail, parent, false);
-        ViewHolder viewHolder =  new ViewHolder(showView);
+        ViewHolder viewHolder = new ViewHolder(showView);
         return viewHolder;
     }
 
@@ -120,7 +121,7 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
             nextEpisode.setText(episodeFullNumbering);*/
 
             //TextView episodeAirTime = holder.episodeAirDateTime;
-           // episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
+            // episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
 
 
             TextView textViewShowsRemaining = holder.textViewShowsRemaining;
@@ -135,9 +136,6 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
 
             textViewShowsRemaining.setText(episodesRemaining);
             */
-
-
-
 
 
             Episode nextEpisodeToWatch = show.getFirstEpisode();

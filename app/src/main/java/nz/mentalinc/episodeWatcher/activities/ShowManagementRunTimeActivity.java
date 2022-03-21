@@ -73,7 +73,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
     private void init(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);
@@ -106,11 +106,10 @@ public class ShowManagementRunTimeActivity extends ListActivity {
     }
 
 
-
     private void getRuntimeShows() {
 
         AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-               // .allowMainThreadQueries()   //Allows room to do operation on main thread
+                // .allowMainThreadQueries()   //Allows room to do operation on main thread
                 .fallbackToDestructiveMigration()
                 .build();
 
@@ -122,7 +121,9 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             EpisodeRuntime showRuntime = runtimeList.get(i);
             shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
         }
-        Collections.sort(shows,new ShowRuntimeAscendingComparator());
+        Collections.sort(shows, new ShowRuntimeAscendingComparator());
+
+        database.close();
     }
 
 
@@ -164,65 +165,61 @@ public class ShowManagementRunTimeActivity extends ListActivity {
         dialog.setTitle(shows.get(showListPosition).getShowName());
         dialog.setMessage((R.string.runTimeEditMessage));
         dialog.setCancelable(true);
-        dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                        {
-                            String newRuntimeValue = runTimeInput.getText().toString();
-                            //silent fail if user has entered a blank runtime
-                            if (runTimeInput.getText().toString().trim().length() < 1) {
-                                // runTimeInput.setError("Error: Can't be blank");
-                                String text = "Error: Runtime can't be blank!";
-
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
-                                snackbar.show();
-
-
-                            } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
-                                Context context = getApplicationContext();
-                                String text = "Runtime unchanged";
-
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
-                                snackbar.show();
-
-                            } else {
-                                runTimeInput.setError(null);
-
-
-                                AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                                        .allowMainThreadQueries()   //Allows room to do operation on main thread
-                                        .fallbackToDestructiveMigration()
-                                        .build();
-                                SeriesDAO seriesDAO = database.getSeriesDAO();
-
-                                //Updating an episodeRuntime
-                                EpisodeRuntime epsRunTime = new EpisodeRuntime();
-                                epsRunTime.setshowMyepsID(shows.get(showListPosition).getMyEpisodeID());
-                                epsRunTime.setShowName(shows.get(showListPosition).getShowName());
-                                // epsRunTime.setShowTVMazeID(epsRunTime.getShowTVMazeID());
-                                epsRunTime.setShowRuntime(newRuntimeValue);
-                                Log.d("epsRunTime: ", epsRunTime.toString());
-                                seriesDAO.update(epsRunTime);
-
-
-                                Context context = getApplicationContext();
-                                String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
-
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
-                                snackbar.show();
-
-                                populateShowRuntimeList();
-                                showListPosition = null;
-                            }
-                            dialog.dismiss();
-                        }
-                });
-        dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-        {
+        dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
+                String newRuntimeValue = runTimeInput.getText().toString();
+                //silent fail if user has entered a blank runtime
+                if (runTimeInput.getText().toString().trim().length() < 1) {
+                    // runTimeInput.setError("Error: Can't be blank");
+                    String text = "Error: Runtime can't be blank!";
+
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                    snackbar.show();
+
+
+                } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
+                    Context context = getApplicationContext();
+                    String text = "Runtime unchanged";
+
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                    snackbar.show();
+
+                } else {
+                    runTimeInput.setError(null);
+
+
+                    AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                            .allowMainThreadQueries()   //Allows room to do operation on main thread
+                            .fallbackToDestructiveMigration()
+                            .build();
+                    SeriesDAO seriesDAO = database.getSeriesDAO();
+
+                    //Updating an episodeRuntime
+                    EpisodeRuntime epsRunTime = new EpisodeRuntime();
+                    epsRunTime.setshowMyepsID(shows.get(showListPosition).getMyEpisodeID());
+                    epsRunTime.setShowName(shows.get(showListPosition).getShowName());
+                    // epsRunTime.setShowTVMazeID(epsRunTime.getShowTVMazeID());
+                    epsRunTime.setShowRuntime(newRuntimeValue);
+                    Log.d("epsRunTime: ", epsRunTime.toString());
+                    seriesDAO.update(epsRunTime);
+
+
+                    Context context = getApplicationContext();
+                    String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
+
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                    snackbar.show();
+
+                    populateShowRuntimeList();
+                    showListPosition = null;
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
                 showListPosition = null;
                 dialog.dismiss();
             }
@@ -232,7 +229,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
         dialog.create();
         dialog.show();
     }
-
 
 
     @Override
@@ -290,14 +286,14 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                                 Context context = getApplicationContext();
                                 String text = "Error: Runtime can't be blank!";
 
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
                                 snackbar.show();
 
                             } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
                                 Context context = getApplicationContext();
                                 String text = "Runtime unchanged";
 
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
                                 snackbar.show();
                             } else {
                                 runTimeInput.setError(null);
@@ -322,11 +318,12 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                                 Context context = getApplicationContext();
                                 String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
 
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement),text,Snackbar.LENGTH_LONG);
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
                                 snackbar.show();
 
                                 populateShowRuntimeList();
                                 showListPosition = null;
+                                database.close();
                             }
                         })
                         //; //remove this ; if add the .negative back int
@@ -392,12 +389,12 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
     @Override
     public void finish() {
-     //   boolean showsAdded = false;
-    //    if (showsAdded) {
-            setResult(RESULT_OK);
-    //    } else {
-    //        setResult(RESULT_CANCELED);
-   //     }
+        //   boolean showsAdded = false;
+        //    if (showsAdded) {
+        setResult(RESULT_OK);
+        //    } else {
+        //        setResult(RESULT_CANCELED);
+        //     }
         super.finish();
     }
 

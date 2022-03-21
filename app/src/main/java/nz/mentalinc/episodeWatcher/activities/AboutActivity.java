@@ -5,18 +5,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
 
 import androidx.preference.PreferenceManager;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.utils.ApplicationUtil;
-
 
 
 public class AboutActivity extends Activity {
@@ -25,7 +20,7 @@ public class AboutActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 Log.d(LOG_TAG, "Theme Preference set as ThemeDayNight");
@@ -60,7 +55,7 @@ public class AboutActivity extends Activity {
         TextView aboutWebsite = findViewById(R.id.aboutWebsite);
         Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,7 +64,6 @@ public class AboutActivity extends Activity {
             }
         });
     }
-
 
 
     public void onHomeClick(View v) {

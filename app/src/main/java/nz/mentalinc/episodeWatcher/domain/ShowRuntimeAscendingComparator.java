@@ -2,7 +2,7 @@ package nz.mentalinc.episodeWatcher.domain;
 
 import java.util.Comparator;
 
-public class ShowRuntimeAscendingComparator implements Comparator<Show>{
+public class ShowRuntimeAscendingComparator implements Comparator<Show> {
     @Override
     public int compare(Show o1, Show o2) {
 
@@ -16,7 +16,7 @@ public class ShowRuntimeAscendingComparator implements Comparator<Show>{
         //todo add in the work to get runtime from room database
 
 
-        return  o1.toString().compareTo(o2.toString());
+        return o1.toString().compareTo(o2.toString());
     }
 }
 

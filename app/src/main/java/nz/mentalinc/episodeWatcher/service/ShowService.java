@@ -3,6 +3,8 @@ package nz.mentalinc.episodeWatcher.service;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.room.Room;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,7 +30,6 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import androidx.room.Room;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.database.SeriesDAO;

@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="@color/on_text_white"
-            app:title="@string/loginLoginBtn"/>
+            app:title="@string/loginLoginBtn" />
     </com.google.android.material.appbar.AppBarLayout>
 
 

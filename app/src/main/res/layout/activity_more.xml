@@ -42,12 +42,11 @@
 
 
         <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_logout"
-                style="@style/HomeButton"
-                android:drawableTop="@drawable/outline_logout_white_48"
-                android:onClick="onLogoutClick"
-                android:text="@string/logout"
-            />
+            android:id="@+id/btn_logout"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_logout_white_48"
+            android:onClick="onLogoutClick"
+            android:text="@string/logout" />
 
         /LinearLayout>
     </LinearLayout>

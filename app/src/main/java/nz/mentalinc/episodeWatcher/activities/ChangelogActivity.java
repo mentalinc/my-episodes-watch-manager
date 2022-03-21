@@ -5,12 +5,10 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.preference.PreferenceManager;
 
 import nz.mentalinc.episodeWatcher.R;
@@ -45,7 +43,7 @@ public class ChangelogActivity extends Activity {
         TextView version = findViewById(R.id.whatsNewVersion);
         version.setText(ApplicationUtil.getCurrentApplicationVersion(getApplicationContext()));
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome =  findViewById(R.id.home);
+        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +55,7 @@ public class ChangelogActivity extends Activity {
 
     private void init(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String themeSetting = sharedPref.getString("ThemeSetting","0");
+        String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
                 setTheme(R.style.ThemeDayNight);

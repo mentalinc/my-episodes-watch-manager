@@ -1,18 +1,16 @@
 package nz.mentalinc.episodeWatcher;
 
 
-
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,7 @@ public class ShowDetailFrag extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.recycle_view_show_detail, container, false);
-        Log.d(LOG_TAG, "onCreateView called" );
+        Log.d(LOG_TAG, "onCreateView called");
         return rootView;
     }
 
@@ -61,7 +59,7 @@ public class ShowDetailFrag extends Fragment {
         showMyEpisodeID = getArguments().getString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
 
         String ShowTitleHeader = getArguments().getString("Title");
-        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar)  view.findViewById(R.id.topAppBarShowsDetailView);
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar) view.findViewById(R.id.topAppBarShowsDetailView);
         ShowNameTitle.setTitle(ShowTitleHeader);
 
         returnEpisodes();
@@ -69,7 +67,7 @@ public class ShowDetailFrag extends Fragment {
         RecyclerView rvShowDetail = (RecyclerView) view.findViewById(R.id.recyclerViewListShowItems);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvShowDetail.setLayoutManager(layoutManager);
-        ShowDetailAdapter adapter= new ShowDetailAdapter(shows);
+        ShowDetailAdapter adapter = new ShowDetailAdapter(shows);
         adapter.submitList(shows);
 
         //this doesn't seem to be called each time the tab is clicked on.
@@ -79,7 +77,7 @@ public class ShowDetailFrag extends Fragment {
         // Attach the adapter to the recyclerview to populate items
         rvShowDetail.setAdapter(adapter);
 
-        Log.d(LOG_TAG, "onViewCreated called" );
+        Log.d(LOG_TAG, "onViewCreated called");
 
     }
 
@@ -96,7 +94,7 @@ public class ShowDetailFrag extends Fragment {
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
         shows = new ArrayList<>();
 
-      //  String ShowTitle = "";
+        //  String ShowTitle = "";
         if (episodesRaw != null && episodesRaw.size() > 0) {
             for (Episode ep : episodesRaw) {
                 if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
