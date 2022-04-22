@@ -1,8 +1,12 @@
 package nz.mentalinc.episodeWatcher.activities;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -13,10 +17,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
@@ -25,24 +32,49 @@ import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.episodeWatcher.domain.Show;
+import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
+import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
+import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
+import nz.mentalinc.episodeWatcher.exception.ShowUpdateFailedException;
+import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
+import nz.mentalinc.episodeWatcher.service.UserService;
 
 public class UpdatedEpisodeListingActivity extends Activity {
     private static final String LOG_TAG = UpdatedEpisodeListingActivity.class.getSimpleName();
 
     List<Show> shows = new ArrayList<>();
+    private final EpisodesService service;
 
-    private List<Episode> episodesRaw = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
+    private Integer exceptionMessageResId = null;
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
     private BottomNavigationView bottomNavigationView;
     Bundle data;
     EpisodeAdapter adapter;
+    private User user;
+
+    private static final int EPISODE_LOADING_DIALOG = 0;
+    private static final int ONLINE_CHECK_DIALOG = 5;
+    private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
+    private final UserService userService;
+
+    public UpdatedEpisodeListingActivity() {
+        super();
+        userService = new UserService();
+        this.service = new EpisodesService();
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        user = new User(
+                sharedPref.getString("username", null),
+                sharedPref.getString("UserPassword", null)
+        );
+
 
         //todo add the refesh icon to the screen and then the methods to do that
         data = this.getIntent().getExtras();
@@ -52,19 +84,19 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
         setContentView(R.layout.recycle_view_episodes);
 
-        bottomNavigationView = findViewById(R.id.bottom_navigationviewShowHome);
+        bottomNavigationView = findViewById(R.id.bottom_navigationviewEpisodeHome);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
-        if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
-            bottomNavigationView.getMenu().getItem(3).setChecked(true);
-            // episodes = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.ACQUIRE_BY_SHOW,showMyEpisodeID);
-        } else if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
-            bottomNavigationView.getMenu().getItem(2).setChecked(true);
-            //  episodes = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.WATCH_BY_SHOW,showMyEpisodeID);
+        String markEpisode = Objects.requireNonNull(data).getString(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE);
 
-        } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
-            bottomNavigationView.getMenu().getItem(4).setChecked(true);
-            //  episodes = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.COMING_BY_SHOW,showMyEpisodeID);
+        if (markEpisode != null && !Objects.equals(markEpisode, "")) {
+            Episode episode = (Episode) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
+
+            if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)) {
+                markEpisodes(0, episode);
+            } else if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_ACQUIRE)) {
+                markEpisodes(1, episode);
+            }
         }
 
         returnEpisodes();
@@ -74,10 +106,23 @@ public class UpdatedEpisodeListingActivity extends Activity {
             shows.add(holderShow);
         }*/
 
-        RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItems);
+        if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
+            bottomNavigationView.getMenu().getItem(2).setChecked(true);
+            //   returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
+        } else if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
+            bottomNavigationView.getMenu().getItem(3).setChecked(true);
+            //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+
+        } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
+            bottomNavigationView.getMenu().getItem(4).setChecked(true);
+            //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
+        }
+
+        RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
         adapter = new EpisodeAdapter(episodes);
         adapter.submitList(episodes);
-        adapter.notifyItemInserted(0);
+        //adapter.notifyItemInserted(0);
+        adapter.notifyDataSetChanged();
         // Attach the adapter to the recyclerview to populate items
         rvEpisode.setAdapter(adapter);
         // Set layout manager to position the items
@@ -86,6 +131,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvEpisode.setLayoutManager(linearLayoutManager);
         rvEpisode.setHasFixedSize(true);
+
 
         com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
         title = title + " (" + episodes.size() + ")";
@@ -144,24 +190,34 @@ public class UpdatedEpisodeListingActivity extends Activity {
                             //issue where is the epiosdetype doesn't have any episode then this will fail as show.size=0.
                             //need to figure out how to keep the show value current?
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
-                        }
-
-                        //TODO need to build an activity to use the showDetail content.
-                        if (episodes.size() > 0) {
+                        } else if (episodes.size() > 0) {
                             Log.w(LOG_TAG, "barShowDetail Executing openShowSummary");
                             openShowSummary(episodes.get(0), episodesType);
+                        } else {
+
+                            openShowSummary(episodesType);
                         }
                         return true;
                     case R.id.barEpisodeOverview:
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
+                        //   if (shows.size() > 0) {
+                        //make sure it opens the next WATCH episode details.
+                        episodesType = EpisodeType.EPISODES_TO_WATCH;
+                        returnEpisodes();
+                        //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
                         if (shows.size() > 0) {
-                            //make sure it opens the next WATCH episode details.
-                            episodesType = EpisodeType.EPISODES_TO_WATCH;
-                            returnEpisodes();
-                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
-                            if (shows.size() > 0) {
-                                openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
-                            }
+                            openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                            //   }
+                        } else {
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarEpisodesView), "No episodes to watch", Snackbar.LENGTH_LONG);
+                            snackbar.setAnchorView(bottomNavigationView);
+                            snackbar.show();
+                            com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
+                            String title = data.getString("Title");
+                            title = title + " - No episodes to watch";
+                            ShowNameTitle.setTitle(title);
+                            //  openShowSummary(episodesType);
+
                         }
                         return true;
                     case R.id.barWatch:
@@ -184,6 +240,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
                         return true;
                     case R.id.barAcquire:
                         Log.w(LOG_TAG, "barAcquire selected");
+
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
                         } else {
@@ -199,6 +256,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
                         return true;
                     case R.id.barComing:
                         Log.w(LOG_TAG, "barComing selected");
+
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         } else {
@@ -253,6 +311,18 @@ public class UpdatedEpisodeListingActivity extends Activity {
         startActivity(episodeDetailsSubActivity);
     }
 
+
+    private void openShowSummary(EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+        // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", data.getString("Title"));
+        startActivity(episodeDetailsSubActivity);
+    }
+
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
         finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
@@ -265,7 +335,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
     }
 
     private void returnEpisodes() {
-
+        List<Episode> episodesRaw;
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
         //setting to a new list when this is called risks there being now show left to work with if there are no episodes of a particualr type left.
@@ -329,4 +399,188 @@ public class UpdatedEpisodeListingActivity extends Activity {
         }
         return null;
     }
+
+    private void markEpisode(int EpisodeStatus, Episode episode) {
+        try {
+            switch (EpisodeStatus) {
+                case 0:
+                    service.watchedEpisode(episode, user);
+                    break;
+                case 1:
+                    service.acquireEpisode(episode, user);
+                    break;
+            }
+        } catch (InternetConnectivityException e) {
+            String message = "Could not connect to host";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
+        } catch (LoginFailedException e) {
+            String message = "Login failure";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
+        } catch (ShowUpdateFailedException e) {
+            String message = "Marking the show watched failed (" + episode + ")";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.watchListUnableToMarkWatched;
+        } catch (Exception e) {
+            String message = "Unknown exception occured";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.defaultExceptionMessage;
+        }
+    }
+
+    private void markAllEpisodes(int EpisodeStatus, List<Episode> episodes) {
+        try {
+            switch (EpisodeStatus) {
+                case 0:
+                    service.watchedEpisodes(episodes, user);
+                    break;
+                case 1:
+                    service.acquireEpisodes(episodes, user);
+                    break;
+            }
+        } catch (InternetConnectivityException e) {
+            String message = "Could not connect to host";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
+        } catch (LoginFailedException e) {
+            String message = "Login failure";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.networkIssues;
+        } catch (ShowUpdateFailedException e) {
+            String message = "Marking shows watched failed";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.watchListUnableToMarkWatched;
+        } catch (Exception e) {
+            String message = "Unknown exception occured";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.defaultExceptionMessage;
+        }
+    }
+
+    private void markEpisodes(final int EpisodeStatus, final Episode episode) {
+        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+
+            @Override
+            protected void onPreExecute() {
+                showDialog(EPISODE_LOADING_DIALOG);
+            }
+
+            @Override
+            protected Object doInBackground(Object... objects) {
+                markEpisode(EpisodeStatus, episode);
+                if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+                    getEpisodes();
+                }
+                return 100L;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                removeDialog(EPISODE_LOADING_DIALOG);
+                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                    //showDialog(EXCEPTION_DIALOG);
+                    exceptionDialog(UpdatedEpisodeListingActivity.this);
+                    exceptionMessageResId = null;
+                } else {
+                    EpisodesController.getInstance().deleteEpisode(episode.getType(), episode);
+                }
+            }
+        };
+        asyncTask.execute();
+    }
+
+
+    private void markEpisodes(final int episodeStatus, final List<Episode> episodes) {
+        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+
+            @Override
+            protected void onPreExecute() {
+                showDialog(EPISODE_LOADING_DIALOG);
+            }
+
+            @Override
+            protected Object doInBackground(Object... objects) {
+                markAllEpisodes(episodeStatus, episodes);
+                if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+                    getEpisodes();
+                }
+                return 100L;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                    removeDialog(EPISODE_LOADING_DIALOG);
+                    //showDialog(EXCEPTION_DIALOG);
+                    exceptionDialog(UpdatedEpisodeListingActivity.this);
+                    exceptionMessageResId = null;
+                } else {
+                    removeDialog(EPISODE_LOADING_DIALOG);
+                    returnEpisodes();
+                }
+            }
+        };
+        asyncTask.execute();
+    }
+
+
+    public void exceptionDialog(Context context) {
+
+        if (exceptionMessageResId == null) {
+            exceptionMessageResId = R.string.defaultExceptionMessage;
+        }
+
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
+        dialog.setTitle(R.string.exceptionDialogTitle);
+        dialog.setMessage(exceptionMessageResId);
+        dialog.setPositiveButton(R.string.dialogOK, (dialog1, which) -> {
+            exceptionMessageResId = null;
+            dialog1.dismiss();
+        });
+
+        dialog.setCancelable(false);
+        dialog.create();
+        dialog.show();
+    }
+
+
+    private void getEpisodes() {
+        //todo - move this to using the hash map maybe?
+        episodes = EpisodesController.getInstance().getEpisodes(episodesType);
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog;
+        switch (id) {
+            case EPISODE_LOADING_DIALOG:
+                ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
+                progressDialog.setCancelable(false);
+                dialog = progressDialog;
+                break;
+            case EPISODE_LOADING_DIALOG_CACHE:
+                ProgressDialog progressDialogCache = new ProgressDialog(this);
+                progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
+                progressDialogCache.setCancelable(false);
+                dialog = progressDialogCache;
+                //dialog.show();
+                break;
+            case ONLINE_CHECK_DIALOG:
+                ProgressDialog progressDialogOnline = new ProgressDialog(this);
+                progressDialogOnline.setMessage(this.getString(R.string.progressLoadingOnlineCheck));
+                progressDialogOnline.setCancelable(false);
+                //progressDialogOnline.show();
+                dialog = progressDialogOnline;
+                break;
+
+            default:
+                dialog = super.onCreateDialog(id);
+                break;
+        }
+        return dialog;
+    }
+
+
 }

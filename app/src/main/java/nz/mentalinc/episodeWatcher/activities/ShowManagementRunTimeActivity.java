@@ -28,10 +28,21 @@ import androidx.room.Room;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
@@ -102,6 +113,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
         //read database of runtime and put on the page...
         populateShowRuntimeList();
+        showAdapter.notifyDataSetChanged();
 
     }
 
@@ -119,11 +131,131 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
         for (int i = 0; i < runtimeList.size(); i++) {
             EpisodeRuntime showRuntime = runtimeList.get(i);
-            shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
+
+            if (showRuntime.getShowRuntime() == null || showRuntime.getShowRuntime().equals("null")) {
+
+                //get the runtime for the null from TVMaze
+                HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
+                    put("a", "b");
+                }};
+
+                new ShowManagementRunTimeActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
+
+                shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
+                //shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(),  showSummaryHashMap.get("showRuntime")));
+            } else {
+                shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
+            }
         }
         Collections.sort(shows, new ShowRuntimeAscendingComparator());
 
         database.close();
+    }
+
+
+    //https://stackoverflow.com/questions/29555909/asynctask-how-to-return-a-hashmap-from-doinbackground
+    private class downloadShowSummary extends AsyncTask<String, String, HashMap<String, String>> {
+        HashMap<String, String> showSummaryHash;
+
+        downloadShowSummary(HashMap<String, String> showSummaryHash) {
+            this.showSummaryHash = showSummaryHash;
+        }
+
+        /*
+            doInBackground(Params... params)
+                Override this method to perform a computation on a background thread.
+         */
+        protected HashMap<String, String> doInBackground(String... params) {
+
+
+            //check if there are values in the database first. if there are use those, if not use the API
+
+            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                    //.allowMainThreadQueries()   //Allows room to do operation on main thread
+                    .fallbackToDestructiveMigration()
+                    .build();
+
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
+            String showRuntime = showInfo.getShowRuntime();
+
+            HttpsURLConnection connection = null;
+            BufferedReader reader = null;
+            String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0];
+
+            try {
+                URL url = new URL(episodeSummaryAPIURL);
+                connection = (HttpsURLConnection) url.openConnection();
+                connection.connect();
+                int code = connection.getResponseCode();
+                Log.d(LOG_TAG, "API HTTP Status Code: " + code);
+
+                if (code == 429) {
+                    Thread.sleep(10000);
+                    //wait 10 seconds then try again
+                    connection = (HttpsURLConnection) url.openConnection();
+                    connection.connect();
+                }
+
+                InputStream stream = connection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                StringBuilder buffer = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line);
+                    buffer.append("\n");
+                }
+
+                String jsonString = buffer.toString();
+                JSONObject jObj;
+
+                try {
+                    jObj = new JSONObject(jsonString);
+
+                    showRuntime = jObj.getString("runtime");
+
+                    if (showRuntime.equals("null") || showRuntime == null) {
+                        showRuntime = jObj.getString("averageRuntime");
+                    }
+
+                    showSummaryHash.put("showRuntime", showRuntime);
+                    EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showInfo.getShowMyEpsID());
+                    //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
+
+                    showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
+
+                    //  Log.d("epsRunTime: ", epsRunTime.toString());
+                    seriesDAO.update(showSummaryInfo);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            database.close();
+            return showSummaryHash;
+        }
+    }
+
+    protected void onPostExecute(HashMap<String, String> result) {
+        showAdapter.notifyDataSetChanged();
+
     }
 
 
@@ -213,6 +345,8 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                     populateShowRuntimeList();
                     showListPosition = null;
+                    showAdapter.notifyDataSetChanged();
+                    database.close();
                 }
                 dialog.dismiss();
             }
@@ -323,6 +457,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                                 populateShowRuntimeList();
                                 showListPosition = null;
+                                showAdapter.notifyDataSetChanged();
                                 database.close();
                             }
                         })
@@ -373,7 +508,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                     try {
 
-                        showAdapter.notifyDataSetChanged();
+                       // showAdapter.notifyDataSetChanged();
 
                     } catch (Exception e) {
                         String message = "ShowFailure";

@@ -19,6 +19,7 @@ import androidx.room.Room;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,7 +84,6 @@ public class ShowSummaryActivity extends Activity {
         ShowNameTitle.setTitle(title);
 
         bottomNavigationView = findViewById(R.id.bottom_navigationShowOverview);
-        bottomNavigationView.getMenu().getItem(0).setChecked(true);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
 
@@ -100,60 +100,21 @@ public class ShowSummaryActivity extends Activity {
                 .build();
 
         SeriesDAO seriesDAO = database.getSeriesDAO();
-        EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+        EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
 
 
         TextView textViewWatchShowsRemaining = findViewById(R.id.episodesToWatch);
         TextView textViewAcquireShowsRemaining = findViewById(R.id.episodesToAcquire);
         TextView textViewComingShowsRemaining = findViewById(R.id.episodesComing);
-        String watchCount = "Episodes to watch: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
+        //String watchCount = "Episodes to watch: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
+        String watchCount = "" +EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
         textViewWatchShowsRemaining.setText(watchCount);
-        String acquireCount = "Episodes to acquire: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.ACQUIRE_BY_SHOW, showMyEpisodeID);
+        //String acquireCount = "Episodes to acquire: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.ACQUIRE_BY_SHOW, showMyEpisodeID);
+        String acquireCount = "" + EpisodesController.getInstance().getEpisodesCount(EpisodeType.ACQUIRE_BY_SHOW, showMyEpisodeID);
         textViewAcquireShowsRemaining.setText(acquireCount);
-        String comingCount = "Episodes coming: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.COMING_BY_SHOW, showMyEpisodeID);
+        //String comingCount = "Episodes coming: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.COMING_BY_SHOW, showMyEpisodeID);
+        String comingCount = "" + EpisodesController.getInstance().getEpisodesCount(EpisodeType.COMING_BY_SHOW, showMyEpisodeID);
         textViewComingShowsRemaining.setText(comingCount);
-
-        /*
-        if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
-
-            if (shows.size() > 0) {
-                String watchCount = "Episodes to watch: " + shows.get(0).getNumberEpisodes();
-                textViewWatchShowsRemaining.setText(watchCount);
-            }
-            int acquireCount = EpisodesController.getInstance().getEpisodesCount(EpisodeType.ACQUIRE_BY_SHOW, showMyEpisodeID);
-            textViewAcquireShowsRemaining.setText("Episodes to acquire: " + acquireCount);
-            int comingCount = EpisodesController.getInstance().getEpisodesCount(EpisodeType.COMING_BY_SHOW, showMyEpisodeID);
-            textViewComingShowsRemaining.setText("Episodes coming: " + comingCount);
-
-
-        }
-        if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
-
-            if (shows.size() > 0) {
-                String acquireCount = "Episodes to acquire: " + shows.get(0).getNumberEpisodes();
-                textViewAcquireShowsRemaining.setText(acquireCount);
-            }
-
-            int watchCount = EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
-            textViewWatchShowsRemaining.setText("Episodes to watch: " + watchCount);
-            int comingCount = EpisodesController.getInstance().getEpisodesCount(EpisodeType.COMING_BY_SHOW, showMyEpisodeID);
-            textViewComingShowsRemaining.setText("Episodes coming: " + comingCount);
-
-        }
-        if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
-
-            if (shows.size() > 0) {
-                String comingCount = "Episodes coming: " + shows.get(0).getNumberEpisodes();
-                textViewComingShowsRemaining.setText(comingCount);
-            }
-            int watchCount = EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
-            textViewWatchShowsRemaining.setText("Episodes to watch: " + watchCount);
-            int acquireCount = EpisodesController.getInstance().getEpisodesCount(EpisodeType.ACQUIRE_BY_SHOW, showMyEpisodeID);
-            textViewAcquireShowsRemaining.setText("Episodes to acquire: " + acquireCount);
-
-
-        }
-*/
 
 
         //create hashmap's to prevent build fails, they get replaced
@@ -165,7 +126,11 @@ public class ShowSummaryActivity extends Activity {
         }};
 
 
-        new downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
+        if (showRuntime.getShowTVMazeID() != null) {
+            new downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
+        } else {
+            Log.w(LOG_TAG, "showRuntime getShowTVMazeID is null");
+        }
 
 
         //       episodeSummaryHashMap.get("episodeURL");
@@ -210,13 +175,29 @@ public class ShowSummaryActivity extends Activity {
                         return true;
                     case R.id.barEpisodeOverview:
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
+                        //if (shows.size() > 0) {
+                        //make sure it opens the next WATCH episode details.
+                        episodesType = EpisodeType.EPISODES_TO_WATCH;
+                        returnEpisodes();
                         if (shows.size() > 0) {
-                            //make sure it opens the next WATCH episode details.
-                            episodesType = EpisodeType.EPISODES_TO_WATCH;
-                            returnEpisodes();
-                            if (shows.size() > 0) {
-                                openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
-                            }
+                            openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+
+
+                        /*    } else {
+
+                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowOverview), "No episodes to watch", Snackbar.LENGTH_LONG);
+                                snackbar.setAnchorView(bottomNavigationView);
+                                snackbar.show();
+                                //show the snackbar and stay on the episode summary
+                                bottomNavigationView.getMenu().getItem(0).setChecked(true);
+                            }*/
+                        } else {
+
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowOverview), "No episodes to watch", Snackbar.LENGTH_LONG);
+                            snackbar.setAnchorView(bottomNavigationView);
+                            snackbar.show();
+                            //show the snackbar and stay on the episode summary
+                            bottomNavigationView.getMenu().getItem(0).setChecked(true);
                         }
                         return true;
                     case R.id.barWatch:
@@ -224,18 +205,24 @@ public class ShowSummaryActivity extends Activity {
 
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                        } else {
+                            openEpisodeListing(EpisodeType.EPISODES_TO_WATCH);
                         }
                         return true;
                     case R.id.barAcquire:
                         Log.w(LOG_TAG, "barAcquire selected");
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                        } else {
+                            openEpisodeListing(EpisodeType.EPISODES_TO_ACQUIRE);
                         }
                         return true;
                     case R.id.barComing:
                         Log.w(LOG_TAG, "barComing selected");
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                        } else {
+                            openEpisodeListing(EpisodeType.EPISODES_COMING);
                         }
                         return true;
                 }
@@ -258,6 +245,20 @@ public class ShowSummaryActivity extends Activity {
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        startActivity(updatedEpisodeListActivity);
+    }
+
+
+    private void openEpisodeListing(EpisodeType episodeType) {
+        finish();
+        Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+        //todo make the animation slide between the different tabs like this:
+        //https://stackoverflow.com/questions/10243557/how-to-apply-slide-animation-between-two-activities-in-android
+        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        updatedEpisodeListActivity.putExtra("Title", data.getString("Title"));
         startActivity(updatedEpisodeListActivity);
     }
 
@@ -335,7 +336,7 @@ public class ShowSummaryActivity extends Activity {
             //check if there are values in the database first. if there are use those, if not use the API
 
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
+                    //.allowMainThreadQueries()   //Allows room to do operation on main thread
                     .fallbackToDestructiveMigration()
                     .build();
 
@@ -350,9 +351,21 @@ public class ShowSummaryActivity extends Activity {
             String showRuntime = showInfo.getShowRuntime();
             String showStatus = showInfo.getShowStatus();
 
-            //TODO add showStatus in seems to crash with null error.
-            if (!showName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && showStatus != null && !showImageURL.equals("")) {
-                //if (!showName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") &&  !showImageURL.equals("")) {
+/*
+            Log.w(LOG_TAG, "showName: " + showName);
+            Log.w(LOG_TAG, "showURL: " + showURL);
+            Log.w(LOG_TAG, "officialSite: " + officialSite);
+            Log.w(LOG_TAG, "showSummary: " + showSummary);
+            Log.w(LOG_TAG, "showImageURL: " + showImageURL);
+            Log.w(LOG_TAG, "showRuntime: " + showRuntime);
+            Log.w(LOG_TAG, "showStatus: " + showStatus);
+
+
+*/
+
+            // no value, as the work is done in a thread and needs theme check to be done and getting latest api info not that much slower
+            if (showName != null && showURL != null && officialSite != null && showSummary != null && showStatus != null && showImageURL != null && !showRuntime.equals("null")) {
+                //if (!showName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && showStatus != null && !showImageURL.equals("")) {
                 showSummaryHash.put("showName", showName);
                 showSummaryHash.put("showURL", showURL);
                 showSummaryHash.put("officialSite", officialSite);
@@ -361,7 +374,7 @@ public class ShowSummaryActivity extends Activity {
                 showSummaryHash.put("showRuntime", showRuntime);
                 showSummaryHash.put("showStatus", showStatus);
 
-                //not in database so download from API
+                //not in database so download from API - Getting them all from the API is the same effort as just getting one, so not adding lots of logic to check and only get the extra one.
             } else {
 
 
@@ -407,6 +420,11 @@ public class ShowSummaryActivity extends Activity {
                         showName = jObj.getString("name");
                         showURL = jObj.getString("url");
                         showRuntime = jObj.getString("runtime");
+
+                        if (showRuntime.equals("null") || showRuntime == null) {
+                            showRuntime = jObj.getString("averageRuntime");
+                        }
+
                         officialSite = jObj.getString("officialSite");
                         showStatus = jObj.getString("status");
                         if (!jObj.getString("image").equals("null")) {
@@ -431,6 +449,19 @@ public class ShowSummaryActivity extends Activity {
                         showSummaryHash.put("showRuntime", showRuntime);
                         showSummaryHash.put("showStatus", showStatus);
 
+                        EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
+                        //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
+
+                        showSummaryInfo.setShowSummary(showSummaryHash.get("showSummary"));
+                        showSummaryInfo.setShowURL(showSummaryHash.get("showURL"));
+                        showSummaryInfo.setOfficialSite(showSummaryHash.get("officialSite"));
+                        showSummaryInfo.setShowImageURL(showSummaryHash.get("showImageURL"));
+                        showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
+                        showSummaryInfo.setShowStatus(showSummaryHash.get("showStatus"));
+
+                        //  Log.d("epsRunTime: ", epsRunTime.toString());
+
+                        seriesDAO.update(showSummaryInfo);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -451,6 +482,7 @@ public class ShowSummaryActivity extends Activity {
                     }
                 }
             }
+
             database.close();
             return showSummaryHash;
         }
@@ -464,15 +496,17 @@ public class ShowSummaryActivity extends Activity {
 
 
             TextView tvMazeShowWebsite;
-
             TextView officialShowDetailWebsite;
             TextView tvMazeShowDetailSummary;
+            TextView ShowRuntime;
+            TextView ShowStatus;
+            ImageView showImage;
 
-            TextView ShowRuntime = findViewById(R.id.ShowRuntime);
+            ShowRuntime = findViewById(R.id.ShowRuntime);
             String runtime = "Episode runtime: " + showSummaryHash.get("showRuntime") + " mins";
             ShowRuntime.setText(runtime);
 
-            TextView ShowStatus = findViewById(R.id.ShowStatus);
+            ShowStatus = findViewById(R.id.ShowStatus);
             String showStatus = "Show status: " + showSummaryHash.get("showStatus");
             ShowStatus.setText(showStatus);
 
@@ -499,7 +533,7 @@ public class ShowSummaryActivity extends Activity {
                 tvMazeShowDetailSummary.setVisibility(View.GONE);
             }
 
-            ImageView showImage = findViewById(R.id.showImage);
+            showImage = findViewById(R.id.showImage);
 
             String showImageURL = showSummaryHash.get("showImageURL");
             // add in here to download tv series info...and the show level info to a database!
@@ -510,16 +544,18 @@ public class ShowSummaryActivity extends Activity {
                 requestOptions.placeholder(R.drawable.placeholder);
                 requestOptions.error(R.drawable.error);
 
+                // if (Activity..isFinishing()) {
                 Glide.with(findViewById(R.id.showImage))
                         .load(showImageURL)
                         .apply(requestOptions)
                         .into(showImage);
+                //}
 
             } else {
                 showImage.setVisibility(View.GONE);
             }
 
-
+/*
             //add the info into the show database to limit the need to api call the info all the time for static show info
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
                     .allowMainThreadQueries()   //Allows room to do operation on main thread
@@ -529,21 +565,23 @@ public class ShowSummaryActivity extends Activity {
             SeriesDAO seriesDAO = database.getSeriesDAO();
 
 
-            EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+            EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
 
 
-            //Inserting an episodeRuntime adding the info that was not collected during the runtime. addition
+            //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
 
             showSummaryInfo.setShowSummary(showSummaryHash.get("showSummary"));
             showSummaryInfo.setShowURL(showSummaryHash.get("showURL"));
             showSummaryInfo.setOfficialSite(showSummaryHash.get("officialSite"));
             showSummaryInfo.setShowImageURL(showSummaryHash.get("showImageURL"));
             showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
+            showSummaryInfo.setShowStatus(showSummaryHash.get("showStatus"));
 
             //  Log.d("epsRunTime: ", epsRunTime.toString());
 
             seriesDAO.update(showSummaryInfo);
-
+            database.close();
+*/
         }
     }
 
@@ -592,9 +630,12 @@ public class ShowSummaryActivity extends Activity {
             tempShow.addEpisode(episode);
             shows.add(tempShow);
 
+            database.close();
+
         } else {
             currentShow.addEpisode(episode);
         }
+
     }
 
     private void sortShows(List<Show> showList) {

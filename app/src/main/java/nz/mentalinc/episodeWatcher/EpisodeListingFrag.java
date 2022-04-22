@@ -75,7 +75,7 @@ public class EpisodeListingFrag extends Fragment {
         com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar) view.findViewById(R.id.topAppBarEpisodesView);
         ShowNameTitle.setTitle(ShowTitleHeader);
 
-        rvEpisode = (RecyclerView) view.findViewById(R.id.recyclerViewListItems);
+        rvEpisode = (RecyclerView) view.findViewById(R.id.recyclerViewListItemsEps);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvEpisode.setLayoutManager(layoutManager);

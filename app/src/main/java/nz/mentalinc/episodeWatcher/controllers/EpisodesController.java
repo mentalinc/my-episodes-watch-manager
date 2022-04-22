@@ -174,13 +174,13 @@ public class EpisodesController {
         }
     }
 
-    public void deleteShowEpisode(EpisodeType episodesType, Episode episode, String myEpisodeID) {
+    public void deleteShowEpisode(EpisodeType episodesType, Episode episode) {
 
         //TODO this hasn't been tested yet - 100% guessing based on the code needed.
         //TEST works on the WATCH episodes then try the other CASES.
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                Show tempShow = watchShows.get(myEpisodeID);
+                Show tempShow = watchShows.get(episode.getMyEpisodeID());
                 List<Episode> episodesListing = tempShow.getEpisodes();
                 for (int i = 0; i < episodesListing.size(); i++) {
                     if (episodesListing.get(i).toString().equals(episode.toString())) {
@@ -188,11 +188,12 @@ public class EpisodesController {
                     }
                 }
                 //NEED TO ADD SOMETHING HERE TO HELP WITH adding th
-                Show showNew = new Show(episode.getShowName(), myEpisodeID);
+              /*  Show showNew = new Show(episode.getShowName(), myEpisodeID);
                 for (Episode eps : episodesListing) {
                     showNew.addEpisode(eps);
-                }
-                watchShows.replace(myEpisodeID, showNew);
+                }*/
+                //adding the show back in with the episode removed hopefully.
+                watchShows.replace(episode.getMyEpisodeID(), tempShow);
 
                 break;
          /*   case EPISODES_TO_ACQUIRE:
@@ -247,7 +248,7 @@ public class EpisodesController {
         watchEpisodes = tempList;
         acquireEpisodes = tempList;
         comingEpisodes = tempList;
-        shows.clear();
+        //shows.clear();
         watchShows.clear();
         acquireShows.clear();
         comingShows.clear();

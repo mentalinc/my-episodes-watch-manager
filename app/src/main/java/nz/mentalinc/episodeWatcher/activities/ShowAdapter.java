@@ -77,14 +77,14 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             // to access the context from any ViewHolder instance.
             super(itemView);
 
-            seriesnameView = (TextView) itemView.findViewById(R.id.seriesname);
-            TextViewShowListNextEpisode = (TextView) itemView.findViewById(R.id.TextViewShowListNextEpisode);
-            episodetime = (TextView) itemView.findViewById(R.id.episodetime);
-            textViewShowsRemaining = (TextView) itemView.findViewById(R.id.textViewShowsRemaining);
-            textViewShowsRunTime = (TextView) itemView.findViewById(R.id.textViewShowsRunTime);
-            setWatchedButton = (ImageView) itemView.findViewById(R.id.imageViewShowsSetWatched);
+            seriesnameView = itemView.findViewById(R.id.seriesname);
+            TextViewShowListNextEpisode = itemView.findViewById(R.id.TextViewShowListNextEpisode);
+            episodetime = itemView.findViewById(R.id.episodetime);
+            textViewShowsRemaining = itemView.findViewById(R.id.textViewShowsRemaining);
+            textViewShowsRunTime = itemView.findViewById(R.id.textViewShowsRunTime);
+            setWatchedButton = itemView.findViewById(R.id.imageViewShowsSetWatched);
 
-            showposter = (ImageView) itemView.findViewById(R.id.showposter);
+            showposter = itemView.findViewById(R.id.showposter);
 
         }
     }
@@ -121,15 +121,14 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             TextView episodeAirTime = holder.episodetime;
             episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
 
-
             TextView textViewShowsRemaining = holder.textViewShowsRemaining;
             String episodesRemaining;
 
             Date today = Calendar.getInstance().getTime();
-            if (show.getFirstEpisode().getAirDate().after(today)) {
-                episodesRemaining = show.getNumberEpisodes() + " episodes coming";
-            } else {
+            if (show.getFirstEpisode().getAirDate().before(today)) {
                 episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
+            } else {
+                episodesRemaining = show.getNumberEpisodes() + " episodes coming";
             }
 
             textViewShowsRemaining.setText(episodesRemaining);
@@ -161,7 +160,7 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
                     .load(showImageURL)
                     .apply(requestOptions)
                     .into(showPoster);
-
+            database.close();
 
         } catch (NullPointerException e) {
             if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {

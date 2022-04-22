@@ -190,7 +190,7 @@
         <item>Ascending</item>
         <item>Descending</item>
         <item>By Date</item>
-        <item>Run Time</item>
+        <item>Runtime</item>
     </string-array>
     <!-- Episode sorting -->
     <string name="episodeOrderPrompt">Order of episodes</string>
@@ -204,7 +204,7 @@
     <string name="daysBackwardCP">Days Backward</string>
     <string name="daysBackwardCPExtra">Number of days backward to search for new episodes to watch</string>
 
-    <!-- Run Time -->
+    <!-- Runtime -->
     <string name="RunTime">Enable show runtime</string>
 
     !-- Website Filter -->

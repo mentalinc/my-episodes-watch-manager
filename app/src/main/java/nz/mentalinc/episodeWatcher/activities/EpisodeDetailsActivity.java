@@ -70,7 +70,7 @@ public class EpisodeDetailsActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+ /*      SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
@@ -82,9 +82,11 @@ public class EpisodeDetailsActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
-        }
+        }*/
         super.onCreate(savedInstanceState);
 
+
+        //TODO ADD in a check so that only show this view when clicking on an episode to get more info (updatedepisodelistingactivity). if in the other views and not an actual episode, should only no new episode to watch.
 
         setContentView(R.layout.episode_details);
 
@@ -238,17 +240,21 @@ public class EpisodeDetailsActivity extends Activity {
                         //TODO need to build an activity to use the showDetail content.
                         if (shows.size() > 0) {
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
+                        } else {
+                            //openEpisodeListing(episodesType);
+
                         }
                         return true;
                     case R.id.barEpisodeOverview:
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
 
                         if (shows.size() > 0) {
-                         //   episodesType = EpisodeType.EPISODES_TO_WATCH;
-                         //   returnEpisodes();
-                            if (shows.size() > 0) {
-                                openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
-                            }
+                            //   episodesType = EpisodeType.EPISODES_TO_WATCH;
+                            //   returnEpisodes();
+                            openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                        } else {
+
+
                         }
                         return true;
                     case R.id.barWatch:
@@ -256,11 +262,7 @@ public class EpisodeDetailsActivity extends Activity {
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
                         } else {
-                         //   episodesType = EpisodeType.EPISODES_TO_WATCH;
-                         //   returnEpisodes();
-                            if (shows.size() > 0) {
-                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
-                            }
+                            openEpisodeListing(episodesType);
                         }
                         return true;
                     case R.id.barAcquire:
@@ -268,11 +270,7 @@ public class EpisodeDetailsActivity extends Activity {
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
                         } else {
-                        //    episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
-                        //    returnEpisodes();
-                            if (shows.size() > 0) {
-                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
-                            }
+                            openEpisodeListing(episodesType);
                         }
                         return true;
                     case R.id.barComing:
@@ -280,11 +278,12 @@ public class EpisodeDetailsActivity extends Activity {
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         } else {
-                            episodesType = EpisodeType.EPISODES_COMING;
+                           /* episodesType = EpisodeType.EPISODES_COMING;
                             returnEpisodes();
                             if (shows.size() > 0) {
                                 openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
-                            }
+                            }*/
+                            openEpisodeListing(episodesType);
                         }
                         return true;
                 }
@@ -429,10 +428,13 @@ public class EpisodeDetailsActivity extends Activity {
                 requestOptions.placeholder(R.drawable.placeholder);
                 requestOptions.error(R.drawable.error);
 
-                Glide.with(findViewById(R.id.episodeImage))
-                        .load(episodeImageURL)
-                        .apply(requestOptions)
-                        .into(episodeImage);
+
+              //  if (!a.isFinishing()){
+                    Glide.with(findViewById(R.id.episodeImage))
+                            .load(episodeImageURL)
+                            .apply(requestOptions)
+                            .into(episodeImage);
+           // }
 
             } else {
                 episodeImage.setVisibility(View.GONE);
@@ -473,8 +475,15 @@ public class EpisodeDetailsActivity extends Activity {
             String showSummary = showInfo.getShowSummary();
             String showImageURL = showInfo.getShowImageURL();
             String ShowRuntime = showInfo.getShowRuntime();
+            String showStatus = showInfo.getShowStatus();
 
-            if (!ShowName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && !showImageURL.equals("")) {
+            if(!ShowRuntime.equals("")){
+                TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);
+                ShowRuntimeTV.setText(ShowRuntime + " mins");
+
+            }
+
+            if (!ShowName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && !showImageURL.equals("") && !ShowRuntime.equals("")  && showStatus != null) {
 
                 showSummaryHash.put("ShowName", ShowName);
                 showSummaryHash.put("showURL", showURL);
@@ -482,6 +491,8 @@ public class EpisodeDetailsActivity extends Activity {
                 showSummaryHash.put("showSummary", showSummary);
                 showSummaryHash.put("showImageURL", showImageURL);
                 showSummaryHash.put("ShowRuntime", ShowRuntime);
+                showSummaryHash.put("showStatus", showStatus);
+
 
                 //not in database so download from API
             } else {
@@ -529,6 +540,9 @@ public class EpisodeDetailsActivity extends Activity {
                         ShowName = jObj.getString("name");
                         showURL = jObj.getString("url");
                         ShowRuntime = jObj.getString("runtime");
+                        if (ShowRuntime.equals("null") || ShowRuntime == null) {
+                            ShowRuntime = jObj.getString("averageRuntime");
+                        }
                         officialSite = jObj.getString("officialSite");
                         if (!jObj.getString("image").equals("null")) {
                             showImageURL = jObj.getJSONObject("image").getString("medium");
@@ -550,6 +564,7 @@ public class EpisodeDetailsActivity extends Activity {
                         showSummaryHash.put("officialSite", officialSite);
                         showSummaryHash.put("ShowName", ShowName);
                         showSummaryHash.put("ShowRuntime", ShowRuntime);
+                        showSummaryHash.put("showStatus", showStatus);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -570,6 +585,7 @@ public class EpisodeDetailsActivity extends Activity {
                     }
                 }
             }
+            database.close();
             return showSummaryHash;
         }
 
@@ -644,14 +660,17 @@ public class EpisodeDetailsActivity extends Activity {
 
             //Inserting an episodeRuntime adding the info that was not collected during the runtime. addition
 
+
             showSummaryInfo.setShowSummary(showSummaryHash.get("showSummary"));
             showSummaryInfo.setShowURL(showSummaryHash.get("showURL"));
             showSummaryInfo.setOfficialSite(showSummaryHash.get("officialSite"));
+            showSummaryInfo.setShowRuntime(showSummaryHash.get("ShowRuntime"));
             showSummaryInfo.setShowImageURL(showSummaryHash.get("showImageURL"));
-
+            showSummaryInfo.setShowStatus(showSummaryHash.get("showStatus"));
             //  Log.d("epsRunTime: ", epsRunTime.toString());
 
             seriesDAO.update(showSummaryInfo);
+            database.close();
 
         }
     }
@@ -705,7 +724,8 @@ public class EpisodeDetailsActivity extends Activity {
 
         //todo need to have it call the new show home tab, but the buttons fail to work when clicking acquire.
         //Intent episodeListingActivity = new Intent(this.getApplicationContext(), ShowHomeTabActivity.class);
-        Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
+        //Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
+        Intent episodeListingActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
 
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
@@ -801,6 +821,18 @@ public class EpisodeDetailsActivity extends Activity {
         finish();
 
         OpenListingActivity();
+    }
+
+
+    private void openEpisodeListing(EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+        // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", data.getString("Title"));
+        startActivity(episodeDetailsSubActivity);
     }
 
     private void openEpisodeListing(Show show, EpisodeType episodeType) {

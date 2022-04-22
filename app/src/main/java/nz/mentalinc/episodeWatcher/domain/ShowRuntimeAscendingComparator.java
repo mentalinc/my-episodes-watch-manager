@@ -6,17 +6,37 @@ public class ShowRuntimeAscendingComparator implements Comparator<Show> {
     @Override
     public int compare(Show o1, Show o2) {
 
-      /*  Episode o1ep = o1.getFirstEpisode();
-        Episode o2Ep = o1.getFirstEpisode();
-        o1ep.getMyEpisodeID();
-        o2Ep.getMyEpisodeID();
+        //this is to make sure error mins to go to the top.
+        if (o1.getRunTime().equals("Error mins")) {
+            return -1;
+        }
+        if (o2.getRunTime().equals("Error mins")) {
+            return 1;
+        }
 
-       */
+        if (o1.getRunTime().equals("null")) {
+            return -1;
+        }
+        if (o2.getRunTime().equals("null")) {
+            return 1;
+        }
 
-        //todo add in the work to get runtime from room database
+        //convert from string to a number so can do proper sorting using numbers instead of String
 
+        int o1Runtime = Integer.parseInt(o1.getRunTime());
+        int o2Runtime = Integer.parseInt(o2.getRunTime());
 
-        return o1.toString().compareTo(o2.toString());
+        if (o1Runtime == o2Runtime) {
+            //return 0;
+            //sort by showname when the time is the same.
+            return o1.getShowName().compareTo(o2.getShowName());
+        } else if (o1Runtime < o2Runtime) {
+            return -1;
+        } else if (o1Runtime > o2Runtime) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }
 

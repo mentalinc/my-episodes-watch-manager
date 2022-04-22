@@ -3,20 +3,42 @@ package nz.mentalinc.episodeWatcher.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.preference.PreferenceManager;
+import androidx.room.Room;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.episodeWatcher.R;
+import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
+import nz.mentalinc.episodeWatcher.database.AppDatabase;
+import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.enums.ShowType;
+import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 
 /**
  * @author Ivo Janssen, maintained and updated by mentalinc
  */
 public class ShowManagementPortalActivity extends Activity {
+
+    private static final String LOG_TAG = EpisodesController.class.getSimpleName();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,10 +75,12 @@ public class ShowManagementPortalActivity extends Activity {
         Button ignoredShowsButton = findViewById(R.id.selectionPanelIgnoredShows);
         Button addShowsButton = findViewById(R.id.selectionPanelAddShows);
         Button ShowsRuntimeButton = findViewById(R.id.selectionPanelShowsRuntime);
+        Button nullRuntimeButton = findViewById(R.id.addNullRuntime);
         favShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS));
         ignoredShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS));
         addShowsButton.setOnClickListener(view -> openSearchActivity());
         ShowsRuntimeButton.setOnClickListener(view -> openRunTimeActivity());
+        nullRuntimeButton.setOnClickListener(view -> nullRuntimeFixer());
     }
 
     private void openSearchActivity() {
@@ -69,6 +93,35 @@ public class ShowManagementPortalActivity extends Activity {
         Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
         runTimeIntent.putExtra("Title", getString(R.string.ShowRuntime));
         startActivity(runTimeIntent);
+    }
+
+
+    private void nullRuntimeFixer() {
+
+        //open the database and find shows that are null runtime and get get it...
+        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .fallbackToDestructiveMigration()
+                .build();
+
+        SeriesDAO seriesDAO = database.getSeriesDAO();
+        List<EpisodeRuntime> runtimeList = seriesDAO.getEpisodeRuntime();
+
+
+        for (int i = 0; i < runtimeList.size(); i++) {
+            EpisodeRuntime showRuntime = runtimeList.get(i);
+
+            if (showRuntime.getShowRuntime() == null || showRuntime.getShowRuntime().equals("null")) {
+
+                //get the runtime for the null from TVMaze
+                HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
+                    put("a", "b");
+                }};
+
+                new ShowManagementPortalActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
+            }
+        }
+        database.close();
     }
 
     private void openFavouriteOrIgnoredShows(ShowType showType) {
@@ -84,5 +137,106 @@ public class ShowManagementPortalActivity extends Activity {
 
     public void onHomeClick(View v) {
         finish();
+    }
+
+
+    //https://stackoverflow.com/questions/29555909/asynctask-how-to-return-a-hashmap-from-doinbackground
+    private class downloadShowSummary extends AsyncTask<String, String, HashMap<String, String>> {
+        HashMap<String, String> showSummaryHash;
+
+        downloadShowSummary(HashMap<String, String> showSummaryHash) {
+            this.showSummaryHash = showSummaryHash;
+        }
+
+        /*
+            doInBackground(Params... params)
+                Override this method to perform a computation on a background thread.
+         */
+        protected HashMap<String, String> doInBackground(String... params) {
+
+
+            //check if there are values in the database first. if there are use those, if not use the API
+
+            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                    //.allowMainThreadQueries()   //Allows room to do operation on main thread
+                    .fallbackToDestructiveMigration()
+                    .build();
+
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
+            String showRuntime = showInfo.getShowRuntime();
+
+            HttpsURLConnection connection = null;
+            BufferedReader reader = null;
+            String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0];
+
+            try {
+                URL url = new URL(episodeSummaryAPIURL);
+                connection = (HttpsURLConnection) url.openConnection();
+                connection.connect();
+                int code = connection.getResponseCode();
+                Log.d(LOG_TAG, "API HTTP Status Code: " + code);
+
+                if (code == 429) {
+                    Thread.sleep(10000);
+                    //wait 10 seconds then try again
+                    connection = (HttpsURLConnection) url.openConnection();
+                    connection.connect();
+                }
+
+                InputStream stream = connection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                StringBuilder buffer = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line);
+                    buffer.append("\n");
+                }
+
+                String jsonString = buffer.toString();
+                JSONObject jObj;
+
+                try {
+                    jObj = new JSONObject(jsonString);
+
+                    showRuntime = jObj.getString("runtime");
+
+                    if (showRuntime.equals("null") || showRuntime == null) {
+                        showRuntime = jObj.getString("averageRuntime");
+                    }
+
+                    showSummaryHash.put("showRuntime", showRuntime);
+                    EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showInfo.getShowMyEpsID());
+                    //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
+
+                    showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
+
+                    //  Log.d("epsRunTime: ", epsRunTime.toString());
+                    seriesDAO.update(showSummaryInfo);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            database.close();
+            return showSummaryHash;
+        }
     }
 }

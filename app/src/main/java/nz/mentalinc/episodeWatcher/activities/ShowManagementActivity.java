@@ -36,7 +36,7 @@ import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
 import nz.mentalinc.episodeWatcher.service.ShowService;
 
-//use RecyclerView instead of ListActivty
+//use RecyclerView instead of ListActivity
 public class ShowManagementActivity extends ListActivity {
     private static final String LOG_TAG = ShowManagementActivity.class.getSimpleName();
     private ShowType showType;

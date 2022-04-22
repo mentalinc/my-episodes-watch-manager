@@ -178,7 +178,7 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
                     .load(showImageURL)
                     .apply(requestOptions)
                     .into(showPoster);
-
+            database.close();
 
         } catch (NullPointerException e) {
             if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {

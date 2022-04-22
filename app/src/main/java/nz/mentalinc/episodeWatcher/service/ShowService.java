@@ -333,6 +333,7 @@ public class ShowService {
                 }
             }
         }
+        database.close();
         return shows;
     }
 
@@ -349,9 +350,15 @@ public class ShowService {
         // for (int i = 0; i < show.size(); i++) {
         //for now just work with the first item will build to work with all in time.
 
-        System.out.println(show);
+
+        Log.d(LOG_TAG, "Show getting searched: "+ show);
         // Log.d("Response: ", "> " + show);
         show = show.replace("#", "");
+
+        //creates an error for me so forcing it to be fixed.
+        if(show.equals("Top Gear (UK)")){
+            show = "Top Gear";
+        }
         show = Uri.encode(show, "utf-8");
         tvMazeAPIURL += show;
         System.out.println(show);

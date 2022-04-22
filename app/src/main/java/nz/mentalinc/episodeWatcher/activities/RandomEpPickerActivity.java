@@ -120,7 +120,7 @@ public class RandomEpPickerActivity extends Activity {
                 new RandomEpPickerActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
                 new RandomEpPickerActivity.downloadEpisodeSummary(episodeSummaryHashMap).execute(showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
 
-
+                database.close();
                 //       episodeSummaryHashMap.get("episodeURL");
 
             } else {
@@ -426,7 +426,7 @@ public class RandomEpPickerActivity extends Activity {
             ShowName.setText(showSummaryHash.get("ShowName"));
 
             TextView ShowRuntime = findViewById(R.id.episodeRuntime);
-            String showruntimeText = showSummaryHash.get("ShowRuntime") + " mins";
+            String showruntimeText = " " + showSummaryHash.get("ShowRuntime") + " mins";
             ShowRuntime.setText(showruntimeText);
 
             TextView aboutShowWebsite = findViewById(R.id.tvMazeShowWebsite);
@@ -465,7 +465,7 @@ public class RandomEpPickerActivity extends Activity {
 
                 Glide.with(findViewById(R.id.showImage))
                         .load(showImageURL)
-                        .apply(requestOptions)
+                        .placeholder(R.drawable.placeholder)
                         .into(showImage);
 
             } else {

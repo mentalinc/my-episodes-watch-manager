@@ -3,9 +3,13 @@ package nz.mentalinc.episodeWatcher.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -18,12 +22,23 @@ import androidx.room.Room;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
+import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.database.SeriesDAO;
@@ -34,9 +49,14 @@ import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.domain.ShowAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.ShowDescendingComparator;
 import nz.mentalinc.episodeWatcher.domain.ShowRuntimeAscendingComparator;
+import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
+import nz.mentalinc.episodeWatcher.exception.FeedUrlParsingException;
+import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
+import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
+import nz.mentalinc.episodeWatcher.service.UserService;
 
 public class ShowListingActivity extends Activity {
 
@@ -44,20 +64,42 @@ public class ShowListingActivity extends Activity {
     List<Show> shows = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
     private static EpisodeType episodesType;
-
+    private static final int EPISODE_LOADING_DIALOG = 0;
+    private static final int ONLINE_CHECK_DIALOG = 5;
+    private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
+    private Integer exceptionMessageResId = null;
+    private EpisodesService service;
+    private User user;
+    private UserService userService;
 
     private BottomNavigationView bottomNavigationView;
+
+    public ShowListingActivity() {
+        super();
+        userService = new UserService();
+        this.service = new EpisodesService();
+    }
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recycle_view_shows);
+        userService = new UserService();
+        this.service = new EpisodesService();
 
         Bundle data = this.getIntent().getExtras();
         //episodeType is set based on the button on the home page that is press.
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        user = new User(
+                sharedPref.getString("username", null),
+                sharedPref.getString("UserPassword", null)
+        );
 
         com.google.android.material.appbar.MaterialToolbar episodeTypeTitle = findViewById(R.id.topAppBarShowsView);
+        bottomNavigationView = findViewById(R.id.bottom_navigationRecyclerShow);
+        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
+
         if (episodesType.toString().equals("EPISODES_TO_WATCH")) {
             episodeTypeTitle.setTitle("Watch");
         }
@@ -73,11 +115,8 @@ public class ShowListingActivity extends Activity {
 
         int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
 
-        bottomNavigationView = findViewById(R.id.bottom_navigationRecyclerShow);
-        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
         if (countEpisodes == 200) {
-
             @SuppressLint("CutPasteId") // this is to stop and error - the below is meant to be used so can pop up the snackbar when 200 shows are found.
             Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowsView), R.string.watchListFull, Snackbar.LENGTH_LONG);
             snackbar.setAnchorView(bottomNavigationView);
@@ -85,22 +124,20 @@ public class ShowListingActivity extends Activity {
         }
 
 
-
         if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
             bottomNavigationView.getMenu().getItem(2).setChecked(true);
-         //   returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
+            //   returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
         } else if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
             bottomNavigationView.getMenu().getItem(1).setChecked(true);
-          //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+            //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
 
         } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
             bottomNavigationView.getMenu().getItem(3).setChecked(true);
-          //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
+            //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
         }
 
-        //DISABLED TO TEST NEW HASHMAP which is in the returnEpisodesShowHash in the if else if else if above. Hashmap has lots of issues removing for now
+        //DISABLE TO TEST NEW HASHMAP which is in the returnEpisodesShowHash in the if else if else if above. Hashmap has lots of issues removing for now
         returnEpisodes();
-
 
 
         ShowAdapter adapter = new ShowAdapter(shows);
@@ -124,7 +161,7 @@ public class ShowListingActivity extends Activity {
         appBarRefresh.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Refresh button clicked.");
             //finish();
-            //TODO Need to move all the code to download the info gain
+            onRefreshClick();
         });
 
 
@@ -140,14 +177,26 @@ public class ShowListingActivity extends Activity {
 
                     if (showSelected.getNumberEpisodes() == 1) {
                         openEpisodeDetails(nextEpisodeToWatch, episodesType);
+                    } else if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
+                        openEpisodeListing(showSelected, episodesType);
+                        //   returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
+                    } else if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
+                        openEpisodeListing(showSelected, episodesType);
+                        //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+
+                    } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
+                        openEpisodeListing(showSelected, episodesType);
+                        //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
                     } else {
                         ShowSummaryActivity(showSelected, episodesType);
                     }
+
                 }
+
         );
     }
 
-    /* This is only here to test the old view of showing all the episodes for an app instead grouping them via the show overview view now.
+    // This is only here to test the old view of showing all the episodes for an app instead grouping them via the show overview view now.
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
         finish();
         Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
@@ -161,7 +210,7 @@ public class ShowListingActivity extends Activity {
         updatedEpisodeListActivity.putExtra("Title", show.getShowName());
         startActivity(updatedEpisodeListActivity);
     }
-    */
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -182,6 +231,7 @@ public class ShowListingActivity extends Activity {
                     finish();
                     Log.w(LOG_TAG, "barWatch selected");
                     Intent newWatchShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    //Intent newWatchShowListing = new Intent(getApplicationContext(), UpdatedEpisodeListingActivity.class);
                     newWatchShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     newWatchShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
                     startActivity(newWatchShowListing);
@@ -191,6 +241,7 @@ public class ShowListingActivity extends Activity {
                     finish();
                     Log.w(LOG_TAG, "barAcquire selected");
                     Intent newAcquireShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    // Intent newAcquireShowListing = new Intent(getApplicationContext(), UpdatedEpisodeListingActivity.class);
                     newAcquireShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     newAcquireShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
                     startActivity(newAcquireShowListing);
@@ -200,6 +251,7 @@ public class ShowListingActivity extends Activity {
                     finish();
                     Log.w(LOG_TAG, "barComing selected");
                     Intent newComingShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    // Intent newComingShowListing = new Intent(getApplicationContext(), UpdatedEpisodeListingActivity.class);
                     newComingShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     newComingShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
                     startActivity(newComingShowListing);
@@ -211,7 +263,6 @@ public class ShowListingActivity extends Activity {
 
 
     };
-
 
 
     //this is the new view.
@@ -261,7 +312,7 @@ public class ShowListingActivity extends Activity {
 
         //TODO - try to add the runtime to the show here? so show has runime early (OR add when first created in the episode service?)
         hashMap.size();
-        hashMap.forEach( (k,v) -> shows.add(v));
+        hashMap.forEach((k, v) -> shows.add(v));
 
         //shows don't have runtime added yet?
         sortShows(shows);
@@ -359,6 +410,297 @@ public class ShowListingActivity extends Activity {
             }
         }
         return null;
+    }
+
+
+    private void reloadEpisodes() {
+
+
+        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+            @Override
+            protected void onPreExecute() {
+                showDialog(EPISODE_LOADING_DIALOG);
+                if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
+                    showDialog(EPISODE_LOADING_DIALOG_CACHE);
+                } else {
+                    showDialog(EPISODE_LOADING_DIALOG);
+
+                }
+            }
+
+            @Override
+            protected Object doInBackground(Object... objects) {
+                getEpisodesMyEpisodes();
+                return 100L;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                returnEpisodes();
+                removeDialog(EPISODE_LOADING_DIALOG);
+                removeDialog(EPISODE_LOADING_DIALOG_CACHE);
+            }
+        };
+        asyncTask.execute();
+    }
+
+    public void onRefreshClick() {
+        Log.v(LOG_TAG, "Show online dialog.");
+        showDialog(ONLINE_CHECK_DIALOG);
+        boolean onlineCheck = isOnline();
+        Log.v(LOG_TAG, "Hide online dialog.");
+        removeDialog(ONLINE_CHECK_DIALOG);
+
+        Log.d(LOG_TAG, "Check if online: " + onlineCheck);
+
+
+        Log.d(LOG_TAG, "Episode type: " + episodesType + " Episodes Refreshing...");
+        Log.d(LOG_TAG, "Cache Age: " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
+
+        File file;
+        //delete the current cache file to force a new download
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), "Watch.xml");
+                if (file.exists() && onlineCheck) {
+                    if (file.delete()) {
+                        Log.d(LOG_TAG, "Watch.xml deleted");
+                    } else {
+                        Log.e(LOG_TAG, "ERROR deleting Watch.xml");
+                    }
+                }
+                break;
+            case EPISODES_TO_YESTERDAY1:
+            case EPISODES_TO_YESTERDAY2:
+            case EPISODES_TO_ACQUIRE:
+                file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), "Acquire.xml");
+                if (file.exists() && onlineCheck) {
+                    if (file.delete()) {
+                        Log.d(LOG_TAG, "Acquire.xml deleted");
+                    } else {
+                        Log.e(LOG_TAG, "ERROR deleting Acquire.xml");
+                    }
+                }
+                break;
+            case EPISODES_COMING:
+                file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), "Coming.xml");
+                if (file.exists() && onlineCheck) {
+                    if (file.delete()) {
+                        Log.d(LOG_TAG, "Coming.xml deleted");
+                    } else {
+                        Log.e(LOG_TAG, "ERROR deleting Coming.xml");
+                    }
+                }
+                break;
+        }
+        reloadEpisodes();
+
+
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog;
+        switch (id) {
+            case EPISODE_LOADING_DIALOG:
+                ProgressDialog progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
+                progressDialog.setCancelable(false);
+                dialog = progressDialog;
+                break;
+            case EPISODE_LOADING_DIALOG_CACHE:
+                ProgressDialog progressDialogCache = new ProgressDialog(this);
+                progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
+                progressDialogCache.setCancelable(false);
+                dialog = progressDialogCache;
+                //dialog.show();
+                break;
+            case ONLINE_CHECK_DIALOG:
+                ProgressDialog progressDialogOnline = new ProgressDialog(this);
+                progressDialogOnline.setMessage(this.getString(R.string.progressLoadingOnlineCheck));
+                progressDialogOnline.setCancelable(false);
+                //progressDialogOnline.show();
+                dialog = progressDialogOnline;
+                break;
+
+            default:
+                dialog = super.onCreateDialog(id);
+                break;
+        }
+        return dialog;
+    }
+
+    private Boolean isOnline() {
+        //TODO consdider seeing if this should be a thread.
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        try {
+            //Thread.sleep(3000);
+            URL url = new URL("https://www.myepisodes.com/favicon.ico");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "yourAgent");
+            connection.setRequestProperty("Connection", "close");
+            connection.setConnectTimeout(1000);
+            connection.connect();
+
+            if (connection.getResponseCode() == 200) {
+                connection.disconnect();
+                Log.v(LOG_TAG, "Online.");
+
+                //removeDialog(ONLINE_CHECK_DIALOG);
+                // showDialog(EPISODE_LOADING_DIALOG);
+                //Log.v(LOG_TAG, "Hide online dialog.");
+                return true;
+            } else {
+                connection.disconnect();
+                //Log.v(LOG_TAG, "Offline!!");
+
+                //removeDialog(ONLINE_CHECK_DIALOG);
+                //showDialog(EPISODE_LOADING_DIALOG);
+                //Log.v(LOG_TAG, "Hide online dialog.");
+                return false;
+            }
+        } catch (UnknownHostException e) {
+            Log.e(LOG_TAG, e.toString());
+            Log.v(LOG_TAG, "Offline!!");
+            //removeDialog(ONLINE_CHECK_DIALOG);
+            //showDialog(EPISODE_LOADING_DIALOG);
+            return false;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.toString());
+            //removeDialog(ONLINE_CHECK_DIALOG);
+            //showDialog(EPISODE_LOADING_DIALOG);
+            return false;
+        }
+    }
+
+    private void getEpisodesMyEpisodes() {
+        try {
+            if (episodesType == EpisodeType.EPISODES_TO_ACQUIRE) {
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
+                if (acquire != null && acquire.equals("1")) {
+                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
+                    EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
+                } else {
+                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
+                }
+            } else {
+                EpisodesController.getInstance().setEpisodes(episodesType, service.retrieveEpisodes(episodesType, user));
+            }
+        } catch (InternetConnectivityException e) {
+            String message = "Could not connect to host";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.internetConnectionFailureReload;
+        } catch (FeedUrlParsingException e) {
+            String message = "Exception occured:";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.watchListUnableToReadFeed;
+        } catch (Exception e) {
+            String message = "Exception occured:";
+            Log.e(LOG_TAG, message, e);
+            exceptionMessageResId = R.string.defaultExceptionMessage;
+        }
+
+        getEpisodes();
+        resetPageFilters(user);
+    }
+
+    private void resetPageFilters(User user) {
+
+        try {
+            userService.login(user.getUsername(), user.getPassword());
+            //this should read from preferences in time but manual building for now
+            //unaquired 1
+            //Unwatched 2
+            //Ignored 4
+            //Pilots 2048
+            //Localized Airdate 4096
+            String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
+                //unaquired 1
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=1";
+                else {
+                    urlParameters += "&eps_filters%5B%5D=1";
+                }
+
+                Log.d(LOG_TAG, "SHOW_LISTING_UNACQUIRED_ENABLED" + " " + urlParameters);
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
+                //Unwatched 2
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2";
+                else {
+                    urlParameters += "&eps_filters%5B%5D=2";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " + urlParameters);
+
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
+                //Ignored 4
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4";
+                else {
+                    urlParameters += "&eps_filters%5B%5D=4";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
+            }
+
+            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
+                //Pilots 2048
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=2048";
+                else {
+                    urlParameters += "&eps_filters%5B%5D=2048";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
+
+            }
+
+
+            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
+                //Localized Airdate 4096
+                if (urlParameters.length() < 1)
+                    urlParameters += "eps_filters%5B%5D=4096";
+                else {
+                    urlParameters += "&eps_filters%5B%5D=4096";
+                }
+                Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
+            }
+
+
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+            int postDataLength = postData.length;
+            String request = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
+            URL url = new URL(request);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("charset", "utf-8");
+            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+            conn.setUseCaches(false);
+            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
+                wr.write(postData);
+                wr.flush();
+            }
+
+            InputStream stream = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 8);
+            String result = reader.readLine();
+
+        } catch (Exception e) {
+            String message = "Error resetting episode filter";
+            Log.e(LOG_TAG, message, e);
+        }
+    }
+
+    private void getEpisodes() {
+        episodes = EpisodesController.getInstance().getEpisodes(episodesType);
     }
 
 }

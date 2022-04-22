@@ -164,8 +164,8 @@ public class EpisodesService {
                     // Log.d(LOG_TAG, "airDateString: " + airDateString);
 
                     episode.setAirDate(airDate);
-           //         String guid = item.getGuid();
-         //           String myEpisodeID = item.getGuid().split("-")[0].trim();
+                    //         String guid = item.getGuid();
+                    //           String myEpisodeID = item.getGuid().split("-")[0].trim();
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
                     //episode.setTVMazeWebSite(item.getLink());
 
@@ -356,6 +356,10 @@ public class EpisodesService {
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_COMING, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
+            //todo - remove episodes from the hashmap as well
+            EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
+            EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
+            EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_COMING, episode);
         }
     }
 
@@ -373,6 +377,15 @@ public class EpisodesService {
             markAnEpisode(1, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().addEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
+            EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
+            List<Episode> tempList = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.WATCH_BY_SHOW, episode.getMyEpisodeID());
+            if (tempList == null) {
+                tempList = new ArrayList<>();
+                tempList.add(episode);
+            }else{
+                tempList.add(episode);
+            }
+            EpisodesController.getInstance().AddToWatchShow(tempList);
         }
     }
 
