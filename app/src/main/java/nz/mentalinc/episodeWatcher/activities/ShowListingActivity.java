@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -100,13 +101,29 @@ public class ShowListingActivity extends Activity {
         bottomNavigationView = findViewById(R.id.bottom_navigationRecyclerShow);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
+
+        TextView showEpCount = findViewById(R.id.ShowEpCount);
+
+
         if (episodesType.toString().equals("EPISODES_TO_WATCH")) {
+            int showCount = EpisodesController.getInstance().getShowCountType(episodesType);
+            int episodeCount = EpisodesController.getInstance().getEpisodesCount(episodesType);
+            String showEpCountString = showCount + " shows - " + episodeCount + " episodes";
+            showEpCount.setText(showEpCountString);
             episodeTypeTitle.setTitle("Watch");
         }
         if (episodesType.toString().equals("EPISODES_TO_ACQUIRE")) {
+            int showCount = EpisodesController.getInstance().getShowCountType(episodesType);
+            int episodeCount = EpisodesController.getInstance().getEpisodesCount(episodesType);
+            String showEpCountString = showCount + " shows - " + episodeCount + " episodes";
+            showEpCount.setText(showEpCountString);
             episodeTypeTitle.setTitle("Acquire");
         }
         if (episodesType.toString().equals("EPISODES_COMING")) {
+            int showCount = EpisodesController.getInstance().getShowCountType(episodesType);
+            int episodeCount = EpisodesController.getInstance().getEpisodesCount(episodesType);
+            String showEpCountString = showCount + " shows - " + episodeCount + " episodes";
+            showEpCount.setText(showEpCountString);
             episodeTypeTitle.setTitle("Coming");
         }
 
@@ -257,6 +274,23 @@ public class ShowListingActivity extends Activity {
                     startActivity(newComingShowListing);
 
                     return true;
+
+               /* case R.id.barRandom:
+                    Log.w(LOG_TAG, "barRandom selected");
+
+                    List<Show> showList = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
+                    Show show = showList.get(0);
+                    Episode randomEpisode = show.getFirstEpisode();
+
+                    Intent episodeDetailsSubActivity = new Intent(getApplicationContext(), EpisodeDetailsActivity.class);
+                    episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
+                    episodeDetailsSubActivity.putExtra("Title", randomEpisode.getShowName());
+                    startActivity(episodeDetailsSubActivity);
+
+                    return true;*/
             }
             return false;
         }

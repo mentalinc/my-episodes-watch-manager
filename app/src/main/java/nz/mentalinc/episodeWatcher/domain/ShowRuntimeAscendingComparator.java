@@ -30,13 +30,7 @@ public class ShowRuntimeAscendingComparator implements Comparator<Show> {
             //return 0;
             //sort by showname when the time is the same.
             return o1.getShowName().compareTo(o2.getShowName());
-        } else if (o1Runtime < o2Runtime) {
-            return -1;
-        } else if (o1Runtime > o2Runtime) {
-            return 1;
-        } else {
-            return 0;
-        }
+        } else return Integer.compare(o1Runtime, o2Runtime);
     }
 }
 

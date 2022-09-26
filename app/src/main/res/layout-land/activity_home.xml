@@ -2,98 +2,122 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/home_root"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-
-            android:background="?attr/colorSurface"
-            app:menu="@menu/home_settings_menu"
-            app:navigationIcon="@drawable/logo_default"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            />
+            android:layout_width="match_parent"
+
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primaryColor"
+            android:textColor="@color/on_text_white"
+            app:menu="@menu/home_settings_menu"
+            app:navigationIcon="@drawable/logo_default" />
     </com.google.android.material.appbar.AppBarLayout>
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_ShowWatchNew"
-                style="@style/HomeButton"
-                android:drawableTop="@drawable/outline_visibility_white_48"
-                android:onClick="onNewWatchShowListingClick"
-                android:text="@string/newWatchhome" />
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_ShowAcquireNew"
-                style="@style/HomeButton"
-                android:drawableTop="@drawable/outline_upcoming_white_48"
-                android:onClick="onNewAcquireShowListingClick"
-                android:text="@string/newAcquirehome" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_ShowListing"
-                style="@style/HomeButton"
-                android:drawableTop="@drawable/outline_next_week_white_48"
-                android:onClick="onNewComingShowListingClick"
-                android:text="New Coming" />
-
-
-
-            <com.google.android.material.button.MaterialButton android:id="@+id/btn_settings"
-                style="@style/HomeButton"
-                android:text="@string/manageShows"
-                android:drawableTop="@drawable/outline_create_white_48"
-                android:onClick="onManageClick" />
-
-        </LinearLayout>
-
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
-        <com.google.android.material.button.MaterialButton android:id="@+id/btn_watched"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ShowWatchNew"
             style="@style/HomeButton"
-            android:text="@string/watchhome"
-            android:drawableTop="@drawable/outline_visibility_white_48"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btn_acquired"
+            android:drawableTop="@drawable/outline_visibility_white_48"
+            android:onClick="onNewWatchShowListingClick"
+            android:text="@string/newWatchhome" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ShowAcquireNew"
             style="@style/HomeButton"
-            android:text="@string/acquirehome"
-            android:drawableTop="@drawable/outline_upcoming_white_48"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btn_coming"
+            android:drawableTop="@drawable/outline_upcoming_white_48"
+            android:onClick="onNewAcquireShowListingClick"
+            android:text="@string/newAcquirehome" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ShowListing"
             style="@style/HomeButton"
-            android:text="@string/coming"
-            android:drawableTop="@drawable/outline_next_week_white_48"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_random"
-        style="@style/HomeButton"
-        android:drawableTop="@drawable/outline_shuffle_white_48"
-        android:onClick="onRandomClick"
-        android:text="@string/randompicker" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_more"
-        style="@style/HomeButton"
-        android:drawableTop="@drawable/outline_settings_white_48"
-        android:onClick="onSettingsClick"
-        android:text="@string/settings" />
+            android:drawableTop="@drawable/outline_next_week_white_48"
+            android:onClick="onNewComingShowListingClick"
+            android:text="New Coming" />
 
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_settings"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_create_white_48"
+            android:onClick="onManageClick"
+            android:text="@string/manageShows" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_watched"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_visibility_white_48"
+            android:text="@string/watchhome" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_acquired"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_upcoming_white_48"
+            android:text="@string/acquirehome" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_coming"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_next_week_white_48"
+            android:text="@string/coming" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_random"
+            style="@style/HomeButton"
+            android:drawableTop="@drawable/outline_shuffle_white_48"
+            android:onClick="onRandomClick"
+            android:text="@string/randompicker" />
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/frame_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottom_navigationActivityHome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                app:backgroundTint="@color/colorPrimary"
+                app:menu="@menu/bottom_navigation_menu_home" />
+
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

@@ -725,12 +725,12 @@ public class EpisodeDetailsActivity extends Activity {
         //todo need to have it call the new show home tab, but the buttons fail to work when clicking acquire.
         //Intent episodeListingActivity = new Intent(this.getApplicationContext(), ShowHomeTabActivity.class);
         //Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
-        Intent episodeListingActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+        Intent episodeListingActivity = new Intent(getApplicationContext(), UpdatedEpisodeListingActivity.class);
 
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType)
-                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID())
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID)
                 .putExtra("Title", title);
 
 

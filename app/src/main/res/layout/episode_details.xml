@@ -132,7 +132,7 @@
 
                 <TextView
                     android:id="@+id/episodeDetSeasonLabel"
-                    android:layout_width="80dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
                     android:paddingEnd="10dp"
@@ -151,7 +151,7 @@
 
                 <TextView
                     android:id="@+id/episodeDetEpisodeLabel"
-                    android:layout_width="80dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
                     android:paddingEnd="10dp"
@@ -170,7 +170,7 @@
 
                 <TextView
                     android:id="@+id/episodeDetAirdateLabel"
-                    android:layout_width="80dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
 
@@ -192,7 +192,7 @@
 
                 <TextView
                     android:id="@+id/episodeRuntimeLabel"
-                    android:layout_width="80dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
                     android:paddingEnd="10dp"

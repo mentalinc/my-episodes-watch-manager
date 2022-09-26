@@ -1,30 +1,45 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/selectableItemBackground"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
         android:orientation="vertical"
-        android:background="@color/colorPrimary" />
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBar"
+        android:id="@+id/topAppBarRandomPicker"
+        style="@style/Widget.MaterialComponents.Toolbar.Primary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="@string/randompicker"
-        app:titleTextColor="@color/on_text_white"
         android:background="@color/primaryColor"
         android:textColor="@color/on_text_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/appBarLayout2"
         app:menu="@menu/home_menu"
-        style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+        app:title="@string/randompicker"
+        app:titleTextColor="@color/on_text_white" />
 
     <ScrollView
         android:id="@+id/ScrollView01"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/frame_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topAppBarRandomPicker">
 
         <LinearLayout
             android:id="@+id/LinearLayout03"
@@ -37,23 +52,42 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:text="@string/randompickertext" />
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:gravity="left"
+                android:text="@string/randompickertext"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/episodeDetShowName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:gravity="left"
                 android:paddingTop="10dp"
-                android:textStyle="bold" />
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Title Of Show" />
 
             <TextView
                 android:id="@+id/episodeDetName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal" />
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="left"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="Title Of Episode" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@color/colorPrimary" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -63,9 +97,9 @@
 
                 <TextView
                     android:id="@+id/episodeDetSeasonLabel"
-                    android:layout_width="100dp"
+                    android:layout_width="85dp"
                     android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
+                    android:paddingStart="16dp"
                     android:paddingEnd="10dp"
                     android:text="@string/episodeDetailsSeasonLabel" />
 
@@ -82,9 +116,9 @@
 
                 <TextView
                     android:id="@+id/episodeDetEpisodeLabel"
-                    android:layout_width="100dp"
+                    android:layout_width="85dp"
                     android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
+                    android:paddingStart="16dp"
                     android:paddingEnd="10dp"
                     android:text="@string/episodeDetailsEpisodeLabel" />
 
@@ -101,9 +135,9 @@
 
                 <TextView
                     android:id="@+id/episodeDetAirdateLabel"
-                    android:layout_width="100dp"
+                    android:layout_width="85dp"
                     android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
+                    android:paddingStart="16dp"
                     android:paddingEnd="10dp"
                     android:text="@string/episodeDetailsAirDateLabel" />
 
@@ -121,9 +155,9 @@
 
                 <TextView
                     android:id="@+id/episodeRuntimeLabel"
-                    android:layout_width="100dp"
+                    android:layout_width="85dp"
                     android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
+                    android:paddingStart="16dp"
                     android:paddingEnd="10dp"
                     android:text="@string/episodeRuntimeLabel" />
 
@@ -137,31 +171,48 @@
                 android:id="@+id/tvMazeWebsite"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:gravity="left"
                 android:paddingBottom="5dp" />
 
             <TextView
                 android:id="@+id/tvMazeEpisodeSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingBottom="5dp" />
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="4dp"
+                android:gravity="left"
+                android:paddingBottom="5dp"
+                tools:text="Show description" />
 
-
-            <LinearLayout
-                android:id="@+id/LinearLayout01"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:orientation="horizontal" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@color/colorPrimary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/markAsSeenButton"
+                style="@style/EpisodeDetailButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="10dp"
                 android:layout_weight=".025"
-                app:icon="@drawable/outline_done_white_48"
-                style="@style/EpisodeDetailButton"
-                android:text="@string/menuEpisodeMarkWatched" />
+                android:text="@string/menuEpisodeMarkWatched"
+                app:icon="@drawable/outline_done_white_48" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@color/colorPrimary" />
+
 
             <LinearLayout
                 android:id="@+id/LinearLayout02"
@@ -220,4 +271,24 @@
         </LinearLayout>
 
     </ScrollView>
-</LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigationRandomEpisode"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom"
+            app:backgroundTint="@color/colorPrimary"
+            app:menu="@menu/bottom_navigation_menu" />
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

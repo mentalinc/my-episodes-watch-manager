@@ -85,6 +85,27 @@ public class EpisodesController {
         }
     }
 
+    public int getShowsCount() {
+        if (shows != null)
+            return shows.size();
+
+        return 0;
+    }
+
+    public int getShowCountType(EpisodeType episodesType) {
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                return watchShows.size();
+            case EPISODES_TO_ACQUIRE:
+                return acquireShows.size();
+            case EPISODES_COMING:
+                return comingShows.size();
+
+            default:
+                return 0;
+        }
+    }
+
 
     public int getEpisodesCount(EpisodeType episodesType, String myEpisodeID) {
         switch (episodesType) {
@@ -220,7 +241,6 @@ public class EpisodesController {
         }
     }
 
-
     public boolean areListsEmpty() {
         if (watchEpisodes.isEmpty()) {
             if (acquireEpisodes.isEmpty()) {
@@ -230,6 +250,21 @@ public class EpisodesController {
         return false;
     }
 
+    public List<Show> getRandomWatchEpisodeShowList() {
+        shows = new ArrayList<>();
+        if (watchEpisodes != null && watchEpisodes.size() > 0) {
+            for (Episode ep : watchEpisodes) {
+                AddEpisodeToShow(ep);
+            }
+        }
+        SecureRandom r = new SecureRandom();
+        int randint = r.nextInt(shows.size());
+        List<Show> randomShow = new ArrayList<>();
+        randomShow.add(shows.get(randint));
+        return randomShow;
+
+    }
+
     public Episode getRandomWatchEpisode() {
         shows = new ArrayList<>();
         if (watchEpisodes != null && watchEpisodes.size() > 0) {
@@ -237,7 +272,6 @@ public class EpisodesController {
                 AddEpisodeToShow(ep);
             }
         }
-
         SecureRandom r = new SecureRandom();
         int randint = r.nextInt(shows.size());
         return shows.get(randint).getFirstEpisode();

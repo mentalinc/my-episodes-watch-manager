@@ -17,4 +17,10 @@
         android:icon="@drawable/outline_next_week_white_48"
         android:title="@string/BarComing"></item>
 
+<!---
+    <item android:id="@+id/barRandom"
+        android:icon="@drawable/outline_shuffle_white_48"
+        android:title="@string/randompickerBar"></item>
+    !-->
+
 </menu>

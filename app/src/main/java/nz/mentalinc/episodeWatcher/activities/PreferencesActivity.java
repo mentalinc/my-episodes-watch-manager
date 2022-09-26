@@ -67,12 +67,16 @@ public class PreferencesActivity extends PreferenceActivity {
     public void onCreate(Bundle savedInstance) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String themeSetting = sharedPref.getString("ThemeSetting", "0");
-        if (themeSetting.equals("0")) {
-            setTheme(R.style.ThemeDayNight);
-        } else if (themeSetting.equals("1")) {
-            setTheme(R.style.ThemeLight);
-        } else if (themeSetting.equals("2")) {
-            setTheme(R.style.ThemeDark);
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
         }
         super.onCreate(savedInstance);
 

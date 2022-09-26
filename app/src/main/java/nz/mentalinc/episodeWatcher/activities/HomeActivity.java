@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -35,6 +36,8 @@ import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
+import nz.mentalinc.episodeWatcher.domain.Episode;
+import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
@@ -240,6 +243,24 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(newComingShowListing);
 
                     return true;
+
+
+              /*  case R.id.barRandom:
+                    Log.w(LOG_TAG, "barRandom selected");
+
+                    List<Show> showList = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
+                    Show show = showList.get(0);
+                    Episode randomEpisode = show.getFirstEpisode();
+
+                    Intent episodeDetailsSubActivity = new Intent(getApplicationContext(), EpisodeDetailsActivity.class);
+                    episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
+                    episodeDetailsSubActivity.putExtra("Title", randomEpisode.getShowName());
+                    startActivity(episodeDetailsSubActivity);
+
+                    return true;*/
             }
             return false;
         }
@@ -570,8 +591,22 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void onRandomClick(View v) {
-        Intent randomActivity = new Intent(this.getApplicationContext(), RandomEpPickerActivity.class);
-        startActivity(randomActivity);
+        //Intent randomActivity = new Intent(this.getApplicationContext(), RandomEpPickerActivity.class);
+        //startActivity(randomActivity);
+
+        //trying to just use the normal episode detail instead of the random one above.
+
+        List<Show> showList = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
+        Show show = showList.get(0);
+
+        Episode randomEpisode = show.getFirstEpisode();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
+        episodeDetailsSubActivity.putExtra("Title", randomEpisode.getShowName());
+        startActivity(episodeDetailsSubActivity);
     }
 
     public void onSettingsClick(View v) {

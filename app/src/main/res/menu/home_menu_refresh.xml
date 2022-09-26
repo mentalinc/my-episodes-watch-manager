@@ -3,19 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/home"
+        android:background="@color/primaryColor"
         android:contentDescription="@string/home"
         android:enabled="true"
         android:icon="@drawable/outline_home_white_36"
-        app:showAsAction="ifRoom|withText"
+        android:textColor="@color/on_text_white"
         android:title="@string/home"
-        android:visible="true" />
+        android:titleTextColor="@color/on_text_white"
+        android:visible="true"
+        app:itemTextColor="@color/on_text_white"
+        app:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/btn_title_refresh"
+        android:background="@color/primaryColor"
         android:enabled="true"
         android:icon="@drawable/outline_refresh_white_24"
-        app:showAsAction="ifRoom|withText"
+        android:textColor="@color/on_text_white"
         android:title="@string/refresh"
-        android:visible="true" />
+        android:titleTextColor="@color/on_text_white"
+        android:visible="true"
+        app:showAsAction="ifRoom|withText" />
 
 </menu>

@@ -76,7 +76,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
         );
 
 
-        //todo add the refesh icon to the screen and then the methods to do that
+        //todo add the refresh icon to the screen and then the methods to do that
         data = this.getIntent().getExtras();
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
@@ -137,7 +137,6 @@ public class UpdatedEpisodeListingActivity extends Activity {
         title = title + " (" + episodes.size() + ")";
         ShowNameTitle.setTitle(title);
 
-
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
@@ -147,6 +146,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
         ItemClickSupport.addTo(rvEpisode).setOnItemClickListener((recyclerView, position, v) -> {
+                    //todo something wrong here AFTer clicking on marked watched - the gui shows the correct view, but the episodes array is the whole watched list.
+                        //need to figure out why not being filtered down correctly to just the show myepisodeID list before being selected.
                     Episode episodeSelected = episodes.get(position);
                     //Show Show = episodeSelected.getShowName();
                     openEpisodeDetails(episodeSelected, episodesType);
@@ -324,7 +325,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
     }
 
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
-        finish();
+        //finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
@@ -335,10 +336,12 @@ public class UpdatedEpisodeListingActivity extends Activity {
     }
 
     private void returnEpisodes() {
+
+        Log.d(LOG_TAG, "returnEpisodes called for: "+showMyEpisodeID);
         List<Episode> episodesRaw;
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
-        //setting to a new list when this is called risks there being now show left to work with if there are no episodes of a particualr type left.
+        //setting to a new list when this is called risks there being now show left to work with if there are no episodes of a particular type left.
         //shows = new ArrayList<>();
         episodes = new ArrayList<>();
 
@@ -470,7 +473,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
             protected Object doInBackground(Object... objects) {
                 markEpisode(EpisodeStatus, episode);
                 if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                    getEpisodes();
+                    //getEpisodes();
+                   // returnEpisodes();
                 }
                 return 100L;
             }
@@ -503,7 +507,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
             protected Object doInBackground(Object... objects) {
                 markAllEpisodes(episodeStatus, episodes);
                 if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                    getEpisodes();
+                    //getEpisodes();
+                    //returnEpisodes();
                 }
                 return 100L;
             }

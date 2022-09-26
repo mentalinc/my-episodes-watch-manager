@@ -6,8 +6,9 @@
         android:contentDescription="@string/home"
         android:enabled="true"
         android:icon="@drawable/outline_home_white_24"
-        app:showAsAction="ifRoom|withText"
         android:title="@string/home"
-        android:visible="true" />
+        android:visible="true"
+        app:iconTint="@color/on_text_white"
+        app:showAsAction="ifRoom|withText" />
 
 </menu>

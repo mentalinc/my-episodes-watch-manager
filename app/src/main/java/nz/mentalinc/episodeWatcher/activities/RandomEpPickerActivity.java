@@ -8,17 +8,21 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,8 +32,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -40,6 +47,9 @@ import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
 import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
+import nz.mentalinc.episodeWatcher.domain.EpisodeAscendingComparator;
+import nz.mentalinc.episodeWatcher.domain.EpisodeDescendingComparator;
+import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
@@ -47,7 +57,13 @@ import nz.mentalinc.episodeWatcher.utils.DateUtil;
 
 public class RandomEpPickerActivity extends Activity {
     private Episode random;
+    private BottomNavigationView bottomNavigationView;
     private static final String LOG_TAG = RandomEpPickerActivity.class.getSimpleName();
+    private static EpisodeType episodesType;
+    private String showMyEpisodeID;
+    List<Show> shows = new ArrayList<>();
+    private List<Episode> episodes = new ArrayList<>();
+    Bundle data;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,10 +90,22 @@ public class RandomEpPickerActivity extends Activity {
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
         Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
 
+
+        bottomNavigationView = findViewById(R.id.bottom_navigationRandomEpisode);
+        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
+        bottomNavigationView.getMenu().getItem(1).setChecked(true);
+
         if (EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH) > 0) {
-            random = EpisodesController.getInstance().getRandomWatchEpisode();
+
+            //return an array of the shows
+            shows = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
+
+            showMyEpisodeID = shows.get(0).getMyEpisodeID();
+            random = shows.get(0).getFirstEpisode();
+
             String seasonString = " " + random.getSeasonString();
             String episodeString = " " + random.getEpisodeString();
+
 
             showNameText.setText(random.getShowName());
             episodeNameText.setText(random.getName());
@@ -116,7 +144,6 @@ public class RandomEpPickerActivity extends Activity {
                     put("a", "b");
                 }};
 
-
                 new RandomEpPickerActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
                 new RandomEpPickerActivity.downloadEpisodeSummary(episodeSummaryHashMap).execute(showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
 
@@ -127,8 +154,8 @@ public class RandomEpPickerActivity extends Activity {
                 aboutWebsite.setVisibility(View.GONE);
             }
 
-
             markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
+
         } else {
             seasonText.setText("-");
             episodeText.setText("-");
@@ -136,7 +163,6 @@ public class RandomEpPickerActivity extends Activity {
 
             markAsSeenButton.setVisibility(View.GONE);
         }
-
 
         markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
 
@@ -151,14 +177,244 @@ public class RandomEpPickerActivity extends Activity {
     private void closeAndMarkWatched(Episode episode) {
         finish();
 
-        Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
+        //Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
+        Intent episodeListingActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+        episodeListingActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episode.getType())
+                .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID,episode.getMyEpisodeID())
+                .putExtra("Title", episode.getShowName())
                 .putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
+
         startActivity(episodeListingActivity);
+
     }
 
+
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            //episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
+            //showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+            //String Title = data.getString("Title");
+
+            Bundle BundleInfoShowDetail = new Bundle();
+            BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
+            BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+            BundleInfoShowDetail.putString("Title", "Random Episode");
+
+            final int previousItem = bottomNavigationView.getSelectedItemId();
+            final int nextItem = item.getItemId();
+
+            //TODO need to do something to open a blank list instead of failing back when clicking on a button that has no shows to watch.
+            if (previousItem != nextItem) {
+                switch (nextItem) {
+                    case R.id.barShowDetail:
+                        Log.w(LOG_TAG, "barShowDetail selected");
+                        if (shows.size() > 0) {
+                            //episodeType is basically watch when clicking on a random episode a s onlt shows EPISODES_TO_WATCH
+                            episodesType = EpisodeType.EPISODES_TO_WATCH;
+                            openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
+                        } else if (episodes.size() > 0) {
+                            Log.w(LOG_TAG, "barShowDetail Executing openShowSummary");
+                            openShowSummary(episodes.get(0), episodesType);
+                        } else {
+
+                            openShowSummary(episodesType);
+                        }
+                        return true;
+                    case R.id.barEpisodeOverview:
+                        Log.w(LOG_TAG, "barEpisodeOverview selected");
+                        //   if (shows.size() > 0) {
+                        //make sure it opens the next WATCH episode details.
+                        episodesType = EpisodeType.EPISODES_TO_WATCH;
+                        returnEpisodes();
+                        //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+                        if (shows.size() > 0) {
+                            openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
+                            //   }
+                        } else {
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarRandomPicker), "No episodes to watch", Snackbar.LENGTH_LONG);
+                            snackbar.setAnchorView(bottomNavigationView);
+                            snackbar.show();
+                            com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarRandomPicker);
+                            String title = data.getString("Title");
+                            title = title + " - No episodes to watch";
+                            ShowNameTitle.setTitle(title);
+                            //  openShowSummary(episodesType);
+
+                        }
+                        return true;
+                    case R.id.barWatch:
+                        Log.w(LOG_TAG, "barWatch selected");
+
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                        } else {
+                            episodesType = EpisodeType.EPISODES_TO_WATCH;
+                            //changed to the new hash feature
+                            returnEpisodes();
+                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+
+                            } else {
+                                //   bottomNavigationView.getMenu().getItem(2).setChecked(true);
+                            }
+                        }
+                        return true;
+                    case R.id.barAcquire:
+                        Log.w(LOG_TAG, "barAcquire selected");
+
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                        } else {
+                            episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
+                            //changed to the new hash feature
+                            returnEpisodes();
+                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
+
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
+                            }
+                        }
+                        return true;
+                    case R.id.barComing:
+                        Log.w(LOG_TAG, "barComing selected");
+
+                        if (shows.size() > 0) {
+                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                        } else {
+                            episodesType = EpisodeType.EPISODES_COMING;
+                            //changed to the new hash feature
+                            returnEpisodes();
+                            //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
+                            if (shows.size() > 0) {
+                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
+                            }
+                        }
+                        return true;
+                }
+                return false;
+            }
+            return false;
+        }
+    };
+
+    private void returnEpisodes() {
+        List<Episode> episodesRaw;
+        //ideally this just grabs the data from the show somehow, loop is slow with lots of data
+        episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
+        //setting to a new list when this is called risks there being now show left to work with if there are no episodes of a particualr type left.
+        //shows = new ArrayList<>();
+        episodes = new ArrayList<>();
+
+        String ShowTitle = "";
+        if (episodesRaw != null && episodesRaw.size() > 0) {
+            for (Episode ep : episodesRaw) {
+                if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
+                    //add to the episode List to show next
+                    episodes.add(ep);
+                    ShowTitle = ep.getShowName();
+                    AddEpisodeToShow(ep);
+                }
+            }
+        } else {
+            Log.d(LOG_TAG, "Episode can't be added to show.");
+        }
+        Log.w(LOG_TAG, "returnEpisodes() completed");
+
+        sortEpisodesOfShows(shows);
+    }
+
+    private void openEpisodeListing(Show show, EpisodeType episodeType) {
+        finish();
+        Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
+        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        Episode nextEpisodeToWatch = show.getFirstEpisode();
+        String myEpisodeID = nextEpisodeToWatch.getMyEpisodeID();
+
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        startActivity(updatedEpisodeListActivity);
+    }
+
+    private void sortEpisodesOfShows(List<Show> showList) {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
+
+        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
+
+        for (Show show : showList) {
+            if (sorting.equals(episodeOrderOptions[0])) {
+                show.getEpisodes().sort(new EpisodeAscendingComparator());
+            } else if (sorting.equals(episodeOrderOptions[1])) {
+                show.getEpisodes().sort(new EpisodeDescendingComparator());
+            }
+        }
+    }
+
+    private void AddEpisodeToShow(Episode episode) {
+
+        Show currentShow = CheckShowDuplicate(episode.getShowName());
+
+        if (currentShow == null) {
+            Show tempShow = new Show(episode.getShowName());
+            tempShow.addEpisode(episode);
+            shows.add(tempShow);
+        } else {
+            currentShow.addEpisode(episode);
+        }
+    }
+
+
+    private Show CheckShowDuplicate(String episodename) {
+        for (Show show : shows) {
+            if (show.getShowName().equals(episodename)) {
+                return show;
+            }
+        }
+        return null;
+    }
+
+    private void openShowSummary(Episode episode, EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        startActivity(episodeDetailsSubActivity);
+    }
+
+
+    private void openShowSummary(EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
+        // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", data.getString("Title"));
+        startActivity(episodeDetailsSubActivity);
+    }
+
+    private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
+        finish();
+        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
+        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
+        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        startActivity(episodeDetailsSubActivity);
+    }
 
     private class downloadEpisodeSummary extends AsyncTask<String, String, HashMap<String, String>> {
         final HashMap<String, String> episodeSummaryHash;

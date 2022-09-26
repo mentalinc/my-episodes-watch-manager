@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            
+
             app:layout_constraintBottom_toTopOf="@+id/frame_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -95,7 +95,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="4dp"
-
+                android:paddingBottom="5dp"
                 tools:text="Show status: Running" />
 
             <View
@@ -233,7 +233,9 @@
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginBottom="4dp"
                     android:paddingEnd="10dp"
+                    android:paddingBottom="5dp"
                     android:text="Episodes coming: " />
 
                 <TextView
