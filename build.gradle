@@ -3,11 +3,10 @@
 buildscript {
     repositories {
         mavenCentral()
-        // jcenter()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath 'com.android.tools.build:gradle:8.4.2'
 //        annotationProcessor 'com.github.bumptech.glide:compiler:4.13.1'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -19,10 +18,13 @@ plugins {
     id "org.sonarqube" version "3.3"
 }
 
+ext {
+    buildToolsVersion = '34.0.0'
+}
+
 allprojects {
     repositories {
         mavenCentral()
-        //   jcenter()
         google()
     }
 }

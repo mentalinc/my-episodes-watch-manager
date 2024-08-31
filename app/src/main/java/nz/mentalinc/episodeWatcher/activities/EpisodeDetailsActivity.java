@@ -58,14 +58,14 @@ import nz.mentalinc.episodeWatcher.utils.DateUtil;
  */
 public class EpisodeDetailsActivity extends Activity {
     private Episode episode = null;
-    private List<Episode> episodesRaw = new ArrayList<>();
+    private List<Episode> episodesRaw = new ArrayList<Episode>();
     private EpisodeType episodesType;
     private String title;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
     private BottomNavigationView bottomNavigationView;
     Bundle data;
     private String showMyEpisodeID;
-    List<Show> shows = new ArrayList<>();
+    List<Show> shows = new ArrayList<Show>();
     ;
 
     @Override
@@ -878,7 +878,7 @@ public class EpisodeDetailsActivity extends Activity {
     private void returnEpisodes() {
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
-        //shows = new ArrayList<>();
+        //shows = new ArrayList<Show>();
 
         if (episodesRaw != null && episodesRaw.size() > 0) {
             for (Episode ep : episodesRaw) {

@@ -2,14 +2,15 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 31
+    compileSdk 34
     defaultConfig {
         applicationId "nz.mentalinc.episodeWatcher"
         minSdk 29
-        targetSdk 31
+        targetSdk 34
         versionCode 38
         versionName "1.8.8"
 
+        missingDimensionStrategy 'react-native-camera', 'general'
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -47,41 +48,42 @@ android {
     }
     productFlavors {
     }
-    buildToolsVersion '30.0.3'
+    //buildToolsVersion '34.0.0'
     buildFeatures {
         viewBinding true
     }
     namespace 'nz.mentalinc.episodeWatcher'
+    buildToolsVersion buildToolsVersion
 }
 
 
 dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.room:room-runtime:2.4.3'
-    implementation 'androidx.fragment:fragment:1.5.1'
+    implementation 'androidx.room:room-runtime:2.6.1'
+    implementation 'androidx.fragment:fragment:1.6.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.navigation:navigation-fragment:2.5.1'
-    implementation 'androidx.navigation:navigation-ui:2.5.1'
+    implementation 'androidx.navigation:navigation-fragment:2.7.6'
+    implementation 'androidx.navigation:navigation-ui:2.7.6'
 
-    annotationProcessor 'androidx.room:room-compiler:2.4.3'
+    annotationProcessor 'androidx.room:room-compiler:2.6.1'
     // For Kotlin use kapt instead of annotationProcessor
-    implementation 'androidx.test:runner:1.4.0'
-    implementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation 'androidx.test:runner:1.5.2'
+    implementation 'androidx.test.espresso:espresso-core:3.5.1'
 
 
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'androidx.preference:preference:1.2.0'
-    annotationProcessor 'androidx.annotation:annotation:1.4.0'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.preference:preference:1.2.1'
+    annotationProcessor 'androidx.annotation:annotation:1.7.1'
 
-    implementation 'com.github.bumptech.glide:glide:4.13.1'
-    implementation("com.github.bumptech.glide:glide:4.13.1") {
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    implementation('com.github.bumptech.glide:glide:4.16.0') {
         exclude group: "com.android.support"
     }
-    implementation("com.github.bumptech.glide:glide:4.13.1") {
+    implementation('com.github.bumptech.glide:glide:4.16.0') {
         transitive = true
     }
 }
