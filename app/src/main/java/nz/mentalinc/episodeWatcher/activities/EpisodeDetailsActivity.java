@@ -58,14 +58,14 @@ import nz.mentalinc.episodeWatcher.utils.DateUtil;
  */
 public class EpisodeDetailsActivity extends Activity {
     private Episode episode = null;
-    private List<Episode> episodesRaw = new ArrayList<Episode>();
+    private List<Episode> episodesRaw = new ArrayList<>();
     private EpisodeType episodesType;
     private String title;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
     private BottomNavigationView bottomNavigationView;
     Bundle data;
     private String showMyEpisodeID;
-    List<Show> shows = new ArrayList<Show>();
+    List<Show> shows = new ArrayList<>();
     ;
 
     @Override
@@ -148,10 +148,10 @@ public class EpisodeDetailsActivity extends Activity {
 
 
             //create hashmap's to prevent build fails, they get replaced
-            HashMap episodeSummaryHashMap = new HashMap<String, String>() {{
+            HashMap<String, String> episodeSummaryHashMap = new HashMap<>() {{
                 put("a", "b");
             }};
-            HashMap showSummaryHashMap = new HashMap<String, String>() {{
+            HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
                 put("a", "b");
             }};
 
@@ -186,12 +186,7 @@ public class EpisodeDetailsActivity extends Activity {
 
         markAsAcquiredButton.setOnClickListener(v -> closeAndAcquireEpisode(episode));
 
-        markAsSeenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeAndMarkWatched(episode);
-            }
-        });
+        markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(episode));
 
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);

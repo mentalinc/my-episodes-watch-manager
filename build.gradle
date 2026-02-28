@@ -6,7 +6,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.6.0'
+        classpath 'com.android.tools.build:gradle:9.0.1'
 //        annotationProcessor 'com.github.bumptech.glide:compiler:4.13.1'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -30,5 +30,6 @@ allprojects {
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+    //delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }
