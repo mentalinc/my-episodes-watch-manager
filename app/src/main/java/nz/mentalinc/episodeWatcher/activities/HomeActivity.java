@@ -212,14 +212,15 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-            switch (item.getItemId()) {
+            final int nextItem = item.getItemId();
+            //switch (item.getItemId()) {
 
-                case R.id.barHome:
+                if(R.id.barHome == nextItem) {
                     //finish();
                     bottomNavigationView.getMenu().getItem(0).setChecked(true);
 
                     return true;
-                case R.id.barWatch:
+                }else if( R.id.barWatch== nextItem) {
                     Log.w(LOG_TAG, "barWatch selected");
                     Intent newWatchShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
                     newWatchShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -227,7 +228,7 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(newWatchShowListing);
 
                     return true;
-                case R.id.barAcquire:
+                }else if( R.id.barAcquire== nextItem) {
                     Log.w(LOG_TAG, "barAcquire selected");
                     Intent newAcquireShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
                     newAcquireShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -235,7 +236,7 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(newAcquireShowListing);
 
                     return true;
-                case R.id.barComing:
+                }else if( R.id.barComing == nextItem) {
                     Log.w(LOG_TAG, "barComing selected");
                     Intent newComingShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
                     newComingShowListing.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -243,6 +244,7 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(newComingShowListing);
 
                     return true;
+                }else{
 
 
               /*  case R.id.barRandom:

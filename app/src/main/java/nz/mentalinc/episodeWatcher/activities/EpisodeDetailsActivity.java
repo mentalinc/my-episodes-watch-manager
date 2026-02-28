@@ -66,7 +66,7 @@ public class EpisodeDetailsActivity extends Activity {
     Bundle data;
     private String showMyEpisodeID;
     List<Show> shows = new ArrayList<>();
-    ;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -178,7 +178,7 @@ public class EpisodeDetailsActivity extends Activity {
             case EPISODES_TO_ACQUIRE:
                 break;
             case EPISODES_COMING:
-                // Cant see or acquire future episdodes (unless same day?), just remove the buttons.
+                // Cant see or acquire future episodes (unless same day?), just remove the buttons.
                 markAsAcquiredButton.setVisibility(View.GONE);
                 markAsSeenButton.setVisibility(View.GONE);
                 break;
@@ -190,33 +190,24 @@ public class EpisodeDetailsActivity extends Activity {
 
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.w(LOG_TAG, "Home button clicked.");
-                //exit();
-                finish();
-            }
+        appBarHome.setOnClickListener(v -> {
+            Log.w(LOG_TAG, "Home button clicked.");
+            //exit();
+            finish();
         });
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsSeen = findViewById(R.id.markAsSeen);
-        appBarmarkAsSeen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        appBarmarkAsSeen.setOnClickListener(v -> {
 
-                Log.w(LOG_TAG, "markAsSeen button clicked.");
-                closeAndMarkWatched(episode);
-            }
+            Log.w(LOG_TAG, "markAsSeen button clicked.");
+            closeAndMarkWatched(episode);
         });
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsAquired = findViewById(R.id.markAsAquired);
-        appBarmarkAsAquired.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        appBarmarkAsAquired.setOnClickListener(v -> {
 
-                Log.w(LOG_TAG, "markAsAquired button clicked.");
-                closeAndAcquireEpisode(episode);
-            }
+            Log.w(LOG_TAG, "markAsAquired button clicked.");
+            closeAndAcquireEpisode(episode);
         });
 
 
@@ -229,18 +220,18 @@ public class EpisodeDetailsActivity extends Activity {
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
             if (previousItem != nextItem) {
-                switch (nextItem) {
-                    case R.id.barShowDetail:
+               // switch (nextItem) {
+                    if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
                         //TODO need to build an activity to use the showDetail content.
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
                         } else {
                             //openEpisodeListing(episodesType);
 
                         }
                         return true;
-                    case R.id.barEpisodeOverview:
+                    } else if (R.id.barEpisodeOverview == nextItem) {
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
 
                         if (shows.size() > 0) {
@@ -252,15 +243,15 @@ public class EpisodeDetailsActivity extends Activity {
 
                         }
                         return true;
-                    case R.id.barWatch:
-                        Log.w(LOG_TAG, "barWatch selected");
-                        if (shows.size() > 0) {
-                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
-                        } else {
-                            openEpisodeListing(episodesType);
-                        }
-                        return true;
-                    case R.id.barAcquire:
+                    }else if( R.id.barWatch == nextItem){
+                    Log.w(LOG_TAG, "barWatch selected");
+                    if (shows.size() > 0) {
+                        openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
+                    } else {
+                        openEpisodeListing(episodesType);
+                    }
+                    return true;
+                }else if ( R.id.barAcquire == nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
@@ -268,7 +259,7 @@ public class EpisodeDetailsActivity extends Activity {
                             openEpisodeListing(episodesType);
                         }
                         return true;
-                    case R.id.barComing:
+                    }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
@@ -282,7 +273,9 @@ public class EpisodeDetailsActivity extends Activity {
                         }
                         return true;
                 }
-                return false;
+                else {
+                        return false;
+                    }
             }
             return false;
         }
@@ -472,13 +465,13 @@ public class EpisodeDetailsActivity extends Activity {
             String ShowRuntime = showInfo.getShowRuntime();
             String showStatus = showInfo.getShowStatus();
 
-            if(!ShowRuntime.equals("")){
+            if(!ShowRuntime.isEmpty()){
                 TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);
                 ShowRuntimeTV.setText(ShowRuntime + " mins");
 
             }
 
-            if (!ShowName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && !showImageURL.equals("") && !ShowRuntime.equals("")  && showStatus != null) {
+            if (!ShowName.isEmpty() && !showURL.isEmpty() && !officialSite.isEmpty() && !showSummary.isEmpty() && !showImageURL.isEmpty() && !ShowRuntime.isEmpty() && showStatus != null) {
 
                 showSummaryHash.put("ShowName", ShowName);
                 showSummaryHash.put("showURL", showURL);

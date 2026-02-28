@@ -54,8 +54,8 @@ public class PreferencesActivity extends PreferenceActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-            case R.id.home:
+        if(item.getItemId() == R.id.home){
+
                 finish();
                 return true;
 

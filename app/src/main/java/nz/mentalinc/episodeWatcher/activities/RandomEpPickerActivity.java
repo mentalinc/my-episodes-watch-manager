@@ -210,8 +210,8 @@ public class RandomEpPickerActivity extends Activity {
 
             //TODO need to do something to open a blank list instead of failing back when clicking on a button that has no shows to watch.
             if (previousItem != nextItem) {
-                switch (nextItem) {
-                    case R.id.barShowDetail:
+               // switch (nextItem) {
+                    if(R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
                         if (shows.size() > 0) {
                             //episodeType is basically watch when clicking on a random episode a s onlt shows EPISODES_TO_WATCH
@@ -225,7 +225,7 @@ public class RandomEpPickerActivity extends Activity {
                             openShowSummary(episodesType);
                         }
                         return true;
-                    case R.id.barEpisodeOverview:
+                    }else if( R.id.barEpisodeOverview == nextItem) {
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
                         //   if (shows.size() > 0) {
                         //make sure it opens the next WATCH episode details.
@@ -247,7 +247,7 @@ public class RandomEpPickerActivity extends Activity {
 
                         }
                         return true;
-                    case R.id.barWatch:
+                    }else if( R.id.barWatch== nextItem) {
                         Log.w(LOG_TAG, "barWatch selected");
 
                         if (shows.size() > 0) {
@@ -265,7 +265,7 @@ public class RandomEpPickerActivity extends Activity {
                             }
                         }
                         return true;
-                    case R.id.barAcquire:
+                    }else if( R.id.barAcquire== nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
 
                         if (shows.size() > 0) {
@@ -281,7 +281,7 @@ public class RandomEpPickerActivity extends Activity {
                             }
                         }
                         return true;
-                    case R.id.barComing:
+                    }else if( R.id.barComing== nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
 
                         if (shows.size() > 0) {
@@ -296,8 +296,10 @@ public class RandomEpPickerActivity extends Activity {
                             }
                         }
                         return true;
-                }
-                return false;
+
+                }else {
+                        return false;
+                    }
             }
             return false;
         }

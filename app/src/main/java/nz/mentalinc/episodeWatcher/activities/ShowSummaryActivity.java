@@ -164,8 +164,8 @@ public class ShowSummaryActivity extends Activity {
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
             if (previousItem != nextItem) {
-                switch (nextItem) {
-                    case R.id.barShowDetail:
+                //switch (nextItem) {
+                    if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
                         //TODO need to build an activity to use the showDetail content.
                         if (episodes.size() > 0) {
@@ -173,7 +173,7 @@ public class ShowSummaryActivity extends Activity {
                             openShowSummary(episodes.get(0), episodesType);
                         }
                         return true;
-                    case R.id.barEpisodeOverview:
+                    }else if( R.id.barEpisodeOverview == nextItem) {
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
                         //if (shows.size() > 0) {
                         //make sure it opens the next WATCH episode details.
@@ -200,7 +200,7 @@ public class ShowSummaryActivity extends Activity {
                             bottomNavigationView.getMenu().getItem(0).setChecked(true);
                         }
                         return true;
-                    case R.id.barWatch:
+                    }else if( R.id.barWatch == nextItem) {
                         Log.w(LOG_TAG, "barWatch selected");
 
                         if (shows.size() > 0) {
@@ -209,7 +209,7 @@ public class ShowSummaryActivity extends Activity {
                             openEpisodeListing(EpisodeType.EPISODES_TO_WATCH);
                         }
                         return true;
-                    case R.id.barAcquire:
+                    }else if( R.id.barAcquire == nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
@@ -217,7 +217,7 @@ public class ShowSummaryActivity extends Activity {
                             openEpisodeListing(EpisodeType.EPISODES_TO_ACQUIRE);
                         }
                         return true;
-                    case R.id.barComing:
+                    }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
                         if (shows.size() > 0) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);

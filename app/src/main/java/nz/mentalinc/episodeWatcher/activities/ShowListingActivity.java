@@ -233,9 +233,10 @@ public class ShowListingActivity extends Activity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-            switch (item.getItemId()) {
+            final int nextItem = item.getItemId();
+            //switch (item.getItemId()) {
 
-                case R.id.barHome:
+                if( R.id.barHome  == nextItem) {
                     finish();
                     bottomNavigationView.getMenu().getItem(0).setChecked(true);
                     Intent HomeActivity = new Intent(getApplicationContext(), HomeActivity.class);
@@ -244,7 +245,7 @@ public class ShowListingActivity extends Activity {
                     startActivity(HomeActivity);
                     return true;
 
-                case R.id.barWatch:
+                }else if( R.id.barWatch == nextItem) {
                     finish();
                     Log.w(LOG_TAG, "barWatch selected");
                     Intent newWatchShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
@@ -254,7 +255,7 @@ public class ShowListingActivity extends Activity {
                     startActivity(newWatchShowListing);
 
                     return true;
-                case R.id.barAcquire:
+                }else if (R.id.barAcquire == nextItem) {
                     finish();
                     Log.w(LOG_TAG, "barAcquire selected");
                     Intent newAcquireShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);
@@ -264,7 +265,7 @@ public class ShowListingActivity extends Activity {
                     startActivity(newAcquireShowListing);
 
                     return true;
-                case R.id.barComing:
+                }else if(R.id.barComing == nextItem) {
                     finish();
                     Log.w(LOG_TAG, "barComing selected");
                     Intent newComingShowListing = new Intent(getApplicationContext(), ShowListingActivity.class);

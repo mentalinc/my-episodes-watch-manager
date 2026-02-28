@@ -364,33 +364,35 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         Episode selectedEpisode = determineEpisode(groupid, childid);
         List<Episode> selectedGroup;
         selectedGroup = determineGroup(groupid);
-        switch (item.getItemId()) {
-            case R.id.episodeMenuWatched:
+        final int nextItem = item.getItemId();
+        //switch (item.getItemId()) {
+            if( R.id.episodeMenuWatched == nextItem) {
                 markEpisodes(0, selectedEpisode);
                 return true;
-            case R.id.episodeMenuAcquired:
+            }else if (R.id.episodeMenuAcquired == nextItem) {
                 markEpisodes(1, selectedEpisode);
                 return true;
-            case R.id.episodeTweet:
+            }else if( R.id.episodeTweet == nextItem) {
                 String tweet = Objects.requireNonNull(selectedEpisode).getShowName() + " S" + selectedEpisode.getSeasonString() + "E" + selectedEpisode.getEpisodeString() + " - " + selectedEpisode.getName();
                 Intent i = new Intent(android.content.Intent.ACTION_SEND);
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_TEXT, getString(R.string.Tweet, tweet));
                 startActivity(Intent.createChooser(i, getString(R.string.TweetTitle)));
                 return true;
-            case R.id.episodeMenuDetails:
+            }else if( R.id.episodeMenuDetails == nextItem){
                 openEpisodeDetails(selectedEpisode, episodesType);
                 return true;
-            case R.id.showMenuWatched:
-                markEpisodes(0, selectedGroup);
-                return true;
-            case R.id.showMenuAcquired:
+             }else if( R.id.showMenuWatched == nextItem) {
+            markEpisodes(0, selectedGroup);
+            return true;
+            }else if (R.id.showMenuAcquired == nextItem) {
                 markEpisodes(1, selectedGroup);
                 return true;
-            default:
+            }else {
                 return false;
+            }
         }
-    }
+
 
     //@Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
