@@ -1,53 +1,53 @@
--optimizationpasses 5
--dontusemixedcaseclassnames
--dontskipnonpubliclibraryclasses
--dontpreverify
--verbose
--optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+#-optimizationpasses 5
+#-dontusemixedcaseclassnames
+#-dontskipnonpubliclibraryclasses
+#-dontpreverify
+#-verbose
+#-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
--keep public class * extends android.app.backup.BackupAgentHelper
--keep public class * extends android.preference.Preference
-#-keep public class com.android.vending.licensing.ILicensingService
--keep public class com.google.**
+#-keep public class * extends android.app.Activity
+#-keep public class * extends android.app.Application
+#-keep public class * extends android.app.Service
+#-keep public class * extends android.content.BroadcastReceiver
+#-keep public class * extends android.content.ContentProvider
+#-keep public class * extends android.app.backup.BackupAgentHelper
+#-keep public class * extends android.preference.Preference
+###-keep public class com.android.vending.licensing.ILicensingService
+#-keep public class com.google.**
 
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public class * extends com.bumptech.glide.module.AppGlideModule
--keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
+#-keep public class * implements com.bumptech.glide.module.GlideModule
+#-keep public class * extends com.bumptech.glide.module.AppGlideModule
+#-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+#  **[] $VALUES;
+#  public *;
+#}
 
--dontwarn javax.naming.**
--dontwarn com.google.**
--dontwarn android.**
--dontwarn roboguice.**
+#-dontwarn javax.naming.**
+#-dontwarn com.google.**
+#-dontwarn android.**
+#-dontwarn roboguice.**
+#
+#-keepclasseswithmembernames class * {
+#    native <methods>;
+#}
 
--keepclasseswithmembernames class * {
-    native <methods>;
-}
+#-keepclasseswithmembers class * {
+#    public <init>(android.content.Context, android.util.AttributeSet);
+#}
 
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet);
-}
+#-keepclasseswithmembers class * {
+#    public <init>(android.content.Context, android.util.AttributeSet, int);
+#}
 
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-}
+#-keepclassmembers class * extends android.app.Activity {
+#   public void *(android.view.View);
+#}
 
--keepclassmembers class * extends android.app.Activity {
-   public void *(android.view.View);
-}
+#-keepclassmembers enum * {
+#    public static **[] values();
+#    public static ** valueOf(java.lang.String);
+#}
 
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
-
--keep class * implements android.os.Parcelable {
-  public static final android.os.Parcelable$Creator *;
-}
+#-keep class * implements android.os.Parcelable {
+#  public static final android.os.Parcelable$Creator *;
+#}

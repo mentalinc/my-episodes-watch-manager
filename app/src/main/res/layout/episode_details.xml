@@ -134,7 +134,7 @@
                     android:id="@+id/episodeDetSeasonLabel"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:paddingEnd="10dp"
                     android:text="@string/episodeDetailsSeasonLabel" />
 
@@ -153,7 +153,7 @@
                     android:id="@+id/episodeDetEpisodeLabel"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:paddingEnd="10dp"
                     android:text="@string/episodeDetailsEpisodeLabel" />
 
@@ -210,7 +210,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:gravity="left"
+                android:gravity="start"
                 android:paddingBottom="5dp" />
 
             <TextView
@@ -219,7 +219,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:gravity="left"
+                android:gravity="start"
                 android:paddingBottom="10dp" />
 
             <View
@@ -266,7 +266,8 @@
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="120dp"
+        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -280,6 +281,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             app:backgroundTint="@color/colorPrimary"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_navigation_menu" />
 
     </FrameLayout>
