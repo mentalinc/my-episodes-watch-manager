@@ -386,4 +386,9 @@
         <item>Swedish</item>
         <item>Norwegian</item>
     </string-array>
+    <string name="favoIgnoredUnignoreShOW">Unignore Show</string>
+    <string name="searchserieUnabletoAdd">Error adding the series. Please try again. If the error persists, please submit a report.</string>
+    <string name="serieLanguagePrompt">Change language</string>
+    <string name="showOrderPrompt">TV series order</string>
+    <string name="changelog">Many many things</string>
 </resources>

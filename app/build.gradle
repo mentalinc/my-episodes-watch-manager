@@ -5,7 +5,7 @@ android {
     defaultConfig {
         applicationId = "nz.mentalinc.episodeWatcher"
         minSdk = 33
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode = 39
         versionName = '1.9.0'
 
@@ -31,14 +31,14 @@ android {
     }
     buildTypes {
         debug {
-            versionNameSuffix " - DEBUG"
+            versionNameSuffix '- DEBUG'
             applicationIdSuffix ".debug"
-            signingConfig signingConfigs.debug
+            signingConfig = signingConfigs.debug
         }
         release {
             minifyEnabled false
            // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
         }
     }
     compileOptions {
@@ -49,7 +49,7 @@ android {
     }
     //buildToolsVersion '34.0.0'
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
     namespace = 'nz.mentalinc.episodeWatcher'
     buildToolsVersion = '36.1.0'
