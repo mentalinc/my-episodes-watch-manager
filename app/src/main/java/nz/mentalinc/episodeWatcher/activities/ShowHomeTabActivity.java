@@ -33,7 +33,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
     List<Show> shows = new ArrayList<>();
     private List<Episode> episodesRaw = new ArrayList<>();
-    private List<Episode> episodes = new ArrayList<>();
+    private final List<Episode> episodes = new ArrayList<>();
 
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
@@ -106,7 +106,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
     }
 
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    private final BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 

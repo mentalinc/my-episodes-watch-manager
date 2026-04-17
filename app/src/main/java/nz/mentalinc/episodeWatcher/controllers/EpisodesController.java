@@ -19,9 +19,9 @@ public class EpisodesController {
     private List<Episode> acquireEpisodes = new ArrayList<>();
     private List<Episode> comingEpisodes = new ArrayList<>();
     private ArrayList<Show> shows;
-    private HashMap<String, Show> watchShows = new HashMap<>();
-    private HashMap<String, Show> acquireShows = new HashMap<>();
-    private HashMap<String, Show> comingShows = new HashMap<>();
+    private final HashMap<String, Show> watchShows = new HashMap<>();
+    private final HashMap<String, Show> acquireShows = new HashMap<>();
+    private final HashMap<String, Show> comingShows = new HashMap<>();
     private static EpisodesController Instance;
     private static final String LOG_TAG = EpisodesController.class.getSimpleName();
 

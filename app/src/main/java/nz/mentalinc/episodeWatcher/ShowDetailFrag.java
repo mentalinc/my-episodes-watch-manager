@@ -28,7 +28,7 @@ public class ShowDetailFrag extends Fragment {
     List<Show> shows;
     private static final String LOG_TAG = ShowDetailFrag.class.getSimpleName();
     private List<Episode> episodesRaw = new ArrayList<>();
-    private List<Episode> episodes = new ArrayList<>();
+    private final List<Episode> episodes = new ArrayList<>();
 
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
@@ -59,12 +59,12 @@ public class ShowDetailFrag extends Fragment {
         showMyEpisodeID = getArguments().getString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
 
         String ShowTitleHeader = getArguments().getString("Title");
-        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar) view.findViewById(R.id.topAppBarShowsDetailView);
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = view.findViewById(R.id.topAppBarShowsDetailView);
         ShowNameTitle.setTitle(ShowTitleHeader);
 
         returnEpisodes();
 
-        RecyclerView rvShowDetail = (RecyclerView) view.findViewById(R.id.recyclerViewListShowItems);
+        RecyclerView rvShowDetail = view.findViewById(R.id.recyclerViewListShowItems);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvShowDetail.setLayoutManager(layoutManager);
         ShowDetailAdapter adapter = new ShowDetailAdapter(shows);

@@ -123,11 +123,7 @@ public class PreferencesActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 refreshDialog = true;
-                if (daysBackwardEnable.isChecked()) {
-                    daysBackCP.setEnabled(false);
-                } else {
-                    daysBackCP.setEnabled(true);
-                }
+                daysBackCP.setEnabled(!daysBackwardEnable.isChecked());
 
                 deleteFile("Watch.xml");
                 deleteFile("Acquire.xml");
@@ -147,11 +143,7 @@ public class PreferencesActivity extends PreferenceActivity {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 refreshDialog = true;
 
-                if (RunTimeEnable.isChecked()) {
-                    showRuntimeOrderingPref.setEnabled(false);
-                } else {
-                    showRuntimeOrderingPref.setEnabled(true);
-                }
+                showRuntimeOrderingPref.setEnabled(!RunTimeEnable.isChecked());
 
                 deleteFile("Watch.xml");
                 deleteFile("Acquire.xml");
@@ -201,11 +193,7 @@ public class PreferencesActivity extends PreferenceActivity {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 refreshDialog = true;
 
-                if (CacheEpisodesEnable.isChecked()) {
-                    cacheAgingPref.setEnabled(false);
-                } else {
-                    cacheAgingPref.setEnabled(true);
-                }
+                cacheAgingPref.setEnabled(!CacheEpisodesEnable.isChecked());
 
                 deleteFile("Watch.xml");
                 deleteFile("Acquire.xml");
@@ -270,11 +258,7 @@ public class PreferencesActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 refreshDialog = true;
-                if (disableAcquirePref.isChecked()) {
-                    showAcquireOrderingPref.setEnabled(true);
-                } else {
-                    showAcquireOrderingPref.setEnabled(false);
-                }
+                showAcquireOrderingPref.setEnabled(disableAcquirePref.isChecked());
                 return true;
             }
         });
@@ -288,11 +272,7 @@ public class PreferencesActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 refreshDialog = true;
-                if (disableComingPref.isChecked()) {
-                    showComingOrderingPref.setEnabled(true);
-                } else {
-                    showComingOrderingPref.setEnabled(false);
-                }
+                showComingOrderingPref.setEnabled(disableComingPref.isChecked());
                 return true;
             }
         });

@@ -14,6 +14,7 @@ import java.net.CookiePolicy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -57,9 +58,9 @@ public class UserService {
             else
                 result.append("&");
 
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
         }
 
         return result.toString();
@@ -83,7 +84,7 @@ public class UserService {
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
+                    new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
             HashMap postDataParams = new HashMap<String, String>() {{
                 put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
@@ -162,7 +163,7 @@ public class UserService {
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
+                    new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
             HashMap postDataParams = new HashMap<String, String>() {{
                 put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);

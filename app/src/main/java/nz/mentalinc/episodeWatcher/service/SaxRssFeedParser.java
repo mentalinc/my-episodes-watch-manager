@@ -353,7 +353,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             Log.d(LOG_TAG, "Time in hours: " + diffHours + " hours.");
             Log.d(LOG_TAG, "Time in days: " + diffDays + " days.");
             Log.d(LOG_TAG, "Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) + " days " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
-            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate.toString());
+            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate);
             if (diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)) {
                 Log.d(LOG_TAG, "Delete File too many DAYS old...");
                 deleteFile(filetoDelete);

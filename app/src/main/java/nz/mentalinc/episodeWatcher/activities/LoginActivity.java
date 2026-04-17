@@ -60,7 +60,7 @@ public class LoginActivity extends Activity {
                     //TODO login failed exception doesn't get shown to the user or stop and login takes user to homeactivity but is blank, so need to logout to try again.
                     //todo remove AsyncTask
                     AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-                        boolean loginStatus = false;
+                        final boolean loginStatus = false;
 
 
                         //probably don't need cookie manager - need to use the accept all cookies policy thing

@@ -222,7 +222,7 @@ public class EpisodesService {
                     //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).getShowTVMazeID(), episode.getSeason(), episode.getEpisode()));
 
                 } else {
-                    String message = "Problem parsing a feed item. Feed details: " + item.toString();
+                    String message = "Problem parsing a feed item. Feed details: " + item;
                     Log.e(LOG_TAG, message);
                 }
 
@@ -321,7 +321,7 @@ public class EpisodesService {
             Log.d(LOG_TAG, "Time in hours: " + diffHours + " hours.");
             Log.d(LOG_TAG, "Time in days: " + diffDays + " days.");
             Log.d(LOG_TAG, "Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) + " days " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
-            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate.toString());
+            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate);
             if (diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)) {
                 Log.d(LOG_TAG, "Delete File too many DAYS old...");
                 deleteFile(filetoDelete);
@@ -553,7 +553,7 @@ public class EpisodesService {
                             indexEp = rowProcess[4].indexOf(">"); //epname firstep
                         }
                         String episodeName = rowProcess[4].substring(indexEp);
-                        episodeName = episodeName.substring(1, episodeName.length());
+                        episodeName = episodeName.substring(1);
                         //	Log.d(LOG_TAG, "EpisodeName: " + rowProcess[4].toString());
 
                         //Get episode link - doesn't work yet.
@@ -866,9 +866,9 @@ public class EpisodesService {
             else
                 result.append("&");
 
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
         }
 
         return result.toString();
@@ -924,7 +924,7 @@ public class EpisodesService {
 
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
+                    new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
 
             HashMap<String, String> postDataParams = new HashMap<>() {{
@@ -1032,7 +1032,6 @@ public class EpisodesService {
                 }
                 Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
             }
-            ;
 
             byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
             int postDataLength = postData.length;
@@ -1070,9 +1069,9 @@ public class EpisodesService {
                 first = false;
             else
                 result.append("&");
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
         }
         return result.toString();
     }

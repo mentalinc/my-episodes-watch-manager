@@ -77,15 +77,15 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
             // to access the context from any ViewHolder instance.
             super(itemView);
 
-            seriesnameView = (TextView) itemView.findViewById(R.id.ShowName);
-            tvMazeShowWebsite = (TextView) itemView.findViewById(R.id.tvMazeShowWebsite);
-            episodetime = (TextView) itemView.findViewById(R.id.showDetailRuntime);
-            textViewShowsRemaining = (TextView) itemView.findViewById(R.id.textViewShowsRemaining);
-            officialShowDetailWebsite = (TextView) itemView.findViewById(R.id.officialShowDetailWebsite);
-            tvMazeShowDetailSummary = (TextView) itemView.findViewById(R.id.tvMazeShowDetailSummary);
+            seriesnameView = itemView.findViewById(R.id.ShowName);
+            tvMazeShowWebsite = itemView.findViewById(R.id.tvMazeShowWebsite);
+            episodetime = itemView.findViewById(R.id.showDetailRuntime);
+            textViewShowsRemaining = itemView.findViewById(R.id.textViewShowsRemaining);
+            officialShowDetailWebsite = itemView.findViewById(R.id.officialShowDetailWebsite);
+            tvMazeShowDetailSummary = itemView.findViewById(R.id.tvMazeShowDetailSummary);
 
 
-            showposter = (ImageView) itemView.findViewById(R.id.showDetailposter);
+            showposter = itemView.findViewById(R.id.showDetailposter);
 
         }
     }

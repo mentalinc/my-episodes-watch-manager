@@ -76,13 +76,13 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
             // to access the context from any ViewHolder instance.
             super(itemView);
 
-            showName = (TextView) itemView.findViewById(R.id.textViewActivityShow);
-            episodetime = (TextView) itemView.findViewById(R.id.textViewActivityInfo);
-            episodeNumber = (TextView) itemView.findViewById(R.id.textViewActivityEpisode);
-            episodeName = (TextView) itemView.findViewById(R.id.textViewActivityEpisode);
-            episodeRuntime = (TextView) itemView.findViewById(R.id.textViewActivityRunTime);
+            showName = itemView.findViewById(R.id.textViewActivityShow);
+            episodetime = itemView.findViewById(R.id.textViewActivityInfo);
+            episodeNumber = itemView.findViewById(R.id.textViewActivityEpisode);
+            episodeName = itemView.findViewById(R.id.textViewActivityEpisode);
+            episodeRuntime = itemView.findViewById(R.id.textViewActivityRunTime);
 
-            showposter = (ImageView) itemView.findViewById(R.id.imageViewActivityPoster);
+            showposter = itemView.findViewById(R.id.imageViewActivityPoster);
         }
     }
 

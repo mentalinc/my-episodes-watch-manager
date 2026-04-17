@@ -9,7 +9,7 @@ import android.text.Spanned;
 public class InputFilterMinMax implements InputFilter {
 
     private final int min;
-    private int max;
+    private final int max;
 
     public InputFilterMinMax(int min, int max) {
         this.min = min;

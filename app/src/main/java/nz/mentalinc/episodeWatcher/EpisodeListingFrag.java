@@ -72,10 +72,10 @@ public class EpisodeListingFrag extends Fragment {
 
 
         ShowTitleHeader = ShowTitleHeader + " (" + episodes.size() + ")";
-        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = (com.google.android.material.appbar.MaterialToolbar) view.findViewById(R.id.topAppBarEpisodesView);
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = view.findViewById(R.id.topAppBarEpisodesView);
         ShowNameTitle.setTitle(ShowTitleHeader);
 
-        rvEpisode = (RecyclerView) view.findViewById(R.id.recyclerViewListItemsEps);
+        rvEpisode = view.findViewById(R.id.recyclerViewListItemsEps);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvEpisode.setLayoutManager(layoutManager);

@@ -178,9 +178,9 @@ public class ShowService {
             else
                 result.append("&");
 
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
             result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
         }
 
         return result.toString();
@@ -282,7 +282,7 @@ public class ShowService {
             return shows;
         }
 
-        String selectTag = html.substring(startPosition, html.length());
+        String selectTag = html.substring(startPosition);
         int endPosition = selectTag.indexOf(endTag);
         selectTag = selectTag.substring(0, endPosition);
 
