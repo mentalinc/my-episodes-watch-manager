@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,9 +19,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -57,6 +60,29 @@ public class ShowManagementActivity extends ListActivity {
     private static final int CONTEXT_MENU_IGNORE = 2;
     private static final int CONFIRMATION_DIALOG = 3;
 
+    private final BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    final int itemId = item.getItemId();
+                    if (itemId == R.id.barFavouriteShows) {
+                        openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
+                        return true;
+                    } else if (itemId == R.id.barIgnoredShows) {
+                        openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
+                        return true;
+                    } else if (itemId == R.id.barAddShows) {
+                        openSearchActivity();
+                        return true;
+                    } else if (itemId == R.id.barShowRuntime) {
+                        openRunTimeActivity();
+                        return true;
+                    }
+
+                    return false;
+                }
+            };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -73,7 +99,7 @@ public class ShowManagementActivity extends ListActivity {
                 break;
         }
         super.onCreate(savedInstanceState);
-        init(savedInstanceState);
+        init();
 
         reloadShows();
 
@@ -81,13 +107,21 @@ public class ShowManagementActivity extends ListActivity {
         appBarHome.setOnClickListener(v -> finish());
     }
 
-    private void init(Bundle savedInstanceState) {
+    private void init() {
 
-        super.onCreate(savedInstanceState);
         super.setContentView(R.layout.show_management);
+        findViewById(R.id.appBarLayoutShowManagement).setZ(100f);
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigationManage);
 
         Bundle data = this.getIntent().getExtras();
         showType = (ShowType) Objects.requireNonNull(data).get(ShowType.class.getSimpleName());
+        if (showType.equals(ShowType.FAVOURITE_SHOWS)) {
+            bottomNav.setSelectedItemId(R.id.barFavouriteShows);
+        } else if (showType.equals(ShowType.IGNORED_SHOWS)) {
+            bottomNav.setSelectedItemId(R.id.barIgnoredShows);
+        }
+        bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
         String title = (String) data.getSerializable("Title");
         Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
         toolbar.setTitle(title);
@@ -352,5 +386,27 @@ public class ShowManagementActivity extends ListActivity {
 
     public void onHomeClick(View v) {
         finish();
+    }
+
+    private void openSearchActivity() {
+        Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);
+        searchIntent.putExtra("Title", getString(R.string.addShow));
+        startActivity(searchIntent);
+    }
+
+    private void openRunTimeActivity() {
+        Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
+        runTimeIntent.putExtra("Title", getString(R.string.ShowRuntime));
+        startActivity(runTimeIntent);
+    }
+
+    private void openFavouriteOrIgnoredShows(ShowType showType) {
+        Intent intent = new Intent(this.getApplicationContext(), ShowManagementActivity.class);
+        intent.putExtra(ShowType.class.getSimpleName(), showType);
+        if (showType.toString().equals("FAVOURITE_SHOWS"))
+            intent.putExtra("Title", getString(R.string.favouriteShows));
+        else if (showType.toString().equals("IGNORED_SHOWS"))
+            intent.putExtra("Title", getString(R.string.ignoredShows));
+        startActivity(intent);
     }
 }

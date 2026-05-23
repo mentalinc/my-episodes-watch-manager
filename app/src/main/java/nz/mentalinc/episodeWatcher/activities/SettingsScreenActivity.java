@@ -27,6 +27,7 @@ public class SettingsScreenActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_layout);
+        findViewById(R.id.appBarSettingsLayout).setZ(100f);
 
         getSupportFragmentManager()
                 .beginTransaction()

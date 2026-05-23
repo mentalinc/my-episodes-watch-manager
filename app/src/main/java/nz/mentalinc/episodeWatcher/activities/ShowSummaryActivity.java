@@ -72,6 +72,8 @@ public class ShowSummaryActivity extends Activity {
 
         setContentView(R.layout.show_overview);
 
+        findViewById(R.id.appBarShowOverviewLayout2).setZ(100f);
+
         data = this.getIntent().getExtras();
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);

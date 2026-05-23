@@ -84,6 +84,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
         setContentView(R.layout.recycle_view_episodes);
 
+        findViewById(R.id.appBarEpLayout2).setZ(100f);
+
         bottomNavigationView = findViewById(R.id.bottom_navigationviewEpisodeHome);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 

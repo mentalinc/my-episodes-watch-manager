@@ -12,41 +12,40 @@
         android:id="@+id/appBarEpLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:background="@color/colorPrimary"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="parent"
+        android:elevation="6dp"
+        android:translationZ="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBarEpisodesView"
-        style="@style/Widget.MaterialComponents.Toolbar.Primary"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primaryColor"
-        android:textColor="@color/on_text_white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/appBarEpLayout2"
-        app:menu="@menu/home_menu"
-        app:titleTextColor="@color/on_text_white"
-        tools:Title="Testing Title" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBarEpisodesView"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primaryColor"
+            android:textColor="@color/on_text_white"
+            app:menu="@menu/home_menu"
+            app:titleTextColor="@color/on_text_white"
+            tools:Title="Testing Title" />
 
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewListItemsEps"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="true"
-
         android:orientation="vertical"
         android:textColor="@color/on_text_white"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/frame_layoutEps"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topAppBarEpisodesView"
+        app:layout_constraintTop_toBottomOf="@+id/appBarEpLayout2"
         tools:listitem="@layout/item_episode" />
 
     <FrameLayout
@@ -65,7 +64,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             app:backgroundTint="@color/colorPrimary"
-            app:menu="@menu/bottom_navigation_menu" />
+            app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_navigation_menu" />
 
     </FrameLayout>
 

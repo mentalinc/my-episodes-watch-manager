@@ -6,11 +6,14 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.room.Room;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,26 +65,49 @@ public class ShowManagementPortalActivity extends Activity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management_portal);
-
+        findViewById(R.id.appBarLayoutPortal).setZ(100f);
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            finish();
-        });
+        appBarHome.setOnClickListener(v -> finish());
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigationManage);
+        bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
     }
 
     private void loadButtons() {
-        Button favShowsButton = findViewById(R.id.selectionPanelFavoShows);
-        Button ignoredShowsButton = findViewById(R.id.selectionPanelIgnoredShows);
-        Button addShowsButton = findViewById(R.id.selectionPanelAddShows);
-        Button ShowsRuntimeButton = findViewById(R.id.selectionPanelShowsRuntime);
-        Button nullRuntimeButton = findViewById(R.id.addNullRuntime);
+        com.google.android.material.button.MaterialButton favShowsButton = findViewById(R.id.selectionPanelFavoShows);
+        com.google.android.material.button.MaterialButton ignoredShowsButton = findViewById(R.id.selectionPanelIgnoredShows);
+        com.google.android.material.button.MaterialButton addShowsButton = findViewById(R.id.selectionPanelAddShows);
+        com.google.android.material.button.MaterialButton ShowsRuntimeButton = findViewById(R.id.selectionPanelShowsRuntime);
+        com.google.android.material.button.MaterialButton nullRuntimeButton = findViewById(R.id.addNullRuntime);
         favShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS));
         ignoredShowsButton.setOnClickListener(view -> openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS));
         addShowsButton.setOnClickListener(view -> openSearchActivity());
         ShowsRuntimeButton.setOnClickListener(view -> openRunTimeActivity());
         nullRuntimeButton.setOnClickListener(view -> nullRuntimeFixer());
     }
+
+    private final BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    final int itemId = item.getItemId();
+                    if (itemId == R.id.barFavouriteShows) {
+                        openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
+                        return true;
+                    } else if (itemId == R.id.barIgnoredShows) {
+                        openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
+                        return true;
+                    } else if (itemId == R.id.barAddShows) {
+                        openSearchActivity();
+                        return true;
+                    } else if (itemId == R.id.barShowRuntime) {
+                        openRunTimeActivity();
+                        return true;
+                    }
+                    return false;
+                }
+            };
 
     private void openSearchActivity() {
         Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);

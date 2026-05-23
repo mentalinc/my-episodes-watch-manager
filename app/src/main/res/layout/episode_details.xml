@@ -11,29 +11,29 @@
         android:id="@+id/appBarEpDetailOverviewLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:background="@color/colorPrimary"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="parent"
+        android:elevation="6dp"
+        android:translationZ="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBarEpisodeDetails"
-        style="@style/Widget.MaterialComponents.Toolbar.Primary"
-        android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primaryColor"
-        android:textColor="@color/on_text_white"
-        app:layout_constraintBottom_toTopOf="@+id/ScrollView01"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/appBarEpDetailOverviewLayout2"
-        app:menu="@menu/episode_details_menu"
-        app:titleTextColor="@color/on_text_white"
-        tools:title="@string/details">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBarEpisodeDetails"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primaryColor"
+            android:textColor="@color/on_text_white"
+            app:menu="@menu/episode_details_menu"
+            app:titleTextColor="@color/on_text_white"
+            tools:title="@string/details">
 
-    </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
 
 
     <ScrollView
@@ -43,7 +43,7 @@
         app:layout_constraintBottom_toTopOf="@+id/frame_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topAppBarEpisodeDetails">
+        app:layout_constraintTop_toBottomOf="@+id/appBarEpDetailOverviewLayout2">
 
         <LinearLayout
             android:id="@+id/LinearLayout03"
@@ -285,7 +285,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:menu="@menu/bottom_navigation_menu" />
+            app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_navigation_menu" />
 
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

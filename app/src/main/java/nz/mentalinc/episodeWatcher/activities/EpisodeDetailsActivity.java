@@ -90,6 +90,8 @@ public class EpisodeDetailsActivity extends Activity {
 
         setContentView(R.layout.episode_details);
 
+        findViewById(R.id.appBarEpDetailOverviewLayout2).setZ(100f);
+
         Bundle data = this.getIntent().getExtras();
         title = (String) data.getSerializable("Title");
         TextView showNameText = findViewById(R.id.episodeDetShowName);
