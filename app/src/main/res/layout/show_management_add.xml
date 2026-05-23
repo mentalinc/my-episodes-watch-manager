@@ -83,18 +83,18 @@
             android:layout_height="wrap_content"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/text_view_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/showSearchNoSearchResults" />
+
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:choiceMode="singleChoice" />
-
-        <TextView
-            android:id="@+id/text_view_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/showSearchNoSearchResults" />
 
     </LinearLayout>
 
