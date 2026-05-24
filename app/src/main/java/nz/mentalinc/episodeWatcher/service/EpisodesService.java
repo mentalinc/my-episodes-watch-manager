@@ -5,8 +5,6 @@ import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.TV_MAZE_S
 import android.util.Log;
 import android.util.Xml;
 
-import androidx.room.Room;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.pojava.datetime.DateTime;
@@ -119,14 +117,20 @@ public class EpisodesService {
 
         List<Episode> episodes = new ArrayList<>(rssFeed.getItems().size());
 
-        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                .allowMainThreadQueries()   //Allows room to do operation on main thread
-                .fallbackToDestructiveMigration()
-                .build();
-
+        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
         SeriesDAO seriesDAO = database.getSeriesDAO();
-        //remove any shows that have a null in them
-        seriesDAO.deleteNullShow();
+
+        // Batch load episode runtimes into a map (avoids per-episode queries)
+        Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
+        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+            List<String> allIds = new ArrayList<>();
+            for (FeedItem item : rssFeed.getItems()) {
+                allIds.add(item.getGuid().split("-")[0].trim());
+            }
+            for (EpisodeRuntime rt : seriesDAO.getEpisodeRuntimeWithMyEpsIds(allIds)) {
+                runtimeMap.put(rt.showMyEpsID, rt);
+            }
+        }
 
         for (FeedItem item : rssFeed.getItems()) {
             Episode episode = new Episode();
@@ -175,14 +179,13 @@ public class EpisodesService {
 
                         //RunTimeEnable = true = show runtime
                         if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
-                            //Add runtime to the Show Name
-                            seriesDAO = database.getSeriesDAO();
-
-                            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+                            EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
                             //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
                             //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
                             episode.setShowName(episode.getShowName());
-                            episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
+                            if (showRuntime != null) {
+                                episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
+                            }
 
                         } else {
                             episode.setShowName(episode.getShowName());
@@ -210,13 +213,13 @@ public class EpisodesService {
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
                     //episode.setTVMazeWebSite(item.getLink());
 
-                    seriesDAO = database.getSeriesDAO();
-
-                    EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+                    EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
                     //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
                     //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
                     episode.setShowName(episode.getShowName());
-                    episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
+                    if (showRuntime != null) {
+                        episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
+                    }
 
                     //episode.setTVMazeWebSite("Link to episode description coming soon");
                     //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).getShowTVMazeID(), episode.getSeason(), episode.getEpisode()));
@@ -241,7 +244,6 @@ public class EpisodesService {
                 }
             }
         }
-        database.close();
         return episodes;
     }
 
@@ -254,7 +256,7 @@ public class EpisodesService {
             File file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), FILENAME);
 
             Log.d(LOG_TAG, "Save file Path" + MyEpisodeConstants.CONTEXT.getFilesDir().toString());
-            if (isOnline()) {
+            if (MyEpisodeConstants.isOnline()) {
                 deleteOldCacheFiles(file);
             } else {
                 Log.d(LOG_TAG, "Offline, Cache files not checked for aging");
@@ -1134,30 +1136,6 @@ public class EpisodesService {
         Log.d(LOG_TAG, "FEED URL: " + url);
 
         return url;
-    }
-
-    private static boolean isOnline() {
-        try {
-            URL url = new URL("https://www.myepisodes.com/favicon.ico");
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", "yourAgent");
-            connection.setRequestProperty("Connection", "close");
-            connection.setConnectTimeout(1000);
-            connection.connect();
-
-            if (connection.getResponseCode() == 200) {
-                connection.disconnect();
-                Log.d(LOG_TAG, "Online.");
-                return true;
-            } else {
-                connection.disconnect();
-                Log.d(LOG_TAG, "Offline!!");
-                return false;
-            }
-        } catch (IOException e) {
-            Log.e(LOG_TAG, e.toString());
-            return false;
-        }
     }
 
 

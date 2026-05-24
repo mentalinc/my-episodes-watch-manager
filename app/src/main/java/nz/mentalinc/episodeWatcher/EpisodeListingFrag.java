@@ -16,12 +16,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nz.mentalinc.episodeWatcher.activities.EpisodeAdapter;
 import nz.mentalinc.episodeWatcher.activities.EpisodeDetailsActivity;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
+import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.EpisodeDescendingComparator;
@@ -29,6 +32,7 @@ import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.domain.ShowAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.ShowDescendingComparator;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
+import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
 
 
@@ -79,7 +83,7 @@ public class EpisodeListingFrag extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvEpisode.setLayoutManager(layoutManager);
-        EpisodeAdapter adapter = new EpisodeAdapter(episodes);
+        EpisodeAdapter adapter = new EpisodeAdapter(episodes, buildRuntimeMapForEpisodes(episodes));
         adapter.submitList(episodes);
 
         //this doesn't seem to be called each time the tab is clicked on.
@@ -219,4 +223,24 @@ public class EpisodeListingFrag extends Fragment {
         return null;
     }
 
+    private Map<String, EpisodeRuntime> buildRuntimeMapForEpisodes(List<Episode> episodes) {
+        if (episodes == null || episodes.isEmpty()) {
+            return new HashMap<>();
+        }
+        List<String> myEpsIds = new ArrayList<>();
+        for (Episode episode : episodes) {
+            if (episode.getMyEpisodeID() != null) {
+                myEpsIds.add(episode.getMyEpisodeID());
+            }
+        }
+        AppDatabase db = AppDatabase.getInstance(getContext());
+        List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
+        Map<String, EpisodeRuntime> map = new HashMap<>();
+        if (runtimes != null) {
+            for (EpisodeRuntime rt : runtimes) {
+                map.put(rt.getShowMyEpsID(), rt);
+            }
+        }
+        return map;
+    }
 }

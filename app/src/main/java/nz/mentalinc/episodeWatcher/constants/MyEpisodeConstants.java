@@ -2,6 +2,11 @@ package nz.mentalinc.episodeWatcher.constants;
 
 import android.content.Context;
 
+import java.io.IOException;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
+
 public class MyEpisodeConstants {
     public static final String UID_REPLACEMENT_STRING = "[UID]";
     public static final String PWD_REPLACEMENT_STRING = "[PWD]";
@@ -101,4 +106,28 @@ public class MyEpisodeConstants {
     public static final String MYEPISODES_FAVO_UNIGNORE_URL = "https://www.myepisodes.com/myshows.php?action=Ignore&Ignore=0&showid=";
     public static final String MYEPISODES_FAVO_REMOVE_ULR = "https://www.myepisodes.com/myshows.php?action=Remove&Remove=1&showid=";
 
+    private static Boolean sIsOnline = null;
+
+    public static boolean isOnline() {
+        if (sIsOnline != null) {
+            return sIsOnline;
+        }
+        try {
+            URL url = new URL("https://www.myepisodes.com/favicon.ico");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", "yourAgent");
+            connection.setRequestProperty("Connection", "close");
+            connection.setConnectTimeout(1000);
+            connection.connect();
+            sIsOnline = connection.getResponseCode() == 200;
+            connection.disconnect();
+        } catch (IOException e) {
+            sIsOnline = false;
+        }
+        return sIsOnline;
+    }
+
+    public static void resetOnlineCache() {
+        sIsOnline = null;
+    }
 }

@@ -26,8 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
-import androidx.room.Room;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -155,10 +153,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
     private void getRuntimeShows() {
 
-        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                // .allowMainThreadQueries()   //Allows room to do operation on main thread
-                .fallbackToDestructiveMigration()
-                .build();
+        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
         SeriesDAO seriesDAO = database.getSeriesDAO();
         List<EpisodeRuntime> runtimeList = seriesDAO.getEpisodeRuntime();
@@ -183,16 +178,12 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             }
         }
         Collections.sort(shows, new ShowRuntimeAscendingComparator());
-
-        database.close();
     }
 
 
     private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
         TaskRunner.getExecutor().execute(() -> {
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
@@ -263,8 +254,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                     e.printStackTrace();
                 }
             }
-
-            database.close();
         });
     }
 
@@ -336,10 +325,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                     runTimeInput.setError(null);
 
 
-                    AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                            .allowMainThreadQueries()   //Allows room to do operation on main thread
-                            .fallbackToDestructiveMigration()
-                            .build();
+                    AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
                     SeriesDAO seriesDAO = database.getSeriesDAO();
 
                     //Updating an episodeRuntime
@@ -361,7 +347,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                     populateShowRuntimeList();
                     showListPosition = null;
                     showAdapter.notifyDataSetChanged();
-                    database.close();
                 }
                 dialog.dismiss();
             }
@@ -448,10 +433,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                                 runTimeInput.setError(null);
 
 
-                                AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                                        .allowMainThreadQueries()   //Allows room to do operation on main thread
-                                        .fallbackToDestructiveMigration()
-                                        .build();
+                                AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
                                 SeriesDAO seriesDAO = database.getSeriesDAO();
 
                                 //Updating an episodeRuntime
@@ -473,7 +455,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                                 populateShowRuntimeList();
                                 showListPosition = null;
                                 showAdapter.notifyDataSetChanged();
-                                database.close();
                             }
                         })
                         //; //remove this ; if add the .negative back int

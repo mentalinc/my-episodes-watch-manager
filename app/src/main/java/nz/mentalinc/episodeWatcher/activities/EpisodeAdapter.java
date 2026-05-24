@@ -1,8 +1,5 @@
 package nz.mentalinc.episodeWatcher.activities;
 
-import static nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants.CONTEXT;
-
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,29 +10,28 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import nz.mentalinc.episodeWatcher.R;
-import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
-import nz.mentalinc.episodeWatcher.database.AppDatabase;
-import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 
 public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHolder> {
-    private static final String LOG_TAG = nz.mentalinc.episodeWatcher.activities.EpisodeAdapter.class.getSimpleName();
+    private static final String LOG_TAG = EpisodeAdapter.class.getSimpleName();
     private List<Episode> episodeList;
-    Context context = CONTEXT.getApplicationContext();
+    private final Map<String, EpisodeRuntime> runtimeMap;
 
-
-    public EpisodeAdapter(List<Episode> episodes) {
+    public EpisodeAdapter(List<Episode> episodes, Map<String, EpisodeRuntime> runtimeMap) {
         super(DIFF_CALLBACK);
+        this.episodeList = episodes != null ? new ArrayList<>(episodes) : new ArrayList<>();
+        this.runtimeMap = runtimeMap;
     }
 
 
@@ -127,13 +123,12 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
 
             TextView textViewEpisodeShowsRunTime = holder.episodeRuntime;
             String myepisodeID = episode.getMyEpisodeID();
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
-                    .fallbackToDestructiveMigration()
-                    .build();
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(myepisodeID);
+            EpisodeRuntime showRuntime = runtimeMap.get(myepisodeID);
+            if (showRuntime == null) {
+                String message = "Problem reading runtime for " + episode.getShowName();
+                Log.e(LOG_TAG, message);
+                return;
+            }
 
             String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
             textViewEpisodeShowsRunTime.setText(showRuntimeText);
@@ -149,8 +144,6 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
                     .load(showImageURL)
                     .placeholder(R.drawable.placeholder)
                     .into(showPoster);
-
-            database.close();
 
         } catch (NullPointerException e) {
             String message = "Problem reading runtime for " + episode.getShowName();

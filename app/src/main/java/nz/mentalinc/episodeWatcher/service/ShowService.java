@@ -3,7 +3,7 @@ package nz.mentalinc.episodeWatcher.service;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.room.Room;
+import androidx.annotation.NonNull;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -170,6 +170,7 @@ public class ShowService {
                 }
             }
         }
+
         return shows;
     }
 
@@ -335,13 +336,36 @@ public class ShowService {
             countIdx += optionStartTag.length();
         }
 
-        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                .allowMainThreadQueries()
-                .fallbackToDestructiveMigration()
-                .build();
+        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
+        // First pass: collect all show IDs for batch runtime lookup
+        List<String> allShowIds = new ArrayList<>();
+        String workTag = selectTag;
+        while (workTag.length() > 0) {
+            int startPositionOption = workTag.indexOf(optionStartTag);
+            int endPositionOption = workTag.indexOf(optionEndTag);
+            if (startPositionOption == -1 || endPositionOption == -1 || endPositionOption < startPositionOption) {
+                break;
+            }
+            String optionTag = workTag.substring(startPositionOption + optionStartTag.length(), endPositionOption);
+            workTag = workTag.replace(optionStartTag + optionTag + optionEndTag, "");
+            String[] values = optionTag.split("\">");
+            if (values.length != 2) {
+                break;
+            }
+            allShowIds.add(values[0].trim());
+        }
+
+        // Batch load existing runtimes into a map
+        Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
+        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED && !allShowIds.isEmpty()) {
+            for (EpisodeRuntime rt : database.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(allShowIds)) {
+                runtimeMap.put(rt.showMyEpsID, rt);
+            }
+        }
+
+        // Second pass: parse and process each show
         int processed = 0;
-
         while (selectTag.length() > 0) {
             int startPositionOption = selectTag.indexOf(optionStartTag);
             int endPositionOption = selectTag.indexOf(optionEndTag);
@@ -364,10 +388,7 @@ public class ShowService {
 
             //if the show has no runtime, AND runtime is enabled
             if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
-                //check if the show runtime is already in the database
-                // if not then go and get the runtime
-                SeriesDAO seriesDAO = database.getSeriesDAO();
-                EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
+                EpisodeRuntime showRuntime = runtimeMap.get(show.getMyEpisodeID());
 
                 if (showRuntime == null) {
                     Log.d(LOG_TAG, "Show NOT found in Database");
@@ -378,7 +399,6 @@ public class ShowService {
                     }
                 } else {
                     //do nothing as already exists no need to add
-                    // Log.d(LOG_TAG, "Show ID found in Database: " + showRuntime.showName + "(" + showRuntime.showMyEpsID + ")");
                 }
             }
 
@@ -387,7 +407,6 @@ public class ShowService {
                 listener.onProgress(processed, total, show.getShowName());
             }
         }
-        database.close();
         return shows;
     }
 

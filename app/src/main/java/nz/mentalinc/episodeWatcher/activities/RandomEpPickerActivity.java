@@ -16,8 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
-import androidx.room.Room;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -127,10 +125,7 @@ public class RandomEpPickerActivity extends Activity {
             TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
             if (!TextUtils.isEmpty(random.getTVMazeWebSite())) {
                 //aboutWebsite.setText(episode.getTVMazeWebSite());
-                AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                        .allowMainThreadQueries()   //Allows room to do operation on main thread
-                        .fallbackToDestructiveMigration()
-                        .build();
+                AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
                 SeriesDAO seriesDAO = database.getSeriesDAO();
                 EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
@@ -146,8 +141,6 @@ public class RandomEpPickerActivity extends Activity {
 
                 downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
                 downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
-
-                database.close();
                 //       episodeSummaryHashMap.get("episodeURL");
 
             } else {
@@ -521,10 +514,7 @@ public class RandomEpPickerActivity extends Activity {
 
     private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
         TaskRunner.getExecutor().execute(() -> {
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
@@ -544,8 +534,6 @@ public class RandomEpPickerActivity extends Activity {
                 showSummaryHash.put("showSummary", showSummary);
                 showSummaryHash.put("showImageURL", showImageURL);
                 showSummaryHash.put("ShowRuntime", ShowRuntime);
-
-                database.close();
             } else {
                 HttpsURLConnection connection = null;
                 BufferedReader reader = null;
@@ -673,10 +661,7 @@ public class RandomEpPickerActivity extends Activity {
                     showImage.setVisibility(View.GONE);
                 }
 
-                AppDatabase db = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                        .allowMainThreadQueries()
-                        .fallbackToDestructiveMigration()
-                        .build();
+                AppDatabase db = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
                 SeriesDAO sDAO = db.getSeriesDAO();
 
@@ -688,7 +673,6 @@ public class RandomEpPickerActivity extends Activity {
                 showSummaryInfo.setShowImageURL(result.get("showImageURL"));
 
                 sDAO.update(showSummaryInfo);
-                db.close();
             });
         });
     }

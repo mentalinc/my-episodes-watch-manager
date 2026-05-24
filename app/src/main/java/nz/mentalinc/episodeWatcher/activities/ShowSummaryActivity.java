@@ -13,8 +13,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
-import androidx.room.Room;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -98,10 +96,7 @@ public class ShowSummaryActivity extends Activity {
 
         //todo Need to work out the downloadSHowSummary below (from the episodedetails activity, to make it show the info needed.
 
-        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                .allowMainThreadQueries()   //Allows room to do operation on main thread
-                .fallbackToDestructiveMigration()
-                .build();
+        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
         SeriesDAO seriesDAO = database.getSeriesDAO();
         EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
@@ -139,8 +134,6 @@ public class ShowSummaryActivity extends Activity {
 
 
         //       episodeSummaryHashMap.get("episodeURL");
-        database.close();
-
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
@@ -326,9 +319,7 @@ public class ShowSummaryActivity extends Activity {
 
     private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
         TaskRunner.getExecutor().execute(() -> {
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
@@ -446,8 +437,6 @@ public class ShowSummaryActivity extends Activity {
                 }
             }
 
-            database.close();
-
             HashMap<String, String> result = showSummaryHash;
             runOnUiThread(() -> {
                 TextView ShowRuntimeTV = findViewById(R.id.ShowRuntime);
@@ -510,21 +499,15 @@ public class ShowSummaryActivity extends Activity {
             return;
         }
         TaskRunner.getExecutor().execute(() -> {
-            AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
             try {
                 ShowService showService = new ShowService();
                 showService.ShowsRuntime(showName, showMyEpisodeID, database);
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Failed to populate show runtime", e);
             }
-            database.close();
             runOnUiThread(() -> {
-                AppDatabase db = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                        .allowMainThreadQueries()
-                        .fallbackToDestructiveMigration()
-                        .build();
+                AppDatabase db = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
                 SeriesDAO seriesDAO = db.getSeriesDAO();
                 EpisodeRuntime updatedRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
                 if (updatedRuntime != null && updatedRuntime.getShowTVMazeID() != null) {
@@ -534,7 +517,6 @@ public class ShowSummaryActivity extends Activity {
                     snackbar.setAnchorView(bottomNavigationView);
                     snackbar.show();
                 }
-                db.close();
             });
         });
     }
@@ -564,10 +546,7 @@ public class ShowSummaryActivity extends Activity {
 
         if (currentShow == null) {
 
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime Runtime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
@@ -582,8 +561,6 @@ public class ShowSummaryActivity extends Activity {
             Show tempShow = new Show(episode.getShowName(), RuntimeMins, episode.getMyEpisodeID());
             tempShow.addEpisode(episode);
             shows.add(tempShow);
-
-            database.close();
 
         } else {
             currentShow.addEpisode(episode);

@@ -14,8 +14,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -145,10 +143,7 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
             Episode nextEpisodeToWatch = show.getFirstEpisode();
             String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
 
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(myepisodeID);
@@ -182,7 +177,6 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
                     .load(showImageURL)
                     .apply(requestOptions)
                     .into(showPoster);
-            database.close();
 
         } catch (NullPointerException e) {
             String message = "Problem reading runtime for " + show.getShowName();

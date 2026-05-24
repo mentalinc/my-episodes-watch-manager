@@ -301,34 +301,27 @@ public class HomeActivity extends AppCompatActivity {
 
                 try {
                     episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
-                    //todo removed as fails when myEpisodeID doesn't work
                     episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
 
                     String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
                     if (acquire != null && acquire.equals("1")) {
                         EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
                         EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
-                        //todo removed as fails when myEpisodeID doesn't work
                         episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));
                     } else {
                         EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
-                        //todo removed as fails when myEpisodeID doesn't work
                         episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
                     }
                     episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
-                    //todo removed as fails when myEpisodeID doesn't work
                     episodesController.AddToComingShow(episodesController.getEpisodes(EpisodeType.EPISODES_COMING));
-
 
                     resetPageFilters(user);
 
                 } catch (InternetConnectivityException e) {
                     exception = true;
                 } catch (Exception e) {
-                    //e.printStackTrace();
                     String message = "Error in background task";
                     Log.e(LOG_TAG, message, e);
-
                 }
                 runOnUiThread(() -> {
                     removeDialog(EPISODE_LOADING_DIALOG);
@@ -688,5 +681,4 @@ public class HomeActivity extends AppCompatActivity {
     public static Context getContext() {
         return sContext;
     }
-
 }

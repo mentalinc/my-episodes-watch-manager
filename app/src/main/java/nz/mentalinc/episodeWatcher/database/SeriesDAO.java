@@ -38,5 +38,7 @@ public interface SeriesDAO {
     @Query("DELETE FROM EpisodeRuntime WHERE showTVMazeID IS NULL")
     int deleteNullShow();
 
+    @Query("SELECT * FROM EpisodeRuntime WHERE showMyEpsID IN (:ids)")
+    List<EpisodeRuntime> getEpisodeRuntimeWithMyEpsIds(List<String> ids);
 }
 

@@ -10,8 +10,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
-import androidx.room.Room;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -130,10 +128,7 @@ public class ShowManagementPortalActivity extends Activity {
     private void nullRuntimeFixer() {
 
         //open the database and find shows that are null runtime and get get it...
-        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                .allowMainThreadQueries()   //Allows room to do operation on main thread
-                .fallbackToDestructiveMigration()
-                .build();
+        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
         SeriesDAO seriesDAO = database.getSeriesDAO();
         List<EpisodeRuntime> runtimeList = seriesDAO.getEpisodeRuntime();
@@ -152,7 +147,6 @@ public class ShowManagementPortalActivity extends Activity {
                 downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
             }
         }
-        database.close();
     }
 
     private void openFavouriteOrIgnoredShows(ShowType showType) {
@@ -173,9 +167,7 @@ public class ShowManagementPortalActivity extends Activity {
 
     private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
         TaskRunner.getExecutor().execute(() -> {
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
@@ -246,8 +238,6 @@ public class ShowManagementPortalActivity extends Activity {
                     e.printStackTrace();
                 }
             }
-
-            database.close();
         });
     }
 }

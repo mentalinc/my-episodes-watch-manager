@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -41,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -167,7 +167,8 @@ public class ShowListingActivity extends Activity {
         returnEpisodes();
         showsFull = new ArrayList<>(shows);
 
-        ShowAdapter adapter = new ShowAdapter(shows);
+        Map<String, EpisodeRuntime> runtimeMap = buildRuntimeMapForShows(shows);
+        ShowAdapter adapter = new ShowAdapter(shows, runtimeMap);
         adapter.submitList(shows);
         adapter.notifyItemInserted(0);
 
@@ -463,10 +464,7 @@ public class ShowListingActivity extends Activity {
 
         if (currentShow == null) {
 
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
-                    .fallbackToDestructiveMigration()
-                    .build();
+            AppDatabase database = AppDatabase.getInstance(getApplicationContext());
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime Runtime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
@@ -481,7 +479,6 @@ public class ShowListingActivity extends Activity {
             Show tempShow = new Show(episode.getShowName(), RuntimeMins, episode.getMyEpisodeID());
             tempShow.addEpisode(episode);
             shows.add(tempShow);
-            database.close();
 
         } else {
             currentShow.addEpisode(episode);
@@ -805,6 +802,27 @@ public class ShowListingActivity extends Activity {
 
     private void getEpisodes() {
         episodes = EpisodesController.getInstance().getEpisodes(episodesType);
+    }
+
+    private Map<String, EpisodeRuntime> buildRuntimeMapForShows(List<Show> shows) {
+        if (shows == null || shows.isEmpty()) {
+            return new HashMap<>();
+        }
+        List<String> myEpsIds = new ArrayList<>();
+        for (Show show : shows) {
+            if (show.getFirstEpisode() != null && show.getFirstEpisode().getMyEpisodeID() != null) {
+                myEpsIds.add(show.getFirstEpisode().getMyEpisodeID());
+            }
+        }
+        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+        List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
+        Map<String, EpisodeRuntime> map = new HashMap<>();
+        if (runtimes != null) {
+            for (EpisodeRuntime rt : runtimes) {
+                map.put(rt.getShowMyEpsID(), rt);
+            }
+        }
+        return map;
     }
 
 }

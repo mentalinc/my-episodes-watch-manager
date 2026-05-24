@@ -2,8 +2,6 @@ package nz.mentalinc.episodeWatcher.controllers;
 
 import android.util.Log;
 
-import androidx.room.Room;
-
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -286,12 +284,8 @@ public class EpisodesController {
         watchShows.clear();
         acquireShows.clear();
         comingShows.clear();
-        AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                .allowMainThreadQueries()   //Allows room to do operation on main thread
-                .fallbackToDestructiveMigration()
-                .build();
+        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext());
         database.clearAllTables();
-        database.close();
     }
 
     public void addEpisode(EpisodeType episodesType, Episode episode) {

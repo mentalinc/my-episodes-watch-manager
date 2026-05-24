@@ -24,11 +24,13 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
 import nz.mentalinc.episodeWatcher.controllers.EpisodesController;
+import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.EpisodeDescendingComparator;
@@ -38,6 +40,7 @@ import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
 import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
 import nz.mentalinc.episodeWatcher.exception.ShowUpdateFailedException;
+import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.service.EpisodesService;
 import nz.mentalinc.episodeWatcher.service.ItemClickSupport;
 import nz.mentalinc.episodeWatcher.service.UserService;
@@ -122,7 +125,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
         }
 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
-        adapter = new EpisodeAdapter(episodes);
+        Map<String, EpisodeRuntime> runtimeMap = buildRuntimeMapForEpisodes(episodes);
+        adapter = new EpisodeAdapter(episodes, runtimeMap);
         adapter.submitList(episodes);
         //adapter.notifyItemInserted(0);
         adapter.notifyDataSetChanged();
@@ -567,5 +571,25 @@ public class UpdatedEpisodeListingActivity extends Activity {
         return dialog;
     }
 
+    private Map<String, EpisodeRuntime> buildRuntimeMapForEpisodes(List<Episode> episodes) {
+        if (episodes == null || episodes.isEmpty()) {
+            return new HashMap<>();
+        }
+        List<String> myEpsIds = new ArrayList<>();
+        for (Episode episode : episodes) {
+            if (episode.getMyEpisodeID() != null) {
+                myEpsIds.add(episode.getMyEpisodeID());
+            }
+        }
+        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+        List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
+        Map<String, EpisodeRuntime> map = new HashMap<>();
+        if (runtimes != null) {
+            for (EpisodeRuntime rt : runtimes) {
+                map.put(rt.getShowMyEpsID(), rt);
+            }
+        }
+        return map;
+    }
 
 }

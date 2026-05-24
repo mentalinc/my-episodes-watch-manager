@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -63,34 +62,22 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
 
             if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                 Log.d(LOG_TAG, "Cache is enabled, read from disk");
-                String FILENAME;
-                String FileContents;
                 switch (episodesType) {
                     case EPISODES_TO_WATCH:
                         if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                             Log.d(LOG_TAG, "MyEpisodeConstants.EXTENDED_EPISODES_XML:  " + MyEpisodeConstants.EXTENDED_EPISODES_XML);
                             inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
                         } else {
-                            inputStream = url.openConnection().getInputStream();
-                            FILENAME = "Watch.xml";
-                            FileContents = ReadFile(FILENAME);
-                            inputStream = new ByteArrayInputStream(FileContents.getBytes(StandardCharsets.UTF_8));
-
-
-                            //xml file not found
-                            if (FileContents.equalsIgnoreCase("FileNotFound")) {
-                                Log.d(LOG_TAG, "No cached " + FILENAME + " file found. Downloading...");
+                            inputStream = openCacheFile("Watch.xml");
+                            if (inputStream == null) {
+                                Log.d(LOG_TAG, "No cached Watch.xml file found. Downloading...");
                                 inputStream = url.openConnection().getInputStream();
-
-                                //write the to disk for future use
-                                FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
-                                String stringInputStream = convertStreamToString(inputStream, "UTF-8");
-                                fos.write(stringInputStream.getBytes());
+                                String content = convertStreamToString(inputStream, "UTF-8");
+                                FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Watch.xml", 0);
+                                fos.write(content.getBytes());
                                 fos.close();
-                                Log.d(LOG_TAG, FILENAME + " saved to disk");
-
-                                //inputStream is closed
-                                inputStream = new ByteArrayInputStream(stringInputStream.getBytes(StandardCharsets.UTF_8));
+                                Log.d(LOG_TAG, "Watch.xml saved to disk");
+                                inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
                             }
                         }
                         break;
@@ -99,48 +86,30 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     case EPISODES_TO_YESTERDAY2:
                         inputStream = url.openConnection().getInputStream();
                     case EPISODES_TO_ACQUIRE:
-                        FILENAME = "Acquire.xml";
-                        FileContents = ReadFile(FILENAME);
-                        inputStream = new ByteArrayInputStream(FileContents.getBytes(StandardCharsets.UTF_8));
-
-                        //xml file not found
-                        if (FileContents.equalsIgnoreCase("FileNotFound")) {
-                            Log.d(LOG_TAG, "No cached " + FILENAME + " file found. Downloading...");
-                            inputStream = url.openConnection().getInputStream();
-
-                            //write the to disk for future use
-                            FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
-                            String stringInputStream = convertStreamToString(inputStream, "UTF-8");
-                            fos.write(stringInputStream.getBytes());
+                        inputStream = openCacheFile("Acquire.xml");
+                        if (inputStream == null) {
+                            Log.d(LOG_TAG, "No cached Acquire.xml file found. Downloading...");
+                            InputStream downloadStream = url.openConnection().getInputStream();
+                            String content = convertStreamToString(downloadStream, "UTF-8");
+                            FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Acquire.xml", 0);
+                            fos.write(content.getBytes());
                             fos.close();
-                            Log.d(LOG_TAG, FILENAME + " saved to disk");
-
-                            //inputStream is closed
-                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes(StandardCharsets.UTF_8));
+                            Log.d(LOG_TAG, "Acquire.xml saved to disk");
+                            inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
                         }
-
                         break;
                     case EPISODES_COMING:
-                        FILENAME = "Coming.xml";
-                        FileContents = ReadFile(FILENAME);
-                        inputStream = new ByteArrayInputStream(FileContents.getBytes(StandardCharsets.UTF_8));
-
-                        //xml file not found
-                        if (FileContents.equalsIgnoreCase("FileNotFound")) {
-                            Log.d(LOG_TAG, "No cached " + FILENAME + " file found. Downloading...");
-                            inputStream = url.openConnection().getInputStream();
-
-                            //write the to disk for future use
-                            FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
-                            String stringInputStream = convertStreamToString(inputStream, "UTF-8");
-                            fos.write(stringInputStream.getBytes());
+                        inputStream = openCacheFile("Coming.xml");
+                        if (inputStream == null) {
+                            Log.d(LOG_TAG, "No cached Coming.xml file found. Downloading...");
+                            InputStream downloadStream = url.openConnection().getInputStream();
+                            String content = convertStreamToString(downloadStream, "UTF-8");
+                            FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Coming.xml", 0);
+                            fos.write(content.getBytes());
                             fos.close();
-                            Log.d(LOG_TAG, FILENAME + " saved to disk");
-
-                            //inputStream is closed
-                            inputStream = new ByteArrayInputStream(stringInputStream.getBytes(StandardCharsets.UTF_8));
+                            Log.d(LOG_TAG, "Coming.xml saved to disk");
+                            inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
                         }
-
                         break;
 
                     default:
@@ -261,52 +230,21 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
 
-    private String ReadFile(String FILENAME) {
-        StringBuilder EpisodeXML = new StringBuilder();
-        try {
-            //String FILENAME = "Watch.xml";
-            FileInputStream instream = MyEpisodeConstants.CONTEXT.openFileInput(FILENAME);
-
-            File file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), FILENAME);
-            if (isOnline()) {
-                deleteOldCacheFiles(file);
-            } else {
-                Log.d(LOG_TAG, "Offline, Cache files not checked for aging");
-            }
-
-            //add a check in the future to prompt user if they want to refresh the cache due to age. Add a preference to set time options....
-
-            // if file the available for reading
-            if (instream.available() > 1) {
-                // prepare the file for reading
-                InputStreamReader inputreader = new InputStreamReader(instream);
-                BufferedReader buffreader = new BufferedReader(inputreader);
-
-                String line;
-
-                // read every line of the file into the line-variable, on line at the time
-                while ((line = buffreader.readLine()) != null) {
-                    EpisodeXML.append(line);
-                    EpisodeXML.append('\n');
-                }
-            }
-
-            // close the file again
-            instream.close();
-        } catch (FileNotFoundException e) {
-            String message = "File doesn't exist: " + FILENAME;
-            Log.e(LOG_TAG, message);
-            return "FileNotFound";
-
-        } catch (IOException e) {
-            String message = "Problem reading file: " + FILENAME;
-            Log.e(LOG_TAG, message);
-
+    private InputStream openCacheFile(String filename) throws IOException {
+        File file = new File(MyEpisodeConstants.CONTEXT.getFilesDir(), filename);
+        if (!file.exists()) {
+            return null;
         }
-
-        return EpisodeXML.toString();
+        if (MyEpisodeConstants.isOnline()) {
+            deleteOldCacheFiles(file);
+        } else {
+            Log.d(LOG_TAG, "Offline, Cache files not checked for aging");
+        }
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        return null;
     }
-
 
     private String convertStreamToString(InputStream is, String encoding) throws IOException {
         /*
@@ -380,30 +318,6 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             } else {
                 Log.e(LOG_TAG, "ERROR deleting " + filetoDelete.getName());
             }
-        }
-    }
-
-    private static boolean isOnline() {
-        try {
-            URL url = new URL("https://www.myepisodes.com/favicon.ico");
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", "yourAgent");
-            connection.setRequestProperty("Connection", "close");
-            connection.setConnectTimeout(1000);
-            connection.connect();
-
-            if (connection.getResponseCode() == 200) {
-                connection.disconnect();
-                Log.d(LOG_TAG, "Online.");
-                return true;
-            } else {
-                connection.disconnect();
-                Log.d(LOG_TAG, "Offline!!");
-                return false;
-            }
-        } catch (IOException e) {
-            Log.e(LOG_TAG, e.toString());
-            return false;
         }
     }
 }

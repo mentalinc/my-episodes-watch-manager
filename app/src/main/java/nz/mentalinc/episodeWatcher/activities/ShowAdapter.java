@@ -13,20 +13,19 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.constants.MyEpisodeConstants;
-import nz.mentalinc.episodeWatcher.database.AppDatabase;
-import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.domain.Episode;
 import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
@@ -35,9 +34,12 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
     private static final String LOG_TAG = ShowAdapter.class.getSimpleName();
     private List<Show> showsList;
     Context context = CONTEXT.getApplicationContext();
+    private final Map<String, EpisodeRuntime> runtimeMap;
 
-    public ShowAdapter(List<Show> shows) {
+    public ShowAdapter(List<Show> shows, Map<String, EpisodeRuntime> runtimeMap) {
         super(DIFF_CALLBACK);
+        this.showsList = shows != null ? new ArrayList<>(shows) : new ArrayList<>();
+        this.runtimeMap = runtimeMap;
     }
 
     public void addMoreShows(List<Show> newShows) {
@@ -142,13 +144,12 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             Episode nextEpisodeToWatch = show.getFirstEpisode();
             String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
 
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
-                    .fallbackToDestructiveMigration()
-                    .build();
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(myepisodeID);
+            EpisodeRuntime showRuntime = runtimeMap.get(myepisodeID);
+            if (showRuntime == null) {
+                String message = "Problem reading runtime for " + show.getShowName();
+                Log.e(LOG_TAG, message);
+                return;
+            }
 
             String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
             textViewShowsRunTime.setText(showRuntimeText);
@@ -164,7 +165,6 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
                     .load(showImageURL)
                     .apply(requestOptions)
                     .into(showPoster);
-            database.close();
 
         } catch (NullPointerException e) {
             String message = "Problem reading runtime for " + show.getShowName();
