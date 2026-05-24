@@ -693,7 +693,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void onSettingsClick(View v) {
-        SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
         Intent settingsActivity = new Intent(this.getApplicationContext(), SettingsScreenActivity.class);
         startActivity(settingsActivity);
     }

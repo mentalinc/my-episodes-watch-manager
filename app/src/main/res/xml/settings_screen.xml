@@ -164,7 +164,7 @@
         <ListPreference
             android:key="ThemeSetting"
             android:title="@string/ThemePrompt"
-            android:defaultValue="System"
+            android:defaultValue="0"
             app:useSimpleSummaryProvider="true"
             android:entries="@array/ThemeOptions"
             android:entryValues="@array/ThemeValues"/>
@@ -172,7 +172,7 @@
         <ListPreference
             android:key="language"
             android:title="@string/showLanguagePrompt"
-            android:defaultValue="English"
+            android:defaultValue="en"
             app:useSimpleSummaryProvider="true"
             android:entries="@array/showLanguageOptions"
             android:icon="@drawable/outline_language_white_24"
