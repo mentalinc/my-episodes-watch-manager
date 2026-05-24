@@ -53,6 +53,10 @@ public class ShowService {
         userService = new UserService();
     }
 
+    public interface OnRuntimeProgressListener {
+        void onProgress(int processed, int total, String showName);
+    }
+
     public List<Show> searchShows(String search, User user) throws InternetConnectivityException, LoginFailedException {
 
 
@@ -258,8 +262,45 @@ public class ShowService {
         return shows;
     }
 
+    public List<Show> getFavoriteOrIgnoredShows(User user, ShowType showType, OnRuntimeProgressListener listener) throws InternetConnectivityException, LoginFailedException {
+
+        userService.login(user.getUsername(), user.getPassword());
+        String responsePage = "";
+
+        try {
+            URL url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.getResponseCode();
+
+            String line;
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            while ((line = br.readLine()) != null) {
+                responsePage += line;
+            }
+        } catch (UnknownHostException e) {
+            String message = "Could not connect to host.";
+            Log.e(LOG_TAG, message, e);
+            throw new InternetConnectivityException(message, e);
+        } catch (IOException e) {
+            String message = "Search on MyEpisodes failed.";
+            Log.w(LOG_TAG, message, e);
+            throw new LoginFailedException(message, e);
+        }
+
+        List<Show> shows = parseShowsHtml(responsePage, showType, listener);
+
+        Log.d(LOG_TAG, shows.size() + " show(s) found!");
+
+        return shows;
+    }
+
 
     private List<Show> parseShowsHtml(String html, ShowType showType) {
+        return parseShowsHtml(html, showType, null);
+    }
+
+    private List<Show> parseShowsHtml(String html, ShowType showType, OnRuntimeProgressListener listener) {
         List<Show> shows = new ArrayList<>();
 
         String startTag = "<select id=\"";
@@ -286,12 +327,20 @@ public class ShowService {
         int endPosition = selectTag.indexOf(endTag);
         selectTag = selectTag.substring(0, endPosition);
 
+        // Count total options for progress tracking
+        int total = 0;
+        int countIdx = 0;
+        while ((countIdx = selectTag.indexOf(optionStartTag, countIdx)) != -1) {
+            total++;
+            countIdx += optionStartTag.length();
+        }
+
         AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                .allowMainThreadQueries()   //Allows room to do operation on main thread
+                .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build();
 
-        int ep = 1;
+        int processed = 0;
 
         while (selectTag.length() > 0) {
             int startPositionOption = selectTag.indexOf(optionStartTag);
@@ -331,6 +380,11 @@ public class ShowService {
                     //do nothing as already exists no need to add
                     // Log.d(LOG_TAG, "Show ID found in Database: " + showRuntime.showName + "(" + showRuntime.showMyEpsID + ")");
                 }
+            }
+
+            processed++;
+            if (listener != null) {
+                listener.onProgress(processed, total, show.getShowName());
             }
         }
         database.close();
@@ -410,6 +464,16 @@ public class ShowService {
                 jObj = new JSONObject(jsonString);
                 showNameString = jObj.getString("name");
                 showRuntimeString = jObj.getString("runtime");
+                if (showRuntimeString == null || showRuntimeString.equals("null") || showRuntimeString.isEmpty()) {
+                    try {
+                        showRuntimeString = jObj.getString("averageRuntime");
+                        if (showRuntimeString == null || showRuntimeString.equals("null") || showRuntimeString.isEmpty()) {
+                            showRuntimeString = "";
+                        }
+                    } catch (JSONException e) {
+                        showRuntimeString = "";
+                    }
+                }
                 tvmazeShowID = jObj.getString("id");
                 showSummary = jObj.getString("summary");
                 showURL = jObj.getString("url");

@@ -42,8 +42,11 @@ import nz.mentalinc.episodeWatcher.domain.Show;
 import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
+import nz.mentalinc.episodeWatcher.enums.ShowType;
 import nz.mentalinc.episodeWatcher.exception.InternetConnectivityException;
+import nz.mentalinc.episodeWatcher.exception.LoginFailedException;
 import nz.mentalinc.episodeWatcher.service.EpisodesService;
+import nz.mentalinc.episodeWatcher.service.ShowService;
 import nz.mentalinc.episodeWatcher.service.UserService;
 
 public class HomeActivity extends AppCompatActivity {
@@ -58,9 +61,12 @@ public class HomeActivity extends AppCompatActivity {
     private static final int EXCEPTION_DIALOG = 2;
     private static final int LOGIN_RESULT = 5;
     private static final int SETTINGS_RESULT = 6;
+    private static final int RUNTIME_LOADING_DIALOG = 8;
     private UserService userService;
     private static Context sContext;
     private BottomNavigationView bottomNavigationView;
+
+    private ProgressDialog runtimeProgressDialog;
 
 
     private boolean exception;
@@ -345,6 +351,39 @@ public class HomeActivity extends AppCompatActivity {
                 });
             });
         }
+
+        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED && user != null) {
+            showDialog(RUNTIME_LOADING_DIALOG);
+            TaskRunner.getExecutor().execute(() -> {
+                populateFavouriteShowRuntimes();
+                runOnUiThread(() -> {
+                    if (runtimeProgressDialog != null && runtimeProgressDialog.isShowing()) {
+                        runtimeProgressDialog.dismiss();
+                    }
+                });
+            });
+        }
+    }
+
+
+    private void populateFavouriteShowRuntimes() {
+        ShowService showService = new ShowService();
+        try {
+            showService.getFavoriteOrIgnoredShows(user, ShowType.FAVOURITE_SHOWS,
+                    (processed, total, showName) -> {
+                        runOnUiThread(() -> {
+                            if (runtimeProgressDialog != null && runtimeProgressDialog.isShowing()) {
+                                runtimeProgressDialog.setMessage(
+                                        "Processing " + processed + " of " + total + " shows\n"
+                                                + "Current: " + showName);
+                            }
+                        });
+                    });
+        } catch (InternetConnectivityException e) {
+            Log.e(LOG_TAG, "Could not connect to populate show runtimes", e);
+        } catch (LoginFailedException e) {
+            Log.e(LOG_TAG, "Login failed while populating show runtimes", e);
+        }
     }
 
 
@@ -493,6 +532,12 @@ public class HomeActivity extends AppCompatActivity {
                 progressDialogCache.setCancelable(false);
                 dialog = progressDialogCache;
                 //dialog.show();
+                break;
+            case RUNTIME_LOADING_DIALOG:
+                runtimeProgressDialog = new ProgressDialog(this);
+                runtimeProgressDialog.setMessage("Processing favourite shows...");
+                runtimeProgressDialog.setCancelable(false);
+                dialog = runtimeProgressDialog;
                 break;
             default:
                 dialog = super.onCreateDialog(id);

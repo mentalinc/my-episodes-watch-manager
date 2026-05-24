@@ -108,7 +108,11 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
 
             // Set item views based on your views and data model
             TextView showName = holder.showName;
-            showName.setText(episode.getShowName());
+            String displayName = episode.getShowName();
+            if (displayName != null && displayName.startsWith("Error mins - ")) {
+                displayName = displayName.substring("Error mins - ".length());
+            }
+            showName.setText(displayName);
             TextView episodeName = holder.episodeName;
             //need to build the show array up with episodes attached to the show before adding complex data.
             String seasonNumber = episode.getSeasonString();
@@ -149,11 +153,6 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
             database.close();
 
         } catch (NullPointerException e) {
-            if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
-                episode.setShowName("Error mins" + " - " + episode.getShowName());
-            } else {
-                episode.setShowName(episode.getShowName());
-            }
             String message = "Problem reading runtime for " + episode.getShowName();
             Log.e(LOG_TAG, message);
         }
