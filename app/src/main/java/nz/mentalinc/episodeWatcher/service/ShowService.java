@@ -338,7 +338,7 @@ public class ShowService {
     }
 
 
-    private void ShowsRuntime(String show, String myEpsID, AppDatabase database) {
+    public void ShowsRuntime(String show, String myEpsID, AppDatabase database) {
 
         HttpsURLConnection connection = null;
         BufferedReader reader = null;
@@ -354,6 +354,9 @@ public class ShowService {
         Log.d(LOG_TAG, "Show getting searched: "+ show);
         // Log.d("Response: ", "> " + show);
         show = show.replace("#", "");
+        if (show.startsWith("Error mins - ")) {
+            show = show.substring("Error mins - ".length());
+        }
 
         //creates an error for me so forcing it to be fixed.
         if(show.equals("Top Gear (UK)")){

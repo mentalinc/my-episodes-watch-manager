@@ -64,7 +64,7 @@
             style="@style/HomeButton"
             android:drawableTop="@drawable/outline_next_week_white_48"
             android:onClick="onNewComingShowListingClick"
-            android:text="New Coming" />
+            android:text="@string/newCominghome" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_settings"
@@ -105,7 +105,7 @@
             android:id="@+id/btn_coming"
             style="@style/HomeButton"
             android:drawableTop="@drawable/outline_next_week_white_48"
-            android:text="@string/coming" />
+            android:text="@string/cominghome" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_random"

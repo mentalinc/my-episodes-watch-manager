@@ -8,8 +8,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
+
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -58,33 +59,18 @@ public class LoginActivity extends Activity {
                     final User user = new User(username, password);
 
                     //TODO login failed exception doesn't get shown to the user or stop and login takes user to homeactivity but is blank, so need to logout to try again.
-                    //todo remove AsyncTask
-                    AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-                        final boolean loginStatus = false;
+                    showDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
+                    //loginDialog(LoginActivity.this);
 
+                    TaskRunner.getExecutor().execute(() -> {
+                        login(user);
+                        //todo add a test here to check for a type of cookie to show login has worked ok....
+                        //remove true and add in the cookie test
+                        //    if (msCookieManager.getCookieStore().getCookies().size() > 0) {
+                        storeLoginCredentials(user);
+                        //    }
 
-                        //probably don't need cookie manager - need to use the accept all cookies policy thing
-                        //  java.net.CookieManager msCookieManager = new java.net.CookieManager();
-
-                        @Override
-                        protected void onPreExecute() {
-                            showDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
-                            //loginDialog(LoginActivity.this); //--Need to make this work with the thread so will fix and solve as part of moving away from AsyncTask
-                        }
-
-                        @Override
-                        protected Object doInBackground(Object... objects) {
-                            login(user);
-                            //todo add a test here to check for a type of cookie to show login has worked ok....
-                            //remove true and add in the cookie test
-                            //    if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                            storeLoginCredentials(user);
-                            //    }
-                            return 100L;
-                        }
-
-                        @Override
-                        protected void onPostExecute(Object o) {
+                        runOnUiThread(() -> {
                             removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
                             //todo add a test here to check for a type of cookie to show login has worked ok....
                             //remove true and add in the cookie test
@@ -97,9 +83,8 @@ public class LoginActivity extends Activity {
                             showDialog(MY_EPISODES_ERROR_DIALOG);
 
                             //   }
-                        }
-                    };
-                    asyncTask.execute();
+                        });
+                    });
                 } else {
                     //showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
                     validationError(LoginActivity.this);

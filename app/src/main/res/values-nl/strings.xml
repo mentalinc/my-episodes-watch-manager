@@ -35,6 +35,8 @@
 <string name="acquire">Te Verwerven</string>
 <string name="acquirehome">Te Verwerven (%d)</string>
 <string name="coming">Binnenkort</string>
+    <string name="cominghome">Binnenkort (%d)</string>
+    <string name="newCominghome">Nieuwe Binnenkort (%d)</string>
 <string name="more">Meer</string>
 <string name="watchListTitle">Lijst series/afleveringen</string>
 <string name="watchListSubTitleWatch">%d aflevering te bekijken</string>

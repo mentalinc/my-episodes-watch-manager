@@ -6,8 +6,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
+
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -72,32 +73,24 @@ public class RegisterActivity extends Activity {
                     );
                     registerStatus = false;
 
-                    AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-                        @Override
-                        protected void onPreExecute() {
-                            showDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
+                    showDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
+
+                    TaskRunner.getExecutor().execute(() -> {
+                        try {
+                            registerStatus = register(user);
+                        } catch (InternetConnectivityException e) {
+                            String message = "Could not connect to host";
+                            Log.e(LOG_TAG, message, e);
+
+                        } catch (Exception e) {
+                            String message = "Some Exception occured";
+                            Log.e(LOG_TAG, message, e);
+                        }
+                        if (registerStatus) {
+                            storeLoginCredentials(user);
                         }
 
-                        @Override
-                        protected Object doInBackground(Object... objects) {
-                            try {
-                                registerStatus = register(user);
-                            } catch (InternetConnectivityException e) {
-                                String message = "Could not connect to host";
-                                Log.e(LOG_TAG, message, e);
-
-                            } catch (Exception e) {
-                                String message = "Some Exception occured";
-                                Log.e(LOG_TAG, message, e);
-                            }
-                            if (registerStatus) {
-                                storeLoginCredentials(user);
-                            }
-                            return 100L;
-                        }
-
-                        @Override
-                        protected void onPostExecute(Object o) {
+                        runOnUiThread(() -> {
                             removeDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
                             if (registerStatus) {
                                 Toast.makeText(RegisterActivity.this, R.string.registerSuccessfull, Toast.LENGTH_LONG).show();
@@ -111,9 +104,8 @@ public class RegisterActivity extends Activity {
 
 
                             }
-                        }
-                    };
-                    asyncTask.execute();
+                        });
+                    });
                 } else {
                     //showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
                     validationError(RegisterActivity.this);

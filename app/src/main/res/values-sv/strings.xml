@@ -35,6 +35,8 @@
     <string name="acquire">Hämta</string>
     <string name="acquirehome">Hämta (%d)</string>
     <string name="coming">Kommande</string>
+    <string name="cominghome">Kommande (%d)</string>
+    <string name="newCominghome">Nya Kommande (%d)</string>
     <string name="more">Mer</string>
     <string name="watchListTitle">TV-Serier/Avsnitt</string>
     <string name="watchListSubTitleWatch">%d avsnitt att se</string>

@@ -33,6 +33,8 @@
     <string name="watch">Assistir</string>
     <string name="acquire">Adquirir</string>
     <string name="coming">Em breve</string>
+    <string name="cominghome">Em breve (%d)</string>
+    <string name="newCominghome">Novos Em breve (%d)</string>
     <string name="watchListTitle">Lista de seriados/episódios</string>
     <string name="watchListSubTitleWatch">%d episódio para assistir</string>
     <string name="watchListSubTitleAcquire">%d episódio para adquirir</string>

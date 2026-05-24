@@ -33,6 +33,8 @@
     <string name="watch">Jāapskata</string>
     <string name="acquire">Jāiegūst</string>
     <string name="coming">Drīzumā</string>
+    <string name="cominghome">Drīzumā (%d)</string>
+    <string name="newCominghome">Jauni Drīzumā (%d)</string>
     <string name="watchListTitle">Pārraižu un sēriju saraksts</string>
     <string name="watchListSubTitleWatch">%d apskatāmā sērija</string>
     <string name="watchListSubTitleAcquire">%d iegūstamā sērija</string>

@@ -3,7 +3,6 @@ package nz.mentalinc.episodeWatcher.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
@@ -54,6 +53,7 @@ import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.enums.ListMode;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.utils.DateUtil;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 
 public class RandomEpPickerActivity extends Activity {
     private Episode random;
@@ -144,8 +144,8 @@ public class RandomEpPickerActivity extends Activity {
                     put("a", "b");
                 }};
 
-                new RandomEpPickerActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
-                new RandomEpPickerActivity.downloadEpisodeSummary(episodeSummaryHashMap).execute(showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
+                downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
+                downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
 
                 database.close();
                 //       episodeSummaryHashMap.get("episodeURL");
@@ -418,24 +418,11 @@ public class RandomEpPickerActivity extends Activity {
         startActivity(episodeDetailsSubActivity);
     }
 
-    private class downloadEpisodeSummary extends AsyncTask<String, String, HashMap<String, String>> {
-        final HashMap<String, String> episodeSummaryHash;
-
-        downloadEpisodeSummary(HashMap<String, String> episodeSummaryHash) {
-            this.episodeSummaryHash = episodeSummaryHash;
-        }
-
-        /*
-            doInBackground(Params... params)
-                Override this method to perform a computation on a background thread.
-         */
-        protected HashMap<String, String> doInBackground(String... params) {
-
+    private void downloadEpisodeSummary(HashMap<String, String> episodeSummaryHash, String... params) {
+        TaskRunner.getExecutor().execute(() -> {
             HttpsURLConnection connection = null;
             BufferedReader reader = null;
-            //String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + ShowTVMazeID + "/episodebynumber?season=" + SeasonString + "&number=" + EpisodeString;
             String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0] + "/episodebynumber?season=" + params[1] + "&number=" + params[2];
-
 
             try {
                 URL url = new URL(episodeSummaryAPIURL);
@@ -446,19 +433,16 @@ public class RandomEpPickerActivity extends Activity {
 
                 if (code == 429) {
                     Thread.sleep(10000);
-                    //wait 10 seconds then try again
                     connection = (HttpsURLConnection) url.openConnection();
                     connection.connect();
                 }
 
-                //episode not found so stop and display to user...
                 String jsonString;
                 if (code == 404) {
                     jsonString = "{\"id\":0,\"url\":\"Unknown Episode\",\"name\":\"Unknown Episode\",\"image\":null,\"summary\":\"Unknown Episode\"}";
 
                     Toast.makeText(RandomEpPickerActivity.this, "episode not found via API", Toast.LENGTH_LONG).show();
                 } else {
-
                     InputStream stream = connection.getInputStream();
                     reader = new BufferedReader(new InputStreamReader(stream));
 
@@ -486,9 +470,7 @@ public class RandomEpPickerActivity extends Activity {
                         episodeImageURL = jObj.getJSONObject("image").getString("medium");
                     }
 
-                    //change the http:// to https://
                     episodeURL = episodeURL.replace("http://", "https://");
-
                     episodeSummary = episodeSummary.replace("<p>", "");
                     episodeSummary = episodeSummary.replace("</p>", "");
 
@@ -514,53 +496,33 @@ public class RandomEpPickerActivity extends Activity {
                     e.printStackTrace();
                 }
             }
-            return episodeSummaryHash;
-        }
 
-        /*
-            onPostExecute(Result result)
-                Runs on the UI thread after doInBackground(Params...).
-         */
-        protected void onPostExecute(HashMap<String, String> result) {
-            //episodeSummaryHash = result;
-            TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
-            aboutWebsite.setText(episodeSummaryHash.get("episodeURL"));
-            Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
+            HashMap<String, String> result = episodeSummaryHash;
+            runOnUiThread(() -> {
+                TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
+                aboutWebsite.setText(result.get("episodeURL"));
+                Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
 
-            TextView tvMazeEpisodeSummary = findViewById(R.id.tvMazeEpisodeSummary);
+                TextView tvMazeEpisodeSummary = findViewById(R.id.tvMazeEpisodeSummary);
 
-            String episodeSummary = episodeSummaryHash.get("episodeSummary");
+                String episodeSummaryStr = result.get("episodeSummary");
 
-            //null check is to before NPE when there is no network (i.e. flight mode).
-            if (!(episodeSummary == null)) {
-                if (!episodeSummary.equals("null")) { //not a type want to check for the string null not null no object
-                    tvMazeEpisodeSummary.setText(episodeSummary);
-                } else {
-                    tvMazeEpisodeSummary.setVisibility(View.GONE);
+                if (!(episodeSummaryStr == null)) {
+                    if (!episodeSummaryStr.equals("null")) {
+                        tvMazeEpisodeSummary.setText(episodeSummaryStr);
+                    } else {
+                        tvMazeEpisodeSummary.setVisibility(View.GONE);
+                    }
                 }
-            }
-        }
+            });
+        });
     }
 
 
-    //https://stackoverflow.com/questions/29555909/asynctask-how-to-return-a-hashmap-from-doinbackground
-    private class downloadShowSummary extends AsyncTask<String, String, HashMap<String, String>> {
-        HashMap<String, String> showSummaryHash;
-
-        downloadShowSummary(HashMap<String, String> showSummaryHash) {
-            this.showSummaryHash = showSummaryHash;
-        }
-
-        /*
-            doInBackground(Params... params)
-                Override this method to perform a computation on a background thread.
-         */
-        protected HashMap<String, String> doInBackground(String... params) {
-
-            //check if there are values in the database first. if there are use those, if not use the API
-
+    private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
+        TaskRunner.getExecutor().execute(() -> {
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
+                    .allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .build();
 
@@ -584,15 +546,10 @@ public class RandomEpPickerActivity extends Activity {
                 showSummaryHash.put("ShowRuntime", ShowRuntime);
 
                 database.close();
-                //not in database so download from API
             } else {
-
-
                 HttpsURLConnection connection = null;
                 BufferedReader reader = null;
-                //String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + ShowTVMazeID + "/episodebynumber?season=" + SeasonString + "&number=" + EpisodeString;
                 String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0];
-                //  HashMap<String, String> hashMap = new HashMap<String, String>();
 
                 try {
                     URL url = new URL(episodeSummaryAPIURL);
@@ -603,7 +560,6 @@ public class RandomEpPickerActivity extends Activity {
 
                     if (code == 429) {
                         Thread.sleep(10000);
-                        //wait 10 seconds then try again
                         connection = (HttpsURLConnection) url.openConnection();
                         connection.connect();
                     }
@@ -634,7 +590,6 @@ public class RandomEpPickerActivity extends Activity {
                             showImageURL = jObj.getJSONObject("image").getString("medium");
                         }
 
-                        //change the http:// to https://
                         showImageURL = showImageURL.replace("http://", "https://");
 
                         showSummary = showSummary.replace("<p>", "");
@@ -670,90 +625,72 @@ public class RandomEpPickerActivity extends Activity {
                     }
                 }
             }
-            return showSummaryHash;
-        }
 
-        /*
-            onPostExecute(Result result)
-                Runs on the UI thread after doInBackground(Params...).
-         */
-        protected void onPostExecute(HashMap<String, String> result) {
-            //episodeSummaryHash = result;
+            HashMap<String, String> result = showSummaryHash;
+            runOnUiThread(() -> {
+                TextView ShowNameTV = findViewById(R.id.ShowName);
+                ShowNameTV.setText(result.get("ShowName"));
 
-            TextView ShowName = findViewById(R.id.ShowName);
-            ShowName.setText(showSummaryHash.get("ShowName"));
+                TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);
+                String showruntimeText = " " + result.get("ShowRuntime") + " mins";
+                ShowRuntimeTV.setText(showruntimeText);
 
-            TextView ShowRuntime = findViewById(R.id.episodeRuntime);
-            String showruntimeText = " " + showSummaryHash.get("ShowRuntime") + " mins";
-            ShowRuntime.setText(showruntimeText);
+                TextView aboutShowWebsite = findViewById(R.id.tvMazeShowWebsite);
+                aboutShowWebsite.setText(result.get("showURL"));
+                Linkify.addLinks(aboutShowWebsite, Linkify.WEB_URLS);
 
-            TextView aboutShowWebsite = findViewById(R.id.tvMazeShowWebsite);
-            aboutShowWebsite.setText(showSummaryHash.get("showURL"));
-            Linkify.addLinks(aboutShowWebsite, Linkify.WEB_URLS);
+                TextView aboutShowOfficialWebsite = findViewById(R.id.officialShowWebsite);
+                String showOfficialWebsite = result.get("officialSite");
+                if (!Objects.requireNonNull(showOfficialWebsite).equals("null")) {
+                    aboutShowOfficialWebsite.setText(showOfficialWebsite);
+                    Linkify.addLinks(aboutShowOfficialWebsite, Linkify.WEB_URLS);
+                } else {
+                    aboutShowOfficialWebsite.setVisibility(View.GONE);
+                }
 
-            TextView aboutShowOfficialWebsite = findViewById(R.id.officialShowWebsite);
-            String showOfficialWebsite = showSummaryHash.get("officialSite");
-            if (!Objects.requireNonNull(showOfficialWebsite).equals("null")) { //not a type want to check for the string null not null no object
-                aboutShowOfficialWebsite.setText(showOfficialWebsite);
-                Linkify.addLinks(aboutShowOfficialWebsite, Linkify.WEB_URLS);
-            } else {
-                aboutShowOfficialWebsite.setVisibility(View.GONE);
-            }
+                TextView tvMazeShowSummary = findViewById(R.id.tvMazeShowSummary);
+                String episodeSummaryStr = result.get("showSummary");
 
-            TextView tvMazeShowSummary = findViewById(R.id.tvMazeShowSummary);
+                if (!Objects.requireNonNull(episodeSummaryStr).equals("null")) {
+                    tvMazeShowSummary.setText(episodeSummaryStr);
+                } else {
+                    tvMazeShowSummary.setVisibility(View.GONE);
+                }
 
-            String episodeSummary = showSummaryHash.get("showSummary");
+                ImageView showImage = findViewById(R.id.showImage);
+                String showImageURLStr = result.get("showImageURL");
 
-            if (!Objects.requireNonNull(episodeSummary).equals("null")) { //not a type want to check for the string null not null no object
-                tvMazeShowSummary.setText(episodeSummary);
-            } else {
-                tvMazeShowSummary.setVisibility(View.GONE);
-            }
+                if (!Objects.requireNonNull(showImageURLStr).equals("")) {
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions.placeholder(R.drawable.placeholder);
+                    requestOptions.error(R.drawable.error);
 
-            ImageView showImage = findViewById(R.id.showImage);
+                    Glide.with(findViewById(R.id.showImage))
+                            .load(showImageURLStr)
+                            .placeholder(R.drawable.placeholder)
+                            .into(showImage);
+                } else {
+                    showImage.setVisibility(View.GONE);
+                }
 
-            String showImageURL = showSummaryHash.get("showImageURL");
-            // add in here to download tv series info...and the show level info to a database!
+                AppDatabase db = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                        .allowMainThreadQueries()
+                        .fallbackToDestructiveMigration()
+                        .build();
 
-            if (!Objects.requireNonNull(showImageURL).equals("")) {
+                SeriesDAO sDAO = db.getSeriesDAO();
 
-                RequestOptions requestOptions = new RequestOptions();
-                requestOptions.placeholder(R.drawable.placeholder);
-                requestOptions.error(R.drawable.error);
+                EpisodeRuntime showSummaryInfo = sDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
 
-                Glide.with(findViewById(R.id.showImage))
-                        .load(showImageURL)
-                        .placeholder(R.drawable.placeholder)
-                        .into(showImage);
+                showSummaryInfo.setShowSummary(result.get("showSummary"));
+                showSummaryInfo.setShowURL(result.get("showURL"));
+                showSummaryInfo.setOfficialSite(result.get("officialSite"));
+                showSummaryInfo.setShowImageURL(result.get("showImageURL"));
 
-            } else {
-                showImage.setVisibility(View.GONE);
-            }
-
-
-            //add the info into the show database to limit the need to api call the info all the time for static show info
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
-                    .fallbackToDestructiveMigration()
-                    .build();
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-
-            EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
-
-
-            //Inserting an episodeRuntime adding the info that was not collected during the runtime. addition
-
-            showSummaryInfo.setShowSummary(showSummaryHash.get("showSummary"));
-            showSummaryInfo.setShowURL(showSummaryHash.get("showURL"));
-            showSummaryInfo.setOfficialSite(showSummaryHash.get("officialSite"));
-            showSummaryInfo.setShowImageURL(showSummaryHash.get("showImageURL"));
-
-            //  Log.d("epsRunTime: ", epsRunTime.toString());
-
-            seriesDAO.update(showSummaryInfo);
-            database.close();
-        }
+                sDAO.update(showSummaryInfo);
+                db.close();
+            });
+        });
     }
 
 

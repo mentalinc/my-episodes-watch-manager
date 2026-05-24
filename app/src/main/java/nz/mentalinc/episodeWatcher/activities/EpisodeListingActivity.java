@@ -8,8 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Bundle;
+
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -651,32 +652,23 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     private void reloadEpisodes() {
         saveListRows();
 
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-            @Override
-            protected void onPreExecute() {
-                showDialog(EPISODE_LOADING_DIALOG);
-                if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
-                    showDialog(EPISODE_LOADING_DIALOG_CACHE);
-                } else {
-                    showDialog(EPISODE_LOADING_DIALOG);
+        showDialog(EPISODE_LOADING_DIALOG);
+        if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
+            showDialog(EPISODE_LOADING_DIALOG_CACHE);
+        } else {
+            showDialog(EPISODE_LOADING_DIALOG);
 
-                }
-            }
+        }
 
-            @Override
-            protected Object doInBackground(Object... objects) {
-                getEpisodesMyEpisodes();
-                return 100L;
-            }
+        TaskRunner.getExecutor().execute(() -> {
+            getEpisodesMyEpisodes();
 
-            @Override
-            protected void onPostExecute(Object o) {
+            runOnUiThread(() -> {
                 returnEpisodes();
                 removeDialog(EPISODE_LOADING_DIALOG);
                 removeDialog(EPISODE_LOADING_DIALOG_CACHE);
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
 
@@ -905,24 +897,15 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     // i.e. if click watch, take to the episodes to watch or maybe the next episode screen(noto built yet). and mark aquire, return tot he episode aquire listing maybe?z
 
     private void markEpisodes(final int EpisodeStatus, final Episode episode) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+        showDialog(EPISODE_LOADING_DIALOG);
 
-            @Override
-            protected void onPreExecute() {
-                showDialog(EPISODE_LOADING_DIALOG);
+        TaskRunner.getExecutor().execute(() -> {
+            markEpisode(EpisodeStatus, episode);
+            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+                getEpisodes();
             }
 
-            @Override
-            protected Object doInBackground(Object... objects) {
-                markEpisode(EpisodeStatus, episode);
-                if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                    getEpisodes();
-                }
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+            runOnUiThread(() -> {
                 removeDialog(EPISODE_LOADING_DIALOG);
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     //showDialog(EXCEPTION_DIALOG);
@@ -932,32 +915,22 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     EpisodesController.getInstance().deleteEpisode(episode.getType(), episode);
                     returnEpisodes();
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
 
 
     private void markEpisodes(final int episodeStatus, final List<Episode> episodes) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+        showDialog(EPISODE_LOADING_DIALOG);
 
-            @Override
-            protected void onPreExecute() {
-                showDialog(EPISODE_LOADING_DIALOG);
+        TaskRunner.getExecutor().execute(() -> {
+            markAllEpisodes(episodeStatus, episodes);
+            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+                getEpisodes();
             }
 
-            @Override
-            protected Object doInBackground(Object... objects) {
-                markAllEpisodes(episodeStatus, episodes);
-                if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                    getEpisodes();
-                }
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+            runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     //showDialog(EXCEPTION_DIALOG);
@@ -967,30 +940,20 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     returnEpisodes();
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     private void markShowEpisodes(final int episodeStatus, final Show show) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+        showDialog(EPISODE_LOADING_DIALOG);
 
-            @Override
-            protected void onPreExecute() {
-                showDialog(EPISODE_LOADING_DIALOG);
+        TaskRunner.getExecutor().execute(() -> {
+            markAllEpisodes(episodeStatus, show.getEpisodes());
+            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+                getEpisodes();
             }
 
-            @Override
-            protected Object doInBackground(Object... objects) {
-                markAllEpisodes(episodeStatus, show.getEpisodes());
-                if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                    getEpisodes();
-                }
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+            runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     //showDialog(EXCEPTION_DIALOG);
@@ -1001,9 +964,8 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     returnEpisodes();
 
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     private void markEpisode(int EpisodeStatus, Episode episode) {

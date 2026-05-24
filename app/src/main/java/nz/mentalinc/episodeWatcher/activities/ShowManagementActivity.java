@@ -6,7 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -185,20 +185,10 @@ public class ShowManagementActivity extends ListActivity {
     }
 
     private void reloadShows() {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-            @Override
-            protected void onPreExecute() {
-                showDialog(DIALOG_LOADING);
-            }
-
-            @Override
-            protected Object doInBackground(Object... objects) {
-                getShows(user, showType);
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+        showDialog(DIALOG_LOADING);
+        TaskRunner.getExecutor().execute(() -> {
+            getShows(user, showType);
+            runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
                     //showDialog(DIALOG_EXCEPTION);
@@ -207,9 +197,8 @@ public class ShowManagementActivity extends ListActivity {
                     updateShowList();
                     removeDialog(DIALOG_LOADING);
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     private void getShows(User user, ShowType showType) {
@@ -337,27 +326,17 @@ public class ShowManagementActivity extends ListActivity {
     }
 
     private void markShow(final Show show, final ShowAction action) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-            @Override
-            protected void onPreExecute() {
-                showDialog(DIALOG_LOADING);
+        showDialog(DIALOG_LOADING);
+        TaskRunner.getExecutor().execute(() -> {
+            switch (action) {
+                case IGNORE:
+                case UNIGNORE:
+                case DELETE:
+                    break;
             }
 
-            @Override
-            protected Object doInBackground(Object... objects) {
-                switch (action) {
-                    case IGNORE:
-                    case UNIGNORE:
-                    case DELETE:
-                        break;
-                }
-
-                markShow(user, showType, action, show);
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+            markShow(user, showType, action, show);
+            runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
                     //showDialog(DIALOG_EXCEPTION);
@@ -366,9 +345,8 @@ public class ShowManagementActivity extends ListActivity {
                     updateShowList();
                     removeDialog(DIALOG_LOADING);
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     private void markShow(User user, ShowType showType, ShowAction showAction, Show show) {

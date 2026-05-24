@@ -40,6 +40,8 @@
     <string name="acquire">Acquire</string>
     <string name="acquirehome">Acquire (%d)</string>
     <string name="coming">Coming</string>
+    <string name="cominghome">Coming (%d)</string>
+    <string name="newCominghome">New Coming (%d)</string>
     <string name="more">More</string>
     <string name="settings">Settings</string>
     <string name="watchListTitle">List of shows/episodes</string>
@@ -304,6 +306,7 @@
     <string name="disableAcquireSummary">Disable listing shows that need to be acquired</string>
     <string name="disableComing">Disable Coming</string>
     <string name="disableComingSummary">Disable shows that are coming</string>
+    <string name="showDetailsNotAvailable">Show details are not yet available</string>
     <!-- Change Language -->
     <string name="showLanguagePrompt">Change Language</string>
 

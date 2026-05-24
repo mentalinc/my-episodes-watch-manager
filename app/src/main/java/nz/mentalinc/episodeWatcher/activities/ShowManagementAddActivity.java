@@ -7,7 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -88,11 +88,16 @@ public class ShowManagementAddActivity extends ListActivity {
 
         ImageButton searchButton = findViewById(R.id.searchButton);
         searchButton.setOnClickListener(view -> {
-            CharSequence query = ((EditText) findViewById(R.id.searchQuery)).getText();
-            if (query.length() > 0) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                Objects.requireNonNull(imm).hideSoftInputFromWindow(view.getWindowToken(), 0);
-                ShowManagementAddActivity.this.searchShows(query.toString());
+            EditText searchQuery = findViewById(R.id.searchQuery);
+            if (searchQuery != null) {
+                CharSequence query = searchQuery.getText();
+                if (query != null && query.length() > 0) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                    ShowManagementAddActivity.this.searchShows(query.toString());
+                }
             }
         });
 
@@ -213,20 +218,10 @@ public class ShowManagementAddActivity extends ListActivity {
     }
 
     private void searchShows(final String query) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-            @Override
-            protected void onPreExecute() {
-                showDialog(DIALOG_LOADING);
-            }
-
-            @Override
-            protected Object doInBackground(Object... objects) {
-                doSearch(query);
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+        showDialog(DIALOG_LOADING);
+        TaskRunner.getExecutor().execute(() -> {
+            doSearch(query);
+            runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
                     showDialog(DIALOG_EXCEPTION);
@@ -235,9 +230,8 @@ public class ShowManagementAddActivity extends ListActivity {
                     updateShowList();
                     removeDialog(DIALOG_LOADING);
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     private void doSearch(String query) {
@@ -287,30 +281,19 @@ public class ShowManagementAddActivity extends ListActivity {
     }
 
     private void addShowByListPosition(final int position) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-            @Override
-            protected void onPreExecute() {
-                showDialog(DIALOG_LOADING);
-            }
-
-            @Override
-            protected Object doInBackground(Object... objects) {
-                Show show = shows.get(position);
-                addShow(show);
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+        showDialog(DIALOG_LOADING);
+        TaskRunner.getExecutor().execute(() -> {
+            Show show = shows.get(position);
+            addShow(show);
+            runOnUiThread(() -> {
                 removeDialog(DIALOG_LOADING);
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     showDialog(DIALOG_EXCEPTION);
                 } else {
                     showDialog(DIALOG_FINISHED);
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     private void addShow(Show show) {

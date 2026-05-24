@@ -6,7 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -465,25 +465,14 @@ public class UpdatedEpisodeListingActivity extends Activity {
     }
 
     private void markEpisodes(final int EpisodeStatus, final Episode episode) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-
-            @Override
-            protected void onPreExecute() {
-                showDialog(EPISODE_LOADING_DIALOG);
+        showDialog(EPISODE_LOADING_DIALOG);
+        TaskRunner.getExecutor().execute(() -> {
+            markEpisode(EpisodeStatus, episode);
+            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+                //getEpisodes();
+               // returnEpisodes();
             }
-
-            @Override
-            protected Object doInBackground(Object... objects) {
-                markEpisode(EpisodeStatus, episode);
-                if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                    //getEpisodes();
-                   // returnEpisodes();
-                }
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+            runOnUiThread(() -> {
                 removeDialog(EPISODE_LOADING_DIALOG);
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     //showDialog(EXCEPTION_DIALOG);
@@ -492,32 +481,20 @@ public class UpdatedEpisodeListingActivity extends Activity {
                 } else {
                     EpisodesController.getInstance().deleteEpisode(episode.getType(), episode);
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
 
     private void markEpisodes(final int episodeStatus, final List<Episode> episodes) {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-
-            @Override
-            protected void onPreExecute() {
-                showDialog(EPISODE_LOADING_DIALOG);
+        showDialog(EPISODE_LOADING_DIALOG);
+        TaskRunner.getExecutor().execute(() -> {
+            markAllEpisodes(episodeStatus, episodes);
+            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+                //getEpisodes();
+                //returnEpisodes();
             }
-
-            @Override
-            protected Object doInBackground(Object... objects) {
-                markAllEpisodes(episodeStatus, episodes);
-                if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                    //getEpisodes();
-                    //returnEpisodes();
-                }
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+            runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     //showDialog(EXCEPTION_DIALOG);
@@ -527,9 +504,8 @@ public class UpdatedEpisodeListingActivity extends Activity {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     returnEpisodes();
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
 

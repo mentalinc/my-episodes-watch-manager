@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.inputmethod.InputMethodManager;
-import android.os.AsyncTask;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.text.Editable;
@@ -204,7 +204,9 @@ public class ShowListingActivity extends Activity {
                     searchEditText.setVisibility(View.VISIBLE);
                     searchEditText.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
+                    if (imm != null) {
+                        imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
+                    }
                 }
                 return true;
             }
@@ -218,7 +220,7 @@ public class ShowListingActivity extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterShows(s.toString());
+                filterShows(s != null ? s.toString() : "");
             }
 
             @Override
@@ -233,7 +235,8 @@ public class ShowListingActivity extends Activity {
 
         ItemClickSupport.addTo(rvShows).setOnItemClickListener((recyclerView, position, v) -> {
                     // do stuff
-                    Show showSelected = shows.get(position);
+                    ShowAdapter listAdapter = (ShowAdapter) recyclerView.getAdapter();
+                    Show showSelected = listAdapter.getCurrentList().get(position);
                     //to go straight to details if there is only 1 episode - saves clicking through the list when it would only show one anyway.
                     Episode nextEpisodeToWatch = showSelected.getFirstEpisode();
 
@@ -409,25 +412,28 @@ public class ShowListingActivity extends Activity {
             String lowerQuery = query.toLowerCase().trim();
             filtered = new ArrayList<>();
             for (Show show : showsFull) {
-                if (show.getShowName().toLowerCase().contains(lowerQuery)) {
+                String showName = show.getShowName();
+                if (showName != null && showName.toLowerCase().contains(lowerQuery)) {
                     filtered.add(show);
                 }
             }
         }
-        shows.clear();
-        shows.addAll(filtered);
         RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
-        ShowAdapter adapter = (ShowAdapter) rvShows.getAdapter();
-        if (adapter != null) {
-            adapter.submitList(new ArrayList<>(shows));
+        if (rvShows != null) {
+            ShowAdapter adapter = (ShowAdapter) rvShows.getAdapter();
+            if (adapter != null) {
+                adapter.submitList(new ArrayList<>(filtered));
+            }
         }
         TextView showEpCount = findViewById(R.id.ShowEpCount);
-        int showCount = shows.size();
-        int episodeCount = 0;
-        for (Show show : shows) {
-            episodeCount += show.getNumberEpisodes();
+        if (showEpCount != null) {
+            int showCount = filtered.size();
+            int episodeCount = 0;
+            for (Show show : filtered) {
+                episodeCount += show.getNumberEpisodes();
+            }
+            showEpCount.setText(showCount + " shows - " + episodeCount + " episodes");
         }
-        showEpCount.setText(showCount + " shows - " + episodeCount + " episodes");
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {
@@ -523,35 +529,21 @@ public class ShowListingActivity extends Activity {
 
 
     private void reloadEpisodes() {
-
-
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-            @Override
-            protected void onPreExecute() {
-                showDialog(EPISODE_LOADING_DIALOG);
-                if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
-                    showDialog(EPISODE_LOADING_DIALOG_CACHE);
-                } else {
-                    showDialog(EPISODE_LOADING_DIALOG);
-
-                }
-            }
-
-            @Override
-            protected Object doInBackground(Object... objects) {
-                getEpisodesMyEpisodes();
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+        showDialog(EPISODE_LOADING_DIALOG);
+        if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
+            showDialog(EPISODE_LOADING_DIALOG_CACHE);
+        } else {
+            showDialog(EPISODE_LOADING_DIALOG);
+        }
+        TaskRunner.getExecutor().execute(() -> {
+            getEpisodesMyEpisodes();
+            runOnUiThread(() -> {
                 returnEpisodes();
                 showsFull = new ArrayList<>(shows);
                 removeDialog(EPISODE_LOADING_DIALOG);
                 removeDialog(EPISODE_LOADING_DIALOG_CACHE);
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     public void onRefreshClick() {

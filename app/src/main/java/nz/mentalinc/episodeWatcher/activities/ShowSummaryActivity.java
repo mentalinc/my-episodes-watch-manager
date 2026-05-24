@@ -3,7 +3,6 @@ package nz.mentalinc.episodeWatcher.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -51,6 +50,8 @@ import nz.mentalinc.episodeWatcher.domain.ShowDescendingComparator;
 import nz.mentalinc.episodeWatcher.domain.ShowRuntimeAscendingComparator;
 import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
+import nz.mentalinc.episodeWatcher.service.ShowService;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 
 public class ShowSummaryActivity extends Activity {
 
@@ -105,7 +106,6 @@ public class ShowSummaryActivity extends Activity {
         SeriesDAO seriesDAO = database.getSeriesDAO();
         EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
 
-
         TextView textViewWatchShowsRemaining = findViewById(R.id.episodesToWatch);
         TextView textViewAcquireShowsRemaining = findViewById(R.id.episodesToAcquire);
         TextView textViewComingShowsRemaining = findViewById(R.id.episodesComing);
@@ -129,10 +129,12 @@ public class ShowSummaryActivity extends Activity {
         }};
 
 
-        if (showRuntime.getShowTVMazeID() != null) {
-            new downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
-        } else {
+        if (showRuntime != null && showRuntime.getShowTVMazeID() != null) {
+            downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
+        } else if (showRuntime != null) {
             Log.w(LOG_TAG, "showRuntime getShowTVMazeID is null");
+        } else {
+            populateShowRuntimeAndSummary(showSummaryHashMap);
         }
 
 
@@ -321,25 +323,9 @@ public class ShowSummaryActivity extends Activity {
     }
 
 
-    //https://stackoverflow.com/questions/29555909/asynctask-how-to-return-a-hashmap-from-doinbackground
-    private class downloadShowSummary extends AsyncTask<String, String, HashMap<String, String>> {
-        HashMap<String, String> showSummaryHash;
-
-        downloadShowSummary(HashMap<String, String> showSummaryHash) {
-            this.showSummaryHash = showSummaryHash;
-        }
-
-        /*
-            doInBackground(Params... params)
-                Override this method to perform a computation on a background thread.
-         */
-        protected HashMap<String, String> doInBackground(String... params) {
-
-
-            //check if there are values in the database first. if there are use those, if not use the API
-
+    private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
+        TaskRunner.getExecutor().execute(() -> {
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    //.allowMainThreadQueries()   //Allows room to do operation on main thread
                     .fallbackToDestructiveMigration()
                     .build();
 
@@ -354,21 +340,7 @@ public class ShowSummaryActivity extends Activity {
             String showRuntime = showInfo.getShowRuntime();
             String showStatus = showInfo.getShowStatus();
 
-/*
-            Log.w(LOG_TAG, "showName: " + showName);
-            Log.w(LOG_TAG, "showURL: " + showURL);
-            Log.w(LOG_TAG, "officialSite: " + officialSite);
-            Log.w(LOG_TAG, "showSummary: " + showSummary);
-            Log.w(LOG_TAG, "showImageURL: " + showImageURL);
-            Log.w(LOG_TAG, "showRuntime: " + showRuntime);
-            Log.w(LOG_TAG, "showStatus: " + showStatus);
-
-
-*/
-
-            // no value, as the work is done in a thread and needs theme check to be done and getting latest api info not that much slower
             if (showName != null && showURL != null && officialSite != null && showSummary != null && showStatus != null && showImageURL != null && !showRuntime.equals("null")) {
-                //if (!showName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && showStatus != null && !showImageURL.equals("")) {
                 showSummaryHash.put("showName", showName);
                 showSummaryHash.put("showURL", showURL);
                 showSummaryHash.put("officialSite", officialSite);
@@ -376,16 +348,10 @@ public class ShowSummaryActivity extends Activity {
                 showSummaryHash.put("showImageURL", showImageURL);
                 showSummaryHash.put("showRuntime", showRuntime);
                 showSummaryHash.put("showStatus", showStatus);
-
-                //not in database so download from API - Getting them all from the API is the same effort as just getting one, so not adding lots of logic to check and only get the extra one.
             } else {
-
-
                 HttpsURLConnection connection = null;
                 BufferedReader reader = null;
-                //String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + ShowTVMazeID + "/episodebynumber?season=" + SeasonString + "&number=" + EpisodeString;
                 String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0];
-                //  HashMap<String, String> hashMap = new HashMap<String, String>();
 
                 try {
                     URL url = new URL(episodeSummaryAPIURL);
@@ -396,7 +362,6 @@ public class ShowSummaryActivity extends Activity {
 
                     if (code == 429) {
                         Thread.sleep(10000);
-                        //wait 10 seconds then try again
                         connection = (HttpsURLConnection) url.openConnection();
                         connection.connect();
                     }
@@ -417,8 +382,6 @@ public class ShowSummaryActivity extends Activity {
 
                     try {
                         jObj = new JSONObject(jsonString);
-                        //      showNameString = jObj.getString("name");
-                        //     showRuntimeString = jObj.getString("runtime");
                         showSummary = jObj.getString("summary");
                         showName = jObj.getString("name");
                         showURL = jObj.getString("url");
@@ -434,7 +397,6 @@ public class ShowSummaryActivity extends Activity {
                             showImageURL = jObj.getJSONObject("image").getString("medium");
                         }
 
-                        //change the http:// to https://
                         showImageURL = showImageURL.replace("http://", "https://");
 
                         showSummary = showSummary.replace("<p>", "");
@@ -453,7 +415,6 @@ public class ShowSummaryActivity extends Activity {
                         showSummaryHash.put("showStatus", showStatus);
 
                         EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
-                        //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
 
                         showSummaryInfo.setShowSummary(showSummaryHash.get("showSummary"));
                         showSummaryInfo.setShowURL(showSummaryHash.get("showURL"));
@@ -461,8 +422,6 @@ public class ShowSummaryActivity extends Activity {
                         showSummaryInfo.setShowImageURL(showSummaryHash.get("showImageURL"));
                         showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
                         showSummaryInfo.setShowStatus(showSummaryHash.get("showStatus"));
-
-                        //  Log.d("epsRunTime: ", epsRunTime.toString());
 
                         seriesDAO.update(showSummaryInfo);
 
@@ -487,107 +446,97 @@ public class ShowSummaryActivity extends Activity {
             }
 
             database.close();
-            return showSummaryHash;
-        }
 
-        /*
-            onPostExecute(Result result)
-                Runs on the UI thread after doInBackground(Params...).
-         */
-        protected void onPostExecute(HashMap<String, String> result) {
-            //episodeSummaryHash = result;
+            HashMap<String, String> result = showSummaryHash;
+            runOnUiThread(() -> {
+                TextView ShowRuntimeTV = findViewById(R.id.ShowRuntime);
+                String runtimeStr = "Episode runtime: " + result.get("showRuntime") + " mins";
+                ShowRuntimeTV.setText(runtimeStr);
 
+                TextView ShowStatusTV = findViewById(R.id.ShowStatus);
+                String showStatusStr = "Show status: " + result.get("showStatus");
+                ShowStatusTV.setText(showStatusStr);
 
-            TextView tvMazeShowWebsite;
-            TextView officialShowDetailWebsite;
-            TextView tvMazeShowDetailSummary;
-            TextView ShowRuntime;
-            TextView ShowStatus;
-            ImageView showImage;
+                TextView tvMazeShowWebsite = findViewById(R.id.tvMazeShowWebsite);
+                tvMazeShowWebsite.setText(result.get("showURL"));
+                Linkify.addLinks(tvMazeShowWebsite, Linkify.WEB_URLS);
 
-            ShowRuntime = findViewById(R.id.ShowRuntime);
-            String runtime = "Episode runtime: " + showSummaryHash.get("showRuntime") + " mins";
-            ShowRuntime.setText(runtime);
+                TextView officialShowDetailWebsite = findViewById(R.id.officialShowWebsite);
+                String showOfficialWebsite = result.get("officialSite");
+                if (!showOfficialWebsite.equals("null")) {
+                    officialShowDetailWebsite.setText(showOfficialWebsite);
+                    Linkify.addLinks(officialShowDetailWebsite, Linkify.WEB_URLS);
+                } else {
+                    officialShowDetailWebsite.setVisibility(View.GONE);
+                }
 
-            ShowStatus = findViewById(R.id.ShowStatus);
-            String showStatus = "Show status: " + showSummaryHash.get("showStatus");
-            ShowStatus.setText(showStatus);
+                TextView tvMazeShowDetailSummary = findViewById(R.id.tvMazeShowSummary);
+                String episodeSummary = result.get("showSummary");
 
+                if (!episodeSummary.equals("null")) {
+                    tvMazeShowDetailSummary.setText(episodeSummary);
+                } else {
+                    tvMazeShowDetailSummary.setVisibility(View.GONE);
+                }
 
-            tvMazeShowWebsite = findViewById(R.id.tvMazeShowWebsite);
-            tvMazeShowWebsite.setText(showSummaryHash.get("showURL"));
-            Linkify.addLinks(tvMazeShowWebsite, Linkify.WEB_URLS);
+                ImageView showImage = findViewById(R.id.showImage);
+                String showImageURLStr = result.get("showImageURL");
 
-            officialShowDetailWebsite = findViewById(R.id.officialShowWebsite);
-            String showOfficialWebsite = showSummaryHash.get("officialSite");
-            if (!showOfficialWebsite.equals("null")) { //not a type want to check for the string null not null no object
-                officialShowDetailWebsite.setText(showOfficialWebsite);
-                Linkify.addLinks(officialShowDetailWebsite, Linkify.WEB_URLS);
-            } else {
-                officialShowDetailWebsite.setVisibility(View.GONE);
-            }
+                if (!showImageURLStr.equals("")) {
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions.placeholder(R.drawable.placeholder);
+                    requestOptions.error(R.drawable.error);
 
-            tvMazeShowDetailSummary = findViewById(R.id.tvMazeShowSummary);
-            String episodeSummary = showSummaryHash.get("showSummary");
-
-            if (!episodeSummary.equals("null")) { //not a type want to check for the string null not null no object
-                tvMazeShowDetailSummary.setText(episodeSummary);
-            } else {
-                tvMazeShowDetailSummary.setVisibility(View.GONE);
-            }
-
-            showImage = findViewById(R.id.showImage);
-
-            String showImageURL = showSummaryHash.get("showImageURL");
-            // add in here to download tv series info...and the show level info to a database!
-
-            if (!showImageURL.equals("")) {
-
-                RequestOptions requestOptions = new RequestOptions();
-                requestOptions.placeholder(R.drawable.placeholder);
-                requestOptions.error(R.drawable.error);
-
-                // if (Activity..isFinishing()) {
-                Glide.with(findViewById(R.id.showImage))
-                        .load(showImageURL)
-                        .apply(requestOptions)
-                        .into(showImage);
-                //}
-
-            } else {
-                showImage.setVisibility(View.GONE);
-            }
-
-/*
-            //add the info into the show database to limit the need to api call the info all the time for static show info
-            AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    .allowMainThreadQueries()   //Allows room to do operation on main thread
-                    .fallbackToDestructiveMigration()
-                    .build();
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-
-
-            EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
-
-
-            //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
-
-            showSummaryInfo.setShowSummary(showSummaryHash.get("showSummary"));
-            showSummaryInfo.setShowURL(showSummaryHash.get("showURL"));
-            showSummaryInfo.setOfficialSite(showSummaryHash.get("officialSite"));
-            showSummaryInfo.setShowImageURL(showSummaryHash.get("showImageURL"));
-            showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
-            showSummaryInfo.setShowStatus(showSummaryHash.get("showStatus"));
-
-            //  Log.d("epsRunTime: ", epsRunTime.toString());
-
-            seriesDAO.update(showSummaryInfo);
-            database.close();
-*/
-        }
+                    Glide.with(findViewById(R.id.showImage))
+                            .load(showImageURLStr)
+                            .apply(requestOptions)
+                            .into(showImage);
+                } else {
+                    showImage.setVisibility(View.GONE);
+                }
+            });
+        });
     }
 
+    private void populateShowRuntimeAndSummary(HashMap<String, String> showSummaryHashMap) {
+        if (shows.isEmpty()) {
+            Log.w(LOG_TAG, "No shows available to populate runtime");
+            return;
+        }
+        String showName = shows.get(0).getShowName();
+        if (showName == null) {
+            Log.w(LOG_TAG, "Show name is null, cannot populate runtime");
+            return;
+        }
+        TaskRunner.getExecutor().execute(() -> {
+            AppDatabase database = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                    .fallbackToDestructiveMigration()
+                    .build();
+            try {
+                ShowService showService = new ShowService();
+                showService.ShowsRuntime(showName, showMyEpisodeID, database);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Failed to populate show runtime", e);
+            }
+            database.close();
+            runOnUiThread(() -> {
+                AppDatabase db = Room.databaseBuilder(HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
+                        .allowMainThreadQueries()
+                        .fallbackToDestructiveMigration()
+                        .build();
+                SeriesDAO seriesDAO = db.getSeriesDAO();
+                EpisodeRuntime updatedRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
+                if (updatedRuntime != null && updatedRuntime.getShowTVMazeID() != null) {
+                    downloadShowSummary(showSummaryHashMap, updatedRuntime.getShowTVMazeID());
+                } else {
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowOverview), R.string.showDetailsNotAvailable, Snackbar.LENGTH_LONG);
+                    snackbar.setAnchorView(bottomNavigationView);
+                    snackbar.show();
+                }
+                db.close();
+            });
+        });
+    }
 
     private void sortEpisodesOfShows(List<Show> showList) {
 

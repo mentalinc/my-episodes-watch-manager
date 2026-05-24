@@ -35,6 +35,8 @@
     <string name="acquire">Beszerzendő</string>
 	<string name="acquirehome">Beszerzendő (%d)</string>
     <string name="coming">Várható</string>
+    <string name="cominghome">Várható (%d)</string>
+    <string name="newCominghome">Új Várható (%d)</string>
 	<string name="more">Egyebek</string>
     <string name="watchListTitle">Műsorok/részek listája</string>
     <string name="watchListSubTitleWatch">%d megnézendő rész</string>

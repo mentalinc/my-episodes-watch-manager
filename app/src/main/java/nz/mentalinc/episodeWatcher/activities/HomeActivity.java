@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.AsyncTask;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -70,6 +70,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private com.google.android.material.button.MaterialButton btn_ShowWatchNew;
     private com.google.android.material.button.MaterialButton btn_ShowAcquireNew;
+    private com.google.android.material.button.MaterialButton btn_ShowListing;
+    private com.google.android.material.button.MaterialButton btnComing;
 
 
     private Intent watchIntent;
@@ -167,13 +169,14 @@ public class HomeActivity extends AppCompatActivity {
         btnAcquired = findViewById(R.id.btn_acquired);
         btnAcquired.setOnClickListener(v -> startActivity(acquireIntent));
         btn_ShowAcquireNew = findViewById(R.id.btn_ShowAcquireNew);
+        btn_ShowListing = findViewById(R.id.btn_ShowListing);
 
 
         if (sharedPref.getBoolean("disableAcquire", false)) {
             btnAcquired.setVisibility(View.GONE);
         }
 
-        Button btnComing = findViewById(R.id.btn_coming);
+        btnComing = findViewById(R.id.btn_coming);
         comingIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
 
         String coming_sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
@@ -281,59 +284,47 @@ public class HomeActivity extends AppCompatActivity {
                 sharedPref.getString("UserPassword", User.PASSWORD)
         );
         if (episodesController.areListsEmpty()) {
-            AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+            showDialog(EPISODE_LOADING_DIALOG);
 
-                @Override
-                protected void onPreExecute() {
-                    showDialog(EPISODE_LOADING_DIALOG);
+            if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
+                showDialog(EPISODE_LOADING_DIALOG_CACHE);
+            } else {
+                showDialog(EPISODE_LOADING_DIALOG);
+            }
+            TaskRunner.getExecutor().execute(() -> {
 
-                    if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
-                        showDialog(EPISODE_LOADING_DIALOG_CACHE);
+                try {
+                    episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
+                    //todo removed as fails when myEpisodeID doesn't work
+                    episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
+
+                    String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
+                    if (acquire != null && acquire.equals("1")) {
+                        EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
+                        EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
+                        //todo removed as fails when myEpisodeID doesn't work
+                        episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));
                     } else {
-                        showDialog(EPISODE_LOADING_DIALOG);
-                    }
-                }
-
-                @Override
-                protected Object doInBackground(Object... objects) {
-
-                    try {
-                        episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
+                        EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
                         //todo removed as fails when myEpisodeID doesn't work
-                        episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
-
-                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                        String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
-                        if (acquire != null && acquire.equals("1")) {
-                            EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
-                            EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
-                            //todo removed as fails when myEpisodeID doesn't work
-                            episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));
-                        } else {
-                            EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
-                            //todo removed as fails when myEpisodeID doesn't work
-                            episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
-                        }
-                        episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
-                        //todo removed as fails when myEpisodeID doesn't work
-                        episodesController.AddToComingShow(episodesController.getEpisodes(EpisodeType.EPISODES_COMING));
-
-
-                        resetPageFilters(user);
-
-                    } catch (InternetConnectivityException e) {
-                        exception = true;
-                    } catch (Exception e) {
-                        //e.printStackTrace();
-                        String message = "Error in background task";
-                        Log.e(LOG_TAG, message, e);
-
+                        episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
                     }
-                    return 100L;
-                }
+                    episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
+                    //todo removed as fails when myEpisodeID doesn't work
+                    episodesController.AddToComingShow(episodesController.getEpisodes(EpisodeType.EPISODES_COMING));
 
-                @Override
-                protected void onPostExecute(Object o) {
+
+                    resetPageFilters(user);
+
+                } catch (InternetConnectivityException e) {
+                    exception = true;
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                    String message = "Error in background task";
+                    Log.e(LOG_TAG, message, e);
+
+                }
+                runOnUiThread(() -> {
                     removeDialog(EPISODE_LOADING_DIALOG);
                     removeDialog(EPISODE_LOADING_DIALOG_CACHE);
 
@@ -348,10 +339,11 @@ public class HomeActivity extends AppCompatActivity {
 
                         btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
                         btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+                        btn_ShowListing.setText(getString(R.string.newCominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
+                        btnComing.setText(getString(R.string.cominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
                     }
-                }
-            };
-            asyncTask.execute();
+                });
+            });
         }
     }
 
@@ -463,6 +455,8 @@ public class HomeActivity extends AppCompatActivity {
         btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
         btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
         btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+        btn_ShowListing.setText(getString(R.string.newCominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
+        btnComing.setText(getString(R.string.cominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
     }
 
     @Override

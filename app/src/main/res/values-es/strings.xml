@@ -35,6 +35,8 @@
     <string name="acquire">Por adquirir</string>
     <string name="acquirehome">Por adquirir (%d)</string>
     <string name="coming">Próximamente</string>
+    <string name="cominghome">Próximamente (%d)</string>
+    <string name="newCominghome">Nuevos Próximamente (%d)</string>
     <string name="more">Más</string>
     <string name="watchListTitle">Lista de series / episodios</string>
     <string name="watchListSubTitleWatch">%d episodio por ver</string>

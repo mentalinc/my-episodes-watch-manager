@@ -3,7 +3,6 @@ package nz.mentalinc.episodeWatcher.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -35,6 +34,7 @@ import nz.mentalinc.episodeWatcher.database.AppDatabase;
 import nz.mentalinc.episodeWatcher.database.SeriesDAO;
 import nz.mentalinc.episodeWatcher.enums.ShowType;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 
 /**
  * @author Ivo Janssen, maintained and updated by mentalinc
@@ -145,7 +145,7 @@ public class ShowManagementPortalActivity extends Activity {
                     put("a", "b");
                 }};
 
-                new ShowManagementPortalActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
+                downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
             }
         }
         database.close();
@@ -167,25 +167,9 @@ public class ShowManagementPortalActivity extends Activity {
     }
 
 
-    //https://stackoverflow.com/questions/29555909/asynctask-how-to-return-a-hashmap-from-doinbackground
-    private class downloadShowSummary extends AsyncTask<String, String, HashMap<String, String>> {
-        HashMap<String, String> showSummaryHash;
-
-        downloadShowSummary(HashMap<String, String> showSummaryHash) {
-            this.showSummaryHash = showSummaryHash;
-        }
-
-        /*
-            doInBackground(Params... params)
-                Override this method to perform a computation on a background thread.
-         */
-        protected HashMap<String, String> doInBackground(String... params) {
-
-
-            //check if there are values in the database first. if there are use those, if not use the API
-
+    private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
+        TaskRunner.getExecutor().execute(() -> {
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    //.allowMainThreadQueries()   //Allows room to do operation on main thread
                     .fallbackToDestructiveMigration()
                     .build();
 
@@ -206,7 +190,6 @@ public class ShowManagementPortalActivity extends Activity {
 
                 if (code == 429) {
                     Thread.sleep(10000);
-                    //wait 10 seconds then try again
                     connection = (HttpsURLConnection) url.openConnection();
                     connection.connect();
                 }
@@ -236,11 +219,9 @@ public class ShowManagementPortalActivity extends Activity {
 
                     showSummaryHash.put("showRuntime", showRuntime);
                     EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showInfo.getShowMyEpsID());
-                    //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
 
                     showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
 
-                    //  Log.d("epsRunTime: ", epsRunTime.toString());
                     seriesDAO.update(showSummaryInfo);
 
                 } catch (JSONException e) {
@@ -263,7 +244,6 @@ public class ShowManagementPortalActivity extends Activity {
             }
 
             database.close();
-            return showSummaryHash;
-        }
+        });
     }
 }

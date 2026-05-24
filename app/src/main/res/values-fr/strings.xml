@@ -35,6 +35,8 @@
     <string name="acquire">Acquérir</string>
     <string name="acquirehome">Acquérir (%d)</string>
     <string name="coming">A venir</string>
+    <string name="cominghome">A venir (%d)</string>
+    <string name="newCominghome">Nouveaux A venir (%d)</string>
     <string name="more">Plus</string>
     <string name="watchListTitle">Liste des séries/épisodes</string>
     <string name="watchListSubTitleWatch">%d épisode a regardé</string>

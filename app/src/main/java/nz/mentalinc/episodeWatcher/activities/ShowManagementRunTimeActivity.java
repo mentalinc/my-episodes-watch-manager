@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -59,6 +58,7 @@ import nz.mentalinc.episodeWatcher.domain.ShowRuntimeAscendingComparator;
 import nz.mentalinc.episodeWatcher.domain.User;
 import nz.mentalinc.episodeWatcher.service.EpisodeRuntime;
 import nz.mentalinc.episodeWatcher.utils.InputFilterMinMax;
+import nz.mentalinc.episodeWatcher.utils.TaskRunner;
 
 
 public class ShowManagementRunTimeActivity extends ListActivity {
@@ -172,7 +172,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                     put("a", "b");
                 }};
 
-                new ShowManagementRunTimeActivity.downloadShowSummary(showSummaryHashMap).execute(showRuntime.getShowTVMazeID());
+                downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
 
                 shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
                 //shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(),  showSummaryHashMap.get("showRuntime")));
@@ -186,25 +186,9 @@ public class ShowManagementRunTimeActivity extends ListActivity {
     }
 
 
-    //https://stackoverflow.com/questions/29555909/asynctask-how-to-return-a-hashmap-from-doinbackground
-    private class downloadShowSummary extends AsyncTask<String, String, HashMap<String, String>> {
-        HashMap<String, String> showSummaryHash;
-
-        downloadShowSummary(HashMap<String, String> showSummaryHash) {
-            this.showSummaryHash = showSummaryHash;
-        }
-
-        /*
-            doInBackground(Params... params)
-                Override this method to perform a computation on a background thread.
-         */
-        protected HashMap<String, String> doInBackground(String... params) {
-
-
-            //check if there are values in the database first. if there are use those, if not use the API
-
+    private void downloadShowSummary(HashMap<String, String> showSummaryHash, String... params) {
+        TaskRunner.getExecutor().execute(() -> {
             AppDatabase database = Room.databaseBuilder(nz.mentalinc.episodeWatcher.activities.HomeActivity.getContext().getApplicationContext(), AppDatabase.class, "EpisodeRuntime")
-                    //.allowMainThreadQueries()   //Allows room to do operation on main thread
                     .fallbackToDestructiveMigration()
                     .build();
 
@@ -225,7 +209,6 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                 if (code == 429) {
                     Thread.sleep(10000);
-                    //wait 10 seconds then try again
                     connection = (HttpsURLConnection) url.openConnection();
                     connection.connect();
                 }
@@ -255,11 +238,9 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                     showSummaryHash.put("showRuntime", showRuntime);
                     EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showInfo.getShowMyEpsID());
-                    //Inserting episodeRuntime adding the info that was not collected during the runtime. addition
 
                     showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
 
-                    //  Log.d("epsRunTime: ", epsRunTime.toString());
                     seriesDAO.update(showSummaryInfo);
 
                 } catch (JSONException e) {
@@ -282,8 +263,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             }
 
             database.close();
-            return showSummaryHash;
-        }
+        });
     }
 
     protected void onPostExecute(HashMap<String, String> result) {
@@ -519,21 +499,11 @@ public class ShowManagementRunTimeActivity extends ListActivity {
     }
 
     private void populateShowRuntimeList() {
-        AsyncTask<Object, Object, Object> asyncTask = new AsyncTask<Object, Object, Object>() {
-            @Override
-            protected void onPreExecute() {
-                showDialog(DIALOG_LOADING);
-                showAdapter.clear();
-            }
-
-            @Override
-            protected Object doInBackground(Object... objects) {
-                getRuntimeShows();
-                return 100L;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
+        showDialog(DIALOG_LOADING);
+        showAdapter.clear();
+        TaskRunner.getExecutor().execute(() -> {
+            getRuntimeShows();
+            runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(DIALOG_LOADING);
                     exceptionDialog(ShowManagementRunTimeActivity.this);
@@ -550,9 +520,8 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
                     removeDialog(DIALOG_LOADING);
                 }
-            }
-        };
-        asyncTask.execute();
+            });
+        });
     }
 
     @Override
