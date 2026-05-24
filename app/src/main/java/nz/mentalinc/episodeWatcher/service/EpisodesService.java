@@ -238,17 +238,20 @@ public class EpisodesService {
                 }
 
 
-                if (!episodesType.equals(EpisodeType.EPISODES_COMING)) {
-                    episodes.add(episode);
-                } else {
+                if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
                     Calendar rightNow = Calendar.getInstance();
                     rightNow.add(Calendar.DATE, -1);
                     Date yesterday = rightNow.getTime();
-                    if (airDate != null) {
-                        if (airDate.after(yesterday)) {
-                            episodes.add(episode);
-                        }
+                    if (airDate != null && airDate.after(yesterday)) {
+                        episodes.add(episode);
                     }
+                } else if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
+                    Calendar rightNow = Calendar.getInstance();
+                    if (airDate == null || !airDate.after(rightNow.getTime())) {
+                        episodes.add(episode);
+                    }
+                } else {
+                    episodes.add(episode);
                 }
             }
         }

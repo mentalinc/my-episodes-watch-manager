@@ -11,3 +11,5 @@ app/build/
 wear/build/
 *.iml
 app/google-services.json
+gradlew old.7z
+.sonarlint/connectedMode.json

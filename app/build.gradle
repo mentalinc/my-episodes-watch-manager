@@ -42,8 +42,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     productFlavors {
     }
@@ -86,5 +86,15 @@ dependencies {
     }
     implementation('com.github.bumptech.glide:glide:5.0.7') {
         transitive = true
+    }
+    sonar {
+        properties {
+            property "sonar.projectKey", "MyEpispodes"
+            property "sonar.host.url", "http://192.168.2.94:9000"  // URL of your SonarQube server
+            property "sonar.projectName", "MyEpispodes"
+            property "sonar.organization", "mentalinc"
+            property "sonar.java.binaries", "$buildDir\\intermediates\\javac"
+
+        }
     }
 }

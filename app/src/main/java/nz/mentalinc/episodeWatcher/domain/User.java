@@ -7,8 +7,8 @@ public class User implements Serializable {
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
 
-    private String username;
-    private String password;
+    private String usernameString;
+    private String passwordString;
 
     public User(String username, String password) {
         setUsername(username);
@@ -16,18 +16,18 @@ public class User implements Serializable {
     }
 
     public String getUsername() {
-        return username;
+        return usernameString;
     }
 
     private void setUsername(String username) {
-        this.username = username;
+        this.usernameString = username;
     }
 
     public String getPassword() {
-        return password;
+        return passwordString;
     }
 
     private void setPassword(String password) {
-        this.password = password;
+        this.passwordString = password;
     }
 }
