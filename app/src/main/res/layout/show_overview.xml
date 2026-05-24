@@ -62,7 +62,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginRight="16dp"
-                android:text="Show Stats"
+                android:text="@string/showStats"
                 android:textStyle="bold" />
 
             <TextView
@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:text="Show Websites"
+                android:text="@string/showWebsites"
                 android:textStyle="bold" />
 
             <TextView
@@ -149,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:text="Show summary:"
+                android:text="@string/showSummary"
                 android:textStyle="bold" />
 
             <TextView
@@ -176,7 +176,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:text="Episodes Summary"
+                android:text="@string/episodesSummary"
                 android:textStyle="bold" />
 
 
@@ -189,15 +189,15 @@
                     android:id="@+id/episodesToWatchLabel"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:paddingEnd="10dp"
-                    android:text="Episodes to watch: " />
+                    android:text="@string/episodesToWatch" />
 
                 <TextView
                     android:id="@+id/episodesToWatch"
                     android:layout_width="35dp"
                     android:layout_height="wrap_content"
-                    android:gravity="right"
+                    android:gravity="end"
                     tools:text="2000" />
             </LinearLayout>
 
@@ -211,14 +211,14 @@
                     android:id="@+id/episodeToAcquireLabel"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:text="Episodes to acquire: " />
+                    android:layout_marginStart="16dp"
+                    android:text="@string/episodesToAcquire" />
 
                 <TextView
                     android:id="@+id/episodesToAcquire"
                     android:layout_width="35dp"
                     android:layout_height="wrap_content"
-                    android:gravity="right"
+                    android:gravity="end"
                     tools:text="10" />
             </LinearLayout>
 
@@ -232,17 +232,17 @@
                     android:id="@+id/episodeComingLabel"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginBottom="4dp"
                     android:paddingEnd="10dp"
                     android:paddingBottom="5dp"
-                    android:text="Episodes coming: " />
+                    android:text="@string/episodesComing" />
 
                 <TextView
                     android:id="@+id/episodesComing"
                     android:layout_width="35dp"
                     android:layout_height="wrap_content"
-                    android:gravity="right"
+                    android:gravity="end"
                     tools:text="4" />
             </LinearLayout>
 

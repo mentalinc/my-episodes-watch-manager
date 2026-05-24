@@ -353,15 +353,19 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED && user != null) {
-            showDialog(RUNTIME_LOADING_DIALOG);
-            TaskRunner.getExecutor().execute(() -> {
-                populateFavouriteShowRuntimes();
-                runOnUiThread(() -> {
-                    if (runtimeProgressDialog != null && runtimeProgressDialog.isShowing()) {
-                        runtimeProgressDialog.dismiss();
-                    }
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            if (!prefs.getBoolean("runtime_populated", false)) {
+                showDialog(RUNTIME_LOADING_DIALOG);
+                TaskRunner.getExecutor().execute(() -> {
+                    populateFavouriteShowRuntimes();
+                    runOnUiThread(() -> {
+                        if (runtimeProgressDialog != null && runtimeProgressDialog.isShowing()) {
+                            runtimeProgressDialog.dismiss();
+                        }
+                        prefs.edit().putBoolean("runtime_populated", true).apply();
+                    });
                 });
-            });
+            }
         }
     }
 
@@ -535,7 +539,7 @@ public class HomeActivity extends AppCompatActivity {
                 break;
             case RUNTIME_LOADING_DIALOG:
                 runtimeProgressDialog = new ProgressDialog(this);
-                runtimeProgressDialog.setMessage("Processing favourite shows...");
+                runtimeProgressDialog.setMessage(this.getString(R.string.processingFavouriteShows));
                 runtimeProgressDialog.setCancelable(false);
                 dialog = runtimeProgressDialog;
                 break;

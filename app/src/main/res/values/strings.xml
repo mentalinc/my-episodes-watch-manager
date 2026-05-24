@@ -90,6 +90,14 @@
     <string name="showSearchAddShow">Are you sure you want to add this show to your list of shows?</string>
     <string name="showSearchFinished">Are you done adding shows or do you want to continue?</string>
     <string name="runTimeEditMessage">Please update the runtime (mins) below if incorrect:</string>
+    <string name="nullRuntimeCorrection">Null Runtime Correction</string>
+    <string name="showStats">Show Stats</string>
+    <string name="showWebsites">Show Websites</string>
+    <string name="showSummary">Show summary:</string>
+    <string name="episodesSummary">Episodes Summary</string>
+    <string name="episodesToWatch">Episodes to watch: </string>
+    <string name="episodesToAcquire">Episodes to acquire: </string>
+    <string name="episodesComing">Episodes coming: </string>
 
     <!-- Favo and ingored shows -->
     <string name="favoIgnoredDeleteShow">Delete show</string>
@@ -394,4 +402,7 @@
     <string name="serieLanguagePrompt">Change language</string>
     <string name="showOrderPrompt">TV series order</string>
     <string name="changelog">Many many things</string>
+    <string name="episodeNotFoundViaAPI">Episode not found via API</string>
+    <string name="processingFavouriteShows">Processing favourite shows…</string>
+    <string name="showCountFormat">%1$d shows — %2$d episodes</string>
 </resources>

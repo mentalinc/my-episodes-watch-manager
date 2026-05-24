@@ -1,13 +1,21 @@
 package nz.mentalinc.episodeWatcher.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+
 import nz.mentalinc.episodeWatcher.R;
 import nz.mentalinc.episodeWatcher.SettingScreenFrag;
+import nz.mentalinc.episodeWatcher.constants.ActivityConstants;
+import nz.mentalinc.episodeWatcher.enums.EpisodeType;
 
 public class SettingsScreenActivity extends AppCompatActivity {
     @Override
@@ -42,6 +50,39 @@ public class SettingsScreenActivity extends AppCompatActivity {
             finish();
         });
 
-    }
-}
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigationSettings);
+        bottomNavigationView.getMenu().getItem(0).setChecked(true);
+        bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
+    }
+
+    private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener = new NavigationBarView.OnItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            final int nextItem = item.getItemId();
+            if (R.id.barHome == nextItem) {
+                finish();
+                return true;
+            } else if (R.id.barWatch == nextItem) {
+                Intent watchIntent = new Intent(getApplicationContext(), ShowListingActivity.class);
+                watchIntent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+                watchIntent.putExtra("Title", getString(R.string.watch));
+                startActivity(watchIntent);
+                return true;
+            } else if (R.id.barAcquire == nextItem) {
+                Intent acquireIntent = new Intent(getApplicationContext(), ShowListingActivity.class);
+                acquireIntent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
+                acquireIntent.putExtra("Title", getString(R.string.acquire));
+                startActivity(acquireIntent);
+                return true;
+            } else if (R.id.barComing == nextItem) {
+                Intent comingIntent = new Intent(getApplicationContext(), ShowListingActivity.class);
+                comingIntent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+                comingIntent.putExtra("Title", getString(R.string.coming));
+                startActivity(comingIntent);
+                return true;
+            }
+            return false;
+        }
+    };
+}

@@ -3,18 +3,18 @@
 
     <item android:id="@+id/barFavouriteShows"
         android:icon="@drawable/outline_favorite_white_48"
-        android:title="@string/favouriteShows"></item>
+        android:title="@string/favouriteShows"/>
 
     <item android:id="@+id/barIgnoredShows"
         android:icon="@drawable/outline_block_white_48"
-        android:title="@string/ignoredShows"></item>
+        android:title="@string/ignoredShows"/>
 
     <item android:id="@+id/barAddShows"
         android:icon="@drawable/outline_add_circle_outline_white_48"
-        android:title="@string/addShow"></item>
+        android:title="@string/addShow"/>
 
     <item android:id="@+id/barShowRuntime"
         android:icon="@drawable/outline_schedule_white_48"
-        android:title="@string/ShowRuntime"></item>
+        android:title="@string/ShowRuntime"/>
 
 </menu>

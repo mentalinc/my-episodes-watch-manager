@@ -29,10 +29,19 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
-
         android:id="@+id/settings_Layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigationSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:backgroundTint="@color/colorPrimary"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_navigation_menu_home" />
 
 </LinearLayout>

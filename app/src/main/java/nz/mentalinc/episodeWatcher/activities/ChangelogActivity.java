@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import nz.mentalinc.episodeWatcher.R;
@@ -36,7 +37,7 @@ public class ChangelogActivity extends Activity {
             TextView textView = new TextView(getApplicationContext());
             String featureToAdd = textValuesPrefix + textValue;
             textView.setText(featureToAdd);
-            textView.setTextColor(getApplicationContext().getTheme().getResources().getColor(R.color.on_text_white));
+            textView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.on_text_white));
             text.addView(textView);
         }
 

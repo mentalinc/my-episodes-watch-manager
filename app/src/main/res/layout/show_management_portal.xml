@@ -84,7 +84,7 @@
                 android:id="@+id/addNullRuntime"
                 style="@style/HomeButton"
                 android:drawableTop="@drawable/outline_schedule_white_48"
-                android:text="Null Runtime Correction" />
+                android:text="@string/nullRuntimeCorrection" />
 
         </LinearLayout>
 

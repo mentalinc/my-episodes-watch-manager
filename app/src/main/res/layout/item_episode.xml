@@ -83,7 +83,6 @@
             android:layout_width="69dp"
             android:layout_height="104dp"
             android:layout_marginStart="@dimen/grid_leftright_padding"
-            android:layout_marginLeft="@dimen/grid_leftright_padding"
             android:layout_marginTop="@dimen/grid_topbottom_padding"
             android:layout_marginBottom="@dimen/grid_topbottom_padding"
             app:layout_constraintBottom_toBottomOf="parent"

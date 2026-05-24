@@ -441,7 +441,7 @@ public class RandomEpPickerActivity extends Activity {
                 if (code == 404) {
                     jsonString = "{\"id\":0,\"url\":\"Unknown Episode\",\"name\":\"Unknown Episode\",\"image\":null,\"summary\":\"Unknown Episode\"}";
 
-                    Toast.makeText(RandomEpPickerActivity.this, "episode not found via API", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RandomEpPickerActivity.this, RandomEpPickerActivity.this.getString(R.string.episodeNotFoundViaAPI), Toast.LENGTH_LONG).show();
                 } else {
                     InputStream stream = connection.getInputStream();
                     reader = new BufferedReader(new InputStreamReader(stream));

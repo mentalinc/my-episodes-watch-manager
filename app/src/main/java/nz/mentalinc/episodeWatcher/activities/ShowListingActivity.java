@@ -118,23 +118,23 @@ public class ShowListingActivity extends Activity {
         if (episodesType.toString().equals("EPISODES_TO_WATCH")) {
             int showCount = EpisodesController.getInstance().getShowCountType(episodesType);
             int episodeCount = EpisodesController.getInstance().getEpisodesCount(episodesType);
-            String showEpCountString = showCount + " shows - " + episodeCount + " episodes";
+            String showEpCountString = getString(R.string.showCountFormat, showCount, episodeCount);
             showEpCount.setText(showEpCountString);
-            episodeTypeTitle.setTitle("Watch");
+            episodeTypeTitle.setTitle(getString(R.string.watch));
         }
         if (episodesType.toString().equals("EPISODES_TO_ACQUIRE")) {
             int showCount = EpisodesController.getInstance().getShowCountType(episodesType);
             int episodeCount = EpisodesController.getInstance().getEpisodesCount(episodesType);
-            String showEpCountString = showCount + " shows - " + episodeCount + " episodes";
+            String showEpCountString = getString(R.string.showCountFormat, showCount, episodeCount);
             showEpCount.setText(showEpCountString);
-            episodeTypeTitle.setTitle("Acquire");
+            episodeTypeTitle.setTitle(getString(R.string.acquire));
         }
         if (episodesType.toString().equals("EPISODES_COMING")) {
             int showCount = EpisodesController.getInstance().getShowCountType(episodesType);
             int episodeCount = EpisodesController.getInstance().getEpisodesCount(episodesType);
-            String showEpCountString = showCount + " shows - " + episodeCount + " episodes";
+            String showEpCountString = getString(R.string.showCountFormat, showCount, episodeCount);
             showEpCount.setText(showEpCountString);
-            episodeTypeTitle.setTitle("Coming");
+            episodeTypeTitle.setTitle(getString(R.string.coming));
         }
 
         //todo - this is commented out when using the newer show hash approach.

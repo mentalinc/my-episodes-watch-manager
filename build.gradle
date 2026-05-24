@@ -15,7 +15,7 @@ buildscript {
 
 }
 plugins {
-    id "org.sonarqube" version "3.3"
+    id "org.sonarqube" version "7.3.0.8198"
 }
 
 ext {
@@ -31,7 +31,6 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    //delete rootProject.buildDir
+tasks.register('clean', Delete) {
     delete rootProject.layout.buildDirectory
 }
