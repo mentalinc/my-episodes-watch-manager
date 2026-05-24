@@ -127,6 +127,7 @@ public class HomeActivity extends AppCompatActivity {
         swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, android.R.color.holo_green_dark, android.R.color.holo_orange_dark);
 
         MyEpisodeConstants.DAYS_BACK_CP = sharedPref.getString("daysBack", "365");
+        MyEpisodeConstants.DAYS_FORWARD_CP = sharedPref.getString("daysForward", "20");
         MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = sharedPref.getString("CacheFileAge", "false");
         MyEpisodeConstants.DAYS_BACK_ENABLED = sharedPref.getBoolean("daysBackwardEnable", false);
         MyEpisodeConstants.CACHE_EPISODES_ENABLED = sharedPref.getBoolean("CacheEpisodes", false);

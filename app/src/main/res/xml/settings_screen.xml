@@ -26,6 +26,15 @@
             app:summary="@string/daysBackwardCPExtra"
             android:dialogTitle="@string/daysBackwardCPExtra"/>
 
+        <EditTextPreference
+            android:key="daysForward"
+            android:title="@string/daysForwardCP"
+            android:defaultValue="20"
+            android:inputType="number"
+            android:digits="1234567890"
+            app:summary="@string/daysForwardCPExtra"
+            android:dialogTitle="@string/daysForwardCPExtra"/>
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="CacheEpisodes"

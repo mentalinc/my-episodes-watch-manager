@@ -953,7 +953,7 @@ public class EpisodesService {
                 if (i == 5 && !restore && controlPanelSettings[i] != null) {
                     postDataParams.put(controlPanelOrder[i], MyEpisodeConstants.DAYS_BACK_CP);
                 } else if (i == 6 && !restore && controlPanelSettings[i] != null) {
-                    postDataParams.put(controlPanelOrder[i], "1");
+                    postDataParams.put(controlPanelOrder[i], MyEpisodeConstants.DAYS_FORWARD_CP);
                 } else {
                     if (controlPanelSettings[i] != null) {
                         postDataParams.put(controlPanelOrder[i], controlPanelSettings[i]);

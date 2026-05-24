@@ -184,6 +184,29 @@ public class PreferencesActivity extends PreferenceActivity {
 
         root.addPreference(daysBackCP);
 
+        final EditTextPreference daysForwardCP = new EditTextPreference(this);
+        daysForwardCP.setTitle(R.string.daysForwardCP);
+        daysForwardCP.setKey(PreferencesKeys.DAYS_FORWARDCP);
+        daysForwardCP.setSummary(R.string.daysForwardCPExtra);
+        daysForwardCP.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        daysForwardCP.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                refreshDialog = true;
+
+                if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
+                    deleteFile("Watch");
+                    deleteFile("Acquire.xml");
+                    deleteFile("Coming.xml");
+                }
+
+                return true;
+            }
+        });
+
+        root.addPreference(daysForwardCP);
+
         //Issue 109
         final CheckBoxPreference CacheEpisodesEnable = new CheckBoxPreference(this);
         CacheEpisodesEnable.setDefaultValue(false);

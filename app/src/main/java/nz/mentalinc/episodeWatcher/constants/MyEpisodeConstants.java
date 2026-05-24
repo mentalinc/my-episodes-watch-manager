@@ -14,6 +14,7 @@ public class MyEpisodeConstants {
     private static final String SHOW_IGNORED = "0";
 
     public static String DAYS_BACK_CP = "365";
+    public static String DAYS_FORWARD_CP = "20";
     public static Boolean DAYS_BACK_ENABLED = false;
     public static Boolean CACHE_EPISODES_ENABLED = false;
     public static Boolean SHOW_RUNTIME_ENABLED = false;

@@ -214,6 +214,8 @@
     <string name="daysBackwardEnable">Enable 200+ episodes</string>
     <string name="daysBackwardCP">Days Backward</string>
     <string name="daysBackwardCPExtra">Number of days backward to search for new episodes to watch</string>
+    <string name="daysForwardCP">Days Forward</string>
+    <string name="daysForwardCPExtra">Number of days forward to search for Coming episodes</string>
 
     <!-- Runtime -->
     <string name="RunTime">Enable show runtime</string>
