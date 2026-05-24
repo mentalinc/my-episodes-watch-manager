@@ -56,13 +56,18 @@ public class EpisodesController {
 
     public List<Episode> getShowTypeEpisodes(EpisodeType episodesType, String myEpisodeID) {
         switch (episodesType) {
-            case WATCH_BY_SHOW:
-                return watchShows.get(myEpisodeID).getEpisodes();
-            case ACQUIRE_BY_SHOW:
-                return acquireShows.get(myEpisodeID).getEpisodes();
-            case COMING_BY_SHOW:
-                return comingShows.get(myEpisodeID).getEpisodes();
-
+            case WATCH_BY_SHOW: {
+                Show show = watchShows.get(myEpisodeID);
+                return show != null ? show.getEpisodes() : null;
+            }
+            case ACQUIRE_BY_SHOW: {
+                Show show = acquireShows.get(myEpisodeID);
+                return show != null ? show.getEpisodes() : null;
+            }
+            case COMING_BY_SHOW: {
+                Show show = comingShows.get(myEpisodeID);
+                return show != null ? show.getEpisodes() : null;
+            }
             default:
                 return null;
         }
@@ -166,25 +171,28 @@ public class EpisodesController {
     public void deleteEpisode(EpisodeType episodesType, Episode episode) {
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                for (int i = 0; i < watchEpisodes.size(); i++) {
+                for (int i = watchEpisodes.size() - 1; i >= 0; i--) {
                     if (watchEpisodes.get(i).toString().equals(episode.toString())) {
                         watchEpisodes.remove(i);
+                        break;
                     }
                 }
                 break;
             case EPISODES_TO_ACQUIRE:
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
-                for (int i = 0; i < acquireEpisodes.size(); i++) {
+                for (int i = acquireEpisodes.size() - 1; i >= 0; i--) {
                     if (acquireEpisodes.get(i).toString().equals(episode.toString())) {
                         acquireEpisodes.remove(i);
+                        break;
                     }
                 }
                 break;
             case EPISODES_COMING:
-                for (int i = 0; i < comingEpisodes.size(); i++) {
+                for (int i = comingEpisodes.size() - 1; i >= 0; i--) {
                     if (comingEpisodes.get(i).toString().equals(episode.toString())) {
                         comingEpisodes.remove(i);
+                        break;
                     }
                 }
                 break;
@@ -194,46 +202,48 @@ public class EpisodesController {
     }
 
     public void deleteShowEpisode(EpisodeType episodesType, Episode episode) {
-
-        //TODO this hasn't been tested yet - 100% guessing based on the code needed.
-        //TEST works on the WATCH episodes then try the other CASES.
         switch (episodesType) {
-            case EPISODES_TO_WATCH:
+            case EPISODES_TO_WATCH: {
                 Show tempShow = watchShows.get(episode.getMyEpisodeID());
-                List<Episode> episodesListing = tempShow.getEpisodes();
-                for (int i = 0; i < episodesListing.size(); i++) {
-                    if (episodesListing.get(i).toString().equals(episode.toString())) {
-                        episodesListing.remove(i);
+                if (tempShow != null) {
+                    List<Episode> episodesListing = tempShow.getEpisodes();
+                    for (int i = episodesListing.size() - 1; i >= 0; i--) {
+                        if (episodesListing.get(i).toString().equals(episode.toString())) {
+                            episodesListing.remove(i);
+                            break;
+                        }
                     }
                 }
-                //NEED TO ADD SOMETHING HERE TO HELP WITH adding th
-              /*  Show showNew = new Show(episode.getShowName(), myEpisodeID);
-                for (Episode eps : episodesListing) {
-                    showNew.addEpisode(eps);
-                }*/
-                //adding the show back in with the episode removed hopefully.
-                watchShows.replace(episode.getMyEpisodeID(), tempShow);
-
                 break;
-         /*   case EPISODES_TO_ACQUIRE:
+            }
+            case EPISODES_TO_ACQUIRE:
             case EPISODES_TO_YESTERDAY1:
-            case EPISODES_TO_YESTERDAY2:
-                Show tempShow = acquireShows.get(myEpisodeID);
-                List<Episode> episodesListing = tempShow.getEpisodes();
-                for (int i = 0; i < episodesListing.size(); i++) {
-                    if ( episodesListing.get(i).toString().equals(episode.toString())) {
-                        episodesListing.remove(i);
-                        break;
+            case EPISODES_TO_YESTERDAY2: {
+                Show tempShow = acquireShows.get(episode.getMyEpisodeID());
+                if (tempShow != null) {
+                    List<Episode> episodesListing = tempShow.getEpisodes();
+                    for (int i = episodesListing.size() - 1; i >= 0; i--) {
+                        if (episodesListing.get(i).toString().equals(episode.toString())) {
+                            episodesListing.remove(i);
+                            break;
+                        }
                     }
                 }
                 break;
-            case EPISODES_COMING:
-                for (int i = 0; i < comingEpisodes.size(); i++) {
-                    if (comingEpisodes.get(i).toString().equals(episode.toString())) {
-                        comingEpisodes.remove(i);
+            }
+            case EPISODES_COMING: {
+                Show tempShow = comingShows.get(episode.getMyEpisodeID());
+                if (tempShow != null) {
+                    List<Episode> episodesListing = tempShow.getEpisodes();
+                    for (int i = episodesListing.size() - 1; i >= 0; i--) {
+                        if (episodesListing.get(i).toString().equals(episode.toString())) {
+                            episodesListing.remove(i);
+                            break;
+                        }
                     }
                 }
-                break;*/
+                break;
+            }
             default:
                 break;
         }

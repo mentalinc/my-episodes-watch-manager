@@ -923,7 +923,7 @@ public class EpisodesService {
 
 
             URL url;
-            String response = "";
+            StringBuilder response = new StringBuilder();
 
             url = new URL(MyEpisodeConstants.MYEPISODES_CONTROL_PANEL);
 
@@ -972,10 +972,10 @@ public class EpisodesService {
                 String line;
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 while ((line = br.readLine()) != null) {
-                    response += line;
+                    response.append(line);
                 }
             } else {
-                response = "";
+                response = new StringBuilder();
 
             }
         } catch (Exception e) {

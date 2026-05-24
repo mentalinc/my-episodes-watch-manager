@@ -46,7 +46,7 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_watch_black_24dp" />
+        app:srcCompat="@drawable/ic_watch_white_24dp" />
 
 
     <!-- 20dp dense icon, though 48dp touch target -->

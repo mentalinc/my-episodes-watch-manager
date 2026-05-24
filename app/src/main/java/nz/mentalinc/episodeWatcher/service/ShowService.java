@@ -64,7 +64,7 @@ public class ShowService {
 
 
         URL url;
-        String response = "";
+        StringBuilder response = new StringBuilder();
         java.net.CookieManager msCookieManager = new java.net.CookieManager();
         CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
         try {
@@ -96,10 +96,10 @@ public class ShowService {
                 String line;
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 while ((line = br.readLine()) != null) {
-                    response += line;
+                    response.append(line);
                 }
             } else {
-                response = "";
+                response = new StringBuilder();
 
             }
 
@@ -118,7 +118,7 @@ public class ShowService {
             Log.e(LOG_TAG, message, e);
         }
 
-        List<Show> shows = extractSearchResults(response);
+        List<Show> shows = extractSearchResults(response.toString());
 
         Log.d(LOG_TAG, shows.size() + " shows found for search value " + search);
 

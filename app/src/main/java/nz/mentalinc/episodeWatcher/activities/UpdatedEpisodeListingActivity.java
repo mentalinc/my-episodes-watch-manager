@@ -474,17 +474,16 @@ public class UpdatedEpisodeListingActivity extends Activity {
         TaskRunner.getExecutor().execute(() -> {
             markEpisode(EpisodeStatus, episode);
             if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                //getEpisodes();
-               // returnEpisodes();
+                getEpisodes();
+                returnEpisodes();
             }
             runOnUiThread(() -> {
                 removeDialog(EPISODE_LOADING_DIALOG);
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    //showDialog(EXCEPTION_DIALOG);
                     exceptionDialog(UpdatedEpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
-                    EpisodesController.getInstance().deleteEpisode(episode.getType(), episode);
+                    refreshEpisodeAdapter();
                 }
             });
         });
@@ -496,18 +495,17 @@ public class UpdatedEpisodeListingActivity extends Activity {
         TaskRunner.getExecutor().execute(() -> {
             markAllEpisodes(episodeStatus, episodes);
             if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                //getEpisodes();
-                //returnEpisodes();
+                getEpisodes();
+                returnEpisodes();
             }
             runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
                     removeDialog(EPISODE_LOADING_DIALOG);
-                    //showDialog(EXCEPTION_DIALOG);
                     exceptionDialog(UpdatedEpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
                     removeDialog(EPISODE_LOADING_DIALOG);
-                    returnEpisodes();
+                    refreshEpisodeAdapter();
                 }
             });
         });
@@ -590,6 +588,17 @@ public class UpdatedEpisodeListingActivity extends Activity {
             }
         }
         return map;
+    }
+
+    private void refreshEpisodeAdapter() {
+        RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
+        Map<String, EpisodeRuntime> runtimeMap = buildRuntimeMapForEpisodes(episodes);
+        adapter = new EpisodeAdapter(episodes, runtimeMap);
+        adapter.submitList(episodes);
+        rvEpisode.setAdapter(adapter);
+        com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.topAppBarEpisodesView);
+        String dataTitle = data.getString("Title");
+        toolbar.setTitle(dataTitle + " (" + episodes.size() + ")");
     }
 
 }
