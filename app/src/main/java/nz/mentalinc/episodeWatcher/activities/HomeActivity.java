@@ -17,6 +17,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,6 +67,8 @@ public class HomeActivity extends AppCompatActivity {
     private UserService userService;
     private static Context sContext;
     private BottomNavigationView bottomNavigationView;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private ProgressDialog runtimeProgressDialog;
 
@@ -117,6 +121,10 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigationActivityHome);
         bottomNavigationView.getMenu().getItem(0).setChecked(true);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
+
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this::refreshEpisodesData);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, android.R.color.holo_green_dark, android.R.color.holo_orange_dark);
 
         MyEpisodeConstants.DAYS_BACK_CP = sharedPref.getString("daysBack", "365");
         MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE = sharedPref.getString("CacheFileAge", "false");
@@ -297,52 +305,17 @@ public class HomeActivity extends AppCompatActivity {
             } else {
                 showDialog(EPISODE_LOADING_DIALOG);
             }
-            TaskRunner.getExecutor().execute(() -> {
+            loadEpisodesData(() -> runOnUiThread(() -> {
+                removeDialog(EPISODE_LOADING_DIALOG);
+                removeDialog(EPISODE_LOADING_DIALOG_CACHE);
 
-                try {
-                    episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
-                    episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
-
-                    String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
-                    if (acquire != null && acquire.equals("1")) {
-                        EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
-                        EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
-                        episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));
-                    } else {
-                        EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
-                        episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
-                    }
-                    episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
-                    episodesController.AddToComingShow(episodesController.getEpisodes(EpisodeType.EPISODES_COMING));
-
-                    resetPageFilters(user);
-
-                } catch (InternetConnectivityException e) {
-                    exception = true;
-                } catch (Exception e) {
-                    String message = "Error in background task";
-                    Log.e(LOG_TAG, message, e);
+                if (exception) {
+                    exception = false;
+                    exceptionErrorDialog(HomeActivity.this);
+                } else {
+                    updateHomeButtonCounts();
                 }
-                runOnUiThread(() -> {
-                    removeDialog(EPISODE_LOADING_DIALOG);
-                    removeDialog(EPISODE_LOADING_DIALOG_CACHE);
-
-
-                    if (exception) {
-                        exception = false;
-
-                        exceptionErrorDialog(HomeActivity.this);
-                    } else {
-                        btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
-                        btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
-
-                        btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
-                        btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
-                        btn_ShowListing.setText(getString(R.string.newCominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
-                        btnComing.setText(getString(R.string.cominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
-                    }
-                });
-            });
+            }));
         }
 
         if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED && user != null) {
@@ -360,6 +333,76 @@ public class HomeActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    private void refreshEpisodesData() {
+        EpisodesController episodesController = EpisodesController.getInstance();
+        episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
+        episodesController.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, new ArrayList<>());
+        episodesController.setEpisodes(EpisodeType.EPISODES_COMING, new ArrayList<>());
+        episodesController.getEpisodesShows(EpisodeType.WATCH_BY_SHOW).clear();
+        episodesController.getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW).clear();
+        episodesController.getEpisodesShows(EpisodeType.COMING_BY_SHOW).clear();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        user = new User(
+                sharedPref.getString("username", User.USERNAME),
+                sharedPref.getString("UserPassword", User.PASSWORD)
+        );
+        loadEpisodesData(() -> runOnUiThread(() -> {
+            swipeRefreshLayout.setRefreshing(false);
+            if (exception) {
+                exception = false;
+                exceptionErrorDialog(HomeActivity.this);
+            } else {
+                updateHomeButtonCounts();
+            }
+        }));
+    }
+
+    private void loadEpisodesData(Runnable onComplete) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        TaskRunner.getExecutor().execute(() -> {
+
+            try {
+                final EpisodesController episodesController = EpisodesController.getInstance();
+                episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
+                episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
+
+                String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
+                if (acquire != null && acquire.equals("1")) {
+                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
+                    EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
+                    episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));
+                } else {
+                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
+                    episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
+                }
+                episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
+                episodesController.AddToComingShow(episodesController.getEpisodes(EpisodeType.EPISODES_COMING));
+
+                resetPageFilters(user);
+
+            } catch (InternetConnectivityException e) {
+                exception = true;
+            } catch (Exception e) {
+                String message = "Error in background task";
+                Log.e(LOG_TAG, message, e);
+            }
+
+            if (onComplete != null) {
+                onComplete.run();
+            }
+        });
+    }
+
+    private void updateHomeButtonCounts() {
+        btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
+        btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+
+        btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
+        btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
+        btn_ShowListing.setText(getString(R.string.newCominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
+        btnComing.setText(getString(R.string.cominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
     }
 
 

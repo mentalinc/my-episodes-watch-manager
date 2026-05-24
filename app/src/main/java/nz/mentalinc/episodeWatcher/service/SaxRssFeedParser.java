@@ -86,16 +86,21 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     case EPISODES_TO_YESTERDAY2:
                         inputStream = url.openConnection().getInputStream();
                     case EPISODES_TO_ACQUIRE:
-                        inputStream = openCacheFile("Acquire.xml");
-                        if (inputStream == null) {
-                            Log.d(LOG_TAG, "No cached Acquire.xml file found. Downloading...");
-                            InputStream downloadStream = url.openConnection().getInputStream();
-                            String content = convertStreamToString(downloadStream, "UTF-8");
-                            FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Acquire.xml", 0);
-                            fos.write(content.getBytes());
-                            fos.close();
-                            Log.d(LOG_TAG, "Acquire.xml saved to disk");
-                            inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+                        if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
+                            Log.d(LOG_TAG, "MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE:  " + MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE);
+                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE.getBytes(StandardCharsets.UTF_8));
+                        } else {
+                            inputStream = openCacheFile("Acquire.xml");
+                            if (inputStream == null) {
+                                Log.d(LOG_TAG, "No cached Acquire.xml file found. Downloading...");
+                                InputStream downloadStream = url.openConnection().getInputStream();
+                                String content = convertStreamToString(downloadStream, "UTF-8");
+                                FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Acquire.xml", 0);
+                                fos.write(content.getBytes());
+                                fos.close();
+                                Log.d(LOG_TAG, "Acquire.xml saved to disk");
+                                inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+                            }
                         }
                         break;
                     case EPISODES_COMING:
@@ -122,7 +127,16 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             } else {
                 //Cache is not enabled using standard RSS feeds
                 if (url.toString().substring(0, 16).equalsIgnoreCase("http://127.0.0.1")) {
-                    inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
+                    switch (episodesType) {
+                        case EPISODES_TO_WATCH:
+                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
+                            break;
+                        case EPISODES_TO_ACQUIRE:
+                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE.getBytes(StandardCharsets.UTF_8));
+                            break;
+                        default:
+                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
+                    }
                 } else {
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet RSS Feeds");
                     inputStream = url.openConnection().getInputStream();

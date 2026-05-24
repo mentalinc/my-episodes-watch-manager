@@ -70,35 +70,43 @@ public class EpisodesService {
         URL feedUrl;
 
         //downloadFullUnwatched list 
-        if (Objects.equals(episodesType.toString(), "EPISODES_TO_WATCH")) {
-            //override with download from http://myepisodes.com/views.php
+        if (Objects.equals(episodesType.toString(), "EPISODES_TO_WATCH")
+                || Objects.equals(episodesType.toString(), "EPISODES_TO_ACQUIRE")) {
 
             Log.d(LOG_TAG, "MyEpisodeConstants.DAYS_BACK_ENABLED: " + MyEpisodeConstants.DAYS_BACK_ENABLED);
             Log.d(LOG_TAG, "MyEpisodeConstants.DAYS_BACK_CP: " + MyEpisodeConstants.DAYS_BACK_CP);
             Log.d(LOG_TAG, "MyEpisodeConstants.CACHE_EPISODES_ENABLED: " + MyEpisodeConstants.CACHE_EPISODES_ENABLED);
 
+            boolean isWatch = Objects.equals(episodesType.toString(), "EPISODES_TO_WATCH");
+            String cacheFile = isWatch ? "Watch.xml" : "Acquire.xml";
 
             if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
 
                 if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                     Log.d(LOG_TAG, "Cache is enabled, read from disk");
-                    MyEpisodeConstants.EXTENDED_EPISODES_XML = ReadFile("Watch.xml");
+                    String cachedXml = ReadFile(cacheFile);
 
                     //xml file not found
-                    if (MyEpisodeConstants.EXTENDED_EPISODES_XML.equalsIgnoreCase("FileNotFound")) {
+                    if (cachedXml.equalsIgnoreCase("FileNotFound")) {
                         Log.d(LOG_TAG, "No cached file found. Downloading...");
-                        MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(user).toString();
+                        downloadFullUnwatched(user);
 
                         //write the xml to disk for future use
-                        String FILENAME = "Watch.xml";
-                        FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(FILENAME, 0); //Mode_PRIVATE
-                        fos.write(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes());
+                        String xmlToCache = isWatch ? MyEpisodeConstants.EXTENDED_EPISODES_XML : MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE;
+                        FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput(cacheFile, 0); //Mode_PRIVATE
+                        fos.write(xmlToCache.getBytes());
                         fos.close();
-                        Log.d(LOG_TAG, FILENAME + " saved to disk");
+                        Log.d(LOG_TAG, cacheFile + " saved to disk");
+                    } else {
+                        if (isWatch) {
+                            MyEpisodeConstants.EXTENDED_EPISODES_XML = cachedXml;
+                        } else {
+                            MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE = cachedXml;
+                        }
                     }
                 } else {
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet");
-                    MyEpisodeConstants.EXTENDED_EPISODES_XML = downloadFullUnwatched(user).toString();
+                    downloadFullUnwatched(user);
                 }
 
                 feedUrl = new URL("http://127.0.0.1"); //this is used in the parse to confirm that this has been run.
@@ -509,10 +517,16 @@ public class EpisodesService {
 
                 //Download complete, now start rebuilding the RSS feed file.
                 XmlSerializer xs = Xml.newSerializer();
+                StringWriter swAcquire = new StringWriter();
+                XmlSerializer xsAcquire = Xml.newSerializer();
 
                 xs.setOutput(sw);
                 xs.startDocument(null, null);
                 xs.startTag(null, "channel");
+
+                xsAcquire.setOutput(swAcquire);
+                xsAcquire.startDocument(null, null);
+                xsAcquire.startTag(null, "channel");
 
                 for (String a : EpisodeTable) {
                     //split each column into a array
@@ -596,41 +610,42 @@ public class EpisodesService {
                         } else {
                             //Log.d(LOG_TAG, "Already watched or Not Acquired not adding to rss: [ " + Show + " ]" + "[ " + SeriesEp + " ]" + "[ " + EpisodeName + " ]" + "[ " + AirDate + " ]");
                         }
-                        if (false) {
-                            //  Log.d(LOG_TAG, "Setting 200+ acquire list");
-                            // Log.d(LOG_TAG,"5: " + rowProcess[5].toString());
-                            //  Log.d(LOG_TAG,"6: " + rowProcess[6].toString());
+                        if (!rowProcess[5].contains("checked")) {
 
-                            if (!rowProcess[5].contains("checked")) {
+                            String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
 
-                                String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
+                            xsAcquire.startTag(null, "item");
+                            xsAcquire.startTag(null, "guid");
+                            xsAcquire.text(guid);
+                            xsAcquire.endTag(null, "guid");
 
-                                xs.startTag(null, "item");
-                                xs.startTag(null, "guid");
-                                xs.text(guid);
-                                xs.endTag(null, "guid");
+                            xsAcquire.startTag(null, "title");
+                            xsAcquire.text(headerRow);
+                            xsAcquire.endTag(null, "title");
 
-                                xs.startTag(null, "title");
-                                xs.text(headerRow);
-                                xs.endTag(null, "title");
+                            xsAcquire.startTag(null, "link");
+                            xsAcquire.text(episodeLink);
+                            xsAcquire.endTag(null, "link");
 
-                                xs.startTag(null, "link");
-                                xs.text(episodeLink);
-                                xs.endTag(null, "link");
+                            xsAcquire.startTag(null, "description");
+                            xsAcquire.endTag(null, "description");
 
-                                xs.startTag(null, "description");
-                                xs.endTag(null, "description");
+                            xsAcquire.endTag(null, "item");
 
-                                xs.endTag(null, "item");
-
-                                Log.d(LOG_TAG, "Not acquired adding to rss: [ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]");
-                            }
+                            Log.d(LOG_TAG, "Not acquired adding to rss: [ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]");
                         }
                     }
                 }
 
                 xs.endTag(null, "channel");
                 xs.endDocument();
+
+                xsAcquire.endTag(null, "channel");
+                xsAcquire.endDocument();
+
+                MyEpisodeConstants.EXTENDED_EPISODES_XML = sw.toString();
+                MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE = swAcquire.toString();
+
                 Log.d(LOG_TAG, "Finished Download and RSS built");
                 Log.d(LOG_TAG, "Resetting  control panel settings");
                 //set the days back to what they are in the settigns

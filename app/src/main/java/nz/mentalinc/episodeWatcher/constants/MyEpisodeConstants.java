@@ -29,6 +29,7 @@ public class MyEpisodeConstants {
     public static Context CONTEXT = null;
 
     public static String EXTENDED_EPISODES_XML;
+    public static String EXTENDED_EPISODES_XML_ACQUIRE;
 
     public static final String TV_MAZE_SHOWS_URL = "https://www.tvmaze.com/shows/";
 
