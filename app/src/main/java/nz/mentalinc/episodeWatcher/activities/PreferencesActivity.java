@@ -3,6 +3,7 @@ package nz.mentalinc.episodeWatcher.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -55,10 +56,10 @@ public class PreferencesActivity extends PreferenceActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if(item.getItemId() == R.id.home){
-
-                finish();
+                Intent home = new Intent(this, HomeActivity.class);
+                home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(home);
                 return true;
-
         }
         return false;
     }
@@ -503,7 +504,9 @@ public class PreferencesActivity extends PreferenceActivity {
     }
 
     public void onHomeClick(View v) {
-        finish();
+        Intent home = new Intent(this, HomeActivity.class);
+        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 
     private void startTabMain() {

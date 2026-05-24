@@ -144,8 +144,9 @@ public class ShowSummaryActivity extends Activity {
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
-            finish();
-
+            Intent home = new Intent(ShowSummaryActivity.this, HomeActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(home);
         });
 
         returnEpisodes();

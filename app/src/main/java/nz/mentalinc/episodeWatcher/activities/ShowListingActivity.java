@@ -181,7 +181,9 @@ public class ShowListingActivity extends Activity {
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
-            finish();
+            Intent home = new Intent(ShowListingActivity.this, HomeActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(home);
         });
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarRefresh = findViewById(R.id.btn_title_refresh);

@@ -195,8 +195,9 @@ public class EpisodeDetailsActivity extends Activity {
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
-            //exit();
-            finish();
+            Intent home = new Intent(EpisodeDetailsActivity.this, HomeActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(home);
         });
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsSeen = findViewById(R.id.markAsSeen);
@@ -683,9 +684,9 @@ public class EpisodeDetailsActivity extends Activity {
     }
 
     private void exit() {
-        finish();
-
-        OpenListingActivity();
+        Intent home = new Intent(this, HomeActivity.class);
+        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 
 

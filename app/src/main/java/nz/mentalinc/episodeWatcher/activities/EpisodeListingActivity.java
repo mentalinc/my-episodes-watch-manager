@@ -1100,7 +1100,9 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     }
 
     private void exit() {
-        finish();
+        Intent home = new Intent(this, HomeActivity.class);
+        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 
     public void SetOnline(Boolean online) {

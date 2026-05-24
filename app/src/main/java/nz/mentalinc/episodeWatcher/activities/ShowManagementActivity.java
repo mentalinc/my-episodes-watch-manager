@@ -105,7 +105,11 @@ public class ShowManagementActivity extends ListActivity {
         reloadShows();
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> finish());
+        appBarHome.setOnClickListener(v -> {
+            Intent home = new Intent(ShowManagementActivity.this, HomeActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(home);
+        });
     }
 
     private void init() {

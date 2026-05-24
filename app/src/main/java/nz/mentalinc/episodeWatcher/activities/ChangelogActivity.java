@@ -1,6 +1,7 @@
 package nz.mentalinc.episodeWatcher.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -74,10 +75,11 @@ public class ChangelogActivity extends Activity {
 
 
     public void onHomeClick(View v) {
-        finish();
+        Intent home = new Intent(this, HomeActivity.class);
+        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 
     private void exit() {
-        finish();
     }
 }

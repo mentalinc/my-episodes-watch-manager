@@ -45,9 +45,10 @@ public class SettingsScreenActivity extends AppCompatActivity {
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
-
             //Log.w(LOG_TAG, "logout button clicked.");
-            finish();
+            Intent home = new Intent(SettingsScreenActivity.this, HomeActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(home);
         });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigationSettings);

@@ -119,7 +119,9 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
         ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
-            finish();
+            Intent home = new Intent(ShowManagementRunTimeActivity.this, HomeActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(home);
         });
 
     }

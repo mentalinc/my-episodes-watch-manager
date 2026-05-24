@@ -69,7 +69,11 @@ public class ShowManagementPortalActivity extends Activity {
         findViewById(R.id.appBarLayoutPortal).setZ(100f);
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> finish());
+        appBarHome.setOnClickListener(v -> {
+            Intent home = new Intent(ShowManagementPortalActivity.this, HomeActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(home);
+        });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigationManage);
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
