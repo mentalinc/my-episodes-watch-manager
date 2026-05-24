@@ -51,7 +51,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
-    namespace = 'nz.mentalinc.episodeWatcher'
+    namespace = 'nz.mentalinc.watcher'
     buildToolsVersion = '36.1.0'
 }
 
