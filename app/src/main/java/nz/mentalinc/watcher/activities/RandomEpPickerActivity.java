@@ -1,6 +1,7 @@
 package nz.mentalinc.watcher.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,15 +11,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,7 +33,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.security.SecureRandom;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -82,12 +82,9 @@ public class RandomEpPickerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.randompicker);
 
-        TextView showNameText = findViewById(R.id.episodeDetShowName);
-        TextView episodeNameText = findViewById(R.id.episodeDetName);
         TextView seasonText = findViewById(R.id.episodeDetSeason);
         TextView episodeText = findViewById(R.id.episodeDetEpisode);
         TextView airdateText = findViewById(R.id.episodeDetAirdate);
-        Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
 
 
         bottomNavigationView = findViewById(R.id.bottom_navigationRandomEpisode);
@@ -95,76 +92,148 @@ public class RandomEpPickerActivity extends Activity {
         bottomNavigationView.getMenu().getItem(1).setChecked(true);
 
         if (EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH) > 0) {
-
-            //return an array of the shows
-            shows = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
-
-            showMyEpisodeID = shows.get(0).getMyEpisodeID();
-            random = shows.get(0).getFirstEpisode();
-
-            String seasonString = " " + random.getSeasonString();
-            String episodeString = " " + random.getEpisodeString();
-
-
-            showNameText.setText(random.getShowName());
-            episodeNameText.setText(random.getName());
-            seasonText.setText(seasonString);
-            episodeText.setText(episodeString);
-            //runtimeText.setText(random.get);
-
-            //Air date in specifc format
-            Date airdate = random.getAirDate();
-            String formattedAirDate;
-            if (airdate != null) {
-                formattedAirDate = DateUtil.formatDateLong(airdate);
-            } else {
-                formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
-            }
-
-            String airdateString = " " + formattedAirDate;
-            airdateText.setText(airdateString);
-            TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
-            if (!TextUtils.isEmpty(random.getTVMazeWebSite())) {
-                //aboutWebsite.setText(episode.getTVMazeWebSite());
-                AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-
-                SeriesDAO seriesDAO = database.getSeriesDAO();
-                EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
-
-
-                //create hashmap's to prevent build fails, they get replaced
-                HashMap<String, String> episodeSummaryHashMap = new HashMap<>() {{
-                    put("a", "b");
-                }};
-                HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
-                    put("a", "b");
-                }};
-
-                downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
-                downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
-                //       episodeSummaryHashMap.get("episodeURL");
-
-            } else {
-                aboutWebsite.setVisibility(View.GONE);
-            }
-
-            markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
-
+            showRuntimePickerDialog();
         } else {
             seasonText.setText("-");
             episodeText.setText("-");
             airdateText.setText("-");
-
-            markAsSeenButton.setVisibility(View.GONE);
+            findViewById(R.id.markAsSeenButton).setVisibility(View.GONE);
         }
-
-        markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
             exit();
         });
+    }
+
+    private void displayShow(Show show) {
+        shows.clear();
+        shows.add(show);
+        showMyEpisodeID = show.getMyEpisodeID();
+        random = show.getFirstEpisode();
+
+        TextView showNameText = findViewById(R.id.episodeDetShowName);
+        TextView episodeNameText = findViewById(R.id.episodeDetName);
+        TextView seasonText = findViewById(R.id.episodeDetSeason);
+        TextView episodeText = findViewById(R.id.episodeDetEpisode);
+        TextView airdateText = findViewById(R.id.episodeDetAirdate);
+        Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
+
+        String seasonString = " " + random.getSeasonString();
+        String episodeString = " " + random.getEpisodeString();
+
+        showNameText.setText(random.getShowName());
+        episodeNameText.setText(random.getName());
+        seasonText.setText(seasonString);
+        episodeText.setText(episodeString);
+
+        Date airdate = random.getAirDate();
+        String formattedAirDate;
+        if (airdate != null) {
+            formattedAirDate = DateUtil.formatDateLong(airdate);
+        } else {
+            formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
+        }
+
+        String airdateString = " " + formattedAirDate;
+        airdateText.setText(airdateString);
+        TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
+        if (!TextUtils.isEmpty(random.getTVMazeWebSite())) {
+            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
+
+            HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
+            HashMap<String, String> showSummaryHashMap = new HashMap<>();
+
+            downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
+            downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
+        } else {
+            aboutWebsite.setVisibility(View.GONE);
+        }
+
+        markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(random));
+    }
+
+    private void showRuntimePickerDialog() {
+        String[] options = {
+                getString(R.string.filterUnder20),
+                getString(R.string.filterUnder40),
+                getString(R.string.filterUnder60),
+                getString(R.string.filterOver60),
+                getString(R.string.randompickerBar)
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select runtime");
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: pickRandomByRuntime(30, false); break;
+                case 1: pickRandomByRuntime(45, false); break;
+                case 2: pickRandomByRuntime(60, false); break;
+                case 3: pickRandomByRuntime(60, true); break;
+                default:
+                    shows = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
+                    displayShow(shows.get(0));
+                    break;
+            }
+        });
+        builder.setOnCancelListener(dialog -> {
+            shows = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
+            if (!shows.isEmpty()) displayShow(shows.get(0));
+        });
+        builder.show();
+    }
+
+    private void pickRandomByRuntime(int runtime, boolean isOver) {
+        AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+        SeriesDAO seriesDAO = database.getSeriesDAO();
+        List<String> filteredShowIds;
+
+        if (isOver) {
+            filteredShowIds = seriesDAO.getShowIdsWithRuntimeAtLeast(runtime);
+        } else {
+            filteredShowIds = seriesDAO.getShowIdsWithRuntimeUnder(runtime);
+        }
+
+        if (filteredShowIds == null || filteredShowIds.isEmpty()) {
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.ScrollView01), "No shows found with this runtime", Snackbar.LENGTH_SHORT);
+            snackbar.setAnchorView(bottomNavigationView);
+            snackbar.show();
+            return;
+        }
+
+        List<Episode> watchEpisodes = EpisodesController.getInstance().getEpisodes(EpisodeType.EPISODES_TO_WATCH);
+        if (watchEpisodes == null || watchEpisodes.isEmpty()) return;
+
+        Map<String, List<Episode>> showMap = new HashMap<>();
+        for (Episode ep : watchEpisodes) {
+            if (filteredShowIds.contains(ep.getMyEpisodeID())) {
+                showMap.computeIfAbsent(ep.getMyEpisodeID(), k -> new ArrayList<>()).add(ep);
+            }
+        }
+
+        if (showMap.isEmpty()) {
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.ScrollView01), "No watch episodes with this runtime", Snackbar.LENGTH_SHORT);
+            snackbar.setAnchorView(bottomNavigationView);
+            snackbar.show();
+            return;
+        }
+
+        List<String> showIds = new ArrayList<>(showMap.keySet());
+        String randomShowId = showIds.get(new SecureRandom().nextInt(showIds.size()));
+        List<Episode> episodesForShow = showMap.get(randomShowId);
+
+        if (episodesForShow == null || episodesForShow.isEmpty()) return;
+
+        String showId = episodesForShow.get(0).getMyEpisodeID();
+        Show show = new Show(episodesForShow.get(0).getShowName(), showId);
+        for (Episode ep : episodesForShow) {
+            show.addEpisode(ep);
+        }
+
+        displayShow(show);
     }
 
 
@@ -617,50 +686,9 @@ public class RandomEpPickerActivity extends Activity {
 
             HashMap<String, String> result = showSummaryHash;
             runOnUiThread(() -> {
-                TextView ShowNameTV = findViewById(R.id.ShowName);
-                ShowNameTV.setText(result.get("ShowName"));
-
                 TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);
                 String showruntimeText = " " + result.get("ShowRuntime") + " mins";
                 ShowRuntimeTV.setText(showruntimeText);
-
-                TextView aboutShowWebsite = findViewById(R.id.tvMazeShowWebsite);
-                aboutShowWebsite.setText(result.get("showURL"));
-                Linkify.addLinks(aboutShowWebsite, Linkify.WEB_URLS);
-
-                TextView aboutShowOfficialWebsite = findViewById(R.id.officialShowWebsite);
-                String showOfficialWebsite = result.get("officialSite");
-                if (!Objects.requireNonNull(showOfficialWebsite).equals("null")) {
-                    aboutShowOfficialWebsite.setText(showOfficialWebsite);
-                    Linkify.addLinks(aboutShowOfficialWebsite, Linkify.WEB_URLS);
-                } else {
-                    aboutShowOfficialWebsite.setVisibility(View.GONE);
-                }
-
-                TextView tvMazeShowSummary = findViewById(R.id.tvMazeShowSummary);
-                String episodeSummaryStr = result.get("showSummary");
-
-                if (!Objects.requireNonNull(episodeSummaryStr).equals("null")) {
-                    tvMazeShowSummary.setText(episodeSummaryStr);
-                } else {
-                    tvMazeShowSummary.setVisibility(View.GONE);
-                }
-
-                ImageView showImage = findViewById(R.id.showImage);
-                String showImageURLStr = result.get("showImageURL");
-
-                if (!Objects.requireNonNull(showImageURLStr).equals("")) {
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.placeholder(R.drawable.placeholder);
-                    requestOptions.error(R.drawable.error);
-
-                    Glide.with(findViewById(R.id.showImage))
-                            .load(showImageURLStr)
-                            .placeholder(R.drawable.placeholder)
-                            .into(showImage);
-                } else {
-                    showImage.setVisibility(View.GONE);
-                }
 
                 AppDatabase db = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
 

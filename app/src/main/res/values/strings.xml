@@ -111,6 +111,10 @@
     <string name="randompicker">Random Episode</string>
     <string name="randompickershort">Random Episode</string>
     <string name="randompickerBar">Random</string>
+    <string name="filterUnder20">&lt;30m</string>
+    <string name="filterUnder40">&lt;45m</string>
+    <string name="filterUnder60">&lt;60m</string>
+    <string name="filterOver60">&gt;60m</string>
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Loading&#8230;</string>

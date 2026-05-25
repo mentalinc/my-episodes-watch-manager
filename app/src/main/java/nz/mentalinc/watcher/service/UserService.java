@@ -43,7 +43,8 @@ public class UserService {
         try {
             status = RegisterUser(user.getUsername(), user.getPassword(), email);
         } catch (RegisterFailedException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            e.getCause();
         }
 
         return status;
@@ -86,11 +87,10 @@ public class UserService {
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
-            HashMap postDataParams = new HashMap<String, String>() {{
-                put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
-                put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
-                put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_ACTION_VALUE);
-            }};
+            HashMap postDataParams = new HashMap<String, String>();
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_ACTION_VALUE);
 
             writer.write(getPostDataString(postDataParams));
 
@@ -165,12 +165,11 @@ public class UserService {
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
-            HashMap postDataParams = new HashMap<String, String>() {{
-                put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
-                put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
-                put(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_EMAIL, email);
-                put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_ACTION_VALUE);
-            }};
+            HashMap postDataParams = new HashMap<String, String>();
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_EMAIL, email);
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_ACTION_VALUE);
 
             writer.write(getPostDataString(postDataParams));
 

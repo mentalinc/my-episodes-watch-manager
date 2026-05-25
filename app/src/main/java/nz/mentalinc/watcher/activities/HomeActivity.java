@@ -674,22 +674,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void onRandomClick(View v) {
-        //Intent randomActivity = new Intent(this.getApplicationContext(), RandomEpPickerActivity.class);
-        //startActivity(randomActivity);
-
-        //trying to just use the normal episode detail instead of the random one above.
-
-        List<Show> showList = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
-        Show show = showList.get(0);
-
-        Episode randomEpisode = show.getFirstEpisode();
-        Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
-        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
-        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
-        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
-        episodeDetailsSubActivity.putExtra("Title", randomEpisode.getShowName());
-        startActivity(episodeDetailsSubActivity);
+        Intent randomActivity = new Intent(this.getApplicationContext(), RandomEpPickerActivity.class);
+        randomActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(randomActivity);
     }
 
     public void onSettingsClick(View v) {

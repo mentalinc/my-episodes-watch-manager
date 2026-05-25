@@ -82,8 +82,10 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                         break;
                     case EPISODES_TO_YESTERDAY1:
                         inputStream = url.openConnection().getInputStream();
+                        break;
                     case EPISODES_TO_YESTERDAY2:
                         inputStream = url.openConnection().getInputStream();
+                        break;
                     case EPISODES_TO_ACQUIRE:
                         if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                             Log.d(LOG_TAG, "MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE:  " + MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE);

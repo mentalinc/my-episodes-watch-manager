@@ -95,22 +95,19 @@ public class EpisodeListingFrag extends Fragment {
 
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
-        ItemClickSupport.addTo(rvEpisode).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-                                                                     @Override
-                                                                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                                                                         // do stuff
+        ItemClickSupport.addTo(rvEpisode).setOnItemClickListener((recyclerView, position, v) -> {
+            // do stuff
 
-                                                                         Log.w(LOG_TAG, "Recycle view area clicked.");
-                                                                         Episode episodeSelected = episodes.get(position);
-                                                                         //Show Show = episodeSelected.getShowName();
+            Log.w(LOG_TAG, "Recycle view area clicked.");
+            Episode episodeSelected = episodes.get(position);
+            //Show Show = episodeSelected.getShowName();
 
-                                                                         openEpisodeDetails(episodeSelected, episodesType);
+            openEpisodeDetails(episodeSelected, episodesType);
 
-                                                                         //Show testEpisode = (Show) adapter.getItemId(position);
-                                                                         // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
-                                                                         // snackbar.show();
-                                                                     }
-                                                                 }
+            //Show testEpisode = (Show) adapter.getItemId(position);
+            // Snackbar snackbar = Snackbar.make(findViewById(R.id.recyclerViewListItems),"Postition: " + position +" Show: " + showSelected.getShowName(),Snackbar.LENGTH_LONG);
+            // snackbar.show();
+        }
         );
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = getActivity().findViewById(R.id.home);
@@ -199,6 +196,9 @@ public class EpisodeListingFrag extends Fragment {
                 break;
             case EPISODES_COMING:
                 sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                break;
+            default:
+                //style guidance
                 break;
         }
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);

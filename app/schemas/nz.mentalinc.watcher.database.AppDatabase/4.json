@@ -1,0 +1,71 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "1e2ac02109c8d5296dc0a92c6ffc8bb4",
+    "entities": [
+      {
+        "tableName": "EpisodeRuntime",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`showName` TEXT, `showRuntime` TEXT, `showTVMazeID` TEXT, `showSummary` TEXT, `showImageURL` TEXT, `officialSite` TEXT, `showURL` TEXT, `ShowStatus` TEXT, `showMyEpsID` TEXT NOT NULL, PRIMARY KEY(`showMyEpsID`))",
+        "fields": [
+          {
+            "fieldPath": "showName",
+            "columnName": "showName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "showRuntime",
+            "columnName": "showRuntime",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "showTVMazeID",
+            "columnName": "showTVMazeID",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "showSummary",
+            "columnName": "showSummary",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "showImageURL",
+            "columnName": "showImageURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "officialSite",
+            "columnName": "officialSite",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "showURL",
+            "columnName": "showURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ShowStatus",
+            "columnName": "ShowStatus",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "showMyEpsID",
+            "columnName": "showMyEpsID",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "showMyEpsID"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1e2ac02109c8d5296dc0a92c6ffc8bb4')"
+    ]
+  }
+}

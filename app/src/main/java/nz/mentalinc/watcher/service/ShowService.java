@@ -78,10 +78,9 @@ public class ShowService {
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
-            HashMap postDataParams = new HashMap<String, String>() {{
-                put(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_SHOW, search);
-                put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_ACTION_VALUE);
-            }};
+            HashMap postDataParams = new HashMap<String, String>();
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_SHOW, search);
+            postDataParams.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_ACTION_VALUE);
 
             writer.write(getPostDataString(postDataParams));
 
@@ -533,7 +532,10 @@ public class ShowService {
             seriesDAO.insert(epsRunTime);
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            Log.e(LOG_TAG, "Error fetching show data", e);
         } finally {
             //database.close();
             if (connection != null) {

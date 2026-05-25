@@ -40,5 +40,11 @@ public interface SeriesDAO {
 
     @Query("SELECT * FROM EpisodeRuntime WHERE showMyEpsID IN (:ids)")
     List<EpisodeRuntime> getEpisodeRuntimeWithMyEpsIds(List<String> ids);
+
+    @Query("SELECT showMyEpsID FROM EpisodeRuntime WHERE showRuntime IS NOT NULL AND showRuntime != 'null' AND CAST(showRuntime AS INTEGER) < :maxRuntime")
+    List<String> getShowIdsWithRuntimeUnder(int maxRuntime);
+
+    @Query("SELECT showMyEpsID FROM EpisodeRuntime WHERE showRuntime IS NOT NULL AND showRuntime != 'null' AND CAST(showRuntime AS INTEGER) >= :minRuntime")
+    List<String> getShowIdsWithRuntimeAtLeast(int minRuntime);
 }
 

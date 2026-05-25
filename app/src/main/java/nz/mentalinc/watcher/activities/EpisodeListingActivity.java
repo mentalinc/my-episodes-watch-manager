@@ -817,7 +817,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
         initExendableList();
 
-        if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+        if (exceptionMessageResId != null) {
             //showDialog(EXCEPTION_DIALOG);
             exceptionDialog(EpisodeListingActivity.this);
             exceptionMessageResId = null;

@@ -141,9 +141,7 @@ public class ShowManagementPortalActivity extends Activity {
             if (showRuntime.getShowRuntime() == null || showRuntime.getShowRuntime().equals("null")) {
 
                 //get the runtime for the null from TVMaze
-                HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
-                    put("a", "b");
-                }};
+                HashMap<String, String> showSummaryHashMap = new HashMap<>();
 
                 downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
             }

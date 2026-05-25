@@ -201,15 +201,9 @@ public class EpisodesService {
                         }
 
                     } catch (NullPointerException e) {
-                        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
-                            //episode.setShowName("Error mins" + " - " + episode.getShowName());
-                            episode.setShowName(episode.getShowName());
-                        } else {
-                            episode.setShowName(episode.getShowName());
-                        }
+                        episode.setShowName(episode.getShowName());
                         String message = "Problem reading runtime for " + episode.getName();
                         Log.e(LOG_TAG, message);
-
                     }
 
                     //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
@@ -947,9 +941,7 @@ public class EpisodesService {
                     new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
 
-            HashMap<String, String> postDataParams = new HashMap<>() {{
-                put("A", "B");
-            }};
+            HashMap<String, String> postDataParams = new HashMap<>();
 
             for (int i = 0; i < controlPanelOrder.length; i++) {
                 //when setting the value for the download
@@ -1220,7 +1212,8 @@ public class EpisodesService {
                 episodeUrl = jObj.getString("url");
                 episodeSummary = jObj.getString("summary");
             } catch (JSONException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                e.getCause();
             }
 
             episodeURLandSummary = episodeUrl + "\n\n" + episodeSummary;
@@ -1229,7 +1222,8 @@ public class EpisodesService {
             Log.d("episodeSummary: ", "> " + episodeSummary);
 
         } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            e.getCause();
         } finally {
 
             if (connection != null) {
@@ -1240,7 +1234,8 @@ public class EpisodesService {
                     reader.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
+                e.getCause();
             }
         }
         return episodeURLandSummary;

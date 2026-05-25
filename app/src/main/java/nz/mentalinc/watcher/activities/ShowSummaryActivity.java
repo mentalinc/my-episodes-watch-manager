@@ -117,12 +117,8 @@ public class ShowSummaryActivity extends Activity {
 
 
         //create hashmap's to prevent build fails, they get replaced
-        HashMap<String, String> episodeSummaryHashMap = new HashMap<>() {{
-            put("a", "b");
-        }};
-        HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
-            put("a", "b");
-        }};
+        HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
+        HashMap<String, String> showSummaryHashMap = new HashMap<>();
 
 
         if (showRuntime != null && showRuntime.getShowTVMazeID() != null) {

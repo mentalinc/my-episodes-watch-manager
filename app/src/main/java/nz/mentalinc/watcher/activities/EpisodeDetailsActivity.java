@@ -147,12 +147,12 @@ public class EpisodeDetailsActivity extends Activity {
 
 
             //create hashmap's to prevent build fails, they get replaced
-            HashMap<String, String> episodeSummaryHashMap = new HashMap<>() {{
-                put("a", "b");
-            }};
-            HashMap<String, String> showSummaryHashMap = new HashMap<>() {{
-                put("a", "b");
-            }};
+            HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
+            episodeSummaryHashMap.put("a", "b");
+
+            HashMap<String, String> showSummaryHashMap = new HashMap<>();
+            showSummaryHashMap.put("a", "b");
+
 
 
             downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
@@ -560,16 +560,16 @@ public class EpisodeDetailsActivity extends Activity {
     private void closeAndAcquireEpisode(Episode episode) {
         finish();
 
-        OpenListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_ACQUIRE);
+        openListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_ACQUIRE);
     }
 
     private void closeAndMarkWatched(Episode episode) {
         finish();
 
-        OpenListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH);
+        openListingActivity(episode, ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH);
     }
 
-    private void OpenListingActivity(Episode episode, String type) {
+    private void openListingActivity(Episode episode, String type) {
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
         //todo need to have it call the new show home tab, but the buttons fail to work when clicking acquire.
@@ -612,7 +612,7 @@ public class EpisodeDetailsActivity extends Activity {
         startActivity(episodeListingActivity);
     }
 
-    private void OpenListingActivity() {
+    private void openListingActivity() {
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
         Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
@@ -634,6 +634,9 @@ public class EpisodeDetailsActivity extends Activity {
             case EPISODES_COMING:
                 //sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
+                break;
+            default:
+                //do nothing, added for code completeness
                 break;
         }
 
