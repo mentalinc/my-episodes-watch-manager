@@ -98,6 +98,7 @@
     <string name="episodesToWatch">Episodes to watch: </string>
     <string name="episodesToAcquire">Episodes to acquire: </string>
     <string name="episodesComing">Episodes coming: </string>
+    <string name="seasonProgress">Season Progress</string>
 
     <!-- Favo and ingored shows -->
     <string name="favoIgnoredDeleteShow">Delete show</string>

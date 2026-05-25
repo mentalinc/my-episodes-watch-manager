@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,8 +31,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -130,6 +134,7 @@ public class ShowSummaryActivity extends Activity {
         });
 
         returnEpisodes();
+        updateSeasonProgress();
         Log.w(LOG_TAG, "showSummaryActivity created");
     }
 
@@ -538,6 +543,89 @@ public class ShowSummaryActivity extends Activity {
             currentShow.addEpisode(episode);
         }
 
+    }
+
+    private void updateSeasonProgress() {
+        List<Episode> allShowEpisodes = new ArrayList<>();
+        for (EpisodeType type : new EpisodeType[]{
+                EpisodeType.EPISODES_TO_WATCH,
+                EpisodeType.EPISODES_TO_ACQUIRE,
+                EpisodeType.EPISODES_COMING}) {
+            List<Episode> typeList = EpisodesController.getInstance().getEpisodes(type);
+            if (typeList != null) {
+                for (Episode ep : typeList) {
+                    if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
+                        allShowEpisodes.add(ep);
+                    }
+                }
+            }
+        }
+
+        if (allShowEpisodes.isEmpty()) return;
+
+        Map<Integer, Integer> seasonMaxEp = new HashMap<>();
+        for (Episode ep : allShowEpisodes) {
+            int s = ep.getSeason();
+            int epNum = ep.getEpisode();
+            Integer currentMax = seasonMaxEp.get(s);
+            if (currentMax == null || epNum > currentMax) {
+                seasonMaxEp.put(s, epNum);
+            }
+        }
+
+        Map<Integer, Integer> seasonMinCurrentType = new HashMap<>();
+        for (Episode ep : episodes) {
+            int s = ep.getSeason();
+            int epNum = ep.getEpisode();
+            Integer currentMin = seasonMinCurrentType.get(s);
+            if (currentMin == null || epNum < currentMin) {
+                seasonMinCurrentType.put(s, epNum);
+            }
+        }
+
+        if (seasonMinCurrentType.isEmpty()) return;
+
+        LinearLayout container = findViewById(R.id.seasonProgressContainer);
+        container.removeAllViews();
+
+        List<Integer> seasonsWithEpisodes = new ArrayList<>(seasonMinCurrentType.keySet());
+        Collections.sort(seasonsWithEpisodes);
+
+        for (int season : seasonsWithEpisodes) {
+            int maxEp = seasonMaxEp.get(season);
+            int minEp = seasonMinCurrentType.get(season);
+            int completed = minEp - 1;
+
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.VERTICAL);
+            row.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+            row.setPadding(0, dpToPx(4), 0, 0);
+
+            TextView seasonText = new TextView(this);
+            seasonText.setText("Season " + season + " - " + completed + " of " + maxEp + " Episodes");
+            seasonText.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+            progressBar.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+            progressBar.setMax(maxEp);
+            progressBar.setProgress(completed);
+
+            row.addView(seasonText);
+            row.addView(progressBar);
+            container.addView(row);
+        }
+
+        findViewById(R.id.seasonProgressSection).setVisibility(View.VISIBLE);
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
     private void sortShows(List<Show> showList) {

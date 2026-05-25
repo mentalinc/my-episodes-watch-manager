@@ -246,6 +246,38 @@
                     tools:text="4" />
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/colorPrimary" />
+
+            <LinearLayout
+                android:id="@+id/seasonProgressSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="8dp"
+                android:visibility="gone">
+
+
+                <TextView
+                    android:id="@+id/seasonProgressLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/seasonProgress"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/seasonProgressContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
