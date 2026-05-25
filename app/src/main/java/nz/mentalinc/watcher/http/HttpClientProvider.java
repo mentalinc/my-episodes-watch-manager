@@ -1,13 +1,13 @@
 package nz.mentalinc.watcher.http;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import nz.mentalinc.watcher.exception.InternetConnectivityException;
+import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.FormBody;
@@ -17,9 +17,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import nz.mentalinc.watcher.exception.InternetConnectivityException;
-import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
 
 public class HttpClientProvider {
     private static final String LOG_TAG = HttpClientProvider.class.getSimpleName();

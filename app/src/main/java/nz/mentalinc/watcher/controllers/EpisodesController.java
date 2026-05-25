@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import nz.mentalinc.watcher.database.AppDatabase;
-import nz.mentalinc.watcher.utils.TaskRunner;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
+import nz.mentalinc.watcher.utils.TaskRunner;
 
 public class EpisodesController {
     private List<Episode> watchEpisodes = new ArrayList<>();

@@ -11,12 +11,15 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
@@ -29,13 +32,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.security.SecureRandom;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -591,6 +593,21 @@ public class RandomEpPickerActivity extends Activity {
                     } else {
                         tvMazeEpisodeSummary.setVisibility(View.GONE);
                     }
+                }
+
+                String episodeImageURLStr = result.get("episodeImageURL");
+                ImageView episodeImage = findViewById(R.id.episodeImage);
+                if (episodeImageURLStr != null && !episodeImageURLStr.equals("")) {
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions.placeholder(R.drawable.placeholder);
+                    requestOptions.error(R.drawable.error);
+
+                    Glide.with(findViewById(R.id.episodeImage))
+                            .load(episodeImageURLStr)
+                            .apply(requestOptions)
+                            .into(episodeImage);
+                } else {
+                    episodeImage.setVisibility(View.GONE);
                 }
             });
         });

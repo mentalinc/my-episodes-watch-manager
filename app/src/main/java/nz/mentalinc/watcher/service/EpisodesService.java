@@ -43,7 +43,6 @@ import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
 import nz.mentalinc.watcher.http.HttpClientProvider;
 import nz.mentalinc.watcher.utils.DateUtil;
-
 import okhttp3.Response;
 
 

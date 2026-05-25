@@ -12,7 +12,6 @@ import androidx.preference.SwitchPreference;
 
 import java.io.File;
 
-import nz.mentalinc.watcher.BuildConfig;
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 
 public class SettingScreenFrag extends PreferenceFragmentCompat {

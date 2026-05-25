@@ -49,7 +49,6 @@ import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.database.AppDatabase;
-import nz.mentalinc.watcher.database.SeriesDAO;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;

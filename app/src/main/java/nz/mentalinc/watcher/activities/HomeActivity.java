@@ -41,7 +41,6 @@ import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.domain.Episode;
-import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.domain.User;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.enums.ListMode;
