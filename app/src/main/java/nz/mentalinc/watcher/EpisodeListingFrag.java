@@ -40,6 +40,7 @@ import nz.mentalinc.watcher.utils.TaskRunner;
 public class EpisodeListingFrag extends Fragment {
     List<Show> shows;
     private static final String LOG_TAG = EpisodeListingFrag.class.getSimpleName();
+    private static final String SHOW_MYEPISODES_DEFAULT_SORT = "show_myepisodes_default_sort";
     private List<Episode> episodesRaw = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
     private static EpisodeType episodesType;
@@ -183,15 +184,15 @@ public class EpisodeListingFrag extends Fragment {
         String sorting = "";
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder", SHOW_MYEPISODES_DEFAULT_SORT);//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder", SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
                 break;
             case EPISODES_COMING:
-                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder", SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
             default:
                 //style guidance

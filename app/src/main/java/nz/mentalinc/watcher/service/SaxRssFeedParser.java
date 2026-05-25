@@ -36,6 +36,7 @@ import nz.mentalinc.watcher.exception.RssFeedParserException;
 
 public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     private static final String LOG_TAG = SaxRssFeedParser.class.getSimpleName();
+    private static final String UTF_8 = UTF_8;
 
     private boolean inItem = false;
     private boolean inDescription = true;
@@ -71,7 +72,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             if (inputStream == null) {
                                 Log.d(LOG_TAG, "No cached Watch.xml file found. Downloading...");
                                 inputStream = url.openConnection().getInputStream();
-                                String content = convertStreamToString(inputStream, "UTF-8");
+                                String content = convertStreamToString(inputStream, UTF_8);
                                 FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Watch.xml", 0);
                                 fos.write(content.getBytes());
                                 fos.close();
@@ -95,7 +96,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             if (inputStream == null) {
                                 Log.d(LOG_TAG, "No cached Acquire.xml file found. Downloading...");
                                 InputStream downloadStream = url.openConnection().getInputStream();
-                                String content = convertStreamToString(downloadStream, "UTF-8");
+                                String content = convertStreamToString(downloadStream, UTF_8);
                                 FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Acquire.xml", 0);
                                 fos.write(content.getBytes());
                                 fos.close();
@@ -109,7 +110,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                         if (inputStream == null) {
                             Log.d(LOG_TAG, "No cached Coming.xml file found. Downloading...");
                             InputStream downloadStream = url.openConnection().getInputStream();
-                            String content = convertStreamToString(downloadStream, "UTF-8");
+                            String content = convertStreamToString(downloadStream, UTF_8);
                             FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Coming.xml", 0);
                             fos.write(content.getBytes());
                             fos.close();

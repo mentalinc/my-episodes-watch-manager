@@ -65,6 +65,7 @@ public class EpisodeDetailsActivity extends Activity {
     private EpisodeType episodesType;
     private String title;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
+    private static final String EXTRA_TITLE = "Title";
     private BottomNavigationView bottomNavigationView;
     Bundle data;
     private String showMyEpisodeID;
@@ -100,7 +101,7 @@ public class EpisodeDetailsActivity extends Activity {
         findViewById(R.id.appBarEpDetailOverviewLayout2).setZ(100f);
 
         Bundle data = this.getIntent().getExtras();
-        title = (String) data.getSerializable("Title");
+        title = (String) data.getSerializable(EXTRA_TITLE);
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
@@ -624,7 +625,7 @@ public class EpisodeDetailsActivity extends Activity {
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, type)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID)
-                .putExtra("Title", title);
+                .putExtra(EXTRA_TITLE, title);
 
 
         String sorting = "";
@@ -688,7 +689,7 @@ public class EpisodeDetailsActivity extends Activity {
         } else {
             episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
-        episodeListingActivity.putExtra("Title", title);
+        episodeListingActivity.putExtra(EXTRA_TITLE, title);
         // startActivity(episodeListingActivity);
     }
 
@@ -727,7 +728,7 @@ public class EpisodeDetailsActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", data.getString("Title"));
+        episodeDetailsSubActivity.putExtra(EXTRA_TITLE, data.getString(EXTRA_TITLE));
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -741,7 +742,7 @@ public class EpisodeDetailsActivity extends Activity {
         updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        updatedEpisodeListActivity.putExtra(EXTRA_TITLE, show.getShowName());
         startActivity(updatedEpisodeListActivity);
     }
 
@@ -754,7 +755,7 @@ public class EpisodeDetailsActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -767,7 +768,7 @@ public class EpisodeDetailsActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 

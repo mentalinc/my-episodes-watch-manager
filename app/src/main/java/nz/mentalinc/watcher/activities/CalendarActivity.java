@@ -48,6 +48,7 @@ import nz.mentalinc.watcher.enums.EpisodeType;
 
 public class CalendarActivity extends AppCompatActivity {
 
+    private static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
     private List<CalendarEpisode> allEpisodes = new ArrayList<>();
     private CalendarEpisodeAdapter episodeAdapter;
     private CalendarDayAdapter dayAdapter;
@@ -219,7 +220,7 @@ public class CalendarActivity extends AppCompatActivity {
         comingDateSet.clear();
         EpisodesController controller = EpisodesController.getInstance();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD, Locale.US);
 
         for (Episode ep : controller.getEpisodes(EpisodeType.EPISODES_TO_WATCH)) {
             allEpisodes.add(new CalendarEpisode(ep, EpisodeType.EPISODES_TO_WATCH));
@@ -261,7 +262,7 @@ public class CalendarActivity extends AppCompatActivity {
         int todayMonth = today.get(Calendar.MONTH);
         int todayDay = today.get(Calendar.DAY_OF_MONTH);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD, Locale.US);
 
         Map<String, Integer> dayCounts = new HashMap<>();
         for (CalendarEpisode ce : allEpisodes) {
@@ -308,7 +309,7 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void filterEpisodesForDate(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD, Locale.US);
         String targetDate = sdf.format(date);
 
         List<CalendarEpisode> filtered = new ArrayList<>();

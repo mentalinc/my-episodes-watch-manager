@@ -43,6 +43,8 @@ import nz.mentalinc.watcher.utils.StringUtils;
 
 public class ShowService {
     private static final String LOG_TAG = ShowService.class.getSimpleName();
+    private static final String COULD_NOT_CONNECT_TO_HOST = "Could not connect to host.";
+    private static final String SEARCH_ON_MYEPISODES_FAILED = "Search on MyEpisodes failed.";
 
     private final UserService userService;
 
@@ -102,11 +104,11 @@ public class ShowService {
 
 
         } catch (UnknownHostException e) {
-            String message = "Could not connect to host.";
+            String message = COULD_NOT_CONNECT_TO_HOST;
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
         } catch (IOException e) {
-            String message = "Search on MyEpisodes failed.";
+            String message = SEARCH_ON_MYEPISODES_FAILED;
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
 
@@ -209,7 +211,7 @@ public class ShowService {
             }
 
         } catch (UnknownHostException e) {
-            String message = "Could not connect to host.";
+            String message = COULD_NOT_CONNECT_TO_HOST;
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
         } catch (IOException e) {
@@ -244,11 +246,11 @@ public class ShowService {
                 responsePage += line;
             }
         } catch (UnknownHostException e) {
-            String message = "Could not connect to host.";
+            String message = COULD_NOT_CONNECT_TO_HOST;
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
         } catch (IOException e) {
-            String message = "Search on MyEpisodes failed.";
+            String message = SEARCH_ON_MYEPISODES_FAILED;
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
         }
@@ -277,11 +279,11 @@ public class ShowService {
                 responsePage += line;
             }
         } catch (UnknownHostException e) {
-            String message = "Could not connect to host.";
+            String message = COULD_NOT_CONNECT_TO_HOST;
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
         } catch (IOException e) {
-            String message = "Search on MyEpisodes failed.";
+            String message = SEARCH_ON_MYEPISODES_FAILED;
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
         }
@@ -579,7 +581,7 @@ public class ShowService {
 
 
         } catch (UnknownHostException e) {
-            String message = "Could not connect to host.";
+            String message = COULD_NOT_CONNECT_TO_HOST;
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
         } catch (IOException e) {

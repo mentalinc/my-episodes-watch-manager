@@ -48,6 +48,9 @@ import okhttp3.Response;
 
 public class EpisodesService {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
+    private static final String CHECKED = "checked";
+    private static final String DESCRIPTION = "description";
+    private static final String CHANNEL = "channel";
     private final UserService userService;
     private boolean fullUnwatchedDownloaded;
 
@@ -463,11 +466,11 @@ public class EpisodesService {
 
                 xs.setOutput(sw);
                 xs.startDocument(null, null);
-                xs.startTag(null, "channel");
+                xs.startTag(null, CHANNEL);
 
                 xsAcquire.setOutput(swAcquire);
                 xsAcquire.startDocument(null, null);
-                xsAcquire.startTag(null, "channel");
+                xsAcquire.startTag(null, CHANNEL);
 
                 for (String a : EpisodeTable) {
                     //split each column into a array
@@ -528,7 +531,7 @@ public class EpisodesService {
                         String guid = rowProcess[5].substring(indexGUID);
                         int indexGUID1 = guid.indexOf("\"");
                         guid = guid.substring(0, indexGUID1);
-                        if (rowProcess[5].contains("checked") && !rowProcess[6].contains("checked")) {
+                        if (rowProcess[5].contains(CHECKED) && !rowProcess[6].contains(CHECKED)) {
 
                             String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
 
@@ -545,14 +548,14 @@ public class EpisodesService {
                             xs.text(episodeLink);
                             xs.endTag(null, "link");
 
-                            xs.startTag(null, "description");
-                            xs.endTag(null, "description");
+                            xs.startTag(null, DESCRIPTION);
+                            xs.endTag(null, DESCRIPTION);
 
                             xs.endTag(null, "item");
                         } else {
                             //Log.d(LOG_TAG, "Already watched or Not Acquired not adding to rss: [ " + Show + " ]" + "[ " + SeriesEp + " ]" + "[ " + EpisodeName + " ]" + "[ " + AirDate + " ]");
                         }
-                        if (!rowProcess[5].contains("checked")) {
+                        if (!rowProcess[5].contains(CHECKED)) {
 
                             String headerRow = "[ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]";
 
@@ -569,8 +572,8 @@ public class EpisodesService {
                             xsAcquire.text(episodeLink);
                             xsAcquire.endTag(null, "link");
 
-                            xsAcquire.startTag(null, "description");
-                            xsAcquire.endTag(null, "description");
+                            xsAcquire.startTag(null, DESCRIPTION);
+                            xsAcquire.endTag(null, DESCRIPTION);
 
                             xsAcquire.endTag(null, "item");
 
@@ -580,10 +583,10 @@ public class EpisodesService {
                     }
                 }
 
-                xs.endTag(null, "channel");
+                xs.endTag(null, CHANNEL);
                 xs.endDocument();
 
-                xsAcquire.endTag(null, "channel");
+                xsAcquire.endTag(null, CHANNEL);
                 xsAcquire.endDocument();
 
                 MyEpisodeConstants.EXTENDED_EPISODES_XML = sw.toString();
@@ -718,7 +721,7 @@ public class EpisodesService {
 
                     sw_hidefuture = settingsHTML.substring(settingsHTML.indexOf("name=\"sw_hidefuture\""));
                     sw_hidefuture = sw_hidefuture.substring(21, 28);
-                    if (sw_hidefuture.equals("checked")) {
+                    if (sw_hidefuture.equals(CHECKED)) {
                         sw_hidefuture = "on";
                     } else {
                         sw_hidefuture = null;
@@ -726,7 +729,7 @@ public class EpisodesService {
 
                     sw_presentonly = settingsHTML.substring(settingsHTML.indexOf("name=\"sw_presentonly\""));
                     sw_presentonly = sw_presentonly.substring(22, 29);
-                    if (sw_presentonly.equals("checked")) {
+                    if (sw_presentonly.equals(CHECKED)) {
                         sw_presentonly = "on";
                     } else {
                         sw_presentonly = null;
@@ -734,7 +737,7 @@ public class EpisodesService {
 
                     sw_currentseasononly = settingsHTML.substring(settingsHTML.indexOf("name=\"sw_currentseasononly\""));
                     sw_currentseasononly = sw_currentseasononly.substring(28, 35);
-                    if (sw_currentseasononly.equals("checked")) {
+                    if (sw_currentseasononly.equals(CHECKED)) {
                         sw_currentseasononly = "on";
                     } else {
                         sw_currentseasononly = null;
