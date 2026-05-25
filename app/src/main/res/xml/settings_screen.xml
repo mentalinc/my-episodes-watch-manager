@@ -217,13 +217,12 @@
 
 
         <Preference
-            android:id="@+id/aboutVersion"
+            android:key="aboutVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:title="@string/aboutVersion"
-            android:summary="@string/current_version"/>
+            android:title="@string/aboutVersion"/>
 
         <Preference
             android:layout_width="wrap_content"

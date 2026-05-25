@@ -142,15 +142,18 @@ public class RandomEpPickerActivity extends Activity {
         airdateText.setText(airdateString);
         TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
         if (!TextUtils.isEmpty(random.getTVMazeWebSite())) {
-            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
+            TaskRunner.getExecutor().execute(() -> {
+                AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+                EpisodeRuntime showRuntime = database.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
+                String showTVMazeID = showRuntime.getShowTVMazeID();
+                runOnUiThread(() -> {
+                    HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
+                    HashMap<String, String> showSummaryHashMap = new HashMap<>();
 
-            HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
-            HashMap<String, String> showSummaryHashMap = new HashMap<>();
-
-            downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
-            downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), random.getSeasonString(), random.getEpisodeString());
+                    downloadShowSummary(showSummaryHashMap, showTVMazeID);
+                    downloadEpisodeSummary(episodeSummaryHashMap, showTVMazeID, random.getSeasonString(), random.getEpisodeString());
+                });
+            });
         } else {
             aboutWebsite.setVisibility(View.GONE);
         }
@@ -194,53 +197,58 @@ public class RandomEpPickerActivity extends Activity {
     }
 
     private void pickRandomByRuntime(int runtime, boolean isOver) {
-        AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-        SeriesDAO seriesDAO = database.getSeriesDAO();
-        List<String> filteredShowIds;
+        TaskRunner.getExecutor().execute(() -> {
+            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            List<String> filteredShowIds;
 
-        if (isOver) {
-            filteredShowIds = seriesDAO.getShowIdsWithRuntimeAtLeast(runtime);
-        } else {
-            filteredShowIds = seriesDAO.getShowIdsWithRuntimeUnder(runtime);
-        }
-
-        if (filteredShowIds == null || filteredShowIds.isEmpty()) {
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.ScrollView01), "No shows found with this runtime", Snackbar.LENGTH_SHORT);
-            snackbar.setAnchorView(bottomNavigationView);
-            snackbar.show();
-            return;
-        }
-
-        List<Episode> watchEpisodes = EpisodesController.getInstance().getEpisodes(EpisodeType.EPISODES_TO_WATCH);
-        if (watchEpisodes == null || watchEpisodes.isEmpty()) return;
-
-        Map<String, List<Episode>> showMap = new HashMap<>();
-        for (Episode ep : watchEpisodes) {
-            if (filteredShowIds.contains(ep.getMyEpisodeID())) {
-                showMap.computeIfAbsent(ep.getMyEpisodeID(), k -> new ArrayList<>()).add(ep);
+            if (isOver) {
+                filteredShowIds = seriesDAO.getShowIdsWithRuntimeAtLeast(runtime);
+            } else {
+                filteredShowIds = seriesDAO.getShowIdsWithRuntimeUnder(runtime);
             }
-        }
 
-        if (showMap.isEmpty()) {
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.ScrollView01), "No watch episodes with this runtime", Snackbar.LENGTH_SHORT);
-            snackbar.setAnchorView(bottomNavigationView);
-            snackbar.show();
-            return;
-        }
+            List<String> finalFilteredShowIds = filteredShowIds;
+            runOnUiThread(() -> {
+                if (finalFilteredShowIds == null || finalFilteredShowIds.isEmpty()) {
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.ScrollView01), "No shows found with this runtime", Snackbar.LENGTH_SHORT);
+                    snackbar.setAnchorView(bottomNavigationView);
+                    snackbar.show();
+                    return;
+                }
 
-        List<String> showIds = new ArrayList<>(showMap.keySet());
-        String randomShowId = showIds.get(new SecureRandom().nextInt(showIds.size()));
-        List<Episode> episodesForShow = showMap.get(randomShowId);
+                List<Episode> watchEpisodes = EpisodesController.getInstance().getEpisodes(EpisodeType.EPISODES_TO_WATCH);
+                if (watchEpisodes == null || watchEpisodes.isEmpty()) return;
 
-        if (episodesForShow == null || episodesForShow.isEmpty()) return;
+                Map<String, List<Episode>> showMap = new HashMap<>();
+                for (Episode ep : watchEpisodes) {
+                    if (finalFilteredShowIds.contains(ep.getMyEpisodeID())) {
+                        showMap.computeIfAbsent(ep.getMyEpisodeID(), k -> new ArrayList<>()).add(ep);
+                    }
+                }
 
-        String showId = episodesForShow.get(0).getMyEpisodeID();
-        Show show = new Show(episodesForShow.get(0).getShowName(), showId);
-        for (Episode ep : episodesForShow) {
-            show.addEpisode(ep);
-        }
+                if (showMap.isEmpty()) {
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.ScrollView01), "No watch episodes with this runtime", Snackbar.LENGTH_SHORT);
+                    snackbar.setAnchorView(bottomNavigationView);
+                    snackbar.show();
+                    return;
+                }
 
-        displayShow(show);
+                List<String> showIds = new ArrayList<>(showMap.keySet());
+                String randomShowId = showIds.get(new SecureRandom().nextInt(showIds.size()));
+                List<Episode> episodesForShow = showMap.get(randomShowId);
+
+                if (episodesForShow == null || episodesForShow.isEmpty()) return;
+
+                String showId = episodesForShow.get(0).getMyEpisodeID();
+                Show show = new Show(episodesForShow.get(0).getShowName(), showId);
+                for (Episode ep : episodesForShow) {
+                    show.addEpisode(ep);
+                }
+
+                displayShow(show);
+            });
+        });
     }
 
 
@@ -692,23 +700,20 @@ public class RandomEpPickerActivity extends Activity {
             }
 
             HashMap<String, String> result = showSummaryHash;
+
+            AppDatabase db = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+            SeriesDAO sDAO = db.getSeriesDAO();
+            EpisodeRuntime showSummaryInfo = sDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
+            showSummaryInfo.setShowSummary(result.get("showSummary"));
+            showSummaryInfo.setShowURL(result.get("showURL"));
+            showSummaryInfo.setOfficialSite(result.get("officialSite"));
+            showSummaryInfo.setShowImageURL(result.get("showImageURL"));
+            sDAO.update(showSummaryInfo);
+
             runOnUiThread(() -> {
                 TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);
                 String showruntimeText = " " + result.get("ShowRuntime") + " mins";
                 ShowRuntimeTV.setText(showruntimeText);
-
-                AppDatabase db = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-
-                SeriesDAO sDAO = db.getSeriesDAO();
-
-                EpisodeRuntime showSummaryInfo = sDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
-
-                showSummaryInfo.setShowSummary(result.get("showSummary"));
-                showSummaryInfo.setShowURL(result.get("showURL"));
-                showSummaryInfo.setOfficialSite(result.get("officialSite"));
-                showSummaryInfo.setShowImageURL(result.get("showImageURL"));
-
-                sDAO.update(showSummaryInfo);
             });
         });
     }

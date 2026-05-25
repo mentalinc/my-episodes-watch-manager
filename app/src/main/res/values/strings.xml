@@ -134,7 +134,7 @@
     <!-- whatsNewDialog -->
     <string name="whatsNewTitle">What\'s new</string>
     <string name="whatsNewVersion">Version:</string>
-    <string name="current_version">You\'re using Version 1.8.8 - Debug</string>
+
     <string name="whatsNewText">What has changed:</string>
     <string-array name="whatsNewValues">
         <!-- TODO update! -->
@@ -160,7 +160,8 @@
          \u25CF Show summary and image added to episode details and random episode \n
          \u25CF Updated all web code \n
          \u25CF Moved to Material Design theme from Halo \n
-         \u25CF Updated icons to Material Icons
+         \u25CF Updated icons to Material Icons \n
+         \u25CF Created a show landing page to see show detail, and watch, acquire and coming episodes
     </string>
     <!-- logoutDialog -->
     <string name="logoutDialogTitle">Are you sure?</string>

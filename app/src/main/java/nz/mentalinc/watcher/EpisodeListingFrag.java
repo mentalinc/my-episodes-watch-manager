@@ -34,6 +34,7 @@ import nz.mentalinc.watcher.domain.ShowDescendingComparator;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.service.ItemClickSupport;
+import nz.mentalinc.watcher.utils.TaskRunner;
 
 
 public class EpisodeListingFrag extends Fragment {
@@ -83,15 +84,10 @@ public class EpisodeListingFrag extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvEpisode.setLayoutManager(layoutManager);
-        EpisodeAdapter adapter = new EpisodeAdapter(episodes, buildRuntimeMapForEpisodes(episodes));
+        EpisodeAdapter adapter = new EpisodeAdapter(episodes, new HashMap<>());
         adapter.submitList(episodes);
-
-        //this doesn't seem to be called each time the tab is clicked on.
-        adapter.notifyItemInserted(0);
-        //adapter.notifyDataSetChanged();
-        //rvEpisode.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        // Attach the adapter to the recyclerview to populate items
         rvEpisode.setAdapter(adapter);
+        loadRuntimeMapForEpisodes(episodes, adapter);
 
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
@@ -223,24 +219,33 @@ public class EpisodeListingFrag extends Fragment {
         return null;
     }
 
-    private Map<String, EpisodeRuntime> buildRuntimeMapForEpisodes(List<Episode> episodes) {
-        if (episodes == null || episodes.isEmpty()) {
-            return new HashMap<>();
-        }
-        List<String> myEpsIds = new ArrayList<>();
-        for (Episode episode : episodes) {
-            if (episode.getMyEpisodeID() != null) {
-                myEpsIds.add(episode.getMyEpisodeID());
+    private void loadRuntimeMapForEpisodes(List<Episode> episodes, EpisodeAdapter adapter) {
+        if (episodes == null || episodes.isEmpty()) return;
+        TaskRunner.getExecutor().execute(() -> {
+            List<String> myEpsIds = new ArrayList<>();
+            for (Episode episode : episodes) {
+                if (episode.getMyEpisodeID() != null) {
+                    myEpsIds.add(episode.getMyEpisodeID());
+                }
             }
-        }
-        AppDatabase db = AppDatabase.getInstance(getContext());
-        List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
-        Map<String, EpisodeRuntime> map = new HashMap<>();
-        if (runtimes != null) {
-            for (EpisodeRuntime rt : runtimes) {
-                map.put(rt.getShowMyEpsID(), rt);
+            AppDatabase db = AppDatabase.getInstance(getContext());
+            List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
+            Map<String, EpisodeRuntime> map = new HashMap<>();
+            if (runtimes != null) {
+                for (EpisodeRuntime rt : runtimes) {
+                    map.put(rt.getShowMyEpsID(), rt);
+                }
             }
-        }
-        return map;
+            Map<String, EpisodeRuntime> finalMap = map;
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    EpisodeAdapter newAdapter = new EpisodeAdapter(episodes, finalMap);
+                    if (rvEpisode != null) {
+                        rvEpisode.setAdapter(newAdapter);
+                        newAdapter.submitList(episodes);
+                    }
+                });
+            }
+        });
     }
 }

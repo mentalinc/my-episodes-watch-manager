@@ -12,6 +12,7 @@ import androidx.preference.SwitchPreference;
 
 import java.io.File;
 
+import nz.mentalinc.watcher.BuildConfig;
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 
 public class SettingScreenFrag extends PreferenceFragmentCompat {
@@ -156,6 +157,11 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
                     return true;
                 });
             }
+        }
+
+        Preference aboutVersion = findPreference("aboutVersion");
+        if (aboutVersion != null) {
+            aboutVersion.setSummary("You're using Version " + BuildConfig.VERSION_NAME);
         }
     }
 

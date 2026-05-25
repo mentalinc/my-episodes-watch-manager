@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import nz.mentalinc.watcher.database.AppDatabase;
+import nz.mentalinc.watcher.utils.TaskRunner;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
@@ -290,12 +291,13 @@ public class EpisodesController {
         watchEpisodes = tempList;
         acquireEpisodes = tempList;
         comingEpisodes = tempList;
-        //shows.clear();
         watchShows.clear();
         acquireShows.clear();
         comingShows.clear();
-        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-        database.clearAllTables();
+        TaskRunner.getExecutor().execute(() -> {
+            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+            database.clearAllTables();
+        });
     }
 
     public void addEpisode(EpisodeType episodesType, Episode episode) {

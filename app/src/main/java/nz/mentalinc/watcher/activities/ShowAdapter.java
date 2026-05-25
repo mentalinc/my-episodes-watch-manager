@@ -39,6 +39,7 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
         super(DIFF_CALLBACK);
         this.showsList = shows != null ? new ArrayList<>(shows) : new ArrayList<>();
         this.runtimeMap = runtimeMap;
+        submitList(this.showsList);
     }
 
     public void addMoreShows(List<Show> newShows) {
@@ -144,26 +145,22 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
 
             EpisodeRuntime showRuntime = runtimeMap.get(myepisodeID);
-            if (showRuntime == null) {
-                String message = "Problem reading runtime for " + show.getShowName();
-                Log.e(LOG_TAG, message);
-                return;
+            if (showRuntime != null) {
+                String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
+                textViewShowsRunTime.setText(showRuntimeText);
+
+                String showImageURL = showRuntime.getShowImageURL();
+                ImageView showPoster = holder.showposter;
+
+                RequestOptions requestOptions = new RequestOptions();
+                requestOptions.placeholder(R.drawable.placeholder);
+                requestOptions.error(R.drawable.error);
+
+                Glide.with(holder.showposter)
+                        .load(showImageURL)
+                        .apply(requestOptions)
+                        .into(showPoster);
             }
-
-            String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
-            textViewShowsRunTime.setText(showRuntimeText);
-
-            String showImageURL = showRuntime.getShowImageURL();
-            ImageView showPoster = holder.showposter;
-
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.placeholder(R.drawable.placeholder);
-            requestOptions.error(R.drawable.error);
-
-            Glide.with(holder.showposter)
-                    .load(showImageURL)
-                    .apply(requestOptions)
-                    .into(showPoster);
 
         } catch (NullPointerException e) {
             String message = "Problem reading runtime for " + show.getShowName();

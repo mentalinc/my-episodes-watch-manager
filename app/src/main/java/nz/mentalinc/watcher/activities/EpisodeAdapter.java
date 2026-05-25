@@ -32,6 +32,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         super(DIFF_CALLBACK);
         this.episodeList = episodes != null ? new ArrayList<>(episodes) : new ArrayList<>();
         this.runtimeMap = runtimeMap;
+        submitList(this.episodeList);
     }
 
 
@@ -124,26 +125,22 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
             TextView textViewEpisodeShowsRunTime = holder.episodeRuntime;
             String myepisodeID = episode.getMyEpisodeID();
             EpisodeRuntime showRuntime = runtimeMap.get(myepisodeID);
-            if (showRuntime == null) {
-                String message = "Problem reading runtime for " + episode.getShowName();
-                Log.e(LOG_TAG, message);
-                return;
+            if (showRuntime != null) {
+                String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
+                textViewEpisodeShowsRunTime.setText(showRuntimeText);
+
+                String showImageURL = showRuntime.getShowImageURL();
+                ImageView showPoster = holder.showposter;
+
+                RequestOptions requestOptions = new RequestOptions();
+                requestOptions.placeholder(R.drawable.placeholder);
+                requestOptions.error(R.drawable.error);
+
+                Glide.with(holder.showposter)
+                        .load(showImageURL)
+                        .placeholder(R.drawable.placeholder)
+                        .into(showPoster);
             }
-
-            String showRuntimeText = showRuntime.getShowRuntime() + " Mins";
-            textViewEpisodeShowsRunTime.setText(showRuntimeText);
-
-            String showImageURL = showRuntime.getShowImageURL();
-            ImageView showPoster = holder.showposter;
-
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.placeholder(R.drawable.placeholder);
-            requestOptions.error(R.drawable.error);
-
-            Glide.with(holder.showposter)
-                    .load(showImageURL)
-                    .placeholder(R.drawable.placeholder)
-                    .into(showPoster);
 
         } catch (NullPointerException e) {
             String message = "Problem reading runtime for " + episode.getShowName();

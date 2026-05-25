@@ -130,17 +130,14 @@ public class UpdatedEpisodeListingActivity extends Activity {
         }
 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
-        Map<String, EpisodeRuntime> runtimeMap = buildRuntimeMapForEpisodes(episodes);
-        adapter = new EpisodeAdapter(episodes, runtimeMap);
+        adapter = new EpisodeAdapter(episodes, new HashMap<>());
         adapter.submitList(episodes);
-        //adapter.notifyItemInserted(0);
-        adapter.notifyDataSetChanged();
-        // Attach the adapter to the recyclerview to populate items
         rvEpisode.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvEpisode.setLayoutManager(layoutManager);
         rvEpisode.setHasFixedSize(true);
+        loadRuntimeMapForEpisodes(episodes, adapter);
 
         swipeRefreshEps = findViewById(R.id.swipe_refresh_eps);
         swipeRefreshEps.setOnRefreshListener(this::onRefreshClick);
@@ -224,10 +221,11 @@ public class UpdatedEpisodeListingActivity extends Activity {
             }
             runOnUiThread(() -> {
                 returnEpisodes();
-                adapter = new EpisodeAdapter(episodes, buildRuntimeMapForEpisodes(episodes));
+                adapter = new EpisodeAdapter(episodes, new HashMap<>());
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
                 rv.setAdapter(adapter);
                 adapter.submitList(episodes);
+                loadRuntimeMapForEpisodes(episodes, adapter);
                 if (swipeRefreshEps != null) {
                     swipeRefreshEps.setRefreshing(false);
                 }
@@ -639,33 +637,39 @@ public class UpdatedEpisodeListingActivity extends Activity {
         return dialog;
     }
 
-    private Map<String, EpisodeRuntime> buildRuntimeMapForEpisodes(List<Episode> episodes) {
-        if (episodes == null || episodes.isEmpty()) {
-            return new HashMap<>();
-        }
-        List<String> myEpsIds = new ArrayList<>();
-        for (Episode episode : episodes) {
-            if (episode.getMyEpisodeID() != null) {
-                myEpsIds.add(episode.getMyEpisodeID());
+    private void loadRuntimeMapForEpisodes(List<Episode> episodes, EpisodeAdapter adapter) {
+        if (episodes == null || episodes.isEmpty()) return;
+        TaskRunner.getExecutor().execute(() -> {
+            List<String> myEpsIds = new ArrayList<>();
+            for (Episode episode : episodes) {
+                if (episode.getMyEpisodeID() != null) {
+                    myEpsIds.add(episode.getMyEpisodeID());
+                }
             }
-        }
-        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
-        List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
-        Map<String, EpisodeRuntime> map = new HashMap<>();
-        if (runtimes != null) {
-            for (EpisodeRuntime rt : runtimes) {
-                map.put(rt.getShowMyEpsID(), rt);
+            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+            List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
+            Map<String, EpisodeRuntime> map = new HashMap<>();
+            if (runtimes != null) {
+                for (EpisodeRuntime rt : runtimes) {
+                    map.put(rt.getShowMyEpsID(), rt);
+                }
             }
-        }
-        return map;
+            Map<String, EpisodeRuntime> finalMap = map;
+            runOnUiThread(() -> {
+                EpisodeAdapter newAdapter = new EpisodeAdapter(episodes, finalMap);
+                RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
+                rv.setAdapter(newAdapter);
+                newAdapter.submitList(episodes);
+            });
+        });
     }
 
     private void refreshEpisodeAdapter() {
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
-        Map<String, EpisodeRuntime> runtimeMap = buildRuntimeMapForEpisodes(episodes);
-        adapter = new EpisodeAdapter(episodes, runtimeMap);
+        adapter = new EpisodeAdapter(episodes, new HashMap<>());
         adapter.submitList(episodes);
         rvEpisode.setAdapter(adapter);
+        loadRuntimeMapForEpisodes(episodes, adapter);
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.topAppBarEpisodesView);
         String dataTitle = data.getString("Title");
         toolbar.setTitle(dataTitle + " (" + episodes.size() + ")");

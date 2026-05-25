@@ -95,39 +95,29 @@ public class ShowSummaryActivity extends Activity {
 
         returnEpisodes();
 
-        //todo Need to work out the downloadSHowSummary below (from the episodedetails activity, to make it show the info needed.
-
-        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-
-        SeriesDAO seriesDAO = database.getSeriesDAO();
-        EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
-
         TextView textViewWatchShowsRemaining = findViewById(R.id.episodesToWatch);
         TextView textViewAcquireShowsRemaining = findViewById(R.id.episodesToAcquire);
         TextView textViewComingShowsRemaining = findViewById(R.id.episodesComing);
-        //String watchCount = "Episodes to watch: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
-        String watchCount = "" +EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
+        String watchCount = "" + EpisodesController.getInstance().getEpisodesCount(EpisodeType.WATCH_BY_SHOW, showMyEpisodeID);
         textViewWatchShowsRemaining.setText(watchCount);
-        //String acquireCount = "Episodes to acquire: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.ACQUIRE_BY_SHOW, showMyEpisodeID);
         String acquireCount = "" + EpisodesController.getInstance().getEpisodesCount(EpisodeType.ACQUIRE_BY_SHOW, showMyEpisodeID);
         textViewAcquireShowsRemaining.setText(acquireCount);
-        //String comingCount = "Episodes coming: " + EpisodesController.getInstance().getEpisodesCount(EpisodeType.COMING_BY_SHOW, showMyEpisodeID);
         String comingCount = "" + EpisodesController.getInstance().getEpisodesCount(EpisodeType.COMING_BY_SHOW, showMyEpisodeID);
         textViewComingShowsRemaining.setText(comingCount);
 
-
-        //create hashmap's to prevent build fails, they get replaced
-        HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
         HashMap<String, String> showSummaryHashMap = new HashMap<>();
-
-
-        if (showRuntime != null && showRuntime.getShowTVMazeID() != null) {
-            downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
-        } else if (showRuntime != null) {
-            Log.w(LOG_TAG, "showRuntime getShowTVMazeID is null");
-        } else {
-            populateShowRuntimeAndSummary(showSummaryHashMap);
-        }
+        TaskRunner.getExecutor().execute(() -> {
+            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+            EpisodeRuntime showRuntime = database.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
+            if (showRuntime != null && showRuntime.getShowTVMazeID() != null) {
+                String tvmazeId = showRuntime.getShowTVMazeID();
+                runOnUiThread(() -> downloadShowSummary(showSummaryHashMap, tvmazeId));
+            } else if (showRuntime != null) {
+                Log.w(LOG_TAG, "showRuntime getShowTVMazeID is null");
+            } else {
+                runOnUiThread(() -> populateShowRuntimeAndSummary(showSummaryHashMap));
+            }
+        });
 
 
         //       episodeSummaryHashMap.get("episodeURL");
@@ -503,12 +493,11 @@ public class ShowSummaryActivity extends Activity {
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Failed to populate show runtime", e);
             }
+            EpisodeRuntime updatedRuntime = database.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
+            EpisodeRuntime finalUpdatedRuntime = updatedRuntime;
             runOnUiThread(() -> {
-                AppDatabase db = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-                SeriesDAO seriesDAO = db.getSeriesDAO();
-                EpisodeRuntime updatedRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
-                if (updatedRuntime != null && updatedRuntime.getShowTVMazeID() != null) {
-                    downloadShowSummary(showSummaryHashMap, updatedRuntime.getShowTVMazeID());
+                if (finalUpdatedRuntime != null && finalUpdatedRuntime.getShowTVMazeID() != null) {
+                    downloadShowSummary(showSummaryHashMap, finalUpdatedRuntime.getShowTVMazeID());
                 } else {
                     Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowOverview), R.string.showDetailsNotAvailable, Snackbar.LENGTH_LONG);
                     snackbar.setAnchorView(bottomNavigationView);
@@ -542,23 +531,9 @@ public class ShowSummaryActivity extends Activity {
         Show currentShow = CheckShowDuplicate(episode.getShowName());
 
         if (currentShow == null) {
-
-            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime Runtime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-
-            String RuntimeMins;
-            if (Runtime == null) {
-                RuntimeMins = "Error mins";
-            } else {
-                RuntimeMins = Runtime.getShowRuntime();
-            }
-
-            Show tempShow = new Show(episode.getShowName(), RuntimeMins, episode.getMyEpisodeID());
+            Show tempShow = new Show(episode.getShowName(), episode.getMyEpisodeID());
             tempShow.addEpisode(episode);
             shows.add(tempShow);
-
         } else {
             currentShow.addEpisode(episode);
         }

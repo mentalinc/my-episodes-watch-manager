@@ -18,11 +18,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nz.mentalinc.watcher.R;
-import nz.mentalinc.watcher.database.AppDatabase;
-import nz.mentalinc.watcher.database.SeriesDAO;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
@@ -33,10 +33,12 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
     private static final String LOG_TAG = ShowDetailAdapter.class.getSimpleName();
     private List<Show> showsList;
     Context context = CONTEXT.getApplicationContext();
+    private final Map<String, EpisodeRuntime> runtimeMap;
 
 
-    public ShowDetailAdapter(List<Show> shows) {
+    public ShowDetailAdapter(List<Show> shows, Map<String, EpisodeRuntime> runtimeMap) {
         super(DIFF_CALLBACK);
+        this.runtimeMap = runtimeMap;
     }
 
 
@@ -143,11 +145,12 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
             Episode nextEpisodeToWatch = show.getFirstEpisode();
             String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
 
-            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(myepisodeID);
-
+            EpisodeRuntime showRuntime = runtimeMap.get(myepisodeID);
+            if (showRuntime == null) {
+                String message = "Runtime not loaded yet for " + show.getShowName();
+                Log.e(LOG_TAG, message);
+                return;
+            }
 
             TextView textViewShowDetail = holder.tvMazeShowDetailSummary;
             textViewShowDetail.setText(showRuntime.getShowSummary());

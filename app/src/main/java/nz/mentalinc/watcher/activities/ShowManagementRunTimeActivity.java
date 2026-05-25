@@ -323,29 +323,33 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                 } else {
                     runTimeInput.setError(null);
 
+                    String newRuntime = newRuntimeValue;
+                    String showName = shows.get(showListPosition).getShowName();
+                    String showMyEpsID = shows.get(showListPosition).getMyEpisodeID();
+                    int pos = showListPosition;
 
-                    AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-                    SeriesDAO seriesDAO = database.getSeriesDAO();
+                    TaskRunner.getExecutor().execute(() -> {
+                        AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+                        SeriesDAO seriesDAO = database.getSeriesDAO();
 
-                    //Updating an episodeRuntime
-                    EpisodeRuntime epsRunTime = new EpisodeRuntime();
-                    epsRunTime.setshowMyepsID(shows.get(showListPosition).getMyEpisodeID());
-                    epsRunTime.setShowName(shows.get(showListPosition).getShowName());
-                    // epsRunTime.setShowTVMazeID(epsRunTime.getShowTVMazeID());
-                    epsRunTime.setShowRuntime(newRuntimeValue);
-                    Log.d("epsRunTime: ", epsRunTime.toString());
-                    seriesDAO.update(epsRunTime);
+                        EpisodeRuntime epsRunTime = new EpisodeRuntime();
+                        epsRunTime.setshowMyepsID(showMyEpsID);
+                        epsRunTime.setShowName(showName);
+                        epsRunTime.setShowRuntime(newRuntime);
+                        Log.d("epsRunTime: ", epsRunTime.toString());
+                        seriesDAO.update(epsRunTime);
 
+                        runOnUiThread(() -> {
+                            Context ctx = getApplicationContext();
+                            String text = "Runtime for updated " + showName + " updated to " + newRuntime + " mins";
+                            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                            snackbar.show();
 
-                    Context context = getApplicationContext();
-                    String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
-
-                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                    snackbar.show();
-
-                    populateShowRuntimeList();
-                    showListPosition = null;
-                    showAdapter.notifyDataSetChanged();
+                            populateShowRuntimeList();
+                            showListPosition = null;
+                            showAdapter.notifyDataSetChanged();
+                        });
+                    });
                 }
                 dialog.dismiss();
             }
@@ -431,29 +435,33 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                             } else {
                                 runTimeInput.setError(null);
 
+                                String newRuntime = newRuntimeValue;
+                                String showName = shows.get(showListPosition).getShowName();
+                                String showMyEpsID = shows.get(showListPosition).getMyEpisodeID();
+                                int pos = showListPosition;
 
-                                AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-                                SeriesDAO seriesDAO = database.getSeriesDAO();
+                                TaskRunner.getExecutor().execute(() -> {
+                                    AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+                                    SeriesDAO seriesDAO = database.getSeriesDAO();
 
-                                //Updating an episodeRuntime
-                                EpisodeRuntime epsRunTime = new EpisodeRuntime();
-                                epsRunTime.setshowMyepsID(shows.get(showListPosition).getMyEpisodeID());
-                                epsRunTime.setShowName(shows.get(showListPosition).getShowName());
-                                // epsRunTime.setShowTVMazeID(epsRunTime.getShowTVMazeID());
-                                epsRunTime.setShowRuntime(newRuntimeValue);
-                                Log.d("epsRunTime: ", epsRunTime.toString());
-                                seriesDAO.update(epsRunTime);
+                                    EpisodeRuntime epsRunTime = new EpisodeRuntime();
+                                    epsRunTime.setshowMyepsID(showMyEpsID);
+                                    epsRunTime.setShowName(showName);
+                                    epsRunTime.setShowRuntime(newRuntime);
+                                    Log.d("epsRunTime: ", epsRunTime.toString());
+                                    seriesDAO.update(epsRunTime);
 
+                                    runOnUiThread(() -> {
+                                        Context ctx = getApplicationContext();
+                                        String text = "Runtime for updated " + showName + " updated to " + newRuntime + " mins";
+                                        Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
 
-                                Context context = getApplicationContext();
-                                String text = "Runtime for updated " + shows.get(showListPosition).getShowName() + " updated to " + newRuntimeValue + " mins";
-
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                                snackbar.show();
-
-                                populateShowRuntimeList();
-                                showListPosition = null;
-                                showAdapter.notifyDataSetChanged();
+                                        populateShowRuntimeList();
+                                        showListPosition = null;
+                                        showAdapter.notifyDataSetChanged();
+                                    });
+                                });
                             }
                         })
                         //; //remove this ; if add the .negative back int

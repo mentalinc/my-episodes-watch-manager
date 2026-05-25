@@ -215,17 +215,20 @@ public class EpisodeDetailsActivity extends Activity {
 
         TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
         if (!TextUtils.isEmpty(ep.getTVMazeWebSite())) {
-            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(ep.getMyEpisodeID());
+            TaskRunner.getExecutor().execute(() -> {
+                AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+                EpisodeRuntime showRuntime = database.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(ep.getMyEpisodeID());
+                String showTVMazeID = showRuntime.getShowTVMazeID();
+                runOnUiThread(() -> {
+                    HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
+                    episodeSummaryHashMap.put("a", "b");
+                    HashMap<String, String> showSummaryHashMap = new HashMap<>();
+                    showSummaryHashMap.put("a", "b");
 
-            HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
-            episodeSummaryHashMap.put("a", "b");
-            HashMap<String, String> showSummaryHashMap = new HashMap<>();
-            showSummaryHashMap.put("a", "b");
-
-            downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
-            downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), ep.getSeasonString(), ep.getEpisodeString());
+                    downloadShowSummary(showSummaryHashMap, showTVMazeID);
+                    downloadEpisodeSummary(episodeSummaryHashMap, showTVMazeID, ep.getSeasonString(), ep.getEpisodeString());
+                });
+            });
         } else {
             aboutWebsite.setVisibility(View.GONE);
         }
@@ -545,24 +548,21 @@ public class EpisodeDetailsActivity extends Activity {
             }
 
             HashMap<String, String> result = showSummaryHash;
+
+            AppDatabase db = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+            SeriesDAO sDAO = db.getSeriesDAO();
+            EpisodeRuntime showSummaryInfo = sDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
+            showSummaryInfo.setShowSummary(result.get("showSummary"));
+            showSummaryInfo.setShowURL(result.get("showURL"));
+            showSummaryInfo.setOfficialSite(result.get("officialSite"));
+            showSummaryInfo.setShowRuntime(result.get("ShowRuntime"));
+            showSummaryInfo.setShowImageURL(result.get("showImageURL"));
+            showSummaryInfo.setShowStatus(result.get("showStatus"));
+            sDAO.update(showSummaryInfo);
+
             runOnUiThread(() -> {
                 TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);
                 ShowRuntimeTV.setText(result.get("ShowRuntime") + " mins");
-
-                AppDatabase db = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-
-                SeriesDAO sDAO = db.getSeriesDAO();
-
-                EpisodeRuntime showSummaryInfo = sDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-
-                showSummaryInfo.setShowSummary(result.get("showSummary"));
-                showSummaryInfo.setShowURL(result.get("showURL"));
-                showSummaryInfo.setOfficialSite(result.get("officialSite"));
-                showSummaryInfo.setShowRuntime(result.get("ShowRuntime"));
-                showSummaryInfo.setShowImageURL(result.get("showImageURL"));
-                showSummaryInfo.setShowStatus(result.get("showStatus"));
-
-                sDAO.update(showSummaryInfo);
             });
         });
     }

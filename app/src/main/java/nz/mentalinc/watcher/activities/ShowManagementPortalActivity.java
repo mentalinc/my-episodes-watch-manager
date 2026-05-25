@@ -127,25 +127,21 @@ public class ShowManagementPortalActivity extends Activity {
 
 
     private void nullRuntimeFixer() {
+        TaskRunner.getExecutor().execute(() -> {
+            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            List<EpisodeRuntime> runtimeList = seriesDAO.getEpisodeRuntime();
 
-        //open the database and find shows that are null runtime and get get it...
-        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+            for (int i = 0; i < runtimeList.size(); i++) {
+                EpisodeRuntime showRuntime = runtimeList.get(i);
 
-        SeriesDAO seriesDAO = database.getSeriesDAO();
-        List<EpisodeRuntime> runtimeList = seriesDAO.getEpisodeRuntime();
-
-
-        for (int i = 0; i < runtimeList.size(); i++) {
-            EpisodeRuntime showRuntime = runtimeList.get(i);
-
-            if (showRuntime.getShowRuntime() == null || showRuntime.getShowRuntime().equals("null")) {
-
-                //get the runtime for the null from TVMaze
-                HashMap<String, String> showSummaryHashMap = new HashMap<>();
-
-                downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
+                if (showRuntime.getShowRuntime() == null || showRuntime.getShowRuntime().equals("null")) {
+                    HashMap<String, String> showSummaryHashMap = new HashMap<>();
+                    String tvmazeId = showRuntime.getShowTVMazeID();
+                    runOnUiThread(() -> downloadShowSummary(showSummaryHashMap, tvmazeId));
+                }
             }
-        }
+        });
     }
 
     private void openFavouriteOrIgnoredShows(ShowType showType) {

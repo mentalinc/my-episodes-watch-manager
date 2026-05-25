@@ -73,6 +73,7 @@ public class ShowListingActivity extends Activity {
     List<Show> shows = new ArrayList<>();
     private List<Show> showsFull = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
+    private Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
     private static EpisodeType episodesType;
     private static final int EPISODE_LOADING_DIALOG = 0;
     private static final int ONLINE_CHECK_DIALOG = 5;
@@ -172,14 +173,10 @@ public class ShowListingActivity extends Activity {
         returnEpisodes();
         showsFull = new ArrayList<>(shows);
 
-        Map<String, EpisodeRuntime> runtimeMap = buildRuntimeMapForShows(shows);
-        ShowAdapter adapter = new ShowAdapter(shows, runtimeMap);
-        adapter.submitList(shows);
-        adapter.notifyItemInserted(0);
-
-        // Attach the adapter to the recyclerview to populate items
         RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
+        ShowAdapter adapter = new ShowAdapter(shows, new HashMap<>());
         rvShows.setAdapter(adapter);
+        loadRuntimeMapForShows(shows, adapter);
         // Set layout manager to position the items
         layoutManager = new LinearLayoutManager(this);
         rvShows.setLayoutManager(layoutManager);
@@ -488,23 +485,9 @@ public class ShowListingActivity extends Activity {
         Show currentShow = CheckShowDuplicate(episode.getShowName());
 
         if (currentShow == null) {
-
-            AppDatabase database = AppDatabase.getInstance(getApplicationContext());
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime Runtime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-
-            String RuntimeMins;
-            if (Runtime == null) {
-                RuntimeMins = "Error mins";
-            } else {
-                RuntimeMins = Runtime.getShowRuntime();
-            }
-
-            Show tempShow = new Show(episode.getShowName(), RuntimeMins, episode.getMyEpisodeID());
+            Show tempShow = new Show(episode.getShowName(), episode.getMyEpisodeID());
             tempShow.addEpisode(episode);
             shows.add(tempShow);
-
         } else {
             currentShow.addEpisode(episode);
         }
@@ -564,6 +547,10 @@ public class ShowListingActivity extends Activity {
             runOnUiThread(() -> {
                 returnEpisodes();
                 showsFull = new ArrayList<>(shows);
+                RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
+                ShowAdapter newAdapter = new ShowAdapter(shows, new HashMap<>());
+                rvShows.setAdapter(newAdapter);
+                loadRuntimeMapForShows(shows, newAdapter);
                 removeDialog(EPISODE_LOADING_DIALOG);
                 removeDialog(EPISODE_LOADING_DIALOG_CACHE);
                 if (swipeRefreshShows != null) {
@@ -832,25 +819,30 @@ public class ShowListingActivity extends Activity {
         episodes = EpisodesController.getInstance().getEpisodes(episodesType);
     }
 
-    private Map<String, EpisodeRuntime> buildRuntimeMapForShows(List<Show> shows) {
-        if (shows == null || shows.isEmpty()) {
-            return new HashMap<>();
-        }
-        List<String> myEpsIds = new ArrayList<>();
-        for (Show show : shows) {
-            if (show.getFirstEpisode() != null && show.getFirstEpisode().getMyEpisodeID() != null) {
-                myEpsIds.add(show.getFirstEpisode().getMyEpisodeID());
+    private void loadRuntimeMapForShows(List<Show> showsList, ShowAdapter adapter) {
+        if (showsList == null || showsList.isEmpty()) return;
+        TaskRunner.getExecutor().execute(() -> {
+            List<String> myEpsIds = new ArrayList<>();
+            for (Show show : showsList) {
+                if (show.getFirstEpisode() != null && show.getFirstEpisode().getMyEpisodeID() != null) {
+                    myEpsIds.add(show.getFirstEpisode().getMyEpisodeID());
+                }
             }
-        }
-        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
-        List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
-        Map<String, EpisodeRuntime> map = new HashMap<>();
-        if (runtimes != null) {
-            for (EpisodeRuntime rt : runtimes) {
-                map.put(rt.getShowMyEpsID(), rt);
+            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+            List<EpisodeRuntime> runtimes = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(myEpsIds);
+            Map<String, EpisodeRuntime> map = new HashMap<>();
+            if (runtimes != null) {
+                for (EpisodeRuntime rt : runtimes) {
+                    map.put(rt.getShowMyEpsID(), rt);
+                }
             }
-        }
-        return map;
+            runOnUiThread(() -> {
+                runtimeMap = map;
+                ShowAdapter newAdapter = new ShowAdapter(showsList, map);
+                RecyclerView rv = findViewById(R.id.recyclerViewListItemsShows);
+                rv.setAdapter(newAdapter);
+            });
+        });
     }
 
 }

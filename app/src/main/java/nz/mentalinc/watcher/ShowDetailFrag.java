@@ -13,14 +13,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nz.mentalinc.watcher.activities.ShowDetailAdapter;
 import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
+import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
+import nz.mentalinc.watcher.service.EpisodeRuntime;
+import nz.mentalinc.watcher.utils.TaskRunner;
 
 
 public class ShowDetailFrag extends Fragment {
@@ -67,15 +72,27 @@ public class ShowDetailFrag extends Fragment {
         RecyclerView rvShowDetail = view.findViewById(R.id.recyclerViewListShowItems);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvShowDetail.setLayoutManager(layoutManager);
-        ShowDetailAdapter adapter = new ShowDetailAdapter(shows);
+        ShowDetailAdapter adapter = new ShowDetailAdapter(shows, new HashMap<>());
         adapter.submitList(shows);
-
-        //this doesn't seem to be called each time the tab is clicked on.
-        adapter.notifyItemInserted(0);
-        //adapter.notifyDataSetChanged();
-        //rvEpisode.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        // Attach the adapter to the recyclerview to populate items
         rvShowDetail.setAdapter(adapter);
+
+        TaskRunner.getExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            Map<String, EpisodeRuntime> map = new HashMap<>();
+            for (Show show : shows) {
+                if (show.getFirstEpisode() != null) {
+                    EpisodeRuntime rt = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(show.getFirstEpisode().getMyEpisodeID());
+                    if (rt != null) {
+                        map.put(rt.getShowMyEpsID(), rt);
+                    }
+                }
+            }
+            getActivity().runOnUiThread(() -> {
+                ShowDetailAdapter newAdapter = new ShowDetailAdapter(shows, map);
+                rvShowDetail.setAdapter(newAdapter);
+                newAdapter.submitList(shows);
+            });
+        });
 
         Log.d(LOG_TAG, "onViewCreated called");
 

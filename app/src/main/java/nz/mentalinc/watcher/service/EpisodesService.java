@@ -542,7 +542,8 @@ public class EpisodesService {
                         int indexNameEndTag = showPart.indexOf("</a>");
                         String show = showPart.substring(indexName, indexNameEndTag);
 
-                        Log.d("Serier EP", "|" + rowProcess[3]);
+                       // This row spams logcat when processing the html file to create the RSS files.
+                        // Log.d("Serier EP", "|" + rowProcess[3]);
 
                         // get Series and Episode
                         String seriesEp;
@@ -629,7 +630,8 @@ public class EpisodesService {
 
                             xsAcquire.endTag(null, "item");
 
-                            Log.d(LOG_TAG, "Not acquired adding to rss: [ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]");
+                           // useful for debugging, but mainly just spams logcat
+                            // Log.d(LOG_TAG, "Not acquired adding to rss: [ " + show + " ]" + "[ " + seriesEp + " ]" + "[ " + episodeName + " ]" + "[ " + airDate + " ]");
                         }
                     }
                 }
