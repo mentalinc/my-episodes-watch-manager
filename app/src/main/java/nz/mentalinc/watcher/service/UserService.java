@@ -2,33 +2,16 @@ package nz.mentalinc.watcher.service;
 
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.domain.User;
-import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.exception.PasswordEnctyptionFailedException;
 import nz.mentalinc.watcher.exception.RegisterFailedException;
-import nz.mentalinc.watcher.exception.UnsupportedHttpPostEncodingException;
+import nz.mentalinc.watcher.http.HttpClientProvider;
 
 public class UserService {
     private static final String LOG_TAG = UserService.class.getSimpleName();
@@ -37,7 +20,7 @@ public class UserService {
         login(user.getUsername(), user.getPassword());
     }
 
-    public boolean register(User user, String email) throws UnsupportedHttpPostEncodingException, InternetConnectivityException {
+    public boolean register(User user, String email) {
 
         boolean status = false;
         try {
@@ -50,84 +33,17 @@ public class UserService {
         return status;
     }
 
-    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (first)
-                first = false;
-            else
-                result.append("&");
-
-            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
-        }
-
-        return result.toString();
-    }
-
     public void login(String username, String password) throws LoginFailedException {
-
-        URL url;
-        String response = "";
-        //java.net.CookieManager msCookieManager = new java.net.CookieManager();
-        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
+        String response;
+        HttpClientProvider http = HttpClientProvider.getInstance();
         try {
-            url = new URL(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE);
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-
-            OutputStream os = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, StandardCharsets.UTF_8));
-
-            HashMap postDataParams = new HashMap<String, String>();
-            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
-            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
-            postDataParams.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_ACTION_VALUE);
-
-            writer.write(getPostDataString(postDataParams));
-
-            writer.flush();
-            writer.close();
-            os.close();
-            int responseCode = conn.getResponseCode();
-
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-/*                final String COOKIES_HEADER = "Set-Cookie";
-                //CookieHandler.setDefault( new CookieManager( null, CookiePolicy.ACCEPT_ALL ) );
-
-                Map<String, List<String>> headerFields = conn.getHeaderFields();
-                List<String> cookiesHeader = headerFields.get(COOKIES_HEADER);
-                if (cookiesHeader != null) {
-                    for (String cookie : cookiesHeader) {
-                        msCookieManager.getCookieStore().add(null, HttpCookie.parse(cookie).get(0));
-                    }
-                }
-
-                if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                    // While joining the Cookies, use ',' or ';' as needed. Most of the servers are using ';'
-                  //  conn.setRequestProperty(COOKIES_HEADER, TextUtils.join(";", msCookieManager.getCookieStore().getCookies()));
-                    String cookiesString = TextUtils.join(";", msCookieManager.getCookieStore().getCookies());
-                    Log.d(LOG_TAG + "cookiesString", cookiesString);
-                }
-*/
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    response += line;
-                }
-            } else {
-                response = "";
-
-            }
+            HashMap<String, String> params = new HashMap<>();
+            params.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
+            params.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
+            params.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_ACTION_VALUE);
+            response = http.postFormBody(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE, params);
         } catch (Exception e) {
+            response = "";
             e.printStackTrace();
         }
 
@@ -147,56 +63,18 @@ public class UserService {
         //  return msCookieManager;
     }
 
-    private boolean RegisterUser(String username, String password, String email) throws RegisterFailedException, UnsupportedHttpPostEncodingException {
-        URL url;
+    private boolean RegisterUser(String username, String password, String email) throws RegisterFailedException {
         String response = "";
-        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
+        HttpClientProvider http = HttpClientProvider.getInstance();
         try {
-            url = new URL(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE);
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-
-            OutputStream os = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, StandardCharsets.UTF_8));
-
-            HashMap postDataParams = new HashMap<String, String>();
-            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
-            postDataParams.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
-            postDataParams.put(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_EMAIL, email);
-            postDataParams.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_ACTION_VALUE);
-
-            writer.write(getPostDataString(postDataParams));
-
-            writer.flush();
-            writer.close();
-            os.close();
-            int responseCode = conn.getResponseCode();
-
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    response += line;
-
-                }
-            } else {
-                response = "";
-            }
-        } catch (UnsupportedEncodingException e) {
-            String message = "Could not start register because the HTTP post encoding is not supported";
-            Log.e(LOG_TAG, message, e);
-            throw new UnsupportedHttpPostEncodingException(message, e);
-        } catch (MalformedURLException e) {
-            String message = "The feed URL could not be build";
-            Log.e(LOG_TAG, message, e);
+            HashMap<String, String> params = new HashMap<>();
+            params.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
+            params.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
+            params.put(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_EMAIL, email);
+            params.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_ACTION_VALUE);
+            response = http.postFormBody(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE, params);
         } catch (Exception e) {
-            String message = "An error occured";
+            String message = "An error occurred during registration";
             Log.e(LOG_TAG, message, e);
         }
 
