@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -52,6 +53,10 @@ public class UpdatedEpisodeListingActivity extends Activity {
     private final EpisodesService service;
 
     private List<Episode> episodes = new ArrayList<>();
+    private SwipeRefreshLayout swipeRefreshEps;
+    private LinearLayoutManager layoutManager;
+    private SharedPreferences sharedPref;
+    private static final String SCROLL_POS_EPS = "scroll_pos_eps";
     private Integer exceptionMessageResId = null;
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
@@ -73,7 +78,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
                 sharedPref.getString("username", null),
                 sharedPref.getString("UserPassword", null)
@@ -132,12 +137,19 @@ public class UpdatedEpisodeListingActivity extends Activity {
         adapter.notifyDataSetChanged();
         // Attach the adapter to the recyclerview to populate items
         rvEpisode.setAdapter(adapter);
-        // Set layout manager to position the items
-        //rvEpisode.setLayoutManager(new LinearLayoutManager(this));
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        rvEpisode.setLayoutManager(linearLayoutManager);
+        layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        rvEpisode.setLayoutManager(layoutManager);
         rvEpisode.setHasFixedSize(true);
+
+        swipeRefreshEps = findViewById(R.id.swipe_refresh_eps);
+        swipeRefreshEps.setOnRefreshListener(this::onRefreshClick);
+        swipeRefreshEps.setColorSchemeResources(R.color.colorAccent, android.R.color.holo_green_dark, android.R.color.holo_orange_dark);
+
+        int savedPos = sharedPref.getInt(SCROLL_POS_EPS + episodesType + showMyEpisodeID, 0);
+        if (savedPos > 0) {
+            layoutManager.scrollToPosition(savedPos);
+        }
 
 
         com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
@@ -172,6 +184,64 @@ public class UpdatedEpisodeListingActivity extends Activity {
                     return true;
                 }
         );
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (layoutManager != null) {
+            int pos = layoutManager.findFirstVisibleItemPosition();
+            sharedPref.edit().putInt(SCROLL_POS_EPS + episodesType + showMyEpisodeID, pos).apply();
+        }
+    }
+
+    public void onRefreshClick() {
+        Log.d(LOG_TAG, "Refreshing episodes for type: " + episodesType);
+        EpisodesController controller = EpisodesController.getInstance();
+
+        controller.setEpisodes(episodesType, new ArrayList<>());
+        controller.getEpisodesShows(getByShowType(episodesType)).clear();
+
+        TaskRunner.getExecutor().execute(() -> {
+            try {
+                List<Episode> freshEpisodes = service.retrieveEpisodes(episodesType, user);
+                controller.setEpisodes(episodesType, freshEpisodes);
+                switch (episodesType) {
+                    case EPISODES_TO_WATCH:
+                        controller.AddToWatchShow(freshEpisodes);
+                        break;
+                    case EPISODES_TO_ACQUIRE:
+                    case EPISODES_TO_YESTERDAY1:
+                    case EPISODES_TO_YESTERDAY2:
+                        controller.AddToAcquireShow(freshEpisodes);
+                        break;
+                    case EPISODES_COMING:
+                        controller.AddToComingShow(freshEpisodes);
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error refreshing episodes", e);
+            }
+            runOnUiThread(() -> {
+                returnEpisodes();
+                adapter = new EpisodeAdapter(episodes, buildRuntimeMapForEpisodes(episodes));
+                RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
+                rv.setAdapter(adapter);
+                adapter.submitList(episodes);
+                if (swipeRefreshEps != null) {
+                    swipeRefreshEps.setRefreshing(false);
+                }
+            });
+        });
+    }
+
+    private EpisodeType getByShowType(EpisodeType type) {
+        switch (type) {
+            case EPISODES_TO_WATCH: return EpisodeType.WATCH_BY_SHOW;
+            case EPISODES_TO_ACQUIRE: return EpisodeType.ACQUIRE_BY_SHOW;
+            case EPISODES_COMING: return EpisodeType.COMING_BY_SHOW;
+            default: return type;
+        }
     }
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener = new NavigationBarView.OnItemSelectedListener() {

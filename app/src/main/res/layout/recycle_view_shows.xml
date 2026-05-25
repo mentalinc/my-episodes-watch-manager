@@ -68,19 +68,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ShowEpCount" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewListItemsShows"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_shows"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:clipToPadding="true"
-        android:orientation="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/frame_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchEditText"
-        tools:listitem="@layout/item_show" />
+        app:layout_constraintTop_toBottomOf="@+id/searchEditText">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewListItemsShows"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="true"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_show" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <FrameLayout
         android:id="@+id/frame_layout"

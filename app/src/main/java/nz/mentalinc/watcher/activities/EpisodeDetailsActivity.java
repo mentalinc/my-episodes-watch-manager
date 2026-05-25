@@ -7,10 +7,13 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +61,7 @@ import nz.mentalinc.watcher.utils.TaskRunner;
  */
 public class EpisodeDetailsActivity extends Activity {
     private Episode episode = null;
-    private List<Episode> episodesRaw = new ArrayList<>();
+    private List<Episode> episodesForShow = new ArrayList<>();
     private EpisodeType episodesType;
     private String title;
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
@@ -66,6 +69,9 @@ public class EpisodeDetailsActivity extends Activity {
     Bundle data;
     private String showMyEpisodeID;
     List<Show> shows = new ArrayList<>();
+    private GestureDetector gestureDetector;
+    private int currentEpisodeIndex = 0;
+    private List<Episode> episodesRaw = new ArrayList<>();
 
 
     @Override
@@ -94,95 +100,48 @@ public class EpisodeDetailsActivity extends Activity {
 
         Bundle data = this.getIntent().getExtras();
         title = (String) data.getSerializable("Title");
-        TextView showNameText = findViewById(R.id.episodeDetShowName);
-        TextView episodeNameText = findViewById(R.id.episodeDetName);
-        TextView seasonText = findViewById(R.id.episodeDetSeason);
-        TextView episodeText = findViewById(R.id.episodeDetEpisode);
-        TextView airdateText = findViewById(R.id.episodeDetAirdate);
 
         episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
         showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
 
-        AddEpisodeToShow(episode);
+        returnEpisodes();
+        episodesForShow = !shows.isEmpty() ? shows.get(0).getEpisodes() : new ArrayList<>();
+        currentEpisodeIndex = findEpisodeIndex(episode);
 
-        //returnEpisodes();
+        displayEpisode(episode);
 
-        String seasonNumber = episode.getSeasonString();
-        String episodeNumber = episode.getEpisodeString();
-        String episodeFullNumbering = "S" + seasonNumber + "E" + episodeNumber;
-
+        String episodeFullNumbering = "S" + episode.getSeasonString() + "E" + episode.getEpisodeString();
         com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodeDetails);
-        title = title + " - " + episodeFullNumbering;
-        ShowNameTitle.setTitle(title);
+        ShowNameTitle.setTitle(title + " - " + episodeFullNumbering);
 
         bottomNavigationView = findViewById(R.id.bottom_navigationEpisodeDetail);
         bottomNavigationView.getMenu().getItem(1).setChecked(true);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
-        showNameText.setText(episode.getShowName());
-        episodeNameText.setText(episode.getName());
-        seasonText.setText(episode.getSeasonString());
-        episodeText.setText(episode.getEpisodeString());
+        ScrollView scrollView = findViewById(R.id.ScrollView01);
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            private static final int SWIPE_THRESHOLD = 100;
+            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
-
-        //Air date in specific format
-        Date airdate = episode.getAirDate();
-        String formattedAirDate;
-        if (airdate != null) {
-            formattedAirDate = DateUtil.formatDateLong(airdate);
-        } else {
-            formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
-        }
-
-        airdateText.setText(formattedAirDate);
-
-        TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
-        if (!TextUtils.isEmpty(episode.getTVMazeWebSite())) {
-            //aboutWebsite.setText(episode.getTVMazeWebSite());
-            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-
-            SeriesDAO seriesDAO = database.getSeriesDAO();
-            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-
-
-            //create hashmap's to prevent build fails, they get replaced
-            HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
-            episodeSummaryHashMap.put("a", "b");
-
-            HashMap<String, String> showSummaryHashMap = new HashMap<>();
-            showSummaryHashMap.put("a", "b");
-
-
-
-            downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
-            downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), episode.getSeasonString(), episode.getEpisodeString());
-        } else {
-            aboutWebsite.setVisibility(View.GONE);
-        }
-
-        Button markAsAcquiredButton = findViewById(R.id.markAsAcquiredButton);
-        Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
-
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                markAsAcquiredButton.setVisibility(View.GONE);
-                break;
-            case EPISODES_TO_YESTERDAY1:
-            case EPISODES_TO_YESTERDAY2:
-            case EPISODES_TO_ACQUIRE:
-                break;
-            case EPISODES_COMING:
-                // Cant see or acquire future episodes (unless same day?), just remove the buttons.
-                markAsAcquiredButton.setVisibility(View.GONE);
-                markAsSeenButton.setVisibility(View.GONE);
-                break;
-        }
-
-        markAsAcquiredButton.setOnClickListener(v -> closeAndAcquireEpisode(episode));
-
-        markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(episode));
-
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                float diffX = e2.getX() - e1.getX();
+                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD && Math.abs(diffX) > Math.abs(e2.getY() - e1.getY())) {
+                    if (diffX < 0) {
+                        navigateToEpisode(1);
+                    } else {
+                        navigateToEpisode(-1);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+        scrollView.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return false;
+        });
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -194,19 +153,102 @@ public class EpisodeDetailsActivity extends Activity {
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsSeen = findViewById(R.id.markAsSeen);
         appBarmarkAsSeen.setOnClickListener(v -> {
-
             Log.w(LOG_TAG, "markAsSeen button clicked.");
             closeAndMarkWatched(episode);
         });
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsAquired = findViewById(R.id.markAsAquired);
         appBarmarkAsAquired.setOnClickListener(v -> {
-
             Log.w(LOG_TAG, "markAsAquired button clicked.");
             closeAndAcquireEpisode(episode);
         });
+    }
 
+    private void displayEpisode(Episode ep) {
+        episode = ep;
 
+        TextView showNameText = findViewById(R.id.episodeDetShowName);
+        TextView episodeNameText = findViewById(R.id.episodeDetName);
+        TextView seasonText = findViewById(R.id.episodeDetSeason);
+        TextView episodeText = findViewById(R.id.episodeDetEpisode);
+        TextView airdateText = findViewById(R.id.episodeDetAirdate);
+
+        showNameText.setText(ep.getShowName());
+        episodeNameText.setText(ep.getName());
+        seasonText.setText(ep.getSeasonString());
+        episodeText.setText(ep.getEpisodeString());
+
+        Date airdate = ep.getAirDate();
+        String formattedAirDate;
+        if (airdate != null) {
+            formattedAirDate = DateUtil.formatDateLong(airdate);
+        } else {
+            formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
+        }
+        airdateText.setText(formattedAirDate);
+
+        Button markAsAcquiredButton = findViewById(R.id.markAsAcquiredButton);
+        Button markAsSeenButton = findViewById(R.id.markAsSeenButton);
+
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                markAsAcquiredButton.setVisibility(View.GONE);
+                markAsSeenButton.setVisibility(View.VISIBLE);
+                break;
+            case EPISODES_TO_YESTERDAY1:
+            case EPISODES_TO_YESTERDAY2:
+            case EPISODES_TO_ACQUIRE:
+                markAsAcquiredButton.setVisibility(View.VISIBLE);
+                markAsSeenButton.setVisibility(View.VISIBLE);
+                break;
+            case EPISODES_COMING:
+                markAsAcquiredButton.setVisibility(View.GONE);
+                markAsSeenButton.setVisibility(View.GONE);
+                break;
+        }
+
+        markAsAcquiredButton.setOnClickListener(v -> closeAndAcquireEpisode(ep));
+        markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(ep));
+
+        com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodeDetails);
+        ShowNameTitle.setTitle(title + " - S" + ep.getSeasonString() + "E" + ep.getEpisodeString());
+
+        TextView aboutWebsite = findViewById(R.id.tvMazeWebsite);
+        if (!TextUtils.isEmpty(ep.getTVMazeWebSite())) {
+            AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+            SeriesDAO seriesDAO = database.getSeriesDAO();
+            EpisodeRuntime showRuntime = seriesDAO.getEpisodeRuntimeWithMyEpsId(ep.getMyEpisodeID());
+
+            HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
+            episodeSummaryHashMap.put("a", "b");
+            HashMap<String, String> showSummaryHashMap = new HashMap<>();
+            showSummaryHashMap.put("a", "b");
+
+            downloadShowSummary(showSummaryHashMap, showRuntime.getShowTVMazeID());
+            downloadEpisodeSummary(episodeSummaryHashMap, showRuntime.getShowTVMazeID(), ep.getSeasonString(), ep.getEpisodeString());
+        } else {
+            aboutWebsite.setVisibility(View.GONE);
+        }
+    }
+
+    private int findEpisodeIndex(Episode target) {
+        if (episodesForShow == null || episodesForShow.isEmpty()) return 0;
+        for (int i = 0; i < episodesForShow.size(); i++) {
+            Episode ep = episodesForShow.get(i);
+            if (ep.getMyEpisodeID().equals(target.getMyEpisodeID()) &&
+                    ep.getSeasonString().equals(target.getSeasonString()) &&
+                    ep.getEpisodeString().equals(target.getEpisodeString())) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private void navigateToEpisode(int direction) {
+        int newIndex = currentEpisodeIndex + direction;
+        if (newIndex < 0 || newIndex >= episodesForShow.size()) return;
+        currentEpisodeIndex = newIndex;
+        displayEpisode(episodesForShow.get(newIndex));
     }
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener = new NavigationBarView.OnItemSelectedListener() {

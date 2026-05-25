@@ -94,10 +94,12 @@ public class RandomEpPickerActivity extends Activity {
         if (EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH) > 0) {
             showRuntimePickerDialog();
         } else {
-            seasonText.setText("-");
-            episodeText.setText("-");
-            airdateText.setText("-");
-            findViewById(R.id.markAsSeenButton).setVisibility(View.GONE);
+            new AlertDialog.Builder(this)
+                    .setTitle("Random Episode")
+                    .setMessage("Nothing new to watch")
+                    .setPositiveButton("OK", (dialog, which) -> exit())
+                    .setCancelable(false)
+                    .show();
         }
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
@@ -165,9 +167,13 @@ public class RandomEpPickerActivity extends Activity {
                 getString(R.string.randompickerBar)
         };
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int lastSelection = prefs.getInt("runtime_filter_selection", -1);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select runtime");
-        builder.setItems(options, (dialog, which) -> {
+        builder.setSingleChoiceItems(options, lastSelection, (dialog, which) -> {
+            prefs.edit().putInt("runtime_filter_selection", which).apply();
             switch (which) {
                 case 0: pickRandomByRuntime(30, false); break;
                 case 1: pickRandomByRuntime(45, false); break;
@@ -178,6 +184,7 @@ public class RandomEpPickerActivity extends Activity {
                     displayShow(shows.get(0));
                     break;
             }
+            dialog.dismiss();
         });
         builder.setOnCancelListener(dialog -> {
             shows = EpisodesController.getInstance().getRandomWatchEpisodeShowList();

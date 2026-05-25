@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -82,6 +83,10 @@ public class ShowListingActivity extends Activity {
     private UserService userService;
 
     private BottomNavigationView bottomNavigationView;
+    private SwipeRefreshLayout swipeRefreshShows;
+    private LinearLayoutManager layoutManager;
+    private SharedPreferences sharedPref;
+    private static final String SCROLL_POS_SHOWS = "scroll_pos_shows";
 
     public ShowListingActivity() {
         super();
@@ -101,7 +106,7 @@ public class ShowListingActivity extends Activity {
         Bundle data = this.getIntent().getExtras();
         //episodeType is set based on the button on the home page that is press.
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
                 sharedPref.getString("username", null),
                 sharedPref.getString("UserPassword", null)
@@ -176,8 +181,18 @@ public class ShowListingActivity extends Activity {
         RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
         rvShows.setAdapter(adapter);
         // Set layout manager to position the items
-        rvShows.setLayoutManager(new LinearLayoutManager(this));
+        layoutManager = new LinearLayoutManager(this);
+        rvShows.setLayoutManager(layoutManager);
         rvShows.setHasFixedSize(true);
+
+        swipeRefreshShows = findViewById(R.id.swipe_refresh_shows);
+        swipeRefreshShows.setOnRefreshListener(this::onRefreshClick);
+        swipeRefreshShows.setColorSchemeResources(R.color.colorAccent, android.R.color.holo_green_dark, android.R.color.holo_orange_dark);
+
+        int savedPos = sharedPref.getInt(SCROLL_POS_SHOWS + episodesType, 0);
+        if (savedPos > 0) {
+            layoutManager.scrollToPosition(savedPos);
+        }
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -232,36 +247,46 @@ public class ShowListingActivity extends Activity {
         });
 
 
-        //todo add LONG click listener to popup the options to either mark as watched or acquired, details etc (per existing screnshopws.
-
-        // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
-
         ItemClickSupport.addTo(rvShows).setOnItemClickListener((recyclerView, position, v) -> {
-                    // do stuff
                     ShowAdapter listAdapter = (ShowAdapter) recyclerView.getAdapter();
                     Show showSelected = listAdapter.getCurrentList().get(position);
-                    //to go straight to details if there is only 1 episode - saves clicking through the list when it would only show one anyway.
                     Episode nextEpisodeToWatch = showSelected.getFirstEpisode();
 
                     if (showSelected.getNumberEpisodes() == 1) {
                         openEpisodeDetails(nextEpisodeToWatch, episodesType);
                     } else if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
                         openEpisodeListing(showSelected, episodesType);
-                        //   returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
                     } else if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
                         openEpisodeListing(showSelected, episodesType);
-                        //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
-
                     } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
                         openEpisodeListing(showSelected, episodesType);
-                        //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
                     } else {
                         ShowSummaryActivity(showSelected, episodesType);
                     }
-
                 }
-
         );
+
+        ItemClickSupport.addTo(rvShows).setOnItemLongClickListener((recyclerView, position, v) -> {
+                    ShowAdapter listAdapter = (ShowAdapter) recyclerView.getAdapter();
+                    Show showSelected = listAdapter.getCurrentList().get(position);
+                    Episode episode = showSelected.getFirstEpisode();
+                    EpisodeRuntime rt = runtimeMap.get(episode.getMyEpisodeID());
+                    if (rt != null && rt.getShowURL() != null && !rt.getShowURL().isEmpty()) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(rt.getShowURL()));
+                        startActivity(browserIntent);
+                    }
+                    return true;
+                }
+        );
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (layoutManager != null) {
+            int pos = layoutManager.findFirstVisibleItemPosition();
+            sharedPref.edit().putInt(SCROLL_POS_SHOWS + episodesType, pos).apply();
+        }
     }
 
     // This is only here to test the old view of showing all the episodes for an app instead grouping them via the show overview view now.
@@ -541,6 +566,9 @@ public class ShowListingActivity extends Activity {
                 showsFull = new ArrayList<>(shows);
                 removeDialog(EPISODE_LOADING_DIALOG);
                 removeDialog(EPISODE_LOADING_DIALOG_CACHE);
+                if (swipeRefreshShows != null) {
+                    swipeRefreshShows.setRefreshing(false);
+                }
             });
         });
     }
