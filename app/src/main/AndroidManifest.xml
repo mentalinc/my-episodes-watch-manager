@@ -79,6 +79,11 @@
             android:exported="false"
             android:label="@string/randompicker" />
         <activity
+            android:name=".activities.CalendarActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:label="@string/calendarTitle" />
+        <activity
             android:name=".activities.AboutActivity"
             android:exported="false"
             android:label="@string/about" />

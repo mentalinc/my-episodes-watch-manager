@@ -31,6 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -81,12 +83,11 @@ public class HomeActivity extends AppCompatActivity {
     private com.google.android.material.button.MaterialButton btn_ShowWatchNew;
     private com.google.android.material.button.MaterialButton btn_ShowAcquireNew;
     private com.google.android.material.button.MaterialButton btn_ShowListing;
-    private com.google.android.material.button.MaterialButton btnComing;
+    private com.google.android.material.button.MaterialButton btnCalendar;
 
 
     private Intent watchIntent;
     private Intent acquireIntent;
-    private Intent comingIntent;
 
 
     /**
@@ -96,13 +97,9 @@ public class HomeActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         init();
 
-
         userService = new UserService();
-        setContentView(R.layout.main);
 
-        //Below makes sure all settings have their default value set to limit null errors etc
         PreferenceManager.setDefaultValues(getBaseContext(), R.xml.settings_screen, false);
-
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String LanguageCode = sharedPref.getString("language", "en");
         String themeSetting = sharedPref.getString("ThemeSetting", "0");
@@ -117,6 +114,8 @@ public class HomeActivity extends AppCompatActivity {
                 setTheme(R.style.ThemeDark);
                 break;
         }
+
+        setContentView(R.layout.main);
 
         bottomNavigationView = findViewById(R.id.bottom_navigationActivityHome);
         bottomNavigationView.getMenu().getItem(0).setChecked(true);
@@ -191,22 +190,10 @@ public class HomeActivity extends AppCompatActivity {
             btnAcquired.setVisibility(View.GONE);
         }
 
-        btnComing = findViewById(R.id.btn_coming);
-        comingIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
+        btnCalendar = findViewById(R.id.btn_calendar);
+        btnCalendar.setOnClickListener(v -> onCalendarClick(v));
 
-        String coming_sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
-        if (coming_sorting.equals(showOrderOptions[3])) {
-            comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
-        } else {
-            comingIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
-        }
-        comingIntent.putExtra("Title", getString(R.string.coming));
-        btnComing.setOnClickListener(v -> startActivity(comingIntent));
-
-        if (sharedPref.getBoolean("disableComing", false)) {
-            btnComing.setVisibility(View.GONE);
-        }
-
+        updateHomeButtonCounts();
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarLogout = findViewById(R.id.logout);
         appBarLogout.setOnClickListener(v -> {
@@ -362,29 +349,64 @@ public class HomeActivity extends AppCompatActivity {
 
     private void loadEpisodesData(Runnable onComplete) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        TaskRunner.getExecutor().execute(() -> {
+        String acquirePref = sharedPref.getString("ACQUIRE_KEY", "0");
+        boolean useYesterday = acquirePref != null && acquirePref.equals("1");
+        Executor executor = TaskRunner.getExecutor();
 
+        CompletableFuture<Void> watchFuture = CompletableFuture.runAsync(() -> {
             try {
-                final EpisodesController episodesController = EpisodesController.getInstance();
-                episodesController.setEpisodes(EpisodeType.EPISODES_TO_WATCH, service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user));
-                episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
+                List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user);
+                EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_WATCH, eps);
+            } catch (InternetConnectivityException e) {
+                exception = true;
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error loading Watch episodes", e);
+            }
+        }, executor);
 
-                String acquire = sharedPref.getString("ACQUIRE_KEY", "0");
-                if (acquire != null && acquire.equals("1")) {
-                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user));
-                    EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user));
+        CompletableFuture<Void> acquireFuture = CompletableFuture.runAsync(() -> {
+            try {
+                if (useYesterday) {
+                    List<Episode> y1 = service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, user);
+                    List<Episode> y2 = service.retrieveEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, user);
+                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1, y1);
+                    EpisodesController.getInstance().addEpisodes(EpisodeType.EPISODES_TO_YESTERDAY2, y2);
+                } else {
+                    List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user);
+                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, eps);
+                }
+            } catch (InternetConnectivityException e) {
+                exception = true;
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error loading Acquire episodes", e);
+            }
+        }, executor);
+
+        CompletableFuture<Void> comingFuture = CompletableFuture.runAsync(() -> {
+            try {
+                List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user);
+                EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_COMING, eps);
+            } catch (InternetConnectivityException e) {
+                exception = true;
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error loading Coming episodes", e);
+            }
+        }, executor);
+
+        executor.execute(() -> {
+            try {
+                CompletableFuture.allOf(watchFuture, acquireFuture, comingFuture).join();
+
+                EpisodesController episodesController = EpisodesController.getInstance();
+                episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
+                if (useYesterday) {
                     episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));
                 } else {
-                    EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user));
                     episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
                 }
-                episodesController.setEpisodes(EpisodeType.EPISODES_COMING, service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user));
                 episodesController.AddToComingShow(episodesController.getEpisodes(EpisodeType.EPISODES_COMING));
 
                 resetPageFilters(user);
-
-            } catch (InternetConnectivityException e) {
-                exception = true;
             } catch (Exception e) {
                 String message = "Error in background task";
                 Log.e(LOG_TAG, message, e);
@@ -403,7 +425,6 @@ public class HomeActivity extends AppCompatActivity {
         btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
         btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
         btn_ShowListing.setText(getString(R.string.newCominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
-        btnComing.setText(getString(R.string.cominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
     }
 
 
@@ -536,7 +557,6 @@ public class HomeActivity extends AppCompatActivity {
         btn_ShowWatchNew.setText(getString(R.string.newWatchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
         btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
         btn_ShowListing.setText(getString(R.string.newCominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
-        btnComing.setText(getString(R.string.cominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
     }
 
     @Override
@@ -677,6 +697,12 @@ public class HomeActivity extends AppCompatActivity {
         Intent randomActivity = new Intent(this.getApplicationContext(), RandomEpPickerActivity.class);
         randomActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(randomActivity);
+    }
+
+    public void onCalendarClick(View v) {
+        Intent calendarIntent = new Intent(this.getApplicationContext(), CalendarActivity.class);
+        calendarIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(calendarIntent);
     }
 
     public void onSettingsClick(View v) {

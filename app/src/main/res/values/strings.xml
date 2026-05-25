@@ -99,6 +99,22 @@
     <string name="episodesToAcquire">Episodes to acquire: </string>
     <string name="episodesComing">Episodes coming: </string>
     <string name="seasonProgress">Season Progress</string>
+    <string name="calendar">Calendar</string>
+    <string name="calendarTitle">Episode Calendar</string>
+    <string name="noEpisodesOnDate">No episodes on this date</string>
+    <string name="calendarLegend">● %1$s  ● %2$s  ● %3$s</string>
+    <string name="watchLabel">Watch</string>
+    <string name="acquireLabel">Acquire</string>
+    <string name="comingLabel">Coming</string>
+    <string name="today">Today</string>
+    <string name="selectMonthYear">Select Month and Year</string>
+    <string name="daySunShort">Sun</string>
+    <string name="dayMonShort">Mon</string>
+    <string name="dayTueShort">Tue</string>
+    <string name="dayWedShort">Wed</string>
+    <string name="dayThuShort">Thu</string>
+    <string name="dayFriShort">Fri</string>
+    <string name="daySatShort">Sat</string>
 
     <!-- Favo and ingored shows -->
     <string name="favoIgnoredDeleteShow">Delete show</string>

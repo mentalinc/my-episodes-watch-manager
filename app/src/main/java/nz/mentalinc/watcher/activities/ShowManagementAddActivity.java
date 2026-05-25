@@ -111,6 +111,20 @@ public class ShowManagementAddActivity extends ListActivity {
 
     private void init() {
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String themeSetting = prefs.getString("ThemeSetting", "0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
+
         setContentView(R.layout.show_management_add);
         findViewById(R.id.appBarLayoutAdd).setZ(100f);
 

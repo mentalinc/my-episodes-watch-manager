@@ -76,7 +76,9 @@ public class EpisodeDetailsActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
- /*      SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        super.onCreate(savedInstanceState);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
@@ -88,8 +90,7 @@ public class EpisodeDetailsActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
-        }*/
-        super.onCreate(savedInstanceState);
+        }
 
 
         //TODO ADD in a check so that only show this view when clicking on an episode to get more info (updatedepisodelistingactivity). if in the other views and not an actual episode, should only no new episode to watch.

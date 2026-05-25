@@ -114,10 +114,11 @@
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_coming"
+                        android:id="@+id/btn_calendar"
                         style="@style/HomeButton"
-                        android:drawableTop="@drawable/outline_next_week_white_48"
-                        android:text="@string/cominghome" />
+                        android:drawableTop="@drawable/outline_calendar_month_white_48"
+                        android:onClick="onCalendarClick"
+                        android:text="@string/calendar" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_random"

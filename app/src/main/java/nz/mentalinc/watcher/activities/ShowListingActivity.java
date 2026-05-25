@@ -98,6 +98,21 @@ public class ShowListingActivity extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = prefs.getString("ThemeSetting", "0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
+
         setContentView(R.layout.recycle_view_shows);
         userService = new UserService();
         this.service = new EpisodesService();
@@ -107,7 +122,7 @@ public class ShowListingActivity extends Activity {
         Bundle data = this.getIntent().getExtras();
         //episodeType is set based on the button on the home page that is press.
         episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        sharedPref = prefs;
         user = new User(
                 sharedPref.getString("username", null),
                 sharedPref.getString("UserPassword", null)

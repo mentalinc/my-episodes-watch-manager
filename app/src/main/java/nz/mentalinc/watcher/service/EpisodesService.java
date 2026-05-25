@@ -58,6 +58,7 @@ import nz.mentalinc.watcher.utils.DateUtil;
 public class EpisodesService {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
     private final UserService userService;
+    private boolean fullUnwatchedDownloaded;
 
 
     public EpisodesService() {
@@ -439,7 +440,10 @@ public class EpisodesService {
      * parse the views.php page to show a full list of unwatched apps
      */
 
-    private StringWriter downloadFullUnwatched(User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
+    private synchronized StringWriter downloadFullUnwatched(User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
+        if (fullUnwatchedDownloaded) {
+            return new StringWriter();
+        }
         String urlRep = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
         URL url;
         //login to myepisodes
@@ -669,6 +673,7 @@ public class EpisodesService {
         } else {
             Log.i(LOG_TAG, "Successfully downloaded full episode list from url " + urlRep + " (" + ")");
         }
+        fullUnwatchedDownloaded = true;
         return sw;
     }
 

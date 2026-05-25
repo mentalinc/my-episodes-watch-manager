@@ -78,7 +78,22 @@ public class UpdatedEpisodeListingActivity extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String themeSetting = prefs.getString("ThemeSetting", "0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
+
+        sharedPref = prefs;
         user = new User(
                 sharedPref.getString("username", null),
                 sharedPref.getString("UserPassword", null)

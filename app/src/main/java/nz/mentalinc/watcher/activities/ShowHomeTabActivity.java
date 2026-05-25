@@ -44,6 +44,21 @@ public class ShowHomeTabActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String themeSetting = prefs.getString("ThemeSetting", "0");
+        switch (themeSetting) {
+            case "0":
+                setTheme(R.style.ThemeDayNight);
+                break;
+            case "1":
+                setTheme(R.style.ThemeLight);
+                break;
+            case "2":
+                setTheme(R.style.ThemeDark);
+                break;
+        }
+
         setContentView(R.layout.show_home_tab);
         data = this.getIntent().getExtras();
 

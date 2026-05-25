@@ -39,4 +39,8 @@
     <color name="colorNumber">#000000</color>
     <color name="colorBtnBackground">#FFFFFF</color>
 
+    <color name="calendarWatchColor">#4CAF50</color>
+    <color name="calendarAcquireColor">#FF9800</color>
+    <color name="calendarComingColor">#2196F3</color>
+
 </resources>
