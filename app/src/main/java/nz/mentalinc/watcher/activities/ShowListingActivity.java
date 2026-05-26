@@ -110,8 +110,9 @@ public class ShowListingActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         setContentView(R.layout.recycle_view_shows);
         userService = new UserService();
         this.service = new EpisodesService();
@@ -362,6 +363,13 @@ public class ShowListingActivity extends Activity {
                     startActivity(newComingShowListing);
 
                     return true;
+                }else if(R.id.barCalendar == nextItem) {
+                    finish();
+                    Log.w(LOG_TAG, "barCalendar selected");
+                    Intent calendarIntent = new Intent(getApplicationContext(), CalendarActivity.class);
+                    calendarIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(calendarIntent);
+                    return true;
 
                /* case R.id.barRandom:
                     Log.w(LOG_TAG, "barRandom selected");
@@ -422,19 +430,6 @@ public class ShowListingActivity extends Activity {
         } else {
             Log.d(LOG_TAG, "Episode can't be added to show.");
         }
-
-        //shows don't have runtime added yet?
-        sortShows(shows);
-        sortEpisodesOfShows(shows);
-
-    }
-
-
-    private void returnEpisodesShowHash(HashMap<String, Show> hashMap) {
-
-        //TODO - try to add the runtime to the show here? so show has runime early (OR add when first created in the episode service?)
-        hashMap.size();
-        hashMap.forEach((k, v) -> shows.add(v));
 
         //shows don't have runtime added yet?
         sortShows(shows);
@@ -522,8 +517,9 @@ public class ShowListingActivity extends Activity {
             case EPISODES_COMING:
                 sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
+            default: //added for code quality
         }
-
+ 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
         if (sorting.equals(showOrderOptions[1])) {
             Log.d(LOG_TAG, "Sorting episodes ascending");
@@ -622,6 +618,7 @@ public class ShowListingActivity extends Activity {
                     }
                 }
                 break;
+            default: //added for code quality
         }
         reloadEpisodes();
 

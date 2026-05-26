@@ -94,6 +94,8 @@ public class CalendarActivity extends AppCompatActivity {
                                 EpisodeType.EPISODES_COMING);
                         startActivity(intent);
                         return true;
+                    } else if (id == R.id.barCalendar) {
+                        return true;
                     }
                     return false;
                 }
@@ -115,8 +117,9 @@ public class CalendarActivity extends AppCompatActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         setContentView(R.layout.activity_calendar);
 
         MaterialToolbar toolbar = findViewById(R.id.topAppBarCalendar);
@@ -207,6 +210,7 @@ public class CalendarActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationCalendar);
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
+        bottomNav.setSelectedItemId(R.id.barCalendar);
 
         loadAllEpisodes();
         refreshCalendarGrid();
@@ -327,11 +331,12 @@ public class CalendarActivity extends AppCompatActivity {
                         case EPISODES_COMING:
                             if (filterComingEnabled) filtered.add(ce);
                             break;
+                        default: //added for code quality
                     }
                 }
             }
         }
-
+ 
         episodeAdapter.submitList(filtered);
 
         if (filtered.isEmpty()) {

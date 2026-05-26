@@ -35,6 +35,7 @@ public class AboutActivity extends Activity {
                 Log.d(LOG_TAG, "Theme Preference set as ThemeDark");
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
 
 

@@ -98,6 +98,7 @@ public class ShowManagementActivity extends ListActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
         init();
@@ -184,6 +185,7 @@ public class ShowManagementActivity extends ListActivity {
                 dialog = progressDialog;
                 break;
             }
+            default: //added for code quality
         }
         return dialog;
     }
@@ -271,6 +273,7 @@ public class ShowManagementActivity extends ListActivity {
             case IGNORED_SHOWS:
                 menu.add(Menu.NONE, CONTEXT_MENU_UNIGNORE, Menu.NONE, R.string.favoIgnoredUnignoreShow);
                 break;
+            default: //added for code quality
         }
 
         menu.add(Menu.NONE, CONTEXT_MENU_DELETE, Menu.NONE, R.string.favoIgnoredDeleteShow);
@@ -337,6 +340,7 @@ public class ShowManagementActivity extends ListActivity {
                 case UNIGNORE:
                 case DELETE:
                     break;
+                default: //added for code quality
             }
 
             markShow(user, showType, action, show);

@@ -36,7 +36,7 @@ import nz.mentalinc.watcher.exception.RssFeedParserException;
 
 public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     private static final String LOG_TAG = SaxRssFeedParser.class.getSimpleName();
-    private static final String UTF_8 = UTF_8;
+    private static final String UTF_8 = "UTF_8";
 
     private boolean inItem = false;
     private boolean inDescription = true;

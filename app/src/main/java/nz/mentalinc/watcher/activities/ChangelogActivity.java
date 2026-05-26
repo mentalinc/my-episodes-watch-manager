@@ -68,6 +68,7 @@ public class ChangelogActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelog);

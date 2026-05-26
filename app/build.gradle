@@ -62,34 +62,28 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.room:room-runtime:2.8.4'
     implementation 'androidx.fragment:fragment:1.8.9'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.navigation:navigation-fragment:2.9.8'
-    implementation 'androidx.navigation:navigation-ui:2.9.8'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     annotationProcessor 'androidx.room:room-compiler:2.8.4'
     // For Kotlin use kapt instead of annotationProcessor
-    implementation 'androidx.test:runner:1.7.0'
-    implementation 'androidx.test.espresso:espresso-core:3.7.0'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    androidTestImplementation 'androidx.room:room-testing:2.8.4'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.12.0'
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
     implementation 'androidx.core:core:1.18.0'
 
 
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.3.0'
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.annotation:annotation:1.10.0'
-    implementation 'androidx.compose.material3:material3:1.4.0'
-
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     implementation 'com.github.bumptech.glide:glide:5.0.7'
-    implementation('com.github.bumptech.glide:glide:5.0.7') {
-        exclude group: "com.android.support"
-    }
-    implementation('com.github.bumptech.glide:glide:5.0.7') {
-        transitive = true
-    }
     sonar {
         properties {
             property "sonar.projectKey", "MyEpispodes"

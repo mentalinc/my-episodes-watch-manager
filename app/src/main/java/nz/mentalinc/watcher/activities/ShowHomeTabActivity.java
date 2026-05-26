@@ -57,8 +57,9 @@ public class ShowHomeTabActivity extends AppCompatActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         setContentView(R.layout.show_home_tab);
         data = this.getIntent().getExtras();
 

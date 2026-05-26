@@ -112,6 +112,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
         init();
@@ -393,90 +394,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                 dialog = builder.create();
                 break;
             }
-            case DIALOG_UPDATE_RUNTIME: {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                final EditText runTimeInput = new EditText(this);
-                runTimeInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-                runTimeInput.setTransformationMethod(new NumericKeyBoardTransformationMethod());
-                runTimeInput.setText(shows.get(showListPosition).getRunTime());
-
-                runTimeInput.setFilters(new InputFilter[]{new InputFilterMinMax("1", "150")}); //set 150 minutes as longest runtime
-                // consider using this if it doesn't work properly due to entering values that are not ok - https://stackoverflow.com/questions/8806492/monodroid-set-max-value-for-edittext/13812853#13812853
-                final InputMethodManager imm = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                Objects.requireNonNull(imm).showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
-                runTimeInput.requestFocus();
-
-
-                builder.setView(runTimeInput);
-
-
-                builder.setTitle(shows.get(showListPosition).getShowName())
-                        //builder.setTitle(shows.get(showListPosition).toString()) //this works ad does what is required showing the runtime and name in the title
-                        .setMessage((R.string.runTimeEditMessage))
-                        .setCancelable(true)
-                        .setPositiveButton(R.string.ok, (dialog12, id12) -> {
-                            removeDialog(DIALOG_UPDATE_RUNTIME);
-                            String newRuntimeValue = runTimeInput.getText().toString();
-                            //silent fail if user has entered a blank runtime
-                            if (runTimeInput.getText().toString().trim().length() < 1) {
-                                // runTimeInput.setError("Error: Can't be blank");
-                                Context context = getApplicationContext();
-                                String text = "Error: Runtime can't be blank!";
-
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                                snackbar.show();
-
-                            } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
-                                Context context = getApplicationContext();
-                                String text = "Runtime unchanged";
-
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                                snackbar.show();
-                            } else {
-                                runTimeInput.setError(null);
-
-                                String newRuntime = newRuntimeValue;
-                                String showName = shows.get(showListPosition).getShowName();
-                                String showMyEpsID = shows.get(showListPosition).getMyEpisodeID();
-                                int pos = showListPosition;
-
-                                TaskRunner.getExecutor().execute(() -> {
-                                    AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-                                    SeriesDAO seriesDAO = database.getSeriesDAO();
-
-                                    EpisodeRuntime epsRunTime = new EpisodeRuntime();
-                                    epsRunTime.setshowMyepsID(showMyEpsID);
-                                    epsRunTime.setShowName(showName);
-                                    epsRunTime.setShowRuntime(newRuntime);
-                                    Log.d("epsRunTime: ", epsRunTime.toString());
-                                    seriesDAO.update(epsRunTime);
-
-                                    runOnUiThread(() -> {
-                                        Context ctx = getApplicationContext();
-                                        String text = "Runtime for updated " + showName + " updated to " + newRuntime + " mins";
-                                        Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                                        snackbar.show();
-
-                                        populateShowRuntimeList();
-                                        showListPosition = null;
-                                        showAdapter.notifyDataSetChanged();
-                                    });
-                                });
-                            }
-                        })
-                        //; //remove this ; if add the .negative back int
-                        .setNegativeButton(R.string.cancel, (dialog1, id1) -> {
-                            showListPosition = null;
-                            removeDialog(DIALOG_UPDATE_RUNTIME);
-                        });
-                dialog = builder.create();
-
-                dialog.setOnShowListener(dialogInterface -> runTimeInput.post(() -> {
-                    final InputMethodManager imm1 = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm1.showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
-                    runTimeInput.requestFocus(); // needed if you have more then one input
-                }));
-            }
+            default: //added for code quality
         }
         return dialog;
     }

@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="HorizontalPager">
-        <attr name="pageWidth" format="dimension" />
-    </declare-styleable>
-
-    <declare-styleable name="PagerControl">
-        <attr name="barColor" format="color" />
-        <attr name="highlightColor" format="color" />
-        <attr name="fadeDelay" format="integer" />
-        <attr name="fadeDuration" format="integer" />
-        <attr name="roundRectRadius" format="dimension" />
-    </declare-styleable>
-
     <!-- Special drawables -->
     <attr name="sgBorderlessButtonBackground" format="reference" />
 

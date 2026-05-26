@@ -112,8 +112,9 @@ public class HomeActivity extends AppCompatActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         setContentView(R.layout.main);
 
         bottomNavigationView = findViewById(R.id.bottom_navigationActivityHome);
@@ -248,6 +249,12 @@ public class HomeActivity extends AppCompatActivity {
                     newComingShowListing.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
                     startActivity(newComingShowListing);
 
+                    return true;
+                }else if( R.id.barCalendar == nextItem) {
+                    Log.w(LOG_TAG, "barCalendar selected");
+                    Intent calendarIntent = new Intent(getApplicationContext(), CalendarActivity.class);
+                    calendarIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(calendarIntent);
                     return true;
                 }else{
 

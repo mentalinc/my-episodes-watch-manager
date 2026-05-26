@@ -128,8 +128,9 @@
     <string name="randompicker">Random Episode</string>
     <string name="randompickershort">Random Episode</string>
     <string name="randompickerBar">Random</string>
-    <string name="filterUnder20">&lt;30m</string>
-    <string name="filterUnder40">&lt;45m</string>
+    <string name="filterUnder15">&lt;15m</string>
+    <string name="filterUnder30">&lt;30m</string>
+    <string name="filterUnder45">&lt;45m</string>
     <string name="filterUnder60">&lt;60m</string>
     <string name="filterOver60">&gt;60m</string>
 

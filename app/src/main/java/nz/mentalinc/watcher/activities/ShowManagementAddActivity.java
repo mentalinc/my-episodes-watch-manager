@@ -123,8 +123,9 @@ public class ShowManagementAddActivity extends ListActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         setContentView(R.layout.show_management_add);
         findViewById(R.id.appBarLayoutAdd).setZ(100f);
 
@@ -228,6 +229,7 @@ public class ShowManagementAddActivity extends ListActivity {
                 dialog = builder.create();
                 break;
             }
+            default: //added for code quality
         }
         return dialog;
     }

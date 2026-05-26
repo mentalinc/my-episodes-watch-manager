@@ -800,46 +800,6 @@ public class EpisodesService {
         }
     }
 
-    private void resetPageFilters(User user) {
-        try {
-            userService.login(user.getUsername(), user.getPassword());
-
-            StringBuilder urlParameters = new StringBuilder();
-
-            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
-                urlParameters.append(urlParameters.length() < 1 ? "eps_filters%5B%5D=1" : "&eps_filters%5B%5D=1");
-                Log.d(LOG_TAG, "SHOW_LISTING_UNACQUIRED_ENABLED" + " " + urlParameters);
-            }
-            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
-                urlParameters.append(urlParameters.length() < 1 ? "eps_filters%5B%5D=2" : "&eps_filters%5B%5D=2");
-                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " + urlParameters);
-            }
-            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
-                urlParameters.append(urlParameters.length() < 1 ? "eps_filters%5B%5D=4" : "&eps_filters%5B%5D=4");
-                Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
-            }
-            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
-                urlParameters.append(urlParameters.length() < 1 ? "eps_filters%5B%5D=2048" : "&eps_filters%5B%5D=2048");
-                Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
-            }
-            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
-                urlParameters.append(urlParameters.length() < 1 ? "eps_filters%5B%5D=4096" : "&eps_filters%5B%5D=4096");
-                Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
-            }
-
-            String postBody = urlParameters.toString();
-            if (!postBody.isEmpty()) {
-                HttpClientProvider.getInstance().postBodyResponse(
-                        MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE,
-                        postBody,
-                        "application/x-www-form-urlencoded; charset=utf-8");
-            }
-        } catch (Exception e) {
-            String message = "Error resetting episode filter";
-            Log.e(LOG_TAG, message, e);
-        }
-    }
-
 
     private Date parseDate(String date) {
         if (date.endsWith(".") || date.endsWith(";") || date.endsWith(":") || date.endsWith(",") || date.endsWith("-")) {
@@ -881,6 +841,7 @@ public class EpisodesService {
             case EPISODES_COMING:
                 urlRep = MyEpisodeConstants.COMING_EPISODES_URL;
                 break;
+            default: //added for code quality
         }
 
         urlRep = urlRep.replace(MyEpisodeConstants.UID_REPLACEMENT_STRING, username);
@@ -901,44 +862,4 @@ public class EpisodesService {
     }
 
 
-    public String ShowsEpisodeLink(String showTVMazeID, int seasonNumber, int episodeNumber) {
-        showTVMazeID = showTVMazeID.replace("#", "");
-        String tvMazeAPIURL = "https://api.tvmaze.com/shows/"
-                + showTVMazeID + "/episodebynumber?season=" + seasonNumber + "&number=" + episodeNumber;
-        Log.d(LOG_TAG, "epsiode info URL: " + tvMazeAPIURL);
-
-        try {
-            okhttp3.Response response = HttpClientProvider.getInstance().get(tvMazeAPIURL);
-            int code = response.code();
-            Log.d(LOG_TAG, "API HTTP Status Code: " + code);
-
-            if (code == 429) {
-                Thread.sleep(10000);
-                response = HttpClientProvider.getInstance().get(tvMazeAPIURL);
-                code = response.code();
-            }
-            if (code == 404) {
-                return "Episode detail not found";
-            }
-
-            String jsonString = response.body() != null ? response.body().string() : "";
-            JSONObject jObj;
-            String episodeUrl = "";
-            String episodeSummary = "";
-
-            try {
-                jObj = new JSONObject(jsonString);
-                episodeUrl = jObj.getString("url");
-                episodeSummary = jObj.getString("summary");
-            } catch (JSONException ignored) {}
-
-            Log.d("episodeUrl: ", "> " + episodeUrl);
-            Log.d("episodeSummary: ", "> " + episodeSummary);
-            return episodeUrl + "\n\n" + episodeSummary;
-
-        } catch (InterruptedException | IOException e) {
-            e.getCause();
-        }
-        return "";
-    }
 }

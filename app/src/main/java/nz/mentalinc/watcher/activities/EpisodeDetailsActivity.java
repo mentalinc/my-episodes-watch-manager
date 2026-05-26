@@ -91,6 +91,7 @@ public class EpisodeDetailsActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
 
 
@@ -207,8 +208,9 @@ public class EpisodeDetailsActivity extends Activity {
                 markAsAcquiredButton.setVisibility(View.GONE);
                 markAsSeenButton.setVisibility(View.GONE);
                 break;
+            default: //added for code quality
         }
-
+ 
         markAsAcquiredButton.setOnClickListener(v -> closeAndAcquireEpisode(ep));
         markAsSeenButton.setOnClickListener(v -> closeAndMarkWatched(ep));
 
@@ -645,8 +647,9 @@ public class EpisodeDetailsActivity extends Activity {
                 //sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
                 break;
+            default: //added for code quality
         }
-
+ 
         if (sorting.equals(showOrderOptions[3])) {
             episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
@@ -654,43 +657,6 @@ public class EpisodeDetailsActivity extends Activity {
         }
 
         startActivity(episodeListingActivity);
-    }
-
-    private void openListingActivity() {
-        String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
-
-        Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
-        episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
-
-        String sorting = "";
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                //sorting = Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);                
-                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");
-                break;
-            case EPISODES_TO_YESTERDAY1:
-            case EPISODES_TO_YESTERDAY2:
-            case EPISODES_TO_ACQUIRE:
-                //sorting = Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
-                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort");
-                break;
-            case EPISODES_COMING:
-                //sorting = Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
-                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort");
-                break;
-            default:
-                //do nothing, added for code completeness
-                break;
-        }
-
-        if (sorting.equals(showOrderOptions[3])) {
-            episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
-        } else {
-            episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
-        }
-        episodeListingActivity.putExtra(EXTRA_TITLE, title);
-        // startActivity(episodeListingActivity);
     }
 
     private void tweetThis() {

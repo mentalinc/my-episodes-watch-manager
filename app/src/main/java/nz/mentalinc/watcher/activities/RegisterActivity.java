@@ -52,6 +52,7 @@ public class RegisterActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
 
@@ -125,6 +126,7 @@ public class RegisterActivity extends Activity {
                 progressDialog.setCancelable(false);
                 dialog = progressDialog;
                 break;
+            default: //added for code quality
         }
         return dialog;
     }

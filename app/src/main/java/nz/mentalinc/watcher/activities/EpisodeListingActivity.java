@@ -154,6 +154,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 case EPISODES_BY_DATE:
                     menu.setHeaderTitle(DateUtil.formatDateLong(determineDate(groupid)));
                     break;
+                default: //added for code quality
             }
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.episode_listing_tab_group_list_menu, menu);
@@ -197,6 +198,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     }
                 }
                 break;
+            default: //added for code quality
         }
         return episode;
     }
@@ -225,6 +227,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     }
                 }
                 break;
+            default: //added for code quality
         }
         return episodes;
     }
@@ -250,6 +253,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     }
                 }
                 break;
+            default: //added for code quality
         }
         return null;
     }
@@ -323,6 +327,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
 
@@ -488,6 +493,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     this.setTitle(R.string.coming);
                     openListRows(RowController.getInstance().getOpenComingRows());
                     break;
+            default: //added for code quality
             }
         } else {
             switch (episodesType) {
@@ -508,6 +514,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     this.setTitle(R.string.coming);
                     openListRows(RowController.getInstance().getOpenComingRows());
                     break;
+            default: //added for code quality
             }
         }
     }
@@ -543,6 +550,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             case EPISODES_COMING:
                 RowController.getInstance().setOpenComingRows(rows);
                 break;
+            default: //added for code quality
         }
     }
 
@@ -588,10 +596,11 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     // map.put("episodeRowTitle", show.toString() + " [ " + show.getNumberEpisodes() + " ]");
                     headerList.add(map);
                 }
-
+                break;
             }
+            default: //added for code quality
         }
-
+ 
         return headerList;
     }
 
@@ -634,6 +643,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 }
                 break;
             }
+            default: //added for code quality
         }
         return childList;
     }
@@ -861,6 +871,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             case EPISODES_COMING:
                 sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
+            default: //added for code quality
         }
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
@@ -943,30 +954,6 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         });
     }
 
-    private void markShowEpisodes(final int episodeStatus, final Show show) {
-        showDialog(EPISODE_LOADING_DIALOG);
-
-        TaskRunner.getExecutor().execute(() -> {
-            markAllEpisodes(episodeStatus, show.getEpisodes());
-            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
-                getEpisodes();
-            }
-
-            runOnUiThread(() -> {
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    removeDialog(EPISODE_LOADING_DIALOG);
-                    //showDialog(EXCEPTION_DIALOG);
-                    exceptionDialog(EpisodeListingActivity.this);
-                    exceptionMessageResId = null;
-                } else {
-                    removeDialog(EPISODE_LOADING_DIALOG);
-                    returnEpisodes();
-
-                }
-            });
-        });
-    }
-
     private void markEpisode(int EpisodeStatus, Episode episode) {
         try {
             switch (EpisodeStatus) {
@@ -976,6 +963,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 case 1:
                     service.acquireEpisode(episode, user);
                     break;
+            default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
@@ -1005,6 +993,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 case 1:
                     service.acquireEpisodes(episodes, user);
                     break;
+            default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
@@ -1077,6 +1066,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                     }
                 }
                 break;
+            default: //added for code quality
         }
         reloadEpisodes();
 
@@ -1102,10 +1092,6 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         Intent home = new Intent(this, HomeActivity.class);
         home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(home);
-    }
-
-    public void SetOnline(Boolean online) {
-        boolean isOnlineCheck = online;
     }
 
     private Boolean isOnline() {

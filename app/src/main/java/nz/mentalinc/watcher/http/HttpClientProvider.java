@@ -104,10 +104,6 @@ public class HttpClientProvider {
         return response.body() != null ? response.body().string() : "";
     }
 
-    public void clearCookies() {
-        cookieStore.clear();
-    }
-
     private void pruneExpiredCookies() {
         long now = System.currentTimeMillis();
         cookieStore.removeIf(cookie -> cookie.expiresAt() != -1 && cookie.expiresAt() < now);

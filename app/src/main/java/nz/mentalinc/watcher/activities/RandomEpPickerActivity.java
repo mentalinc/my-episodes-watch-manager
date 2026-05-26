@@ -80,6 +80,7 @@ public class RandomEpPickerActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.randompicker);
@@ -165,8 +166,9 @@ public class RandomEpPickerActivity extends Activity {
 
     private void showRuntimePickerDialog() {
         String[] options = {
-                getString(R.string.filterUnder20),
-                getString(R.string.filterUnder40),
+                getString(R.string.filterUnder15),
+                getString(R.string.filterUnder30),
+                getString(R.string.filterUnder45),
                 getString(R.string.filterUnder60),
                 getString(R.string.filterOver60),
                 getString(R.string.randompickerBar)
@@ -180,10 +182,11 @@ public class RandomEpPickerActivity extends Activity {
         builder.setSingleChoiceItems(options, lastSelection, (dialog, which) -> {
             prefs.edit().putInt("runtime_filter_selection", which).apply();
             switch (which) {
-                case 0: pickRandomByRuntime(30, false); break;
-                case 1: pickRandomByRuntime(45, false); break;
-                case 2: pickRandomByRuntime(60, false); break;
-                case 3: pickRandomByRuntime(60, true); break;
+                case 0: pickRandomByRuntime(0, 15); break;
+                case 1: pickRandomByRuntime(15, 30); break;
+                case 2: pickRandomByRuntime(30, 45); break;
+                case 3: pickRandomByRuntime(45, 60); break;
+                case 4: pickRandomByRuntime(60, -1); break;
                 default:
                     shows = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
                     displayShow(shows.get(0));
@@ -198,16 +201,18 @@ public class RandomEpPickerActivity extends Activity {
         builder.show();
     }
 
-    private void pickRandomByRuntime(int runtime, boolean isOver) {
+    private void pickRandomByRuntime(int minRuntime, int maxRuntime) {
         TaskRunner.getExecutor().execute(() -> {
             AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
             SeriesDAO seriesDAO = database.getSeriesDAO();
             List<String> filteredShowIds;
 
-            if (isOver) {
-                filteredShowIds = seriesDAO.getShowIdsWithRuntimeAtLeast(runtime);
+            if (maxRuntime == -1) {
+                filteredShowIds = seriesDAO.getShowIdsWithRuntimeAtLeast(minRuntime);
+            } else if (minRuntime == 0) {
+                filteredShowIds = seriesDAO.getShowIdsWithRuntimeUnder(maxRuntime);
             } else {
-                filteredShowIds = seriesDAO.getShowIdsWithRuntimeUnder(runtime);
+                filteredShowIds = seriesDAO.getShowIdsWithRuntimeBetween(minRuntime, maxRuntime);
             }
 
             List<String> finalFilteredShowIds = filteredShowIds;
@@ -376,7 +381,6 @@ public class RandomEpPickerActivity extends Activity {
                             }
                         }
                         return true;
-
                 }else {
                         return false;
                     }

@@ -316,6 +316,7 @@ public class ShowService {
             case IGNORED_SHOWS:
                 startTag += "ignored_shows\"";
                 break;
+            default: //added for code quality
         }
         int startPosition = html.indexOf(startTag);
 
@@ -574,8 +575,9 @@ public class ShowService {
                     Log.d(LOG_TAG, "DELETING SHOWS");
                     url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID());
                     break;
+                default: //added for code quality
             }
-
+ 
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.getResponseCode();
 

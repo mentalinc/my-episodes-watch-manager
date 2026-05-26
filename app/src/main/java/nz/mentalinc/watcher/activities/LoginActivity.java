@@ -53,8 +53,9 @@ public class LoginActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         init();
 
         if (!checkLoginCredentials()) {

@@ -91,8 +91,9 @@ public class UpdatedEpisodeListingActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         sharedPref = prefs;
         user = new User(
                 sharedPref.getString("username", null),
@@ -230,6 +231,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
                     case EPISODES_COMING:
                         controller.AddToComingShow(freshEpisodes);
                         break;
+                    default: //added for code quality
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Error refreshing episodes", e);
@@ -368,17 +370,6 @@ public class UpdatedEpisodeListingActivity extends Activity {
         }
     };
 
-    private void returnEpisodesShowHash(HashMap<String, Show> hashMap) {
-
-        //TODO - try to add the runtime to the show here? so show has runime early (OR add when first created in the episode service?)
-        hashMap.size();
-        hashMap.forEach((k, v) -> shows.add(v));
-
-        //shows don't have runtime added yet?
-        sortEpisodesOfShows(shows);
-
-    }
-
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
         finish();
         Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
@@ -503,6 +494,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
                 case 1:
                     service.acquireEpisode(episode, user);
                     break;
+            default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";
@@ -532,6 +524,7 @@ public class UpdatedEpisodeListingActivity extends Activity {
                 case 1:
                     service.acquireEpisodes(episodes, user);
                     break;
+            default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
             String message = "Could not connect to host";

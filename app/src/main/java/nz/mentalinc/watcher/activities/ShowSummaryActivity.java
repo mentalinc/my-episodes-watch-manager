@@ -87,8 +87,9 @@ public class ShowSummaryActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
-
+ 
         setContentView(R.layout.show_overview);
 
         findViewById(R.id.appBarShowOverviewLayout2).setZ(100f);
@@ -230,7 +231,7 @@ public class ShowSummaryActivity extends Activity {
                             openEpisodeListing(EpisodeType.EPISODES_COMING);
                         }
                         return true;
-                }
+                    }
                 return false;
             }
             return false;
@@ -657,8 +658,9 @@ public class ShowSummaryActivity extends Activity {
             case EPISODES_COMING:
                 sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
+            default: //added for code quality
         }
-
+ 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
         if (sorting.equals(showOrderOptions[1])) {
             Log.d(LOG_TAG, "Sorting episodes ascending");

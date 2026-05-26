@@ -89,13 +89,6 @@ public class EpisodesController {
         }
     }
 
-    public int getShowsCount() {
-        if (shows != null)
-            return shows.size();
-
-        return 0;
-    }
-
     public int getShowCountType(EpisodeType episodesType) {
         switch (episodesType) {
             case EPISODES_TO_WATCH:
@@ -272,18 +265,6 @@ public class EpisodesController {
         randomShow.add(shows.get(randint));
         return randomShow;
 
-    }
-
-    public Episode getRandomWatchEpisode() {
-        shows = new ArrayList<>();
-        if (watchEpisodes != null && watchEpisodes.size() > 0) {
-            for (Episode ep : watchEpisodes) {
-                AddEpisodeToShow(ep);
-            }
-        }
-        SecureRandom r = new SecureRandom();
-        int randint = r.nextInt(shows.size());
-        return shows.get(randint).getFirstEpisode();
     }
 
     public void deleteAll() {

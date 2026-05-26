@@ -17,4 +17,8 @@
         android:icon="@drawable/outline_next_week_white_48"
         android:title="@string/BarComing"/>
 
+    <item android:id="@+id/barCalendar"
+        android:icon="@drawable/outline_calendar_month_white_48"
+        android:title="@string/calendar"/>
+
 </menu>

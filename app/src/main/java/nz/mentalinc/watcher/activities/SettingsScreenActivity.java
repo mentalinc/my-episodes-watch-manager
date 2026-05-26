@@ -32,6 +32,7 @@ public class SettingsScreenActivity extends AppCompatActivity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_layout);
@@ -81,6 +82,10 @@ public class SettingsScreenActivity extends AppCompatActivity {
                 comingIntent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
                 comingIntent.putExtra("Title", getString(R.string.coming));
                 startActivity(comingIntent);
+                return true;
+            } else if (R.id.barCalendar == nextItem) {
+                Intent calendarIntent = new Intent(getApplicationContext(), CalendarActivity.class);
+                startActivity(calendarIntent);
                 return true;
             }
             return false;

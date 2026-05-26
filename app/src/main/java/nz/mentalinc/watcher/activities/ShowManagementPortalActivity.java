@@ -62,6 +62,7 @@ public class ShowManagementPortalActivity extends Activity {
             case "2":
                 setTheme(R.style.ThemeDark);
                 break;
+            default: //added for code quality
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_management_portal);
