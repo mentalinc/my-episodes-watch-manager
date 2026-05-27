@@ -17,7 +17,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBarEpListing"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="@dimen/toolbar_height"
             app:titleTextColor="@color/on_text_white"
             android:background="@color/primaryColor"
             android:textColor="@color/on_text_white"

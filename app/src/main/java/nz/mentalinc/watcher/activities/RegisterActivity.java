@@ -2,6 +2,8 @@ package nz.mentalinc.watcher.activities;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,11 +33,9 @@ public class RegisterActivity extends Activity {
     private boolean registerStatus;
     private String email;
 
-    private static final int MY_EPISODES_REGISTER_DIALOG_LOADING = 0;
-    private static final int MY_EPISODES_ERROR_DIALOG = 1;
-    private static final int MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS = 2;
-
     private static final String LOG_TAG = RegisterActivity.class.getSimpleName();
+
+    private static final String DIALOG_LOADING_TAG = "LOADING";
 
 
     @Override
@@ -73,7 +73,7 @@ public class RegisterActivity extends Activity {
                     );
                     registerStatus = false;
 
-                    showDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
+                    showLoadingDialog();
 
                     TaskRunner.getExecutor().execute(() -> {
                         try {
@@ -91,7 +91,7 @@ public class RegisterActivity extends Activity {
                         }
 
                         runOnUiThread(() -> {
-                            removeDialog(MY_EPISODES_REGISTER_DIALOG_LOADING);
+                            dismissLoadingDialog();
                             if (registerStatus) {
                                 Toast.makeText(RegisterActivity.this, R.string.registerSuccessfull, Toast.LENGTH_LONG).show();
                                 finalizeLogin();
@@ -99,7 +99,6 @@ public class RegisterActivity extends Activity {
                                 ((EditText) findViewById(R.id.registerUsername)).setText("");
                                 ((EditText) findViewById(R.id.registerPassword)).setText("");
                                 ((EditText) findViewById(R.id.registerEmail)).setText("");
-                                //showDialog(MY_EPISODES_ERROR_DIALOG);
                                 validationErrorUserExists(RegisterActivity.this);
 
 
@@ -107,7 +106,6 @@ public class RegisterActivity extends Activity {
                         });
                     });
                 } else {
-                    //showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
                     validationError(RegisterActivity.this);
                 }
             });
@@ -116,19 +114,36 @@ public class RegisterActivity extends Activity {
         }
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog = null;
-        switch (id) {
-            case MY_EPISODES_REGISTER_DIALOG_LOADING:
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage(this.getString(R.string.registerStart));
-                progressDialog.setCancelable(false);
-                dialog = progressDialog;
-                break;
-            default: //added for code quality
+    public static class LoadingDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
+
+        public static LoadingDialogFragment newInstance(int messageResId) {
+            LoadingDialogFragment frag = new LoadingDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
         }
-        return dialog;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments().getInt(ARG_MESSAGE);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setMessage(getString(messageResId));
+            dialog.setCancelable(false);
+            return dialog;
+        }
+    }
+
+    private void showLoadingDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.registerStart).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        }
+    }
+
+    private void dismissLoadingDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
     public void validationError(Context context) {

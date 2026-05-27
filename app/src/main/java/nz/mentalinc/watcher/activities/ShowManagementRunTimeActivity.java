@@ -2,6 +2,8 @@ package nz.mentalinc.watcher.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -63,10 +65,8 @@ import nz.mentalinc.watcher.utils.TaskRunner;
 public class ShowManagementRunTimeActivity extends ListActivity {
     private static final String LOG_TAG = ShowManagementRunTimeActivity.class.getSimpleName();
 
-    private static final int DIALOG_LOADING = 0;
-    private static final int DIALOG_EXCEPTION = 1;
-    private static final int DIALOG_FINISHED = 2;
-    private static final int DIALOG_UPDATE_RUNTIME = 3;
+    private static final String DIALOG_LOADING_TAG = "LOADING";
+    private static final String DIALOG_FINISHED_TAG = "FINISHED";
 
     private User user;
     private ShowManagementRunTimeActivity.ShowAdapter showAdapter;
@@ -369,34 +369,21 @@ public class ShowManagementRunTimeActivity extends ListActivity {
     }
 
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog = null;
-        switch (id) {
-            case DIALOG_LOADING: {
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
-                progressDialog.setCancelable(false);
-                dialog = progressDialog;
-                break;
-            }
-
-
-            case DIALOG_FINISHED: {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.showSearchFinished)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.done, (dialog14, id14) -> {
-                            dialog14.dismiss();
-                            finish();
-                        })
-                        .setNegativeButton(R.string.search, (dialog13, id13) -> dialog13.dismiss());
-                dialog = builder.create();
-                break;
-            }
-            default: //added for code quality
+    private void showLoadingDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getFragmentManager(), DIALOG_LOADING_TAG);
         }
-        return dialog;
+    }
+
+    private void dismissLoadingDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    private void showFinishedDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_FINISHED_TAG) == null) {
+            new FinishedDialogFragment().show(getFragmentManager(), DIALOG_FINISHED_TAG);
+        }
     }
 
     private static class NumericKeyBoardTransformationMethod extends PasswordTransformationMethod {
@@ -406,14 +393,50 @@ public class ShowManagementRunTimeActivity extends ListActivity {
         }
     }
 
+    public static class LoadingDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
+
+        public static LoadingDialogFragment newInstance(int messageResId) {
+            LoadingDialogFragment frag = new LoadingDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments().getInt(ARG_MESSAGE);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setMessage(getString(messageResId));
+            dialog.setCancelable(false);
+            return dialog;
+        }
+    }
+
+    public static class FinishedDialogFragment extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.showSearchFinished)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.done, (dialog, id) -> {
+                        dialog.dismiss();
+                        getActivity().finish();
+                    })
+                    .setNegativeButton(R.string.search, (dialog, id) -> dialog.dismiss());
+            return builder.create();
+        }
+    }
+
     private void populateShowRuntimeList() {
-        showDialog(DIALOG_LOADING);
+        showLoadingDialog();
         showAdapter.clear();
         TaskRunner.getExecutor().execute(() -> {
             getRuntimeShows();
             runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    removeDialog(DIALOG_LOADING);
+                    dismissLoadingDialog();
                     exceptionDialog(ShowManagementRunTimeActivity.this);
                 } else {
 
@@ -426,7 +449,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
                         Log.e(LOG_TAG, message, e);
                     }
 
-                    removeDialog(DIALOG_LOADING);
+                    dismissLoadingDialog();
                 }
             });
         });
@@ -493,7 +516,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
             topText.setText(topTextString);
             row.setOnClickListener(view -> {
                 showListPosition = i;
-                //showDialog(DIALOG_UPDATE_RUNTIME);
+
                 dialogUpdateRuntime(ShowManagementRunTimeActivity.this);
             });
 

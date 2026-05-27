@@ -18,7 +18,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBarShowManagement"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="@dimen/toolbar_height"
             app:titleTextColor="@color/on_text_white"
             android:background="@color/primaryColor"
             android:textColor="@color/on_text_white"
@@ -51,6 +51,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:backgroundTint="@color/colorPrimary"
+        app:itemPaddingTop="4dp"
+        app:itemPaddingBottom="4dp"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation_menu_manage" />
 

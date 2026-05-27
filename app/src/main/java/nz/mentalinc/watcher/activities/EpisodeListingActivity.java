@@ -4,6 +4,8 @@ package nz.mentalinc.watcher.activities;
 import android.app.Dialog;
 import android.app.ExpandableListActivity;
 import android.app.ProgressDialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -77,12 +79,11 @@ import nz.mentalinc.watcher.utils.TaskRunner;
  */
 
 public class EpisodeListingActivity extends ExpandableListActivity {
-    private static final int EPISODE_LOADING_DIALOG = 0;
-    private static final int ONLINE_CHECK_DIALOG = 5;
-    private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
     private static final int EXCEPTION_DIALOG = 2;
     private static final int SETTINGS_RESULT = 6;
     private static final String LOG_TAG = EpisodeListingActivity.class.getSimpleName();
+    private static final String DIALOG_LOADING_TAG = "LOADING";
+    private static final String DIALOG_ONLINE_TAG = "ONLINE";
 
     private User user;
     private final EpisodesService service;
@@ -258,37 +259,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         return null;
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch (id) {
-            case EPISODE_LOADING_DIALOG:
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
-                progressDialog.setCancelable(false);
-                dialog = progressDialog;
-                break;
-            case EPISODE_LOADING_DIALOG_CACHE:
-                ProgressDialog progressDialogCache = new ProgressDialog(this);
-                progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
-                progressDialogCache.setCancelable(false);
-                dialog = progressDialogCache;
-                //dialog.show();
-                break;
-            case ONLINE_CHECK_DIALOG:
-                ProgressDialog progressDialogOnline = new ProgressDialog(this);
-                progressDialogOnline.setMessage(this.getString(R.string.progressLoadingOnlineCheck));
-                progressDialogOnline.setCancelable(false);
-                //progressDialogOnline.show();
-                dialog = progressDialogOnline;
-                break;
 
-            default:
-                dialog = super.onCreateDialog(id);
-                break;
-        }
-        return dialog;
-    }
 
 
     public void exceptionDialog(Context context) {
@@ -661,12 +632,10 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     private void reloadEpisodes() {
         saveListRows();
 
-        showDialog(EPISODE_LOADING_DIALOG);
         if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
-            showDialog(EPISODE_LOADING_DIALOG_CACHE);
+            showLoadingDialog(R.string.progressLoadingTitleCache);
         } else {
-            showDialog(EPISODE_LOADING_DIALOG);
-
+            showLoadingDialog(R.string.progressLoadingTitle);
         }
 
         TaskRunner.getExecutor().execute(() -> {
@@ -674,8 +643,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
             runOnUiThread(() -> {
                 returnEpisodes();
-                removeDialog(EPISODE_LOADING_DIALOG);
-                removeDialog(EPISODE_LOADING_DIALOG_CACHE);
+                dismissLoadingDialog();
             });
         });
     }
@@ -907,7 +875,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     // i.e. if click watch, take to the episodes to watch or maybe the next episode screen(noto built yet). and mark aquire, return tot he episode aquire listing maybe?z
 
     private void markEpisodes(final int EpisodeStatus, final Episode episode) {
-        showDialog(EPISODE_LOADING_DIALOG);
+        showLoadingDialog(R.string.progressLoadingTitle);
 
         TaskRunner.getExecutor().execute(() -> {
             markEpisode(EpisodeStatus, episode);
@@ -916,10 +884,9 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             }
 
             runOnUiThread(() -> {
-                removeDialog(EPISODE_LOADING_DIALOG);
+                dismissLoadingDialog();
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    //showDialog(EXCEPTION_DIALOG);
-                    exceptionDialog(EpisodeListingActivity.this);
+                            exceptionDialog(EpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
                     EpisodesController.getInstance().deleteEpisode(episode.getType(), episode);
@@ -932,7 +899,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
 
     private void markEpisodes(final int episodeStatus, final List<Episode> episodes) {
-        showDialog(EPISODE_LOADING_DIALOG);
+        showLoadingDialog(R.string.progressLoadingTitle);
 
         TaskRunner.getExecutor().execute(() -> {
             markAllEpisodes(episodeStatus, episodes);
@@ -942,12 +909,11 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
             runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    removeDialog(EPISODE_LOADING_DIALOG);
-                    //showDialog(EXCEPTION_DIALOG);
-                    exceptionDialog(EpisodeListingActivity.this);
+                    dismissLoadingDialog();
+                            exceptionDialog(EpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
-                    removeDialog(EPISODE_LOADING_DIALOG);
+                    dismissLoadingDialog();
                     returnEpisodes();
                 }
             });
@@ -1020,10 +986,10 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
     public void onRefreshClick() {
         Log.v(LOG_TAG, "Show online dialog.");
-        showDialog(ONLINE_CHECK_DIALOG);
+        showOnlineDialog();
         boolean onlineCheck = isOnline();
         Log.v(LOG_TAG, "Hide online dialog.");
-        removeDialog(ONLINE_CHECK_DIALOG);
+        dismissOnlineDialog();
 
         Log.d(LOG_TAG, "Check if online: " + onlineCheck);
 
@@ -1110,31 +1076,61 @@ public class EpisodeListingActivity extends ExpandableListActivity {
             if (connection.getResponseCode() == 200) {
                 connection.disconnect();
                 Log.v(LOG_TAG, "Online.");
-
-                //removeDialog(ONLINE_CHECK_DIALOG);
-                // showDialog(EPISODE_LOADING_DIALOG);
-                //Log.v(LOG_TAG, "Hide online dialog.");
                 return true;
             } else {
                 connection.disconnect();
-                //Log.v(LOG_TAG, "Offline!!");
-
-                //removeDialog(ONLINE_CHECK_DIALOG);
-                //showDialog(EPISODE_LOADING_DIALOG);
-                //Log.v(LOG_TAG, "Hide online dialog.");
                 return false;
             }
         } catch (UnknownHostException e) {
             Log.e(LOG_TAG, e.toString());
             Log.v(LOG_TAG, "Offline!!");
-            //removeDialog(ONLINE_CHECK_DIALOG);
-            //showDialog(EPISODE_LOADING_DIALOG);
             return false;
         } catch (Exception e) {
             Log.e(LOG_TAG, e.toString());
-            //removeDialog(ONLINE_CHECK_DIALOG);
-            //showDialog(EPISODE_LOADING_DIALOG);
             return false;
         }
+    }
+
+    public static class LoadingDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
+
+        public static LoadingDialogFragment newInstance(int messageResId) {
+            LoadingDialogFragment frag = new LoadingDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments().getInt(ARG_MESSAGE);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setMessage(getString(messageResId));
+            dialog.setCancelable(false);
+            return dialog;
+        }
+    }
+
+    private void showLoadingDialog(int messageResId) {
+        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(messageResId).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        }
+    }
+
+    private void dismissLoadingDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    private void showOnlineDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getFragmentManager(), DIALOG_ONLINE_TAG);
+        }
+    }
+
+    private void dismissOnlineDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
     }
 }

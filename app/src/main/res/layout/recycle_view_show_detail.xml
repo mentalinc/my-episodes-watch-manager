@@ -18,7 +18,7 @@
         tools:text="Testing Title"
         app:titleTextColor="@color/on_text_white"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="@dimen/toolbar_height"
         android:background="@color/primaryColor"
         android:textColor="@color/on_text_white"
         app:menu="@menu/home_menu"

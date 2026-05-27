@@ -1,6 +1,8 @@
 package nz.mentalinc.watcher.activities;
 
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -54,7 +56,7 @@ public class ShowManagementActivity extends ListActivity {
     private int confirmationMessageResId = -1;
     private Integer exceptionMessageResId = null;
 
-    private static final int DIALOG_LOADING = 0;
+    private static final String DIALOG_LOADING_TAG = "LOADING";
 
     private static final int CONTEXT_MENU_DELETE = 0;
     private static final int CONTEXT_MENU_UNIGNORE = 1;
@@ -173,35 +175,49 @@ public class ShowManagementActivity extends ListActivity {
         dialog.show();
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog = null;
+    public static class LoadingDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
 
-        switch (id) {
-            case DIALOG_LOADING: {
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
-                progressDialog.setCancelable(false);
-                dialog = progressDialog;
-                break;
-            }
-            default: //added for code quality
+        public static LoadingDialogFragment newInstance(int messageResId) {
+            LoadingDialogFragment frag = new LoadingDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
         }
-        return dialog;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments().getInt(ARG_MESSAGE);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setMessage(getString(messageResId));
+            dialog.setCancelable(false);
+            return dialog;
+        }
+    }
+
+    private void showLoadingDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        }
+    }
+
+    private void dismissLoadingDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
     private void reloadShows() {
-        showDialog(DIALOG_LOADING);
+        showLoadingDialog();
         TaskRunner.getExecutor().execute(() -> {
             getShows(user, showType);
             runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    removeDialog(DIALOG_LOADING);
-                    //showDialog(DIALOG_EXCEPTION);
+                    dismissLoadingDialog();
                     exceptionDialog(ShowManagementActivity.this);
                 } else {
                     updateShowList();
-                    removeDialog(DIALOG_LOADING);
+                    dismissLoadingDialog();
                 }
             });
         });
@@ -333,7 +349,7 @@ public class ShowManagementActivity extends ListActivity {
     }
 
     private void markShow(final Show show, final ShowAction action) {
-        showDialog(DIALOG_LOADING);
+        showLoadingDialog();
         TaskRunner.getExecutor().execute(() -> {
             switch (action) {
                 case IGNORE:
@@ -346,12 +362,11 @@ public class ShowManagementActivity extends ListActivity {
             markShow(user, showType, action, show);
             runOnUiThread(() -> {
                 if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
-                    removeDialog(DIALOG_LOADING);
-                    //showDialog(DIALOG_EXCEPTION);
+                    dismissLoadingDialog();
                     exceptionDialog(ShowManagementActivity.this);
                 } else {
                     updateShowList();
-                    removeDialog(DIALOG_LOADING);
+                    dismissLoadingDialog();
                 }
             });
         });

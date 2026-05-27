@@ -25,7 +25,7 @@
                 tools:title="Show Name"
                 app:titleTextColor="@color/on_text_white"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="@dimen/toolbar_height"
                 android:background="@color/primaryColor"
                 android:textColor="@color/on_text_white"
                 app:menu="@menu/home_menu"
@@ -64,6 +64,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:backgroundTint="@color/colorPrimary"
+            app:itemPaddingTop="4dp"
+            app:itemPaddingBottom="4dp"
             app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation_menu" />
 

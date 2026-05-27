@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.widget.TextView;
 
 import androidx.preference.PreferenceManager;
@@ -29,9 +31,25 @@ public class LoginActivity extends Activity {
     private UserService service;
     private int exceptionMessageResId = -1;
 
-    private static final int MY_EPISODES_LOGIN_DIALOG_LOADING = 0;
-    private static final int MY_EPISODES_ERROR_DIALOG = 1;
-    private static final int MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS = 2;
+    private static final String DIALOG_LOADING_TAG = "LOADING";
+    private static final String DIALOG_ERROR_TAG = "ERROR";
+
+    private void showLoadingDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.loginStartLogin).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        }
+    }
+
+    private void dismissLoadingDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    private void showErrorDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_ERROR_TAG) == null) {
+            new ErrorDialogFragment().show(getFragmentManager(), DIALOG_ERROR_TAG);
+        }
+    }
 
     private static final String LOG_TAG = LoginActivity.class.getSimpleName();
 
@@ -74,7 +92,7 @@ public class LoginActivity extends Activity {
                     final User user = new User(username, password);
 
                     //TODO login failed exception doesn't get shown to the user or stop and login takes user to homeactivity but is blank, so need to logout to try again.
-                    showDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
+                    showLoadingDialog();
                     //loginDialog(LoginActivity.this);
 
                     TaskRunner.getExecutor().execute(() -> {
@@ -86,7 +104,7 @@ public class LoginActivity extends Activity {
                         //    }
 
                         runOnUiThread(() -> {
-                            removeDialog(MY_EPISODES_LOGIN_DIALOG_LOADING);
+                            dismissLoadingDialog();
                             //todo add a test here to check for a type of cookie to show login has worked ok....
                             //remove true and add in the cookie test
                             // if (msCookieManager.getCookieStore().getCookies().size() > 0) {
@@ -95,13 +113,12 @@ public class LoginActivity extends Activity {
                             //   } else {
                             ((EditText) findViewById(R.id.loginUsername)).setText("");
                             ((EditText) findViewById(R.id.loginPassword)).setText("");
-                            showDialog(MY_EPISODES_ERROR_DIALOG);
+                            showErrorDialog();
 
                             //   }
                         });
                     });
                 } else {
-                    //showDialog(MY_EPISODES_VALIDATION_REQUIRED_ALL_FIELDS);
                     validationError(LoginActivity.this);
                 }
             });
@@ -110,30 +127,37 @@ public class LoginActivity extends Activity {
         }
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch (id) {
-            case MY_EPISODES_LOGIN_DIALOG_LOADING:
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage(this.getString(R.string.loginStartLogin));
-                progressDialog.setCancelable(false);
-                dialog = progressDialog;
-                break;
-            case MY_EPISODES_ERROR_DIALOG:
-                dialog = new AlertDialog.Builder(this)
-                        //.setMessage(exceptionMessageResId)
-                        .setCancelable(false)
-                        .setNeutralButton(R.string.dialogOK, (dialog1, id1) -> removeDialog(MY_EPISODES_ERROR_DIALOG)).create();
-                break;
 
-            default:
-                dialog = super.onCreateDialog(id);
-                break;
+    public static class LoadingDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
+
+        public static LoadingDialogFragment newInstance(int messageResId) {
+            LoadingDialogFragment frag = new LoadingDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
         }
-        return dialog;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments().getInt(ARG_MESSAGE);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setMessage(getString(messageResId));
+            dialog.setCancelable(false);
+            return dialog;
+        }
     }
 
+    public static class ErrorDialogFragment extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())
+                    .setCancelable(false)
+                    .setNeutralButton(R.string.dialogOK, (dialog, id) -> dismiss())
+                    .create();
+        }
+    }
 
     public void validationError(Context context) {
 

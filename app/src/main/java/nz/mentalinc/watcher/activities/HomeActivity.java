@@ -2,6 +2,9 @@ package nz.mentalinc.watcher.activities;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
@@ -58,20 +62,19 @@ public class HomeActivity extends AppCompatActivity {
     private User user;
     private Resources res; // Resource object to get Drawables
     private android.content.res.Configuration conf;
-    private static final int EPISODE_LOADING_DIALOG = 0;
-    private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
     private static final int LOGOUT_DIALOG = 1;
     private static final int EXCEPTION_DIALOG = 2;
     private static final int LOGIN_RESULT = 5;
     private static final int SETTINGS_RESULT = 6;
-    private static final int RUNTIME_LOADING_DIALOG = 8;
+    private static final String DIALOG_LOADING_TAG = "LOADING";
+    private static final String DIALOG_RUNTIME_TAG = "RUNTIME";
     private UserService userService;
     private static Context sContext;
     private BottomNavigationView bottomNavigationView;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private ProgressDialog runtimeProgressDialog;
+    private DialogFragment runtimeDialogFragment;
 
 
     private boolean exception;
@@ -114,7 +117,9 @@ public class HomeActivity extends AppCompatActivity {
                 break;
             default: //added for code quality
         }
- 
+
+        super.onCreate(savedInstanceState);
+
         setContentView(R.layout.main);
 
         bottomNavigationView = findViewById(R.id.bottom_navigationActivityHome);
@@ -142,8 +147,6 @@ public class HomeActivity extends AppCompatActivity {
         res.updateConfiguration(conf, null);
 
         openLoginActivity();
-
-        super.onCreate(savedInstanceState);
         this.service = new EpisodesService();
         sContext = getApplicationContext();
 
@@ -195,20 +198,24 @@ public class HomeActivity extends AppCompatActivity {
 
         updateHomeButtonCounts();
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarLogout = findViewById(R.id.logout);
-        appBarLogout.setOnClickListener(v -> {
-
-            Log.w(LOG_TAG, "logout button clicked.");
-            onLogoutClick(HomeActivity.this);
-        });
-
-
-        androidx.appcompat.view.menu.ActionMenuItemView appBarSettings = findViewById(R.id.btn_settings);
-        appBarSettings.setOnClickListener(v -> {
-
-            Log.w(LOG_TAG, "Settings button clicked.");
-            onSettingsClick(v);
-        });
+        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
+        if (toolbar == null) {
+            toolbar = findViewById(R.id.topAppBarMenu);
+        }
+        if (toolbar != null) {
+            toolbar.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.logout) {
+                    Log.w(LOG_TAG, "logout button clicked.");
+                    onLogoutClick(HomeActivity.this);
+                    return true;
+                } else if (item.getItemId() == R.id.btn_settings) {
+                    Log.w(LOG_TAG, "Settings button clicked.");
+                    onSettingsClick(null);
+                    return true;
+                }
+                return false;
+            });
+        }
 
 
     }
@@ -292,16 +299,13 @@ public class HomeActivity extends AppCompatActivity {
                 sharedPref.getString("UserPassword", User.PASSWORD)
         );
         if (episodesController.areListsEmpty()) {
-            showDialog(EPISODE_LOADING_DIALOG);
-
             if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
-                showDialog(EPISODE_LOADING_DIALOG_CACHE);
+                showLoadingDialog(R.string.progressLoadingTitleCache);
             } else {
-                showDialog(EPISODE_LOADING_DIALOG);
+                showLoadingDialog(R.string.progressLoadingTitle);
             }
             loadEpisodesData(() -> runOnUiThread(() -> {
-                removeDialog(EPISODE_LOADING_DIALOG);
-                removeDialog(EPISODE_LOADING_DIALOG_CACHE);
+                dismissLoadingDialog();
 
                 if (exception) {
                     exception = false;
@@ -315,13 +319,11 @@ public class HomeActivity extends AppCompatActivity {
         if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED && user != null) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             if (!prefs.getBoolean("runtime_populated", false)) {
-                showDialog(RUNTIME_LOADING_DIALOG);
+                showRuntimeDialog();
                 TaskRunner.getExecutor().execute(() -> {
                     populateFavouriteShowRuntimes();
                     runOnUiThread(() -> {
-                        if (runtimeProgressDialog != null && runtimeProgressDialog.isShowing()) {
-                            runtimeProgressDialog.dismiss();
-                        }
+                        dismissRuntimeDialog();
                         prefs.edit().putBoolean("runtime_populated", true).apply();
                     });
                 });
@@ -440,8 +442,8 @@ public class HomeActivity extends AppCompatActivity {
             showService.getFavoriteOrIgnoredShows(user, ShowType.FAVOURITE_SHOWS,
                     (processed, total, showName) -> {
                         runOnUiThread(() -> {
-                            if (runtimeProgressDialog != null && runtimeProgressDialog.isShowing()) {
-                                runtimeProgressDialog.setMessage(
+                            if (runtimeDialogFragment != null && runtimeDialogFragment.isVisible() && runtimeDialogFragment.getDialog() != null) {
+                                ((ProgressDialog) runtimeDialogFragment.getDialog()).setMessage(
                                         "Processing " + processed + " of " + total + " shows\n"
                                                 + "Current: " + showName);
                             }
@@ -582,37 +584,6 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch (id) {
-
-            case EPISODE_LOADING_DIALOG:
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
-                progressDialog.setCancelable(false);
-                dialog = progressDialog;
-                break;
-            case EPISODE_LOADING_DIALOG_CACHE:
-                ProgressDialog progressDialogCache = new ProgressDialog(this);
-                progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
-                progressDialogCache.setCancelable(false);
-                dialog = progressDialogCache;
-                //dialog.show();
-                break;
-            case RUNTIME_LOADING_DIALOG:
-                runtimeProgressDialog = new ProgressDialog(this);
-                runtimeProgressDialog.setMessage(this.getString(R.string.processingFavouriteShows));
-                runtimeProgressDialog.setCancelable(false);
-                dialog = runtimeProgressDialog;
-                break;
-            default:
-                dialog = super.onCreateDialog(id);
-                break;
-        }
-        return dialog;
-    }
-
     private void init() {
         res = getResources();
         conf = res.getConfiguration();
@@ -739,6 +710,50 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(newWatchShowListing);
     }
 
+
+    public static class LoadingDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
+
+        public static LoadingDialogFragment newInstance(int messageResId) {
+            LoadingDialogFragment frag = new LoadingDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments().getInt(ARG_MESSAGE);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setMessage(getString(messageResId));
+            dialog.setCancelable(false);
+            return dialog;
+        }
+    }
+
+    private void showLoadingDialog(int messageResId) {
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(messageResId).show(getSupportFragmentManager(), DIALOG_LOADING_TAG);
+        }
+    }
+
+    private void dismissLoadingDialog() {
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    private void showRuntimeDialog() {
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_RUNTIME_TAG) == null) {
+            runtimeDialogFragment = LoadingDialogFragment.newInstance(R.string.processingFavouriteShows);
+            runtimeDialogFragment.show(getSupportFragmentManager(), DIALOG_RUNTIME_TAG);
+        }
+    }
+
+    private void dismissRuntimeDialog() {
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_RUNTIME_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
+    }
 
     public static Context getContext() {
         return sContext;

@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,9 +76,8 @@ public class ShowListingActivity extends Activity {
     private List<Episode> episodes = new ArrayList<>();
     private Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
     private static EpisodeType episodesType;
-    private static final int EPISODE_LOADING_DIALOG = 0;
-    private static final int ONLINE_CHECK_DIALOG = 5;
-    private static final int EPISODE_LOADING_DIALOG_CACHE = 7;
+    private static final String DIALOG_LOADING_TAG = "LOADING";
+    private static final String DIALOG_ONLINE_TAG = "ONLINE";
     private Integer exceptionMessageResId = null;
     private EpisodesService service;
     private User user;
@@ -546,11 +547,10 @@ public class ShowListingActivity extends Activity {
 
 
     private void reloadEpisodes() {
-        showDialog(EPISODE_LOADING_DIALOG);
         if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
-            showDialog(EPISODE_LOADING_DIALOG_CACHE);
+            showLoadingDialog(R.string.progressLoadingTitleCache);
         } else {
-            showDialog(EPISODE_LOADING_DIALOG);
+            showLoadingDialog(R.string.progressLoadingTitle);
         }
         TaskRunner.getExecutor().execute(() -> {
             getEpisodesMyEpisodes();
@@ -561,8 +561,7 @@ public class ShowListingActivity extends Activity {
                 ShowAdapter newAdapter = new ShowAdapter(shows, new HashMap<>());
                 rvShows.setAdapter(newAdapter);
                 loadRuntimeMapForShows(shows, newAdapter);
-                removeDialog(EPISODE_LOADING_DIALOG);
-                removeDialog(EPISODE_LOADING_DIALOG_CACHE);
+                dismissLoadingDialog();
                 if (swipeRefreshShows != null) {
                     swipeRefreshShows.setRefreshing(false);
                 }
@@ -572,10 +571,10 @@ public class ShowListingActivity extends Activity {
 
     public void onRefreshClick() {
         Log.v(LOG_TAG, "Show online dialog.");
-        showDialog(ONLINE_CHECK_DIALOG);
+        showOnlineDialog();
         boolean onlineCheck = isOnline();
         Log.v(LOG_TAG, "Hide online dialog.");
-        removeDialog(ONLINE_CHECK_DIALOG);
+        dismissOnlineDialog();
 
         Log.d(LOG_TAG, "Check if online: " + onlineCheck);
 
@@ -625,36 +624,7 @@ public class ShowListingActivity extends Activity {
 
     }
 
-    protected Dialog onCreateDialog(int id) {
-        Dialog dialog;
-        switch (id) {
-            case EPISODE_LOADING_DIALOG:
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage(this.getString(R.string.progressLoadingTitle));
-                progressDialog.setCancelable(false);
-                dialog = progressDialog;
-                break;
-            case EPISODE_LOADING_DIALOG_CACHE:
-                ProgressDialog progressDialogCache = new ProgressDialog(this);
-                progressDialogCache.setMessage(this.getString(R.string.progressLoadingTitleCache));
-                progressDialogCache.setCancelable(false);
-                dialog = progressDialogCache;
-                //dialog.show();
-                break;
-            case ONLINE_CHECK_DIALOG:
-                ProgressDialog progressDialogOnline = new ProgressDialog(this);
-                progressDialogOnline.setMessage(this.getString(R.string.progressLoadingOnlineCheck));
-                progressDialogOnline.setCancelable(false);
-                //progressDialogOnline.show();
-                dialog = progressDialogOnline;
-                break;
 
-            default:
-                dialog = super.onCreateDialog(id);
-                break;
-        }
-        return dialog;
-    }
 
     private Boolean isOnline() {
         //TODO consdider seeing if this should be a thread.
@@ -672,30 +642,17 @@ public class ShowListingActivity extends Activity {
             if (connection.getResponseCode() == 200) {
                 connection.disconnect();
                 Log.v(LOG_TAG, "Online.");
-
-                //removeDialog(ONLINE_CHECK_DIALOG);
-                // showDialog(EPISODE_LOADING_DIALOG);
-                //Log.v(LOG_TAG, "Hide online dialog.");
                 return true;
             } else {
                 connection.disconnect();
-                //Log.v(LOG_TAG, "Offline!!");
-
-                //removeDialog(ONLINE_CHECK_DIALOG);
-                //showDialog(EPISODE_LOADING_DIALOG);
-                //Log.v(LOG_TAG, "Hide online dialog.");
                 return false;
             }
         } catch (UnknownHostException e) {
             Log.e(LOG_TAG, e.toString());
             Log.v(LOG_TAG, "Offline!!");
-            //removeDialog(ONLINE_CHECK_DIALOG);
-            //showDialog(EPISODE_LOADING_DIALOG);
             return false;
         } catch (Exception e) {
             Log.e(LOG_TAG, e.toString());
-            //removeDialog(ONLINE_CHECK_DIALOG);
-            //showDialog(EPISODE_LOADING_DIALOG);
             return false;
         }
     }
@@ -856,4 +813,46 @@ public class ShowListingActivity extends Activity {
         });
     }
 
+    public static class LoadingDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
+
+        public static LoadingDialogFragment newInstance(int messageResId) {
+            LoadingDialogFragment frag = new LoadingDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments().getInt(ARG_MESSAGE);
+            ProgressDialog dialog = new ProgressDialog(getActivity());
+            dialog.setMessage(getString(messageResId));
+            dialog.setCancelable(false);
+            return dialog;
+        }
+    }
+
+    private void showLoadingDialog(int messageResId) {
+        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(messageResId).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        }
+    }
+
+    private void dismissLoadingDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    private void showOnlineDialog() {
+        if (getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getFragmentManager(), DIALOG_ONLINE_TAG);
+        }
+    }
+
+    private void dismissOnlineDialog() {
+        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
+        if (prev != null) ((DialogFragment) prev).dismiss();
+    }
 }
