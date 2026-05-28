@@ -50,7 +50,7 @@ public class ChangelogActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.w(LOG_TAG, "Home button clicked.");
-                exit();
+                //exit();
             }
         });
     }
@@ -79,8 +79,5 @@ public class ChangelogActivity extends Activity {
         Intent home = new Intent(this, HomeActivity.class);
         home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(home);
-    }
-
-    private void exit() {
     }
 }

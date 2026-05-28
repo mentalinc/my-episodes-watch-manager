@@ -144,7 +144,6 @@ public class ShowHomeTabActivity extends AppCompatActivity {
                 //switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        //TODO need to build an activity to use the showDetail content.
                         if (shows.size() > 0) {
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
                         }

@@ -1,21 +1,21 @@
 package nz.mentalinc.watcher.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -27,7 +27,7 @@ import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
     private UserService service;
     private int exceptionMessageResId = -1;
 
@@ -35,19 +35,19 @@ public class LoginActivity extends Activity {
     private static final String DIALOG_ERROR_TAG = "ERROR";
 
     private void showLoadingDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.loginStartLogin).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.loginStartLogin).show(getSupportFragmentManager(), DIALOG_LOADING_TAG);
         }
     }
 
     private void dismissLoadingDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
     private void showErrorDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_ERROR_TAG) == null) {
-            new ErrorDialogFragment().show(getFragmentManager(), DIALOG_ERROR_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_ERROR_TAG) == null) {
+            new ErrorDialogFragment().show(getSupportFragmentManager(), DIALOG_ERROR_TAG);
         }
     }
 
@@ -142,10 +142,12 @@ public class LoginActivity extends Activity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            ProgressDialog dialog = new ProgressDialog(getActivity());
-            dialog.setMessage(getString(messageResId));
-            dialog.setCancelable(false);
-            return dialog;
+            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .create();
         }
     }
 

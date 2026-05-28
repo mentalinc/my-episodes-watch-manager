@@ -1,10 +1,6 @@
 package nz.mentalinc.watcher.activities;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,10 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -42,8 +42,7 @@ import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
-//use RecyclerView instead of ListActivity
-public class ShowManagementActivity extends ListActivity {
+public class ShowManagementActivity extends AppCompatActivity {
     private static final String LOG_TAG = ShowManagementActivity.class.getSimpleName();
     private ShowType showType;
     private User user;
@@ -55,6 +54,7 @@ public class ShowManagementActivity extends ListActivity {
     private ShowAction showAction = null;
     private int confirmationMessageResId = -1;
     private Integer exceptionMessageResId = null;
+    private ListView listView;
 
     private static final String DIALOG_LOADING_TAG = "LOADING";
 
@@ -151,6 +151,7 @@ public class ShowManagementActivity extends ListActivity {
                 sharedPref.getString("UserPassword", null)
         );
 
+        listView = findViewById(android.R.id.list);
         initializeShowList();
 
         service = new ShowService();
@@ -189,21 +190,23 @@ public class ShowManagementActivity extends ListActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            ProgressDialog dialog = new ProgressDialog(getActivity());
-            dialog.setMessage(getString(messageResId));
-            dialog.setCancelable(false);
-            return dialog;
+            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .create();
         }
     }
 
     private void showLoadingDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getSupportFragmentManager(), DIALOG_LOADING_TAG);
         }
     }
 
     private void dismissLoadingDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
@@ -247,8 +250,8 @@ public class ShowManagementActivity extends ListActivity {
 
     private void initializeShowList() {
         showAdapter = new ShowAdapter(this, R.layout.show_management_add_row, shows);
-        setListAdapter(showAdapter);
-        registerForContextMenu(getListView());
+        listView.setAdapter(showAdapter);
+        registerForContextMenu(listView);
     }
 
     private class ShowAdapter extends ArrayAdapter<Show> {

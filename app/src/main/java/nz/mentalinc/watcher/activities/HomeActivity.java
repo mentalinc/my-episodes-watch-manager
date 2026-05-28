@@ -1,7 +1,6 @@
 package nz.mentalinc.watcher.activities;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -15,7 +14,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
@@ -64,9 +66,9 @@ public class HomeActivity extends AppCompatActivity {
     private android.content.res.Configuration conf;
     private static final int LOGOUT_DIALOG = 1;
     private static final int EXCEPTION_DIALOG = 2;
-    private static final int LOGIN_RESULT = 5;
     private static final int SETTINGS_RESULT = 6;
     private static final String DIALOG_LOADING_TAG = "LOADING";
+    private ActivityResultLauncher<Intent> loginLauncher;
     private static final String DIALOG_RUNTIME_TAG = "RUNTIME";
     private UserService userService;
     private static Context sContext;
@@ -97,6 +99,16 @@ public class HomeActivity extends AppCompatActivity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        loginLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        getEpisodesInLoadingDialog();
+                    } else {
+                        finish();
+                    }
+                }
+        );
         init();
 
         userService = new UserService();
@@ -443,9 +455,11 @@ public class HomeActivity extends AppCompatActivity {
                     (processed, total, showName) -> {
                         runOnUiThread(() -> {
                             if (runtimeDialogFragment != null && runtimeDialogFragment.isVisible() && runtimeDialogFragment.getDialog() != null) {
-                                ((ProgressDialog) runtimeDialogFragment.getDialog()).setMessage(
-                                        "Processing " + processed + " of " + total + " shows\n"
-                                                + "Current: " + showName);
+                                TextView msg = runtimeDialogFragment.getDialog().findViewById(R.id.message);
+                                if (msg != null) {
+                                    msg.setText("Processing " + processed + " of " + total + " shows\n"
+                                            + "Current: " + showName);
+                                }
                             }
                         });
                     });
@@ -570,17 +584,12 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == LOGIN_RESULT && resultCode == RESULT_OK)
-            getEpisodesInLoadingDialog();
         if (requestCode == SETTINGS_RESULT && resultCode == RESULT_OK) {
             EpisodesController.getInstance().deleteAll();
             finish();
 
             Intent homeActivity = new Intent(this.getApplicationContext(), HomeActivity.class);
             startActivity(homeActivity);
-        }
-        if (requestCode == LOGIN_RESULT && resultCode != RESULT_OK) {
-            finish();
         }
     }
 
@@ -657,7 +666,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void openLoginActivity() {
         Intent loginSubActivity = new Intent(this.getApplicationContext(), LoginActivity.class);
-        startActivityForResult(loginSubActivity, LOGIN_RESULT);
+        loginLauncher.launch(loginSubActivity);
     }
 
     public void onAboutClick(View v) {
@@ -725,10 +734,12 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            ProgressDialog dialog = new ProgressDialog(getActivity());
-            dialog.setMessage(getString(messageResId));
-            dialog.setCancelable(false);
-            return dialog;
+            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .create();
         }
     }
 

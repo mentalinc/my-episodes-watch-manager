@@ -2,10 +2,6 @@ package nz.mentalinc.watcher.activities;
 
 
 import android.app.Dialog;
-import android.app.ExpandableListActivity;
-import android.app.ProgressDialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,7 +19,10 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -78,7 +77,7 @@ import nz.mentalinc.watcher.utils.TaskRunner;
  * @author Ivo Janssen, maintained and updated by mentalinc
  */
 
-public class EpisodeListingActivity extends ExpandableListActivity {
+public class EpisodeListingActivity extends AppCompatActivity {
     private static final int EXCEPTION_DIALOG = 2;
     private static final int SETTINGS_RESULT = 6;
     private static final String LOG_TAG = EpisodeListingActivity.class.getSimpleName();
@@ -101,6 +100,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     private Map<Date, List<Episode>> listedAirDates = null;
     private boolean collapsed = true;
     //private boolean isOnelineCheck;
+    private ExpandableListView expandableListView;
 
     private final UserService userService;
 
@@ -378,6 +378,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
 
     private void init() {
         setContentView(R.layout.episode_listing_tab);
+        expandableListView = findViewById(android.R.id.list);
         episodes = new ArrayList<>();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
@@ -416,9 +417,6 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     }
 
     private void initExendableList() {
-        //TODO add here the runtime some how  - would require nesting the ListAdapters somehow or using a different adapter to handle multi layer
-        //https://github.com/kedzie/tree-view-list-android
-        //https://stackoverflow.com/questions/8293538/multi-layered-expandablelistview
         episodeAdapter = new SimpleExpandableListAdapter(
                 this,
                 createGroups(),
@@ -430,19 +428,15 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 new String[]{"episodeRowChildTitle", "episodeRowChildDetail"},
                 new int[]{R.id.episodeRowChildTitle, R.id.episodeRowChildDetail}
         );
-        setListAdapter(episodeAdapter);
+        expandableListView.setAdapter(episodeAdapter);
         episodeAdapter.notifyDataSetChanged();
-        registerForContextMenu(getExpandableListView());
+        registerForContextMenu(expandableListView);
 
         int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
 
         if (countEpisodes == 200) {
-            //Toast.makeText(EpisodeListingActivity.this, R.string.watchListFull, Toast.LENGTH_LONG).show();
             Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarEpListing), R.string.watchListFull, Snackbar.LENGTH_LONG);
-
             snackbar.show();
-
-
         }
         if (countEpisodes == 1) {
             switch (episodesType) {
@@ -494,7 +488,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         for (String rowName : openRows) {
             for (int i = 0; i < episodeAdapter.getGroupCount(); i++) {
                 if (rowName.equals((episodeAdapter.getGroup(i).toString().split("\\["))[0]))
-                    this.getExpandableListView().expandGroup(i);
+                    expandableListView.expandGroup(i);
             }
         }
     }
@@ -503,7 +497,7 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         List<String> rows = new ArrayList<>();
 
         for (int i = 0; i < episodeAdapter.getGroupCount(); i++) {
-            if (this.getExpandableListView().collapseGroup(i)) {
+            if (expandableListView.collapseGroup(i)) {
                 rows.add((episodeAdapter.getGroup(i).toString().split("\\["))[0]);
             }
 
@@ -553,7 +547,6 @@ public class EpisodeListingActivity extends ExpandableListActivity {
                 }
                 break;
             }
-            //TODO
             case EPISODES_BY_SHOW: {
                 //TODO create a map for show run times but way to complex to make is own grouper as they seem to be two levels and adding runtime as a group would be three levels
                 /* for(Show show : shows) {
@@ -1042,12 +1035,9 @@ public class EpisodeListingActivity extends ExpandableListActivity {
     public void onCollapseClick() {
         for (int i = 0; i < episodeAdapter.getGroupCount(); i++) {
             if (collapsed) {
-                //TODO fix this so that the icon changes depending on the expand state - need to figure out how to set the icon?
-                this.getExpandableListView().expandGroup(i);
-                //((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.ic_title_collapse2);
+                expandableListView.expandGroup(i);
             } else {
-                this.getExpandableListView().collapseGroup(i);
-                // ((ImageButton) findViewById(R.id.btn_title_collapse)).setImageResource(R.drawable.outline_expand_white_24);
+                expandableListView.collapseGroup(i);
             }
         }
 
@@ -1105,32 +1095,34 @@ public class EpisodeListingActivity extends ExpandableListActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            ProgressDialog dialog = new ProgressDialog(getActivity());
-            dialog.setMessage(getString(messageResId));
-            dialog.setCancelable(false);
-            return dialog;
+            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .create();
         }
     }
 
     private void showLoadingDialog(int messageResId) {
-        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
-            LoadingDialogFragment.newInstance(messageResId).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(messageResId).show(getSupportFragmentManager(), DIALOG_LOADING_TAG);
         }
     }
 
     private void dismissLoadingDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
     private void showOnlineDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getFragmentManager(), DIALOG_ONLINE_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getSupportFragmentManager(), DIALOG_ONLINE_TAG);
         }
     }
 
     private void dismissOnlineDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 }

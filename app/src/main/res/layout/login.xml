@@ -43,6 +43,7 @@
                 android:id="@+id/loginUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autofillHints=""
                 android:hint="@string/loginUsernameHint"
                 android:inputType="text" />
 
@@ -50,13 +51,13 @@
                 android:id="@+id/loginPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/loginPasswordHint"
+                android:autofillHints="" android:hint="@string/loginPasswordHint"
                 android:inputType="textPassword" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/loginLogin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight=".025"
                 android:gravity="center"
                 style="@style/HomeButton"

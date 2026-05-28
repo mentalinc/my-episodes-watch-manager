@@ -2,10 +2,6 @@ package nz.mentalinc.watcher.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,11 +18,15 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -62,7 +62,7 @@ import nz.mentalinc.watcher.utils.InputFilterMinMax;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 
-public class ShowManagementRunTimeActivity extends ListActivity {
+public class ShowManagementRunTimeActivity extends AppCompatActivity {
     private static final String LOG_TAG = ShowManagementRunTimeActivity.class.getSimpleName();
 
     private static final String DIALOG_LOADING_TAG = "LOADING";
@@ -75,6 +75,7 @@ public class ShowManagementRunTimeActivity extends ListActivity {
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
     private String title;
+    private ListView listView;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
             new NavigationBarView.OnItemSelectedListener() {
@@ -139,12 +140,13 @@ public class ShowManagementRunTimeActivity extends ListActivity {
         Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
         toolbar.setTitle(title);
 
+        listView = findViewById(android.R.id.list);
         initializeShowList();
     }
 
     private void initializeShowList() {
         showAdapter = new ShowManagementRunTimeActivity.ShowAdapter(this, shows);
-        setListAdapter(showAdapter);
+        listView.setAdapter(showAdapter);
 
         //read database of runtime and put on the page...
         populateShowRuntimeList();
@@ -370,19 +372,19 @@ public class ShowManagementRunTimeActivity extends ListActivity {
 
 
     private void showLoadingDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getSupportFragmentManager(), DIALOG_LOADING_TAG);
         }
     }
 
     private void dismissLoadingDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
     private void showFinishedDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_FINISHED_TAG) == null) {
-            new FinishedDialogFragment().show(getFragmentManager(), DIALOG_FINISHED_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FINISHED_TAG) == null) {
+            new FinishedDialogFragment().show(getSupportFragmentManager(), DIALOG_FINISHED_TAG);
         }
     }
 
@@ -407,10 +409,12 @@ public class ShowManagementRunTimeActivity extends ListActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            ProgressDialog dialog = new ProgressDialog(getActivity());
-            dialog.setMessage(getString(messageResId));
-            dialog.setCancelable(false);
-            return dialog;
+            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .create();
         }
     }
 

@@ -1,18 +1,19 @@
 package nz.mentalinc.watcher.activities;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,7 +49,7 @@ import nz.mentalinc.watcher.service.ItemClickSupport;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
-public class UpdatedEpisodeListingActivity extends Activity {
+public class UpdatedEpisodeListingActivity extends AppCompatActivity {
     private static final String LOG_TAG = UpdatedEpisodeListingActivity.class.getSimpleName();
 
     List<Show> shows = new ArrayList<>();
@@ -668,32 +669,34 @@ public class UpdatedEpisodeListingActivity extends Activity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            ProgressDialog dialog = new ProgressDialog(getActivity());
-            dialog.setMessage(getString(messageResId));
-            dialog.setCancelable(false);
-            return dialog;
+            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .create();
         }
     }
 
     private void showLoadingDialog(int messageResId) {
-        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
-            LoadingDialogFragment.newInstance(messageResId).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(messageResId).show(getSupportFragmentManager(), DIALOG_LOADING_TAG);
         }
     }
 
     private void dismissLoadingDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
     private void showOnlineDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getFragmentManager(), DIALOG_ONLINE_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getSupportFragmentManager(), DIALOG_ONLINE_TAG);
         }
     }
 
     private void dismissOnlineDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 }

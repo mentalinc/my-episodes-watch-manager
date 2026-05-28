@@ -2,8 +2,6 @@ package nz.mentalinc.watcher.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,15 +15,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import android.app.DialogFragment;
-import android.app.Fragment;
-
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
@@ -41,8 +41,7 @@ import nz.mentalinc.watcher.exception.ShowAddFailedException;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
-//use RecyclerView instead of ListActivty
-public class ShowManagementAddActivity extends ListActivity {
+public class ShowManagementAddActivity extends AppCompatActivity {
     private static final String LOG_TAG = ShowManagementAddActivity.class.getSimpleName();
 
     private ShowService service;
@@ -52,6 +51,7 @@ public class ShowManagementAddActivity extends ListActivity {
 
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
+    private ListView listView;
 
     private boolean showsAdded = false;
 
@@ -138,12 +138,13 @@ public class ShowManagementAddActivity extends ListActivity {
                 sharedPref.getString("UserPassword", null)
         );
 
+        listView = findViewById(android.R.id.list);
         initializeShowList();
     }
 
     private void initializeShowList() {
         showAdapter = new ShowAdapter(this, shows);
-        setListAdapter(showAdapter);
+        listView.setAdapter(showAdapter);
     }
 
     private void updateShowList() {
@@ -161,9 +162,9 @@ public class ShowManagementAddActivity extends ListActivity {
             String text = shows.size() + " ";
 
             if (shows.size() == 1) {
-                text += getText(R.string.showSearchOneFound);
+                text += getString(R.string.showSearchOneFound);
             } else {
-                text += getText(R.string.showSearchMoreFound);
+                text += getString(R.string.showSearchMoreFound);
             }
             numberOfResults.setText(text);
             numberOfResults.setVisibility(TextView.VISIBLE);
@@ -178,31 +179,31 @@ public class ShowManagementAddActivity extends ListActivity {
     private static final String DIALOG_ADD_SHOW_TAG = "ADD_SHOW";
 
     private void showLoadingDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getFragmentManager(), DIALOG_LOADING_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG) == null) {
+            LoadingDialogFragment.newInstance(R.string.progressLoadingTitle).show(getSupportFragmentManager(), DIALOG_LOADING_TAG);
         }
     }
 
     private void dismissLoadingDialog() {
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
+        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
     private void showExceptionDialog(int messageResId) {
-        if (getFragmentManager().findFragmentByTag(DIALOG_EXCEPTION_TAG) == null) {
-            ExceptionDialogFragment.newInstance(messageResId).show(getFragmentManager(), DIALOG_EXCEPTION_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_EXCEPTION_TAG) == null) {
+            ExceptionDialogFragment.newInstance(messageResId).show(getSupportFragmentManager(), DIALOG_EXCEPTION_TAG);
         }
     }
 
     private void showFinishedDialog() {
-        if (getFragmentManager().findFragmentByTag(DIALOG_FINISHED_TAG) == null) {
-            new FinishedDialogFragment().show(getFragmentManager(), DIALOG_FINISHED_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FINISHED_TAG) == null) {
+            new FinishedDialogFragment().show(getSupportFragmentManager(), DIALOG_FINISHED_TAG);
         }
     }
 
     private void showAddShowDialog(String showName, int position) {
-        if (getFragmentManager().findFragmentByTag(DIALOG_ADD_SHOW_TAG) == null) {
-            AddShowDialogFragment.newInstance(showName, position).show(getFragmentManager(), DIALOG_ADD_SHOW_TAG);
+        if (getSupportFragmentManager().findFragmentByTag(DIALOG_ADD_SHOW_TAG) == null) {
+            AddShowDialogFragment.newInstance(showName, position).show(getSupportFragmentManager(), DIALOG_ADD_SHOW_TAG);
         }
     }
 
@@ -220,10 +221,12 @@ public class ShowManagementAddActivity extends ListActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            ProgressDialog dialog = new ProgressDialog(getActivity());
-            dialog.setMessage(getString(messageResId));
-            dialog.setCancelable(false);
-            return dialog;
+            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setView(view)
+                    .setCancelable(false)
+                    .create();
         }
     }
 

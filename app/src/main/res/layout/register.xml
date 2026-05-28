@@ -43,6 +43,7 @@
                 android:id="@+id/registerUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autofillHints=""
                 android:hint="@string/registerUsernameHint"
                 android:inputType="text" />
 
@@ -50,14 +51,14 @@
                 android:id="@+id/registerPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/registerPasswordHint"
+                android:autofillHints="" android:hint="@string/registerPasswordHint"
                 android:inputType="textPassword" />
 
             <EditText
                 android:id="@+id/registerEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/registerEmailHint"
+                android:autofillHints="" android:hint="@string/registerEmailHint"
                 android:inputType="textEmailAddress" />
 
             <com.google.android.material.button.MaterialButton

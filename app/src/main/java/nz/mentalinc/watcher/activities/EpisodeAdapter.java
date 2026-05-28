@@ -96,7 +96,6 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
     @Override
     public void onBindViewHolder(EpisodeAdapter.ViewHolder holder, int position) {
 
-        //TODO Add in all the other bits required to populate the show tile thing
         Episode episode = getItem(position);
 
         Log.e(LOG_TAG, "Episode Bindholder: " + episode.getName());

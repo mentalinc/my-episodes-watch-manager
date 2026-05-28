@@ -138,7 +138,7 @@ public class RandomEpPickerActivity extends Activity {
         if (airdate != null) {
             formattedAirDate = DateUtil.formatDateLong(airdate);
         } else {
-            formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
+            formattedAirDate = getString(R.string.episodeDetailsAirDateLabelDateNotFound);
         }
 
         String airdateString = " " + formattedAirDate;

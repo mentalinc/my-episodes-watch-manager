@@ -94,9 +94,6 @@ public class EpisodeDetailsActivity extends Activity {
             default: //added for code quality
         }
 
-
-        //TODO ADD in a check so that only show this view when clicking on an episode to get more info (updatedepisodelistingactivity). if in the other views and not an actual episode, should only no new episode to watch.
-
         setContentView(R.layout.episode_details);
 
         findViewById(R.id.appBarEpDetailOverviewLayout2).setZ(100f);
@@ -186,7 +183,7 @@ public class EpisodeDetailsActivity extends Activity {
         if (airdate != null) {
             formattedAirDate = DateUtil.formatDateLong(airdate);
         } else {
-            formattedAirDate = getText(R.string.episodeDetailsAirDateLabelDateNotFound).toString();
+            formattedAirDate = getString(R.string.episodeDetailsAirDateLabelDateNotFound);
         }
         airdateText.setText(formattedAirDate);
 
@@ -268,7 +265,6 @@ public class EpisodeDetailsActivity extends Activity {
                // switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        //TODO need to build an activity to use the showDetail content.
                         if (!shows.isEmpty()) {
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
                         } else {
@@ -618,9 +614,6 @@ public class EpisodeDetailsActivity extends Activity {
     private void openListingActivity(Episode episode, String type) {
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
 
-        //todo need to have it call the new show home tab, but the buttons fail to work when clicking acquire.
-        //Intent episodeListingActivity = new Intent(this.getApplicationContext(), ShowHomeTabActivity.class);
-        //Intent episodeListingActivity = new Intent(this.getApplicationContext(), EpisodeListingActivity.class);
         Intent episodeListingActivity = new Intent(getApplicationContext(), UpdatedEpisodeListingActivity.class);
 
         episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)

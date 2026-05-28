@@ -101,7 +101,6 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
     @Override
     public void onBindViewHolder(ShowDetailAdapter.ViewHolder holder, int position) {
 
-        //TODO Add in all the other bits required to populate the show tile thing
         Show show = getItem(position);
         showsList.add(show);
 
