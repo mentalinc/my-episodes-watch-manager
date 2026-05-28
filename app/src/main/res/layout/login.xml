@@ -29,6 +29,7 @@
             android:id="@+id/LinearLayout01"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
             <TextView
@@ -56,21 +57,21 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/loginLogin"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight=".025"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:gravity="center"
+                android:layout_marginTop="10dp"
                 style="@style/HomeButton"
                 android:text="@string/loginLoginBtn" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/registerForm"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
-                android:paddingStart="10dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="15dp"
                 style="@style/HomeButton"
                 android:text="@string/loginFormRegister"
                 android:textSize="16sp" />

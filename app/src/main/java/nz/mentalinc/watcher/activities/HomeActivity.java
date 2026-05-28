@@ -53,6 +53,7 @@ import nz.mentalinc.watcher.enums.ListMode;
 import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
+import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.service.UserService;
@@ -164,7 +165,7 @@ public class HomeActivity extends AppCompatActivity {
 
         user = new User(
                 sharedPref.getString("username", User.USERNAME),
-                sharedPref.getString("UserPassword", User.PASSWORD)
+                CredentialStore.getPassword(HomeActivity.this)
         );
 
 
@@ -308,7 +309,7 @@ public class HomeActivity extends AppCompatActivity {
         user = new User(
 
                 sharedPref.getString("username", User.USERNAME),
-                sharedPref.getString("UserPassword", User.PASSWORD)
+                CredentialStore.getPassword(HomeActivity.this)
         );
         if (episodesController.areListsEmpty()) {
             if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
@@ -354,7 +355,7 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
                 sharedPref.getString("username", User.USERNAME),
-                sharedPref.getString("UserPassword", User.PASSWORD)
+                CredentialStore.getPassword(HomeActivity.this)
         );
         loadEpisodesData(() -> runOnUiThread(() -> {
             swipeRefreshLayout.setRefreshing(false);
@@ -658,8 +659,8 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.remove("username");
-        prefEditor.remove("UserPassword");
         prefEditor.apply();
+        CredentialStore.removePassword(HomeActivity.this);
         EpisodesController.getInstance().deleteAll();
         openLoginActivity();
     }

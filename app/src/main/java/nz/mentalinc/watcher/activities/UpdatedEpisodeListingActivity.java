@@ -43,6 +43,7 @@ import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
+import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.ItemClickSupport;
@@ -99,7 +100,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         sharedPref = prefs;
         user = new User(
                 sharedPref.getString("username", null),
-                sharedPref.getString("UserPassword", null)
+                CredentialStore.getPassword(UpdatedEpisodeListingActivity.this)
         );
 
 
@@ -692,6 +693,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
     private void showOnlineDialog() {
         if (getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
             LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getSupportFragmentManager(), DIALOG_ONLINE_TAG);
+            getSupportFragmentManager().executePendingTransactions();
         }
     }
 

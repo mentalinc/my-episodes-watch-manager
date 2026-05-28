@@ -67,6 +67,7 @@ import nz.mentalinc.watcher.exception.FeedUrlParsingException;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
+import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.DateUtil;
@@ -383,7 +384,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
                 sharedPref.getString("username", null),
-                sharedPref.getString("UserPassword", null)
+                CredentialStore.getPassword(EpisodeListingActivity.this)
         );
         Resources res = getResources();
         android.content.res.Configuration conf = res.getConfiguration();
@@ -548,16 +549,9 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 break;
             }
             case EPISODES_BY_SHOW: {
-                //TODO create a map for show run times but way to complex to make is own grouper as they seem to be two levels and adding runtime as a group would be three levels
-                /* for(Show show : shows) {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("episodeRowTitleRun", show.getRunTime());
-                    headerList.add(map);
-                }*/
                 for (Show show : shows) {
                     Map<String, String> map = new HashMap<>();
                     map.put("episodeRowTitle", show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
-                    // map.put("episodeRowTitle", show.toString() + " [ " + show.getNumberEpisodes() + " ]");
                     headerList.add(map);
                 }
                 break;
@@ -864,9 +858,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
         }
     }
 
-    //todo need to move these and the methods below to the new show listing or list where to return user to when clicking on watch or acquire?
-    // i.e. if click watch, take to the episodes to watch or maybe the next episode screen(noto built yet). and mark aquire, return tot he episode aquire listing maybe?z
-
     private void markEpisodes(final int EpisodeStatus, final Episode episode) {
         showLoadingDialog(R.string.progressLoadingTitle);
 
@@ -1051,7 +1042,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
     }
 
     private Boolean isOnline() {
-        //TODO consdider seeing if this should be a thread.
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         try {
@@ -1118,6 +1108,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private void showOnlineDialog() {
         if (getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
             LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getSupportFragmentManager(), DIALOG_ONLINE_TAG);
+            getSupportFragmentManager().executePendingTransactions();
         }
     }
 

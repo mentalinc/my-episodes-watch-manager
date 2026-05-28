@@ -62,6 +62,7 @@ import nz.mentalinc.watcher.domain.User;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.exception.FeedUrlParsingException;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
+import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.ItemClickSupport;
@@ -127,7 +128,7 @@ public class ShowListingActivity extends AppCompatActivity {
         sharedPref = prefs;
         user = new User(
                 sharedPref.getString("username", null),
-                sharedPref.getString("UserPassword", null)
+                CredentialStore.getPassword(ShowListingActivity.this)
         );
 
         com.google.android.material.appbar.MaterialToolbar episodeTypeTitle = findViewById(R.id.topAppBarShowsView);
@@ -159,8 +160,6 @@ public class ShowListingActivity extends AppCompatActivity {
             showEpCount.setText(showEpCountString);
             episodeTypeTitle.setTitle(getString(R.string.coming));
         }
-
-        //todo - this is commented out when using the newer show hash approach.
         episodes = EpisodesController.getInstance().getEpisodes(episodesType);
 
         int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
@@ -398,8 +397,6 @@ public class ShowListingActivity extends AppCompatActivity {
 
     //this is the new view.
     private void ShowSummaryActivity(Show show, EpisodeType episodeType) {
-        // todo decide if i want home to be the very first load page, or the show button. I think it want to leave it as is so returns to the episode type last looked at
-        //finish();
 
         Intent ShowSummaryActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
 
@@ -515,9 +512,6 @@ public class ShowListingActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
         String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
-
-        //TODO add a sort by runtime might need to be on the below somehow EpisodeAscendingComparator()??
-
         String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
 
         for (Show show : showList) {
@@ -698,7 +692,6 @@ public class ShowListingActivity extends AppCompatActivity {
 
 
     private Boolean isOnline() {
-        //TODO consdider seeing if this should be a thread.
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         try {
@@ -921,6 +914,7 @@ public class ShowListingActivity extends AppCompatActivity {
     private void showOnlineDialog() {
         if (getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
             LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getSupportFragmentManager(), DIALOG_ONLINE_TAG);
+            getSupportFragmentManager().executePendingTransactions();
         }
     }
 

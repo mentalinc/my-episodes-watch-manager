@@ -23,6 +23,7 @@ import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.domain.User;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.UnsupportedHttpPostEncodingException;
+import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
@@ -185,7 +186,7 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean checkLoginCredentials() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String username = sharedPref.getString("username", null);
-        String password = sharedPref.getString("UserPassword", null);
+        String password = CredentialStore.getPassword(getBaseContext());
         return username != null && password != null;
     }
 
@@ -197,8 +198,12 @@ public class RegisterActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putString("username", user.getUsername());
-        prefEditor.putString("UserPassword", user.getPassword());
         prefEditor.apply();
+
+        boolean storePassword = sharedPref.getBoolean("StorePassword", true);
+        if (storePassword) {
+            CredentialStore.savePassword(getBaseContext(), user.getPassword());
+        }
     }
 
     private void finalizeLogin() {

@@ -39,6 +39,7 @@ import nz.mentalinc.watcher.enums.ShowAction;
 import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
+import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
@@ -148,7 +149,7 @@ public class ShowManagementActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
                 sharedPref.getString("username", null),
-                sharedPref.getString("UserPassword", null)
+                CredentialStore.getPassword(ShowManagementActivity.this)
         );
 
         listView = findViewById(android.R.id.list);

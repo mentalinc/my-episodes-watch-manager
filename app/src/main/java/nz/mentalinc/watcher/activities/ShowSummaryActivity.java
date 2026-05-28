@@ -173,7 +173,6 @@ public class ShowSummaryActivity extends Activity {
                 //switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        //TODO need to build an activity to use the showDetail content.
                         if (episodes.size() > 0) {
                             Log.w(LOG_TAG, "barShowDetail Executing openShowSummary");
                             openShowSummary(episodes.get(0), episodesType);
@@ -188,15 +187,6 @@ public class ShowSummaryActivity extends Activity {
                         if (shows.size() > 0) {
                             openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
 
-
-                        /*    } else {
-
-                                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowOverview), "No episodes to watch", Snackbar.LENGTH_LONG);
-                                snackbar.setAnchorView(bottomNavigationView);
-                                snackbar.show();
-                                //show the snackbar and stay on the episode summary
-                                bottomNavigationView.getMenu().getItem(0).setChecked(true);
-                            }*/
                         } else {
 
                             Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowOverview), "No episodes to watch", Snackbar.LENGTH_LONG);
