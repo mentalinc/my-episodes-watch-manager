@@ -163,7 +163,7 @@ public class HomeActivity extends AppCompatActivity {
         sContext = getApplicationContext();
 
         user = new User(
-                sharedPref.getString("username", User.USERNAME),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, User.USERNAME),
                 CredentialStore.getPassword(HomeActivity.this)
         );
 
@@ -177,13 +177,13 @@ public class HomeActivity extends AppCompatActivity {
         btn_ShowWatchNew = findViewById(R.id.btn_ShowWatchNew);
         watchIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
 
-        String watch_sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");
+        String watch_sorting = sharedPref.getString("showWatchOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT);
         if (watch_sorting.equals(showOrderOptions[3])) {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_DATE);
         } else {
             watchIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
-        watchIntent.putExtra("Title", getString(R.string.watch));
+        watchIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.watch));
         btnWatched.setOnClickListener(v -> startActivity(watchIntent));
 
         acquireIntent = new Intent().setClass(this, EpisodeListingActivity.class).putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
@@ -194,7 +194,7 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             acquireIntent.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
-        acquireIntent.putExtra("Title", getString(R.string.acquire));
+        acquireIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.acquire));
         btnAcquired = findViewById(R.id.btn_acquired);
         btnAcquired.setOnClickListener(v -> startActivity(acquireIntent));
         btn_ShowAcquireNew = findViewById(R.id.btn_ShowAcquireNew);
@@ -290,7 +290,7 @@ public class HomeActivity extends AppCompatActivity {
                     episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
                     episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
                     episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
-                    episodeDetailsSubActivity.putExtra("Title", randomEpisode.getShowName());
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, randomEpisode.getShowName());
                     startActivity(episodeDetailsSubActivity);
 
                     return true;*/
@@ -307,7 +307,7 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
 
-                sharedPref.getString("username", User.USERNAME),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, User.USERNAME),
                 CredentialStore.getPassword(HomeActivity.this)
         );
         if (episodesController.areListsEmpty()) {
@@ -353,7 +353,7 @@ public class HomeActivity extends AppCompatActivity {
         episodesController.getEpisodesShows(EpisodeType.COMING_BY_SHOW).clear();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString("username", User.USERNAME),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, User.USERNAME),
                 CredentialStore.getPassword(HomeActivity.this)
         );
         loadEpisodesData(() -> runOnUiThread(() -> {
@@ -663,7 +663,7 @@ public class HomeActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor prefEditor = sharedPref.edit();
-        prefEditor.remove("username");
+        prefEditor.remove(MyEpisodeConstants.PREF_USERNAME);
         prefEditor.apply();
         CredentialStore.removePassword(HomeActivity.this);
         EpisodesController.getInstance().deleteAll();

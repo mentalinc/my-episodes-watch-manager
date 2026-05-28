@@ -46,13 +46,10 @@ public class ChangelogActivity extends Activity {
         version.setText(ApplicationUtil.getCurrentApplicationVersion(getApplicationContext()));
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.w(LOG_TAG, "Home button clicked.");
-                //exit();
-            }
-        });
+        appBarHome.setOnClickListener(v ->
+            Log.w(LOG_TAG, "Home button clicked.")
+            //exit();
+        );
     }
 
     private void init(Bundle savedInstanceState) {

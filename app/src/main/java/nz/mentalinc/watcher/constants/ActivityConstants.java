@@ -12,6 +12,7 @@ public class ActivityConstants {
     public static final String EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID = "showID";
     public static final String EXTRA_BUNDLE_VAR_MARK_EPISODE = "markEpisode";
     public static final String EXTRA_BUILD_VAR_LIST_MODE = "listMode";
+    public static final String EXTRA_TITLE = "Title";
 
     //BUNDLE VALUES
     public static final String EXTRA_BUNDLE_VALUE_WATCH = "watch";

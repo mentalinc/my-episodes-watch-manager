@@ -43,6 +43,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;
+import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.database.SeriesDAO;
@@ -269,7 +270,7 @@ public class RandomEpPickerActivity extends Activity {
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE, ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episode.getType())
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID,episode.getMyEpisodeID())
-                .putExtra("Title", episode.getShowName())
+                .putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName())
                 .putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
 
         startActivity(episodeListingActivity);
@@ -283,12 +284,12 @@ public class RandomEpPickerActivity extends Activity {
 
             //episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
             //showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
-            //String Title = data.getString("Title");
+            //String Title = data.getString(ActivityConstants.EXTRA_TITLE);
 
             Bundle BundleInfoShowDetail = new Bundle();
             BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
             BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
-            BundleInfoShowDetail.putString("Title", "Random Episode");
+            BundleInfoShowDetail.putString(ActivityConstants.EXTRA_TITLE, "Random Episode");
 
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
@@ -325,7 +326,7 @@ public class RandomEpPickerActivity extends Activity {
                             snackbar.setAnchorView(bottomNavigationView);
                             snackbar.show();
                             com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarRandomPicker);
-                            String title = data.getString("Title");
+                            String title = data.getString(ActivityConstants.EXTRA_TITLE);
                             title = title + " - No episodes to watch";
                             ShowNameTitle.setTitle(title);
                             //  openShowSummary(episodesType);
@@ -424,7 +425,7 @@ public class RandomEpPickerActivity extends Activity {
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
         startActivity(updatedEpisodeListActivity);
     }
 
@@ -475,7 +476,7 @@ public class RandomEpPickerActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -487,7 +488,7 @@ public class RandomEpPickerActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", data.getString("Title"));
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, data.getString(ActivityConstants.EXTRA_TITLE));
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -498,7 +499,7 @@ public class RandomEpPickerActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -635,11 +636,11 @@ public class RandomEpPickerActivity extends Activity {
             if (!ShowName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && !showImageURL.equals("")) {
 
                 showSummaryHash.put("ShowName", ShowName);
-                showSummaryHash.put("showURL", showURL);
-                showSummaryHash.put("officialSite", officialSite);
-                showSummaryHash.put("showSummary", showSummary);
-                showSummaryHash.put("showImageURL", showImageURL);
-                showSummaryHash.put("ShowRuntime", ShowRuntime);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
+                showSummaryHash.put(MyEpisodeConstants.OFFICIAL_SITE, officialSite);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_SUMMARY, showSummary);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_IMAGE_URL, showImageURL);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_RUNTIME, ShowRuntime);
             } else {
                 HttpsURLConnection connection = null;
                 BufferedReader reader = null;
@@ -679,7 +680,7 @@ public class RandomEpPickerActivity extends Activity {
                         ShowName = jObj.getString("name");
                         showURL = jObj.getString("url");
                         ShowRuntime = jObj.getString("runtime");
-                        officialSite = jObj.getString("officialSite");
+                        officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
                         if (!jObj.getString("image").equals("null")) {
                             showImageURL = jObj.getJSONObject("image").getString("medium");
                         }
@@ -693,12 +694,12 @@ public class RandomEpPickerActivity extends Activity {
                         showSummary = showSummary.replace("<i>", "");
                         showSummary = showSummary.replace("</i>", "");
 
-                        showSummaryHash.put("showURL", showURL);
-                        showSummaryHash.put("showSummary", showSummary);
-                        showSummaryHash.put("showImageURL", showImageURL);
-                        showSummaryHash.put("officialSite", officialSite);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_SUMMARY, showSummary);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_IMAGE_URL, showImageURL);
+                        showSummaryHash.put(MyEpisodeConstants.OFFICIAL_SITE, officialSite);
                         showSummaryHash.put("ShowName", ShowName);
-                        showSummaryHash.put("ShowRuntime", ShowRuntime);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_RUNTIME, ShowRuntime);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -725,15 +726,15 @@ public class RandomEpPickerActivity extends Activity {
             AppDatabase db = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
             SeriesDAO sDAO = db.getSeriesDAO();
             EpisodeRuntime showSummaryInfo = sDAO.getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
-            showSummaryInfo.setShowSummary(result.get("showSummary"));
-            showSummaryInfo.setShowURL(result.get("showURL"));
-            showSummaryInfo.setOfficialSite(result.get("officialSite"));
-            showSummaryInfo.setShowImageURL(result.get("showImageURL"));
+            showSummaryInfo.setShowSummary(result.get(MyEpisodeConstants.SHOW_SUMMARY));
+            showSummaryInfo.setShowURL(result.get(MyEpisodeConstants.SHOW_URL));
+            showSummaryInfo.setOfficialSite(result.get(MyEpisodeConstants.OFFICIAL_SITE));
+            showSummaryInfo.setShowImageURL(result.get(MyEpisodeConstants.SHOW_IMAGE_URL));
             sDAO.update(showSummaryInfo);
 
             runOnUiThread(() -> {
                 TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);
-                String showruntimeText = " " + result.get("ShowRuntime") + " mins";
+                String showruntimeText = " " + result.get(MyEpisodeConstants.SHOW_RUNTIME) + " mins";
                 ShowRuntimeTV.setText(showruntimeText);
             });
         });

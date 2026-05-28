@@ -15,16 +15,26 @@ public class MyEpisodeConstants {
 
     public static String DAYS_BACK_CP = "365";
     public static String DAYS_FORWARD_CP = "20";
-    public static Boolean DAYS_BACK_ENABLED = false;
-    public static Boolean CACHE_EPISODES_ENABLED = false;
-    public static Boolean SHOW_RUNTIME_ENABLED = false;
+    public static boolean DAYS_BACK_ENABLED = false;
+    public static boolean CACHE_EPISODES_ENABLED = false;
+    public static boolean SHOW_RUNTIME_ENABLED = false;
     public static String CACHE_EPISODES_CACHE_AGE = "Disabled";
 
-    public static Boolean SHOW_LISTING_UNACQUIRED_ENABLED = false;
-    public static Boolean SHOW_LISTING_UNWATCHED_ENABLED = false;
-    public static Boolean SHOW_LISTING_IGNORED_ENABLED = false;
-    public static Boolean SHOW_LISTING_PILOTS_ENABLED = false;
-    public static Boolean SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = false;
+    public static boolean SHOW_LISTING_UNACQUIRED_ENABLED = false;
+    public static boolean SHOW_LISTING_UNWATCHED_ENABLED = false;
+    public static boolean SHOW_LISTING_IGNORED_ENABLED = false;
+    public static boolean SHOW_LISTING_PILOTS_ENABLED = false;
+    public static boolean SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = false;
+
+    public static final String SHOW_URL = "showURL";
+    public static final String OFFICIAL_SITE = "officialSite";
+    public static final String SHOW_SUMMARY = "showSummary";
+    public static final String SHOW_IMAGE_URL = "showImageURL";
+    public static final String SHOW_RUNTIME = "ShowRuntime";
+    public static final String SHOW_STATUS = "showStatus";
+    public static final String SHOW_MYEPISODES_DEFAULT_SORT = "show_myepisodes_default_sort";
+    public static final String CONNECT_ERROR = "Could not connect to host";
+    public static final String PREF_USERNAME = "username";
 
 
     public static Context CONTEXT = null;

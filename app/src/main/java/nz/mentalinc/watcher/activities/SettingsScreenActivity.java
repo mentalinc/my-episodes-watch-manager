@@ -68,19 +68,19 @@ public class SettingsScreenActivity extends AppCompatActivity {
             } else if (R.id.barWatch == nextItem) {
                 Intent watchIntent = new Intent(getApplicationContext(), ShowListingActivity.class);
                 watchIntent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
-                watchIntent.putExtra("Title", getString(R.string.watch));
+                watchIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.watch));
                 startActivity(watchIntent);
                 return true;
             } else if (R.id.barAcquire == nextItem) {
                 Intent acquireIntent = new Intent(getApplicationContext(), ShowListingActivity.class);
                 acquireIntent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_ACQUIRE);
-                acquireIntent.putExtra("Title", getString(R.string.acquire));
+                acquireIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.acquire));
                 startActivity(acquireIntent);
                 return true;
             } else if (R.id.barComing == nextItem) {
                 Intent comingIntent = new Intent(getApplicationContext(), ShowListingActivity.class);
                 comingIntent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_COMING);
-                comingIntent.putExtra("Title", getString(R.string.coming));
+                comingIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.coming));
                 startActivity(comingIntent);
                 return true;
             } else if (R.id.barCalendar == nextItem) {

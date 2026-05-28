@@ -85,6 +85,9 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private static final String LOG_TAG = EpisodeListingActivity.class.getSimpleName();
     private static final String DIALOG_LOADING_TAG = "LOADING";
     private static final String DIALOG_ONLINE_TAG = "ONLINE";
+    private static final String EPISODE_ROW_TITLE = "episodeRowTitle";
+    private static final String EPISODE_ROW_CHILD_TITLE = "episodeRowChildTitle";
+    private static final String EPISODE_ROW_CHILD_DETAIL = "episodeRowChildDetail";
 
     private User user;
     private final EpisodesService service;
@@ -307,7 +310,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         Bundle data = this.getIntent().getExtras();
         episodesType = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         listMode = data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.class);
-        title = data.getSerializable("Title", String.class);
+        title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
         init();
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -385,7 +388,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         episodes = new ArrayList<>();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString("username", null),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
                 CredentialStore.getPassword(EpisodeListingActivity.this)
         );
         Resources res = getResources();
@@ -424,11 +427,11 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 this,
                 createGroups(),
                 R.layout.episode_listing_tab_row_group,
-                new String[]{"episodeRowTitle"},
+                new String[]{EPISODE_ROW_TITLE},
                 new int[]{R.id.episodeRowTitle},
                 createChilds(),
                 R.layout.episode_listing_tab_row_child,
-                new String[]{"episodeRowChildTitle", "episodeRowChildDetail"},
+                new String[]{EPISODE_ROW_CHILD_TITLE, EPISODE_ROW_CHILD_DETAIL},
                 new int[]{R.id.episodeRowChildTitle, R.id.episodeRowChildDetail}
         );
         expandableListView.setAdapter(episodeAdapter);
@@ -544,7 +547,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 for (Date key : workingMap.keySet()) {
                     Map<String, String> map = new HashMap<>();
                     int countEp = workingMap.get(key);
-                    map.put("episodeRowTitle", DateUtil.formatDateFull(key) + " [ " + countEp + " ]");
+                    map.put(EPISODE_ROW_TITLE, DateUtil.formatDateFull(key) + " [ " + countEp + " ]");
                     headerList.add(map);
                     listedAirDates.put(key, null);
                 }
@@ -553,7 +556,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
             case EPISODES_BY_SHOW: {
                 for (Show show : shows) {
                     Map<String, String> map = new HashMap<>();
-                    map.put("episodeRowTitle", show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
+                    map.put(EPISODE_ROW_TITLE, show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
                     headerList.add(map);
                 }
                 break;
@@ -578,8 +581,8 @@ public class EpisodeListingActivity extends AppCompatActivity {
                         for (Episode episode : show.getEpisodes()) {
                             if (listedAirDate.equals(episode.getAirDate())) {
                                 HashMap<String, String> map = new HashMap<>();
-                                map.put("episodeRowChildTitle", episode.getShowName());
-                                map.put("episodeRowChildDetail", "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
+                                map.put(EPISODE_ROW_CHILD_TITLE, episode.getShowName());
+                                map.put(EPISODE_ROW_CHILD_DETAIL, "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
                                 subListSecondLvl.add(map);
                                 episodeList.add(episode);
                             }
@@ -595,8 +598,8 @@ public class EpisodeListingActivity extends AppCompatActivity {
                     List<Map<String, String>> subListSecondLvl = new ArrayList<>();
                     for (Episode episode : show.getEpisodes()) {
                         HashMap<String, String> map = new HashMap<>();
-                        map.put("episodeRowChildTitle", episode.getShowName());
-                        map.put("episodeRowChildDetail", "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
+                        map.put(EPISODE_ROW_CHILD_TITLE, episode.getShowName());
+                        map.put(EPISODE_ROW_CHILD_DETAIL, "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
                         subListSecondLvl.add(map);
                     }
                     childList.add(subListSecondLvl);
@@ -614,7 +617,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", title);
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, title);
         startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -752,7 +755,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 EpisodesController.getInstance().setEpisodes(episodesType, service.retrieveEpisodes(episodesType, user));
             }
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (FeedUrlParsingException e) {
@@ -818,15 +821,15 @@ public class EpisodeListingActivity extends AppCompatActivity {
         String sorting = "";
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT);//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
                 break;
             case EPISODES_COMING:
-                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
             default: //added for code quality
         }
@@ -918,7 +921,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
             default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.networkIssues;
         } catch (LoginFailedException e) {
@@ -948,7 +951,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
             default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.networkIssues;
         } catch (LoginFailedException e) {

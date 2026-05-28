@@ -66,39 +66,36 @@ public class CalendarActivity extends AppCompatActivity {
     private boolean filterComingEnabled = true;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
-            new NavigationBarView.OnItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    int id = item.getItemId();
-                    if (id == R.id.barHome) {
-                        finish();
-                        return true;
-                    } else if (id == R.id.barWatch) {
-                        Intent intent = new Intent(getApplicationContext(), ShowListingActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE,
-                                EpisodeType.EPISODES_TO_WATCH);
-                        startActivity(intent);
-                        return true;
-                    } else if (id == R.id.barAcquire) {
-                        Intent intent = new Intent(getApplicationContext(), ShowListingActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE,
-                                EpisodeType.EPISODES_TO_ACQUIRE);
-                        startActivity(intent);
-                        return true;
-                    } else if (id == R.id.barComing) {
-                        Intent intent = new Intent(getApplicationContext(), ShowListingActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE,
-                                EpisodeType.EPISODES_COMING);
-                        startActivity(intent);
-                        return true;
-                    } else if (id == R.id.barCalendar) {
-                        return true;
-                    }
-                    return false;
+            item -> {
+                int id = item.getItemId();
+                if (id == R.id.barHome) {
+                    finish();
+                    return true;
+                } else if (id == R.id.barWatch) {
+                    Intent intent = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE,
+                            EpisodeType.EPISODES_TO_WATCH);
+                    startActivity(intent);
+                    return true;
+                } else if (id == R.id.barAcquire) {
+                    Intent intent = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE,
+                            EpisodeType.EPISODES_TO_ACQUIRE);
+                    startActivity(intent);
+                    return true;
+                } else if (id == R.id.barComing) {
+                    Intent intent = new Intent(getApplicationContext(), ShowListingActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE,
+                            EpisodeType.EPISODES_COMING);
+                    startActivity(intent);
+                    return true;
+                } else if (id == R.id.barCalendar) {
+                    return true;
                 }
+                return false;
             };
 
     @Override
@@ -602,7 +599,7 @@ public class CalendarActivity extends AppCompatActivity {
                 intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, ep);
                 intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, ep.getMyEpisodeID());
                 intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, ce.type);
-                intent.putExtra("Title", ep.getShowName());
+                intent.putExtra(ActivityConstants.EXTRA_TITLE, ep.getShowName());
                 context.startActivity(intent);
             });
         }

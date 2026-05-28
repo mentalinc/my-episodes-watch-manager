@@ -40,6 +40,8 @@ import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.exception.ShowAddFailedException;
 import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.ShowService;
+import nz.mentalinc.watcher.constants.ActivityConstants;
+import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 public class ShowManagementAddActivity extends AppCompatActivity {
@@ -135,7 +137,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         service = new ShowService();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString("username", null),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
                 CredentialStore.getPassword(ShowManagementAddActivity.this)
         );
 
@@ -325,7 +327,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
             Log.d(LOG_TAG, shows.size() + " show(s) found!!!");
             exceptionMessageResId = null;
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
@@ -388,7 +390,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
             service.addShow(show.getMyEpisodeID(), user);
             showsAdded = true;
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
@@ -418,13 +420,13 @@ public class ShowManagementAddActivity extends AppCompatActivity {
 
     private void openSearchActivity() {
         Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);
-        searchIntent.putExtra("Title", getString(R.string.addShow));
+        searchIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.addShow));
         startActivity(searchIntent);
     }
 
     private void openRunTimeActivity() {
         Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
-        runTimeIntent.putExtra("Title", getString(R.string.ShowRuntime));
+        runTimeIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ShowRuntime));
         startActivity(runTimeIntent);
     }
 
@@ -432,9 +434,9 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         Intent intent = new Intent(this.getApplicationContext(), ShowManagementActivity.class);
         intent.putExtra(ShowType.class.getSimpleName(), showType);
         if (showType.toString().equals("FAVOURITE_SHOWS"))
-            intent.putExtra("Title", getString(R.string.favouriteShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.favouriteShows));
         else if (showType.toString().equals("IGNORED_SHOWS"))
-            intent.putExtra("Title", getString(R.string.ignoredShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ignoredShows));
         startActivity(intent);
     }
 }

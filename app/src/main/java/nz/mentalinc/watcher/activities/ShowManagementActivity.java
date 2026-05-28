@@ -41,6 +41,8 @@ import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.ShowService;
+import nz.mentalinc.watcher.constants.ActivityConstants;
+import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 public class ShowManagementActivity extends AppCompatActivity {
@@ -131,7 +133,7 @@ public class ShowManagementActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.barIgnoredShows);
         }
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
-        String title = data.getSerializable("Title", String.class);
+        String title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
         Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
         toolbar.setTitle(title);
 
@@ -148,7 +150,7 @@ public class ShowManagementActivity extends AppCompatActivity {
         }
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString("username", null),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
                 CredentialStore.getPassword(ShowManagementActivity.this)
         );
 
@@ -231,7 +233,7 @@ public class ShowManagementActivity extends AppCompatActivity {
         try {
             shows = service.getFavoriteOrIgnoredShows(user, showType);
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
@@ -380,7 +382,7 @@ public class ShowManagementActivity extends AppCompatActivity {
         try {
             shows = service.markShow(user, show, showAction, showType);
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (LoginFailedException e) {
@@ -396,13 +398,13 @@ public class ShowManagementActivity extends AppCompatActivity {
 
     private void openSearchActivity() {
         Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);
-        searchIntent.putExtra("Title", getString(R.string.addShow));
+        searchIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.addShow));
         startActivity(searchIntent);
     }
 
     private void openRunTimeActivity() {
         Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
-        runTimeIntent.putExtra("Title", getString(R.string.ShowRuntime));
+        runTimeIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ShowRuntime));
         startActivity(runTimeIntent);
     }
 
@@ -410,9 +412,9 @@ public class ShowManagementActivity extends AppCompatActivity {
         Intent intent = new Intent(this.getApplicationContext(), ShowManagementActivity.class);
         intent.putExtra(ShowType.class.getSimpleName(), showType);
         if (showType.toString().equals("FAVOURITE_SHOWS"))
-            intent.putExtra("Title", getString(R.string.favouriteShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.favouriteShows));
         else if (showType.toString().equals("IGNORED_SHOWS"))
-            intent.putExtra("Title", getString(R.string.ignoredShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ignoredShows));
         startActivity(intent);
     }
 }

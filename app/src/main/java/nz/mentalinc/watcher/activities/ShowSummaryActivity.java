@@ -42,6 +42,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;
+import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.database.SeriesDAO;
@@ -99,7 +100,7 @@ public class ShowSummaryActivity extends Activity {
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
         episode = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
-        String title = data.getString("Title");
+        String title = data.getString(ActivityConstants.EXTRA_TITLE);
 
         //showDetail = new Show(title, showMyEpisodeID);
 
@@ -161,12 +162,12 @@ public class ShowSummaryActivity extends Activity {
 
             episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
             showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
-            String Title = data.getString("Title");
+            String Title = data.getString(ActivityConstants.EXTRA_TITLE);
 
             Bundle BundleInfoShowDetail = new Bundle();
             BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
             BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
-            BundleInfoShowDetail.putString("Title", Title);
+            BundleInfoShowDetail.putString(ActivityConstants.EXTRA_TITLE, Title);
 
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
@@ -238,7 +239,7 @@ public class ShowSummaryActivity extends Activity {
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
         startActivity(updatedEpisodeListActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -249,7 +250,7 @@ public class ShowSummaryActivity extends Activity {
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        updatedEpisodeListActivity.putExtra("Title", data.getString("Title"));
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_TITLE, data.getString(ActivityConstants.EXTRA_TITLE));
         startActivity(updatedEpisodeListActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -259,7 +260,7 @@ public class ShowSummaryActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -269,7 +270,7 @@ public class ShowSummaryActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -324,12 +325,12 @@ public class ShowSummaryActivity extends Activity {
 
             if (showName != null && showURL != null && officialSite != null && showSummary != null && showStatus != null && showImageURL != null && !showRuntime.equals("null")) {
                 showSummaryHash.put("showName", showName);
-                showSummaryHash.put("showURL", showURL);
-                showSummaryHash.put("officialSite", officialSite);
-                showSummaryHash.put("showSummary", showSummary);
-                showSummaryHash.put("showImageURL", showImageURL);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
+                showSummaryHash.put(MyEpisodeConstants.OFFICIAL_SITE, officialSite);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_SUMMARY, showSummary);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_IMAGE_URL, showImageURL);
                 showSummaryHash.put("showRuntime", showRuntime);
-                showSummaryHash.put("showStatus", showStatus);
+                showSummaryHash.put(MyEpisodeConstants.SHOW_STATUS, showStatus);
             } else {
                 HttpsURLConnection connection = null;
                 BufferedReader reader = null;
@@ -373,7 +374,7 @@ public class ShowSummaryActivity extends Activity {
                             showRuntime = jObj.getString("averageRuntime");
                         }
 
-                        officialSite = jObj.getString("officialSite");
+                        officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
                         showStatus = jObj.getString("status");
                         if (!jObj.getString("image").equals("null")) {
                             showImageURL = jObj.getJSONObject("image").getString("medium");
@@ -388,22 +389,22 @@ public class ShowSummaryActivity extends Activity {
                         showSummary = showSummary.replace("<i>", "");
                         showSummary = showSummary.replace("</i>", "");
 
-                        showSummaryHash.put("showURL", showURL);
-                        showSummaryHash.put("showSummary", showSummary);
-                        showSummaryHash.put("showImageURL", showImageURL);
-                        showSummaryHash.put("officialSite", officialSite);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_SUMMARY, showSummary);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_IMAGE_URL, showImageURL);
+                        showSummaryHash.put(MyEpisodeConstants.OFFICIAL_SITE, officialSite);
                         showSummaryHash.put("showName", showName);
                         showSummaryHash.put("showRuntime", showRuntime);
-                        showSummaryHash.put("showStatus", showStatus);
+                        showSummaryHash.put(MyEpisodeConstants.SHOW_STATUS, showStatus);
 
                         EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
 
-                        showSummaryInfo.setShowSummary(showSummaryHash.get("showSummary"));
-                        showSummaryInfo.setShowURL(showSummaryHash.get("showURL"));
-                        showSummaryInfo.setOfficialSite(showSummaryHash.get("officialSite"));
-                        showSummaryInfo.setShowImageURL(showSummaryHash.get("showImageURL"));
+                        showSummaryInfo.setShowSummary(showSummaryHash.get(MyEpisodeConstants.SHOW_SUMMARY));
+                        showSummaryInfo.setShowURL(showSummaryHash.get(MyEpisodeConstants.SHOW_URL));
+                        showSummaryInfo.setOfficialSite(showSummaryHash.get(MyEpisodeConstants.OFFICIAL_SITE));
+                        showSummaryInfo.setShowImageURL(showSummaryHash.get(MyEpisodeConstants.SHOW_IMAGE_URL));
                         showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
-                        showSummaryInfo.setShowStatus(showSummaryHash.get("showStatus"));
+                        showSummaryInfo.setShowStatus(showSummaryHash.get(MyEpisodeConstants.SHOW_STATUS));
 
                         seriesDAO.update(showSummaryInfo);
 
@@ -434,15 +435,15 @@ public class ShowSummaryActivity extends Activity {
                 ShowRuntimeTV.setText(runtimeStr);
 
                 TextView ShowStatusTV = findViewById(R.id.ShowStatus);
-                String showStatusStr = "Show status: " + result.get("showStatus");
+                String showStatusStr = "Show status: " + result.get(MyEpisodeConstants.SHOW_STATUS);
                 ShowStatusTV.setText(showStatusStr);
 
                 TextView tvMazeShowWebsite = findViewById(R.id.tvMazeShowWebsite);
-                tvMazeShowWebsite.setText(result.get("showURL"));
+                tvMazeShowWebsite.setText(result.get(MyEpisodeConstants.SHOW_URL));
                 Linkify.addLinks(tvMazeShowWebsite, Linkify.WEB_URLS);
 
                 TextView officialShowDetailWebsite = findViewById(R.id.officialShowWebsite);
-                String showOfficialWebsite = result.get("officialSite");
+                String showOfficialWebsite = result.get(MyEpisodeConstants.OFFICIAL_SITE);
                 if (!showOfficialWebsite.equals("null")) {
                     officialShowDetailWebsite.setText(showOfficialWebsite);
                     Linkify.addLinks(officialShowDetailWebsite, Linkify.WEB_URLS);
@@ -451,7 +452,7 @@ public class ShowSummaryActivity extends Activity {
                 }
 
                 TextView tvMazeShowDetailSummary = findViewById(R.id.tvMazeShowSummary);
-                String episodeSummary = result.get("showSummary");
+                String episodeSummary = result.get(MyEpisodeConstants.SHOW_SUMMARY);
 
                 if (!episodeSummary.equals("null")) {
                     tvMazeShowDetailSummary.setText(episodeSummary);
@@ -460,7 +461,7 @@ public class ShowSummaryActivity extends Activity {
                 }
 
                 ImageView showImage = findViewById(R.id.showImage);
-                String showImageURLStr = result.get("showImageURL");
+                String showImageURLStr = result.get(MyEpisodeConstants.SHOW_IMAGE_URL);
 
                 if (!showImageURLStr.equals("")) {
                     RequestOptions requestOptions = new RequestOptions();
@@ -629,15 +630,15 @@ public class ShowSummaryActivity extends Activity {
         String sorting = "";
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT);//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
                 break;
             case EPISODES_COMING:
-                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
             default: //added for code quality
         }

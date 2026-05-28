@@ -68,7 +68,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
-        String title = data.getString("Title");
+        String title = data.getString(ActivityConstants.EXTRA_TITLE);
         returnEpisodes();
 
         //  Title = Title + " (" + episodesRaw.size() + ")";
@@ -79,7 +79,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         Bundle BundleInfoShowDetail = new Bundle();
         BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
         BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
-        BundleInfoShowDetail.putString("Title", title);
+        BundleInfoShowDetail.putString(ActivityConstants.EXTRA_TITLE, title);
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -100,7 +100,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
         startActivity(updatedEpisodeListActivity);
     }
 
@@ -131,12 +131,12 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
             episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
             showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
-            String Title = data.getString("Title");
+            String Title = data.getString(ActivityConstants.EXTRA_TITLE);
 
             Bundle BundleInfoShowDetail = new Bundle();
             BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
             BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
-            BundleInfoShowDetail.putString("Title", Title);
+            BundleInfoShowDetail.putString(ActivityConstants.EXTRA_TITLE, Title);
 
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
@@ -194,7 +194,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -206,7 +206,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity);
     }
 

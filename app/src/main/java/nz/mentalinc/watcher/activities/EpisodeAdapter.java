@@ -88,9 +88,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
     public EpisodeAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View episodeView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_episode, parent, false);
-        EpisodeAdapter.ViewHolder viewHolder = new EpisodeAdapter.ViewHolder(episodeView);
-        return viewHolder;
-
+        return new EpisodeAdapter.ViewHolder(episodeView);
     }
 
     @Override

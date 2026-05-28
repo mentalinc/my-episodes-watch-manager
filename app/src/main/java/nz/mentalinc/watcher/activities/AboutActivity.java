@@ -58,12 +58,9 @@ public class AboutActivity extends Activity {
         Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
 
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.w(LOG_TAG, "Home button clicked.");
-                exit();
-            }
+        appBarHome.setOnClickListener(v -> {
+            Log.w(LOG_TAG, "Home button clicked.");
+            exit();
         });
     }
 

@@ -49,6 +49,7 @@ import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.ItemClickSupport;
 import nz.mentalinc.watcher.service.UserService;
+import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 public class UpdatedEpisodeListingActivity extends AppCompatActivity {
@@ -100,7 +101,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
  
         sharedPref = prefs;
         user = new User(
-                sharedPref.getString("username", null),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
                 CredentialStore.getPassword(UpdatedEpisodeListingActivity.this)
         );
 
@@ -109,7 +110,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         data = this.getIntent().getExtras();
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
-        String title = data.getString("Title");
+        String title = data.getString(ActivityConstants.EXTRA_TITLE);
 
         setContentView(R.layout.recycle_view_episodes);
 
@@ -269,12 +270,12 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
 
             episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
             showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
-            String Title = data.getString("Title");
+            String Title = data.getString(ActivityConstants.EXTRA_TITLE);
 
             Bundle BundleInfoShowDetail = new Bundle();
             BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
             BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
-            BundleInfoShowDetail.putString("Title", Title);
+            BundleInfoShowDetail.putString(ActivityConstants.EXTRA_TITLE, Title);
 
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
@@ -311,7 +312,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
                             snackbar.setAnchorView(bottomNavigationView);
                             snackbar.show();
                             com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
-                            String title = data.getString("Title");
+                            String title = data.getString(ActivityConstants.EXTRA_TITLE);
                             title = title + " - No episodes to watch";
                             ShowNameTitle.setTitle(title);
                             //  openShowSummary(episodesType);
@@ -383,7 +384,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
         startActivity(updatedEpisodeListActivity);
     }
 
@@ -393,7 +394,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -404,7 +405,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", data.getString("Title"));
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, data.getString(ActivityConstants.EXTRA_TITLE));
         startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -414,7 +415,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -498,7 +499,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
             default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.networkIssues;
         } catch (LoginFailedException e) {
@@ -528,7 +529,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
             default: //added for code quality
             }
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.networkIssues;
         } catch (LoginFailedException e) {
@@ -650,7 +651,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         rvEpisode.setAdapter(adapter);
         loadRuntimeMapForEpisodes(episodes, adapter);
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.topAppBarEpisodesView);
-        String dataTitle = data.getString("Title");
+        String dataTitle = data.getString(ActivityConstants.EXTRA_TITLE);
         toolbar.setTitle(dataTitle + " (" + episodes.size() + ")");
     }
 

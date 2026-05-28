@@ -58,6 +58,7 @@ import nz.mentalinc.watcher.domain.ShowRuntimeAscendingComparator;
 import nz.mentalinc.watcher.domain.User;
 import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
+import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.utils.InputFilterMinMax;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
@@ -136,7 +137,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
 
         Bundle data = this.getIntent().getExtras();
-        title = data.getSerializable("Title", String.class);
+        title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
         Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
         toolbar.setTitle(title);
 
@@ -476,13 +477,13 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
 
     private void openSearchActivity() {
         Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);
-        searchIntent.putExtra("Title", getString(R.string.addShow));
+        searchIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.addShow));
         startActivity(searchIntent);
     }
 
     private void openRunTimeActivity() {
         Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
-        runTimeIntent.putExtra("Title", getString(R.string.ShowRuntime));
+        runTimeIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ShowRuntime));
         startActivity(runTimeIntent);
     }
 
@@ -490,9 +491,9 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         Intent intent = new Intent(this.getApplicationContext(), ShowManagementActivity.class);
         intent.putExtra(ShowType.class.getSimpleName(), showType);
         if (showType.toString().equals("FAVOURITE_SHOWS"))
-            intent.putExtra("Title", getString(R.string.favouriteShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.favouriteShows));
         else if (showType.toString().equals("IGNORED_SHOWS"))
-            intent.putExtra("Title", getString(R.string.ignoredShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ignoredShows));
         startActivity(intent);
     }
 

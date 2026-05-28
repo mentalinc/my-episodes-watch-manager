@@ -496,7 +496,7 @@ public class ShowService {
                 tvmazeShowID = jObj.getString("id");
                 showSummary = jObj.getString("summary");
                 showURL = jObj.getString("url");
-                officialSite = jObj.getString("officialSite");
+                officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
                 if (!jObj.getString("image").equals("null")) {
                     showImageURL = jObj.getJSONObject("image").getString("medium");
                 }

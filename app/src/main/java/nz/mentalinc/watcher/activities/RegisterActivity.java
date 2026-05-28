@@ -25,6 +25,7 @@ import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.UnsupportedHttpPostEncodingException;
 import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.UserService;
+import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 
@@ -80,7 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
                         try {
                             registerStatus = register(user);
                         } catch (InternetConnectivityException e) {
-                            String message = "Could not connect to host";
+                            String message = MyEpisodeConstants.CONNECT_ERROR;
                             Log.e(LOG_TAG, message, e);
 
                         } catch (Exception e) {
@@ -185,7 +186,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private boolean checkLoginCredentials() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String username = sharedPref.getString("username", null);
+        String username = sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null);
         String password = CredentialStore.getPassword(getBaseContext());
         return username != null && password != null;
     }
@@ -197,7 +198,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void storeLoginCredentials(User user) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor prefEditor = sharedPref.edit();
-        prefEditor.putString("username", user.getUsername());
+        prefEditor.putString(MyEpisodeConstants.PREF_USERNAME, user.getUsername());
         prefEditor.apply();
 
         boolean storePassword = sharedPref.getBoolean("StorePassword", true);

@@ -33,6 +33,7 @@ import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.database.SeriesDAO;
 import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
+import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 /**
@@ -116,13 +117,13 @@ public class ShowManagementPortalActivity extends Activity {
 
     private void openSearchActivity() {
         Intent searchIntent = new Intent(this.getApplicationContext(), ShowManagementAddActivity.class);
-        searchIntent.putExtra("Title", getString(R.string.addShow));
+        searchIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.addShow));
         startActivity(searchIntent);
     }
 
     private void openRunTimeActivity() {
         Intent runTimeIntent = new Intent(this.getApplicationContext(), ShowManagementRunTimeActivity.class);
-        runTimeIntent.putExtra("Title", getString(R.string.ShowRuntime));
+        runTimeIntent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ShowRuntime));
         startActivity(runTimeIntent);
     }
 
@@ -150,9 +151,9 @@ public class ShowManagementPortalActivity extends Activity {
         intent.putExtra(ShowType.class.getSimpleName(), showType);
         Log.e("Fav or Ignore show type", showType.toString());
         if (showType.toString().equals("FAVOURITE_SHOWS"))
-            intent.putExtra("Title", getString(R.string.favouriteShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.favouriteShows));
         else if (showType.toString().equals("IGNORED_SHOWS"))
-            intent.putExtra("Title", getString(R.string.ignoredShows));
+            intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ignoredShows));
         startActivity(intent);
     }
 

@@ -128,7 +128,7 @@ public class ShowListingActivity extends AppCompatActivity {
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         sharedPref = prefs;
         user = new User(
-                sharedPref.getString("username", null),
+                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
                 CredentialStore.getPassword(ShowListingActivity.this)
         );
 
@@ -313,7 +313,7 @@ public class ShowListingActivity extends AppCompatActivity {
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        updatedEpisodeListActivity.putExtra("Title", show.getShowName());
+        updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
         startActivity(updatedEpisodeListActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -384,7 +384,7 @@ public class ShowListingActivity extends AppCompatActivity {
                     episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
                     episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
                     episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
-                    episodeDetailsSubActivity.putExtra("Title", randomEpisode.getShowName());
+                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, randomEpisode.getShowName());
                     startActivity(episodeDetailsSubActivity);
 
                     return true;*/
@@ -406,7 +406,7 @@ public class ShowListingActivity extends AppCompatActivity {
         ShowSummaryActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, nextEpisodeToWatch);
         ShowSummaryActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         ShowSummaryActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        ShowSummaryActivity.putExtra("Title", show.getShowName());
+        ShowSummaryActivity.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
         Log.w(LOG_TAG, "openShowHomePage method called");
         startActivity(ShowSummaryActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
@@ -416,7 +416,7 @@ public class ShowListingActivity extends AppCompatActivity {
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, episode.getShowName());
         startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
@@ -568,15 +568,15 @@ public class ShowListingActivity extends AppCompatActivity {
         String sorting = "";
         switch (episodesType) {
             case EPISODES_TO_WATCH:
-                sorting = sharedPref.getString("showWatchOrder", "show_myepisodes_default_sort");//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showWatchOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT);//Preferences.getPreference(this, PreferencesKeys.WATCH_SHOW_SORTING_KEY);
                 break;
             case EPISODES_TO_YESTERDAY1:
             case EPISODES_TO_YESTERDAY2:
             case EPISODES_TO_ACQUIRE:
-                sorting = sharedPref.getString("showAcquireOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showAcquireOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.ACQUIRE_SHOW_SORTING_KEY);
                 break;
             case EPISODES_COMING:
-                sorting = sharedPref.getString("showComingOrder", "show_myepisodes_default_sort"); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
+                sorting = sharedPref.getString("showComingOrder", MyEpisodeConstants.SHOW_MYEPISODES_DEFAULT_SORT); //Preferences.getPreference(this, PreferencesKeys.COMING_SHOW_SORTING_KEY);
                 break;
             default: //added for code quality
         }
@@ -737,7 +737,7 @@ public class ShowListingActivity extends AppCompatActivity {
                 EpisodesController.getInstance().setEpisodes(episodesType, service.retrieveEpisodes(episodesType, user));
             }
         } catch (InternetConnectivityException e) {
-            String message = "Could not connect to host";
+            String message = MyEpisodeConstants.CONNECT_ERROR;
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.internetConnectionFailureReload;
         } catch (FeedUrlParsingException e) {
