@@ -156,8 +156,7 @@ public class HomeActivity extends AppCompatActivity {
         MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED = sharedPref.getBoolean("listingPilotsFilter", false);
         MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = sharedPref.getBoolean("listingLocalizedAirdatesFilter", true);
 
-        conf.locale = new Locale(LanguageCode);
-        res.updateConfiguration(conf, null);
+        applyLocaleConfiguration(LanguageCode);
 
         openLoginActivity();
         this.service = new EpisodesService();
@@ -597,6 +596,12 @@ public class HomeActivity extends AppCompatActivity {
     private void init() {
         res = getResources();
         conf = res.getConfiguration();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void applyLocaleConfiguration(String languageCode) {
+        conf.setLocale(Locale.forLanguageTag(languageCode));
+        res.updateConfiguration(conf, null);
     }
 
 

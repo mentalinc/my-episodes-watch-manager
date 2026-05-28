@@ -1,6 +1,7 @@
 package nz.mentalinc.watcher.activities;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -95,9 +96,9 @@ public class ShowSummaryActivity extends Activity {
         findViewById(R.id.appBarShowOverviewLayout2).setZ(100f);
 
         data = this.getIntent().getExtras();
-        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-        showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
-        episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
+        episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
+        showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
+        episode = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
         String title = data.getString("Title");
 
         //showDetail = new Show(title, showMyEpisodeID);
@@ -158,8 +159,8 @@ public class ShowSummaryActivity extends Activity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-            episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-            showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+            episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
+            showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
             String Title = data.getString("Title");
 
             Bundle BundleInfoShowDetail = new Bundle();
@@ -232,52 +233,44 @@ public class ShowSummaryActivity extends Activity {
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
         finish();
         Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
-        //todo make the animation slide between the different tabs like this:
-        //https://stackoverflow.com/questions/10243557/how-to-apply-slide-animation-between-two-activities-in-android
-        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         Episode nextEpisodeToWatch = show.getFirstEpisode();
         String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         updatedEpisodeListActivity.putExtra("Title", show.getShowName());
-        startActivity(updatedEpisodeListActivity);
+        startActivity(updatedEpisodeListActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
 
     private void openEpisodeListing(EpisodeType episodeType) {
         finish();
         Intent updatedEpisodeListActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
-        //todo make the animation slide between the different tabs like this:
-        //https://stackoverflow.com/questions/10243557/how-to-apply-slide-animation-between-two-activities-in-android
-        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         updatedEpisodeListActivity.putExtra("Title", data.getString("Title"));
-        startActivity(updatedEpisodeListActivity);
+        startActivity(updatedEpisodeListActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void openShowSummary(Episode episode, EpisodeType episodeType) {
         finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
-        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
-        startActivity(episodeDetailsSubActivity);
+        startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
         finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
-        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, episode.getMyEpisodeID());
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
-        startActivity(episodeDetailsSubActivity);
+        startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void returnEpisodes() {
@@ -523,8 +516,6 @@ public class ShowSummaryActivity extends Activity {
         // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
         String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
 
-        //TODO add a sort by runtime might need to be on the below somehow EpisodeAscendingComparator()??
-
         String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
 
         for (Show show : showList) {
@@ -666,5 +657,10 @@ public class ShowSummaryActivity extends Activity {
         }
     }
 
-
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
 }

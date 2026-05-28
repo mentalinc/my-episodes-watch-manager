@@ -2,6 +2,7 @@ package nz.mentalinc.watcher.activities;
 
 
 import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -124,7 +125,7 @@ public class ShowListingActivity extends AppCompatActivity {
 
         Bundle data = this.getIntent().getExtras();
         //episodeType is set based on the button on the home page that is press.
-        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
+        episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         sharedPref = prefs;
         user = new User(
                 sharedPref.getString("username", null),
@@ -235,7 +236,7 @@ public class ShowListingActivity extends AppCompatActivity {
                     searchEditText.requestFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     if (imm != null) {
-                        imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
+                        imm.showSoftInput(searchEditText, 0);
                     }
                 }
                 return true;
@@ -313,7 +314,7 @@ public class ShowListingActivity extends AppCompatActivity {
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         updatedEpisodeListActivity.putExtra("Title", show.getShowName());
-        startActivity(updatedEpisodeListActivity);
+        startActivity(updatedEpisodeListActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
 
@@ -407,7 +408,7 @@ public class ShowListingActivity extends AppCompatActivity {
         ShowSummaryActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         ShowSummaryActivity.putExtra("Title", show.getShowName());
         Log.w(LOG_TAG, "openShowHomePage method called");
-        startActivity(ShowSummaryActivity);
+        startActivity(ShowSummaryActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
@@ -416,7 +417,7 @@ public class ShowListingActivity extends AppCompatActivity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra("Title", episode.getShowName());
-        startActivity(episodeDetailsSubActivity);
+        startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void returnEpisodes() {

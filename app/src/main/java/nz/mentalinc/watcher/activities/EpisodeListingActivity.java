@@ -1,6 +1,7 @@
 package nz.mentalinc.watcher.activities;
 
 
+import android.app.ActivityOptions;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -304,9 +305,9 @@ public class EpisodeListingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Bundle data = this.getIntent().getExtras();
-        episodesType = (EpisodeType) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-        listMode = (ListMode) data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE);
-        title = (String) data.getSerializable("Title");
+        episodesType = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
+        listMode = data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.class);
+        title = data.getSerializable("Title", String.class);
         init();
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
@@ -377,6 +378,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private void init() {
         setContentView(R.layout.episode_listing_tab);
         expandableListView = findViewById(android.R.id.list);
@@ -390,7 +392,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         android.content.res.Configuration conf = res.getConfiguration();
 
         String LanguageCode = sharedPref.getString("language", "en");
-        conf.locale = new Locale(LanguageCode);
+        conf.setLocale(Locale.forLanguageTag(LanguageCode));
         res.updateConfiguration(conf, null);
 
         TextView Title = findViewById(R.id.watchListTitle);
@@ -402,7 +404,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         String markEpisode = Objects.requireNonNull(data).getString(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE);
 
         if (markEpisode != null && !Objects.equals(markEpisode, "")) {
-            Episode episode = (Episode) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
+            Episode episode = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
 
             if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)) {
                 markEpisodes(0, episode);
@@ -613,7 +615,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode)
                 .putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra("Title", title);
-        startActivity(episodeDetailsSubActivity);
+        startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void reloadEpisodes() {

@@ -66,8 +66,8 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigationview);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
-        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-        showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+        episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
+        showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
         String title = data.getString("Title");
         returnEpisodes();
 
@@ -129,8 +129,8 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-            episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-            showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+            episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
+            showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
             String Title = data.getString("Title");
 
             Bundle BundleInfoShowDetail = new Bundle();

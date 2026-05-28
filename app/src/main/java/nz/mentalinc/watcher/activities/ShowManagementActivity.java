@@ -124,14 +124,14 @@ public class ShowManagementActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigationManage);
 
         Bundle data = this.getIntent().getExtras();
-        showType = (ShowType) Objects.requireNonNull(data).get(ShowType.class.getSimpleName());
+        showType = Objects.requireNonNull(data).getSerializable(ShowType.class.getSimpleName(), ShowType.class);
         if (showType.equals(ShowType.FAVOURITE_SHOWS)) {
             bottomNav.setSelectedItemId(R.id.barFavouriteShows);
         } else if (showType.equals(ShowType.IGNORED_SHOWS)) {
             bottomNav.setSelectedItemId(R.id.barIgnoredShows);
         }
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
-        String title = (String) data.getSerializable("Title");
+        String title = data.getSerializable("Title", String.class);
         Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
         toolbar.setTitle(title);
 

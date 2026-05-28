@@ -45,6 +45,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:deprecation"
+        }
+    }
     productFlavors {
     }
     //buildToolsVersion '34.0.0'
@@ -76,7 +81,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.23.0'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:5.3.2'
     implementation 'androidx.core:core:1.18.0'
-    implementation 'androidx.security:security-crypto:1.0.0'
+
 
 
     implementation 'com.google.android.material:material:1.14.0'
@@ -91,7 +96,7 @@ dependencies {
             property "sonar.host.url", "http://192.168.2.94:9000"  // URL of your SonarQube server
             property "sonar.projectName", "MyEpispodes"
             property "sonar.organization", "mentalinc"
-            property "sonar.java.binaries", "$layout.buildDirectory.get()\\intermediates\\javac"
+            property "sonar.java.binaries", "**\\intermediates\\javac"
 
         }
     }

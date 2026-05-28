@@ -1,6 +1,9 @@
 package nz.mentalinc.watcher.activities;
 
-import android.app.Activity;
+import android.app.ActivityOptions;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -59,7 +62,7 @@ import nz.mentalinc.watcher.utils.TaskRunner;
 /**
  * @author Ivo Janssen, maintained and updated by mentalinc
  */
-public class EpisodeDetailsActivity extends Activity {
+public class EpisodeDetailsActivity extends AppCompatActivity {
     private Episode episode = null;
     private List<Episode> episodesForShow = new ArrayList<>();
     private EpisodeType episodesType;
@@ -99,11 +102,11 @@ public class EpisodeDetailsActivity extends Activity {
         findViewById(R.id.appBarEpDetailOverviewLayout2).setZ(100f);
 
         Bundle data = this.getIntent().getExtras();
-        title = (String) data.getSerializable(EXTRA_TITLE);
+        title = data.getSerializable(EXTRA_TITLE, String.class);
 
-        episode = (Episode) Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE);
-        episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-        showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
+        episode = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
+        episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
+        showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
 
         returnEpisodes();
         episodesForShow = !shows.isEmpty() ? shows.get(0).getEpisodes() : new ArrayList<>();
@@ -161,6 +164,13 @@ public class EpisodeDetailsActivity extends Activity {
         appBarmarkAsAquired.setOnClickListener(v -> {
             Log.w(LOG_TAG, "markAsAquired button clicked.");
             closeAndAcquireEpisode(episode);
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                exit();
+            }
         });
     }
 
@@ -649,7 +659,7 @@ public class EpisodeDetailsActivity extends Activity {
             episodeListingActivity.putExtra(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.EPISODES_BY_SHOW);
         }
 
-        startActivity(episodeListingActivity);
+        startActivity(episodeListingActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void tweetThis() {
@@ -658,15 +668,6 @@ public class EpisodeDetailsActivity extends Activity {
         i.setType("text/plain");
         i.putExtra(Intent.EXTRA_TEXT, getString(R.string.Tweet, tweet));
         startActivity(Intent.createChooser(i, getString(R.string.TweetTitle)));
-    }
-
-    public void onTweetClick(View v) {
-        tweetThis();
-    }
-
-    @Override
-    public final void onBackPressed() {
-        exit();
     }
 
     public void onHomeClick(View v) {
@@ -683,12 +684,11 @@ public class EpisodeDetailsActivity extends Activity {
     private void openEpisodeListing(EpisodeType episodeType) {
         finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), UpdatedEpisodeListingActivity.class);
-        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra(EXTRA_TITLE, data.getString(EXTRA_TITLE));
-        startActivity(episodeDetailsSubActivity);
+        episodeDetailsSubActivity.putExtra(EXTRA_TITLE, title);
+        startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
@@ -698,24 +698,22 @@ public class EpisodeDetailsActivity extends Activity {
         Episode nextEpisodeToWatch = show.getFirstEpisode();
         String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
 
-        updatedEpisodeListActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myepisodeID);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         updatedEpisodeListActivity.putExtra(EXTRA_TITLE, show.getShowName());
-        startActivity(updatedEpisodeListActivity);
+        startActivity(updatedEpisodeListActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void openShowSummary(Episode episode, EpisodeType episodeType) {
         //finish();
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), ShowSummaryActivity.class);
         String myEpisodeID = episode.getMyEpisodeID();
-        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra(EXTRA_TITLE, episode.getShowName());
-        startActivity(episodeDetailsSubActivity);
+        startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
@@ -723,12 +721,11 @@ public class EpisodeDetailsActivity extends Activity {
         Intent episodeDetailsSubActivity = new Intent(this.getApplicationContext(), EpisodeDetailsActivity.class);
         String myEpisodeID = episode.getMyEpisodeID();
 
-        episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, myEpisodeID);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         episodeDetailsSubActivity.putExtra(EXTRA_TITLE, episode.getShowName());
-        startActivity(episodeDetailsSubActivity);
+        startActivity(episodeDetailsSubActivity, ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_right).toBundle());
     }
 
     private void returnEpisodes() {

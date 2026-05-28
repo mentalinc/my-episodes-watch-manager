@@ -137,7 +137,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
 
                 Glide.with(holder.showposter)
                         .load(showImageURL)
-                        .placeholder(R.drawable.placeholder)
+                        .apply(requestOptions)
                         .into(showPoster);
             }
 

@@ -136,7 +136,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
 
         Bundle data = this.getIntent().getExtras();
-        title = (String) data.getSerializable("Title");
+        title = data.getSerializable("Title", String.class);
         Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
         toolbar.setTitle(title);
 
@@ -295,7 +295,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         runTimeInput.setFilters(new InputFilter[]{new InputFilterMinMax("1", "150")}); //set 150 minutes as longest runtime
         // consider using this if it doesn't work properly due to entering values that are not ok - https://stackoverflow.com/questions/8806492/monodroid-set-max-value-for-edittext/13812853#13812853
         final InputMethodManager imm = (InputMethodManager) runTimeInput.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        Objects.requireNonNull(imm).showSoftInput(runTimeInput, InputMethodManager.SHOW_IMPLICIT);
+        Objects.requireNonNull(imm).showSoftInput(runTimeInput, 0);
         runTimeInput.requestFocus();
 
 
