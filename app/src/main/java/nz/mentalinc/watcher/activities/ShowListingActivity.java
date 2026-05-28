@@ -75,6 +75,7 @@ public class ShowListingActivity extends AppCompatActivity {
     private List<Show> showsFull = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
     private Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
+    private boolean sortByRuntime = false;
     private static EpisodeType episodesType;
     private static final String DIALOG_LOADING_TAG = "LOADING";
     private static final String DIALOG_ONLINE_TAG = "ONLINE";
@@ -207,26 +208,25 @@ public class ShowListingActivity extends AppCompatActivity {
             layoutManager.scrollToPosition(savedPos);
         }
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "Home button clicked.");
-            Intent home = new Intent(ShowListingActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
-
-        androidx.appcompat.view.menu.ActionMenuItemView appBarRefresh = findViewById(R.id.btn_title_refresh);
-        appBarRefresh.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "Refresh button clicked.");
-            //finish();
-            onRefreshClick();
-        });
-
-
         EditText searchEditText = findViewById(R.id.searchEditText);
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.topAppBarShowsView);
         toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_search) {
+            int id = item.getItemId();
+            if (id == R.id.home) {
+                Log.w(LOG_TAG, "Home button clicked.");
+                Intent home = new Intent(ShowListingActivity.this, HomeActivity.class);
+                home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(home);
+                return true;
+            } else if (id == R.id.btn_title_sort_runtime) {
+                sortByRuntime = !sortByRuntime;
+                toggleRuntimeSort();
+                return true;
+            } else if (id == R.id.btn_title_refresh) {
+                Log.w(LOG_TAG, "Refresh button clicked.");
+                onRefreshClick();
+                return true;
+            } else if (id == R.id.action_search) {
                 if (searchEditText.getVisibility() == View.VISIBLE) {
                     searchEditText.setVisibility(View.GONE);
                     searchEditText.setText("");
@@ -440,35 +440,74 @@ public class ShowListingActivity extends AppCompatActivity {
 
 
     private void filterShows(String query) {
-        List<Show> filtered;
         if (query == null || query.trim().isEmpty()) {
-            filtered = new ArrayList<>(showsFull);
-        } else {
-            String lowerQuery = query.toLowerCase().trim();
-            filtered = new ArrayList<>();
-            for (Show show : showsFull) {
-                String showName = show.getShowName();
-                if (showName != null && showName.toLowerCase().contains(lowerQuery)) {
-                    filtered.add(show);
-                }
+            List<Show> listToShow = sortByRuntime ? getRuntimeSortedShows() : new ArrayList<>(showsFull);
+            RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
+            ShowAdapter adapter = rvShows != null ? (ShowAdapter) rvShows.getAdapter() : null;
+            if (adapter != null) {
+                adapter.submitList(listToShow);
+            }
+            updateShowEpCount(listToShow);
+            return;
+        }
+
+        String lowerQuery = query.toLowerCase().trim();
+        List<Show> filtered = new ArrayList<>();
+        for (Show show : showsFull) {
+            if (show.getShowName() != null && show.getShowName().toLowerCase().contains(lowerQuery)) {
+                filtered.add(show);
             }
         }
+
+        if (sortByRuntime) {
+            filtered.sort(getRuntimeComparator());
+        }
+
         RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
         if (rvShows != null) {
             ShowAdapter adapter = (ShowAdapter) rvShows.getAdapter();
             if (adapter != null) {
-                adapter.submitList(new ArrayList<>(filtered));
+                adapter.submitList(filtered);
             }
         }
+        updateShowEpCount(filtered);
+    }
+
+    private void updateShowEpCount(List<Show> shows) {
         TextView showEpCount = findViewById(R.id.ShowEpCount);
         if (showEpCount != null) {
-            int showCount = filtered.size();
+            int showCount = shows.size();
             int episodeCount = 0;
-            for (Show show : filtered) {
+            for (Show show : shows) {
                 episodeCount += show.getNumberEpisodes();
             }
             showEpCount.setText(showCount + " shows - " + episodeCount + " episodes");
         }
+    }
+
+    private List<Show> getRuntimeSortedShows() {
+        List<Show> sorted = new ArrayList<>(showsFull);
+        sorted.sort(getRuntimeComparator());
+        return sorted;
+    }
+
+    private java.util.Comparator<Show> getRuntimeComparator() {
+        return (a, b) -> {
+            String idA = a.getFirstEpisode() != null ? a.getFirstEpisode().getMyEpisodeID() : "";
+            String idB = b.getFirstEpisode() != null ? b.getFirstEpisode().getMyEpisodeID() : "";
+            EpisodeRuntime ra = runtimeMap.get(idA);
+            EpisodeRuntime rb = runtimeMap.get(idB);
+            int runtimeA = 0, runtimeB = 0;
+            try {
+                runtimeA = ra != null && ra.getShowRuntime() != null ? Integer.parseInt(ra.getShowRuntime()) : 0;
+            } catch (NumberFormatException ignored) {}
+            try {
+                runtimeB = rb != null && rb.getShowRuntime() != null ? Integer.parseInt(rb.getShowRuntime()) : 0;
+            } catch (NumberFormatException ignored) {}
+            int cmp = Integer.compare(runtimeB, runtimeA);
+            if (cmp == 0) return a.getShowName().compareTo(b.getShowName());
+            return cmp;
+        };
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {
@@ -500,6 +539,32 @@ public class ShowListingActivity extends AppCompatActivity {
             shows.add(tempShow);
         } else {
             currentShow.addEpisode(episode);
+        }
+    }
+
+    private void toggleRuntimeSort() {
+        if (runtimeMap == null || runtimeMap.isEmpty()) {
+            sortByRuntime = false;
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowsView),
+                    "Runtime data loading, try again", Snackbar.LENGTH_SHORT);
+            snackbar.setAnchorView(bottomNavigationView);
+            snackbar.show();
+            return;
+        }
+
+        List<Show> listToShow = sortByRuntime ? getRuntimeSortedShows() : new ArrayList<>(showsFull);
+
+        RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
+        ShowAdapter adapter = (ShowAdapter) rvShows.getAdapter();
+        if (adapter != null) {
+            adapter.submitList(listToShow);
+        }
+        updateShowEpCount(listToShow);
+
+        com.google.android.material.appbar.MaterialToolbar tb = findViewById(R.id.topAppBarShowsView);
+        MenuItem sortMenuItem = tb.getMenu().findItem(R.id.btn_title_sort_runtime);
+        if (sortMenuItem != null) {
+            sortMenuItem.setTitle(getString(sortByRuntime ? R.string.sort_by_default : R.string.sort_by_runtime));
         }
     }
 
@@ -557,6 +622,12 @@ public class ShowListingActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 returnEpisodes();
                 showsFull = new ArrayList<>(shows);
+                sortByRuntime = false;
+                com.google.android.material.appbar.MaterialToolbar tb = findViewById(R.id.topAppBarShowsView);
+                MenuItem sortMenuItem = tb.getMenu().findItem(R.id.btn_title_sort_runtime);
+                if (sortMenuItem != null) {
+                    sortMenuItem.setTitle(getString(R.string.sort_by_runtime));
+                }
                 RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
                 ShowAdapter newAdapter = new ShowAdapter(shows, new HashMap<>());
                 rvShows.setAdapter(newAdapter);

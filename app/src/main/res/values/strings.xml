@@ -190,6 +190,8 @@
     <string name="refresh">Refresh</string>
     <string name="collapse">Collapse</string>
     <string name="home">Home</string>
+    <string name="sort_by_runtime">Sort by Runtime</string>
+    <string name="sort_by_default">Default Sort</string>
     <string name="manageShows">Manage Shows</string>
     <string name="about">About</string>
     <string name="logout">Logout</string>
