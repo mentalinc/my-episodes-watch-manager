@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
@@ -35,6 +36,13 @@ public class SettingsScreenActivity extends AppCompatActivity {
             default: //added for code quality
         }
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
         setContentView(R.layout.settings_layout);
         findViewById(R.id.appBarSettingsLayout).setZ(100f);
 
@@ -47,6 +55,7 @@ public class SettingsScreenActivity extends AppCompatActivity {
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             //Log.w(LOG_TAG, "logout button clicked.");
+            setResult(RESULT_OK);
             Intent home = new Intent(SettingsScreenActivity.this, HomeActivity.class);
             home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(home);

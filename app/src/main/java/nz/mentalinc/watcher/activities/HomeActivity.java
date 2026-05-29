@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -63,13 +63,12 @@ public class HomeActivity extends AppCompatActivity {
     private static final String LOG_TAG = EpisodesService.class.getSimpleName();
     private EpisodesService service;
     private User user;
-    private Resources res; // Resource object to get Drawables
-    private android.content.res.Configuration conf;
     private static final int LOGOUT_DIALOG = 1;
     private static final int EXCEPTION_DIALOG = 2;
-    private static final int SETTINGS_RESULT = 6;
     private static final String DIALOG_LOADING_TAG = "LOADING";
+    private long settingsTimestamp;
     private ActivityResultLauncher<Intent> loginLauncher;
+    private ActivityResultLauncher<Intent> settingsLauncher;
     private static final String DIALOG_RUNTIME_TAG = "RUNTIME";
     private UserService userService;
     private static Context sContext;
@@ -95,6 +94,16 @@ public class HomeActivity extends AppCompatActivity {
     private Intent acquireIntent;
 
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
+        String languageCode = prefs.getString("language", "en");
+        Configuration config = new Configuration();
+        config.setLocale(Locale.forLanguageTag(languageCode));
+        Context context = newBase.createConfigurationContext(config);
+        super.attachBaseContext(context);
+    }
+
     /**
      * Called when the activity is first created.
      */
@@ -110,13 +119,22 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
         );
-        init();
-
+        settingsLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        EpisodesController.getInstance().deleteAll();
+                        finish();
+                        Intent homeActivity = new Intent(this.getApplicationContext(), HomeActivity.class);
+                        startActivity(homeActivity);
+                    }
+                }
+        );
         userService = new UserService();
 
         PreferenceManager.setDefaultValues(getBaseContext(), R.xml.settings_screen, false);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String LanguageCode = sharedPref.getString("language", "en");
+        settingsTimestamp = sharedPref.getLong("settings_changed_timestamp", 0);
         String themeSetting = sharedPref.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
@@ -155,8 +173,6 @@ public class HomeActivity extends AppCompatActivity {
         MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED = sharedPref.getBoolean("listingIgnoredFilter", false);
         MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED = sharedPref.getBoolean("listingPilotsFilter", false);
         MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = sharedPref.getBoolean("listingLocalizedAirdatesFilter", true);
-
-        applyLocaleConfiguration(LanguageCode);
 
         openLoginActivity();
         this.service = new EpisodesService();
@@ -570,6 +586,13 @@ public class HomeActivity extends AppCompatActivity {
         if() {
             super.recreate();
         }*/
+
+        long ts = PreferenceManager.getDefaultSharedPreferences(this)
+                .getLong("settings_changed_timestamp", 0);
+        if (ts != settingsTimestamp && ts != 0) {
+            settingsTimestamp = ts;
+            recreate();
+        }
         bottomNavigationView.getMenu().getItem(0).setChecked(true);
         btnWatched.setText(getString(R.string.watchhome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_WATCH)));
         btnAcquired.setText(getString(R.string.acquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
@@ -577,30 +600,6 @@ public class HomeActivity extends AppCompatActivity {
         btn_ShowAcquireNew.setText(getString(R.string.newAcquirehome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_TO_ACQUIRE)));
         btn_ShowListing.setText(getString(R.string.newCominghome, EpisodesController.getInstance().getEpisodesCount(EpisodeType.EPISODES_COMING)));
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SETTINGS_RESULT && resultCode == RESULT_OK) {
-            EpisodesController.getInstance().deleteAll();
-            finish();
-
-            Intent homeActivity = new Intent(this.getApplicationContext(), HomeActivity.class);
-            startActivity(homeActivity);
-        }
-    }
-
-    private void init() {
-        res = getResources();
-        conf = res.getConfiguration();
-    }
-
-    @SuppressWarnings("deprecation")
-    private void applyLocaleConfiguration(String languageCode) {
-        conf.setLocale(Locale.forLanguageTag(languageCode));
-        res.updateConfiguration(conf, null);
-    }
-
 
     public void onManageClick(View v) {
         Intent manageShowsActivity = new Intent(this.getApplicationContext(), ShowManagementPortalActivity.class);
@@ -680,7 +679,7 @@ public class HomeActivity extends AppCompatActivity {
 
     public void onSettingsClick(View v) {
         Intent settingsActivity = new Intent(this.getApplicationContext(), SettingsScreenActivity.class);
-        startActivity(settingsActivity);
+        settingsLauncher.launch(settingsActivity);
     }
 
 

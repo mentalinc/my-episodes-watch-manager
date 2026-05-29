@@ -91,6 +91,7 @@ public class ShowListingActivity extends AppCompatActivity {
     private LinearLayoutManager layoutManager;
     private SharedPreferences sharedPref;
     private static final String SCROLL_POS_SHOWS = "scroll_pos_shows";
+    private long settingsTimestamp;
 
     public ShowListingActivity() {
         super();
@@ -103,6 +104,7 @@ public class ShowListingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        settingsTimestamp = prefs.getLong("settings_changed_timestamp", 0);
         String themeSetting = prefs.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
@@ -291,6 +293,17 @@ public class ShowListingActivity extends AppCompatActivity {
                     return true;
                 }
         );
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        long ts = PreferenceManager.getDefaultSharedPreferences(this)
+                .getLong("settings_changed_timestamp", 0);
+        if (ts != settingsTimestamp && ts != 0) {
+            settingsTimestamp = ts;
+            recreate();
+        }
     }
 
     @Override

@@ -6,7 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -88,6 +88,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private static final String EPISODE_ROW_TITLE = "episodeRowTitle";
     private static final String EPISODE_ROW_CHILD_TITLE = "episodeRowChildTitle";
     private static final String EPISODE_ROW_CHILD_DETAIL = "episodeRowChildDetail";
+    private long settingsTimestamp;
 
     private User user;
     private final EpisodesService service;
@@ -115,6 +116,15 @@ public class EpisodeListingActivity extends AppCompatActivity {
         this.service = new EpisodesService();
     }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
+        String languageCode = prefs.getString("language", "en");
+        Configuration config = new Configuration();
+        config.setLocale(Locale.forLanguageTag(languageCode));
+        Context context = newBase.createConfigurationContext(config);
+        super.attachBaseContext(context);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -175,6 +185,16 @@ public class EpisodeListingActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        long ts = PreferenceManager.getDefaultSharedPreferences(this)
+                .getLong("settings_changed_timestamp", 0);
+        if (ts != settingsTimestamp && ts != 0) {
+            settingsTimestamp = ts;
+            recreate();
+        }
+    }
+
     public void onPause() {
         super.onPause();
         saveListRows();
@@ -290,6 +310,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        settingsTimestamp = sharedPref.getLong("settings_changed_timestamp", 0);
         String themeSetting = sharedPref.getString("ThemeSetting", "0");
 
 
@@ -381,7 +402,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     private void init() {
         setContentView(R.layout.episode_listing_tab);
         expandableListView = findViewById(android.R.id.list);
@@ -391,12 +411,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
                 CredentialStore.getPassword(EpisodeListingActivity.this)
         );
-        Resources res = getResources();
-        android.content.res.Configuration conf = res.getConfiguration();
-
-        String LanguageCode = sharedPref.getString("language", "en");
-        conf.setLocale(Locale.forLanguageTag(LanguageCode));
-        res.updateConfiguration(conf, null);
 
         TextView Title = findViewById(R.id.watchListTitle);
         Title.setText(getString(R.string.watchListTitle));

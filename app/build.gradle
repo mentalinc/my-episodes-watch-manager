@@ -4,7 +4,7 @@ android {
     compileSdkVersion  = 37
     defaultConfig {
         applicationId = "nz.mentalinc.episodeWatcher"
-        minSdk = 33
+        minSdk 36
         targetSdk 37
         versionCode = 41
         versionName = '1.9.1'
@@ -52,7 +52,7 @@ android {
     }
     productFlavors {
     }
-    //buildToolsVersion '34.0.0'
+
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -73,7 +73,7 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
 
     annotationProcessor 'androidx.room:room-compiler:2.8.4'
-    // For Kotlin use kapt instead of annotationProcessor
+
     androidTestImplementation 'androidx.test:runner:1.7.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
     androidTestImplementation 'androidx.room:room-testing:2.8.4'
@@ -81,8 +81,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.23.0'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:5.3.2'
     implementation 'androidx.core:core:1.18.0'
-
-
 
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.preference:preference:1.2.1'

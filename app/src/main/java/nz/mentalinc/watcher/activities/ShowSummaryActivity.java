@@ -1,6 +1,5 @@
 package nz.mentalinc.watcher.activities;
 
-import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,7 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
@@ -58,7 +59,7 @@ import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
-public class ShowSummaryActivity extends Activity {
+public class ShowSummaryActivity extends AppCompatActivity {
 
     List<Show> shows = new ArrayList<>();
 
@@ -76,6 +77,13 @@ public class ShowSummaryActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.slide_in_right, R.anim.slide_out_left);
+                finish();
+            }
+        });
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String themeSetting = prefs.getString("ThemeSetting", "0");
@@ -658,10 +666,4 @@ public class ShowSummaryActivity extends Activity {
         }
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onBackPressed() {
-        finish();
-        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-    }
 }

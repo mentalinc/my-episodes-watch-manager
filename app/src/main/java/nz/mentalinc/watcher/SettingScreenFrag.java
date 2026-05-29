@@ -1,6 +1,7 @@
 package nz.mentalinc.watcher;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -17,7 +18,7 @@ import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 public class SettingScreenFrag extends PreferenceFragmentCompat {
 
     private static final String LOG_TAG = SettingScreenFrag.class.getSimpleName();
-    private boolean refreshDialog;
+    private static final String PREF_SETTINGS_CHANGED = "settings_changed_timestamp";
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -39,7 +40,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
 
         if (daysBackwardEnable != null) {
             daysBackwardEnable.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 deleteCacheFiles();
                 return true;
             });
@@ -50,7 +51,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
                 showRuntimeOrderingPref.setEnabled(runTimeEnable.isChecked());
             }
             runTimeEnable.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 if (showRuntimeOrderingPref != null) {
                     showRuntimeOrderingPref.setEnabled((Boolean) newValue);
                 }
@@ -61,7 +62,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
 
         if (daysBackCP != null) {
             daysBackCP.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                     deleteCacheFiles();
                 }
@@ -71,7 +72,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
 
         if (daysForwardCP != null) {
             daysForwardCP.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                     deleteCacheFiles();
                 }
@@ -84,7 +85,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
                 cacheAgingPref.setEnabled(cacheEpisodesEnable.isChecked());
             }
             cacheEpisodesEnable.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 if (cacheAgingPref != null) {
                     cacheAgingPref.setEnabled((Boolean) newValue);
                 }
@@ -95,7 +96,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
 
         if (cacheAgingPref != null) {
             cacheAgingPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 deleteCacheFiles();
                 return true;
             });
@@ -106,7 +107,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
                 showAcquireOrderingPref.setEnabled(!disableAcquirePref.isChecked());
             }
             disableAcquirePref.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 if (showAcquireOrderingPref != null) {
                     showAcquireOrderingPref.setEnabled(!(Boolean) newValue);
                 }
@@ -119,10 +120,27 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
                 showComingOrderingPref.setEnabled(!disableComingPref.isChecked());
             }
             disableComingPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                refreshDialog = true;
+                markSettingsChanged();
                 if (showComingOrderingPref != null) {
                     showComingOrderingPref.setEnabled(!(Boolean) newValue);
                 }
+                return true;
+            });
+        }
+
+        ListPreference aquireSettings = findPreference("AquireSettings");
+        if (aquireSettings != null) {
+            aquireSettings.setOnPreferenceChangeListener((preference, newValue) -> {
+                markSettingsChanged();
+                String val = newValue.toString();
+                String acquiredKey = "0";
+                if ("Only yesterday".equals(val)) {
+                    acquiredKey = "1";
+                }
+                SharedPreferences.Editor editor = getPreferenceManager().getSharedPreferences().edit();
+                editor.putString("ACQUIRE_KEY", acquiredKey);
+                editor.apply();
+                deleteCacheFiles();
                 return true;
             });
         }
@@ -133,7 +151,6 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
                 findPreference("showComingOrder"),
                 findPreference("showRuntimeOrder"),
                 findPreference("episodeOrder"),
-                findPreference("AquireSettings"),
                 findPreference("listingUnacquiredFilter"),
                 findPreference("listingUnwatchedFilter"),
                 findPreference("listingIgnoredFilter"),
@@ -146,7 +163,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
         for (Preference pref : reloadListeners) {
             if (pref != null) {
                 pref.setOnPreferenceChangeListener((preference, newValue) -> {
-                    refreshDialog = true;
+                    markSettingsChanged();
                     return true;
                 });
             }
@@ -158,8 +175,9 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
         }
     }
 
-    public boolean isRefreshDialog() {
-        return refreshDialog;
+    private void markSettingsChanged() {
+        SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
+        prefs.edit().putLong(PREF_SETTINGS_CHANGED, System.currentTimeMillis()).apply();
     }
 
     private void deleteCacheFiles() {

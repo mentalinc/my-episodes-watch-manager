@@ -66,6 +66,7 @@ public class CalendarActivity extends AppCompatActivity {
     private boolean filterWatchEnabled = true;
     private boolean filterAcquireEnabled = true;
     private boolean filterComingEnabled = true;
+    private long settingsTimestamp;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
             item -> {
@@ -105,6 +106,7 @@ public class CalendarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        settingsTimestamp = prefs.getLong("settings_changed_timestamp", 0);
         String themeSetting = prefs.getString("ThemeSetting", "0");
         switch (themeSetting) {
             case "0":
@@ -371,6 +373,17 @@ public class CalendarActivity extends AppCompatActivity {
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        long ts = PreferenceManager.getDefaultSharedPreferences(this)
+                .getLong("settings_changed_timestamp", 0);
+        if (ts != settingsTimestamp && ts != 0) {
+            settingsTimestamp = ts;
+            recreate();
+        }
     }
 
     @Override
