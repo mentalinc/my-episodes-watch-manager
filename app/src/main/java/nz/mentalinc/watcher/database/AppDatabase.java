@@ -12,18 +12,14 @@ import nz.mentalinc.watcher.service.EpisodeRuntime;
 public abstract class AppDatabase extends RoomDatabase {
     public abstract SeriesDAO getSeriesDAO();
 
-    private static volatile AppDatabase instance;
+    private static AppDatabase instance;
 
-    public static AppDatabase getInstance(Context context) {
+    public static synchronized AppDatabase getInstance(Context context) {
         if (instance == null) {
-            synchronized (AppDatabase.class) {
-                if (instance == null) {
-                    instance = Room.databaseBuilder(context.getApplicationContext(),
-                                    AppDatabase.class, "EpisodeRuntime")
-                            .fallbackToDestructiveMigration(false)
-                            .build();
-                }
-            }
+            instance = Room.databaseBuilder(context.getApplicationContext(),
+                            AppDatabase.class, "EpisodeRuntime")
+                    .fallbackToDestructiveMigration(false)
+                    .build();
         }
         return instance;
     }

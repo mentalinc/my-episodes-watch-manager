@@ -376,8 +376,8 @@ public class ShowSummaryActivity extends Activity {
 
                         officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
                         showStatus = jObj.getString("status");
-                        if (!jObj.getString("image").equals("null")) {
-                            showImageURL = jObj.getJSONObject("image").getString("medium");
+                        if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                            showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                         }
 
                         showImageURL = showImageURL.replace("http://", "https://");

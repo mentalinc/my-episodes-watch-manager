@@ -35,6 +35,8 @@ public class MyEpisodeConstants {
     public static final String SHOW_MYEPISODES_DEFAULT_SORT = "show_myepisodes_default_sort";
     public static final String CONNECT_ERROR = "Could not connect to host";
     public static final String PREF_USERNAME = "username";
+    public static final String TVMAZE_IMAGE_KEY = "image";
+    public static final String TVMAZE_IMAGE_SIZE_MEDIUM = "medium";
 
 
     public static Context CONTEXT = null;

@@ -12,28 +12,28 @@
             android:title="@string/daysBackwardEnable" />
 
         <SwitchPreference
-            android:defaultValue="false"
-            android:key="RunTime"
+            android:defaultValue="true"
             android:icon="@drawable/outline_schedule_white_24"
-            android:title="@string/RunTime"/>
+            android:key="RunTime"
+            android:title="@string/RunTime" />
 
         <EditTextPreference
+            android:defaultValue="10000"
+            android:dialogTitle="@string/daysBackwardCPExtra"
+            android:digits="1234567890"
+            android:inputType="number"
             android:key="daysBack"
             android:title="@string/daysBackwardCP"
-            android:defaultValue="1825"
-            android:inputType="number"
-            android:digits="1234567890"
-            app:summary="@string/daysBackwardCPExtra"
-            android:dialogTitle="@string/daysBackwardCPExtra"/>
+            app:summary="@string/daysBackwardCPExtra" />
 
         <EditTextPreference
+            android:defaultValue="30"
+            android:dialogTitle="@string/daysForwardCPExtra"
+            android:digits="1234567890"
+            android:inputType="number"
             android:key="daysForward"
             android:title="@string/daysForwardCP"
-            android:defaultValue="20"
-            android:inputType="number"
-            android:digits="1234567890"
-            app:summary="@string/daysForwardCPExtra"
-            android:dialogTitle="@string/daysForwardCPExtra"/>
+            app:summary="@string/daysForwardCPExtra" />
 
         <SwitchPreference
             android:defaultValue="false"

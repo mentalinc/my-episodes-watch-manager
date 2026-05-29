@@ -5,7 +5,6 @@ import android.app.Dialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -14,6 +13,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -77,7 +77,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private DialogFragment runtimeDialogFragment;
+    private LoadingDialogFragment runtimeDialogFragment;
 
 
     private boolean exception;
@@ -453,13 +453,10 @@ public class HomeActivity extends AppCompatActivity {
         try {
             showService.getFavoriteOrIgnoredShows(user, ShowType.FAVOURITE_SHOWS,
                     (processed, total, showName) -> {
+                        Log.d(LOG_TAG, "Progress: " + processed + "/" + total + " - " + showName);
                         runOnUiThread(() -> {
-                            if (runtimeDialogFragment != null && runtimeDialogFragment.isVisible() && runtimeDialogFragment.getDialog() != null) {
-                                TextView msg = runtimeDialogFragment.getDialog().findViewById(R.id.message);
-                                if (msg != null) {
-                                    msg.setText("Processing " + processed + " of " + total + " shows\n"
-                                            + "Current: " + showName);
-                                }
+                            if (runtimeDialogFragment != null) {
+                                runtimeDialogFragment.updateProgress(processed, total, showName);
                             }
                         });
                     });
@@ -615,18 +612,8 @@ public class HomeActivity extends AppCompatActivity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.logoutDialogTitle);
         dialog.setMessage(R.string.logoutDialogMessage);
-        dialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                logout();
-            }
-        });
-        dialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        dialog.setPositiveButton(R.string.yes, (dialogInterface, which) -> logout());
+        dialog.setNegativeButton(R.string.no, (dialogInterface, which) -> dialogInterface.dismiss());
 
         dialog.setCancelable(false);
         dialog.create();
@@ -639,19 +626,13 @@ public class HomeActivity extends AppCompatActivity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.internetConnectionFailureTryAgain);
-        dialog.setPositiveButton(R.string.refresh, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                getEpisodesInLoadingDialog();
-                dialog.dismiss();
-            }
+        dialog.setPositiveButton(R.string.refresh, (dialogInterface, which) -> {
+            getEpisodesInLoadingDialog();
+            dialogInterface.dismiss();
         });
-        dialog.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                finish();
-            }
+        dialog.setNegativeButton(R.string.close, (dialogInterface, which) -> {
+            dialogInterface.dismiss();
+            finish();
         });
 
         dialog.setCancelable(false);
@@ -728,6 +709,7 @@ public class HomeActivity extends AppCompatActivity {
 
     public static class LoadingDialogFragment extends DialogFragment {
         private static final String ARG_MESSAGE = "message";
+        private View dialogView;
 
         public static LoadingDialogFragment newInstance(int messageResId) {
             LoadingDialogFragment frag = new LoadingDialogFragment();
@@ -740,12 +722,29 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             int messageResId = getArguments().getInt(ARG_MESSAGE);
-            View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
-            ((TextView) view.findViewById(R.id.message)).setText(getString(messageResId));
+            dialogView = getLayoutInflater().inflate(R.layout.progress_dialog, null);
+            ((TextView) dialogView.findViewById(R.id.message)).setText(getString(messageResId));
             return new MaterialAlertDialogBuilder(requireActivity())
-                    .setView(view)
+                    .setView(dialogView)
                     .setCancelable(false)
                     .create();
+        }
+
+        public void updateProgress(int processed, int total, String showName) {
+            if (dialogView == null) {
+                Log.w(LOG_TAG, "updateProgress called but dialogView is null");
+                return;
+            }
+            TextView msg = dialogView.findViewById(R.id.message);
+            ProgressBar progress = dialogView.findViewById(R.id.progress_bar_horizontal);
+            if (progress != null) {
+                progress.setMax(total);
+                progress.setProgress(processed);
+            }
+            if (msg != null) {
+                msg.setText("Processing " + processed + " of " + total + " shows\n"
+                        + "Current: " + showName);
+            }
         }
     }
 
@@ -757,19 +756,20 @@ public class HomeActivity extends AppCompatActivity {
 
     private void dismissLoadingDialog() {
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
-        if (prev != null) ((DialogFragment) prev).dismiss();
+        if (prev != null) ((DialogFragment) prev).dismissAllowingStateLoss();
     }
 
     private void showRuntimeDialog() {
         if (getSupportFragmentManager().findFragmentByTag(DIALOG_RUNTIME_TAG) == null) {
             runtimeDialogFragment = LoadingDialogFragment.newInstance(R.string.processingFavouriteShows);
             runtimeDialogFragment.show(getSupportFragmentManager(), DIALOG_RUNTIME_TAG);
+            getSupportFragmentManager().executePendingTransactions();
         }
     }
 
     private void dismissRuntimeDialog() {
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_RUNTIME_TAG);
-        if (prev != null) ((DialogFragment) prev).dismiss();
+        if (prev != null) ((DialogFragment) prev).dismissAllowingStateLoss();
     }
 
     public static Context getContext() {

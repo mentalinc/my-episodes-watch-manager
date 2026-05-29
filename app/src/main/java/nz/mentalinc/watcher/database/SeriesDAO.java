@@ -4,6 +4,7 @@ package nz.mentalinc.watcher.database;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -14,7 +15,7 @@ import nz.mentalinc.watcher.service.EpisodeRuntime;
 
 @Dao
 public interface SeriesDAO {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(EpisodeRuntime... contacts);
 
     @Update

@@ -58,12 +58,12 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         //
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
-        public TextView showName;
-        public TextView episodetime;
-        public TextView episodeNumber;
-        public TextView episodeName;
-        public TextView episodeRuntime;
-        public ImageView showposter;
+        private TextView showName;
+        private TextView episodetime;
+        private TextView episodeNumber;
+        private TextView episodeName;
+        private TextView episodeRuntime;
+        private ImageView showposter;
 
 
         // We also create a constructor that accepts the entire item row

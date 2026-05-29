@@ -38,14 +38,8 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
         ListPreference showRuntimeOrderingPref = findPreference("showRuntimeOrder");
 
         if (daysBackwardEnable != null) {
-            if (daysBackCP != null) {
-                daysBackCP.setEnabled(daysBackwardEnable.isChecked());
-            }
             daysBackwardEnable.setOnPreferenceChangeListener((preference, newValue) -> {
                 refreshDialog = true;
-                if (daysBackCP != null) {
-                    daysBackCP.setEnabled((Boolean) newValue);
-                }
                 deleteCacheFiles();
                 return true;
             });

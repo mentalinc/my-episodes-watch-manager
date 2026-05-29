@@ -65,8 +65,6 @@ public class RandomEpPickerActivity extends Activity {
     private String showMyEpisodeID;
     List<Show> shows = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
-    Bundle data;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -326,9 +324,7 @@ public class RandomEpPickerActivity extends Activity {
                             snackbar.setAnchorView(bottomNavigationView);
                             snackbar.show();
                             com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarRandomPicker);
-                            String title = data.getString(ActivityConstants.EXTRA_TITLE);
-                            title = title + " - No episodes to watch";
-                            ShowNameTitle.setTitle(title);
+                            ShowNameTitle.setTitle("No episodes to watch");
                             //  openShowSummary(episodesType);
 
                         }
@@ -488,7 +484,7 @@ public class RandomEpPickerActivity extends Activity {
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         // episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, episode);
         episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
-        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, data.getString(ActivityConstants.EXTRA_TITLE));
+        episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, "");
         startActivity(episodeDetailsSubActivity);
     }
 
@@ -551,8 +547,8 @@ public class RandomEpPickerActivity extends Activity {
 
                     episodeSummary = jObj.getString("summary");
                     episodeURL = jObj.getString("url");
-                    if (!jObj.getString("image").equals("null")) {
-                        episodeImageURL = jObj.getJSONObject("image").getString("medium");
+                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                        episodeImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
                     episodeURL = episodeURL.replace("http://", "https://");
@@ -681,8 +677,8 @@ public class RandomEpPickerActivity extends Activity {
                         showURL = jObj.getString("url");
                         ShowRuntime = jObj.getString("runtime");
                         officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
-                        if (!jObj.getString("image").equals("null")) {
-                            showImageURL = jObj.getJSONObject("image").getString("medium");
+                        if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                            showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                         }
 
                         showImageURL = showImageURL.replace("http://", "https://");

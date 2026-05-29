@@ -178,8 +178,9 @@ public class ShowHomeTabActivity extends AppCompatActivity {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         }
                         return true;
-                }else
-                return false;
+                }else {
+                        return false;
+                    }
 
             }
             return false;

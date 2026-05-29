@@ -38,6 +38,8 @@ import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.exception.ShowAddFailedException;
+import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
+import nz.mentalinc.watcher.http.HttpClientProvider;
 import nz.mentalinc.watcher.utils.StringUtils;
 
 
@@ -232,24 +234,15 @@ public class ShowService {
     public List<Show> getFavoriteOrIgnoredShows(User user, ShowType showType) throws InternetConnectivityException, LoginFailedException {
 
         userService.login(user.getUsername(), user.getPassword());
-        String responsePage = "";
+        String responsePage;
 
         try {
-            URL url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.getResponseCode();
-
-            String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((line = br.readLine()) != null) {
-                responsePage += line;
-            }
+            responsePage = HttpClientProvider.getInstance().getBody(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
         } catch (UnknownHostException e) {
             String message = COULD_NOT_CONNECT_TO_HOST;
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
-        } catch (IOException e) {
+        } catch (IOException | ShowUpdateFailedException e) {
             String message = SEARCH_ON_MYEPISODES_FAILED;
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
@@ -265,24 +258,15 @@ public class ShowService {
     public List<Show> getFavoriteOrIgnoredShows(User user, ShowType showType, OnRuntimeProgressListener listener) throws InternetConnectivityException, LoginFailedException {
 
         userService.login(user.getUsername(), user.getPassword());
-        String responsePage = "";
+        String responsePage;
 
         try {
-            URL url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.getResponseCode();
-
-            String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((line = br.readLine()) != null) {
-                responsePage += line;
-            }
+            responsePage = HttpClientProvider.getInstance().getBody(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
         } catch (UnknownHostException e) {
             String message = COULD_NOT_CONNECT_TO_HOST;
             Log.e(LOG_TAG, message, e);
             throw new InternetConnectivityException(message, e);
-        } catch (IOException e) {
+        } catch (IOException | ShowUpdateFailedException e) {
             String message = SEARCH_ON_MYEPISODES_FAILED;
             Log.w(LOG_TAG, message, e);
             throw new LoginFailedException(message, e);
@@ -290,11 +274,10 @@ public class ShowService {
 
         List<Show> shows = parseShowsHtml(responsePage, showType, listener);
 
-        Log.d(LOG_TAG, shows.size() + " show(s) found!");
+        Log.d(LOG_TAG, shows.size() + " show(s) found from " + responsePage.length() + " byte response");
 
         return shows;
     }
-
 
     private List<Show> parseShowsHtml(String html, ShowType showType) {
         return parseShowsHtml(html, showType, null);
@@ -316,7 +299,7 @@ public class ShowService {
             case IGNORED_SHOWS:
                 startTag += "ignored_shows\"";
                 break;
-            default: //added for code quality
+            default:
         }
         int startPosition = html.indexOf(startTag);
 
@@ -328,32 +311,32 @@ public class ShowService {
         int endPosition = selectTag.indexOf(endTag);
         selectTag = selectTag.substring(0, endPosition);
 
-        // Count total options for progress tracking
-        int total = 0;
-        int countIdx = 0;
-        while ((countIdx = selectTag.indexOf(optionStartTag, countIdx)) != -1) {
-            total++;
-            countIdx += optionStartTag.length();
+        // Parse all options into a list once
+        List<String[]> allOptions = new ArrayList<>();
+        int searchIdx = 0;
+        while (true) {
+            int optStart = selectTag.indexOf(optionStartTag, searchIdx);
+            if (optStart == -1) break;
+            int optEnd = selectTag.indexOf(optionEndTag, optStart);
+            if (optEnd == -1) break;
+
+            String content = selectTag.substring(optStart + optionStartTag.length(), optEnd);
+            String[] parts = content.split("\">");
+            if (parts.length == 2) {
+                allOptions.add(new String[]{parts[0].trim(), parts[1].trim()});
+            }
+            searchIdx = optEnd + optionEndTag.length();
         }
+
+        int total = allOptions.size();
+        Log.d(LOG_TAG, "Found " + total + " show options in the select list");
 
         AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
 
-        // First pass: collect all show IDs for batch runtime lookup
+        // Collect show IDs for batch runtime lookup
         List<String> allShowIds = new ArrayList<>();
-        String workTag = selectTag;
-        while (workTag.length() > 0) {
-            int startPositionOption = workTag.indexOf(optionStartTag);
-            int endPositionOption = workTag.indexOf(optionEndTag);
-            if (startPositionOption == -1 || endPositionOption == -1 || endPositionOption < startPositionOption) {
-                break;
-            }
-            String optionTag = workTag.substring(startPositionOption + optionStartTag.length(), endPositionOption);
-            workTag = workTag.replace(optionStartTag + optionTag + optionEndTag, "");
-            String[] values = optionTag.split("\">");
-            if (values.length != 2) {
-                break;
-            }
-            allShowIds.add(values[0].trim());
+        for (String[] option : allOptions) {
+            allShowIds.add(option[0]);
         }
 
         // Batch load existing runtimes into a map
@@ -364,29 +347,22 @@ public class ShowService {
             }
         }
 
-        // Second pass: parse and process each show
+        // Process each show
         int processed = 0;
-        while (selectTag.length() > 0) {
-            int startPositionOption = selectTag.indexOf(optionStartTag);
-            int endPositionOption = selectTag.indexOf(optionEndTag);
-
-            if (startPositionOption == -1 || endPositionOption == -1 || endPositionOption < startPositionOption) {
-                break;
+        for (String[] option : allOptions) {
+            if (option[0].isEmpty()) {
+                continue;
             }
 
-            String optionTag = selectTag.substring(startPositionOption + optionStartTag.length(), endPositionOption);
-            selectTag = selectTag.replace(optionStartTag + optionTag + optionEndTag, "");
-
-            String[] values = optionTag.split("\">");
-            if (values.length != 2) {
-                break;
-            }
-
-            Show show = new Show(values[1].trim(), values[0].trim());
+            Show show = new Show(option[1], option[0]);
             shows.add(show);
             Log.d(LOG_TAG, "Show found: " + show.getShowName() + " (" + show.getMyEpisodeID() + ")");
 
-            //if the show has no runtime, AND runtime is enabled
+            processed++;
+            if (listener != null) {
+                listener.onProgress(processed, total, show.getShowName());
+            }
+
             if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
                 EpisodeRuntime showRuntime = runtimeMap.get(show.getMyEpisodeID());
 
@@ -397,14 +373,7 @@ public class ShowService {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else {
-                    //do nothing as already exists no need to add
                 }
-            }
-
-            processed++;
-            if (listener != null) {
-                listener.onProgress(processed, total, show.getShowName());
             }
         }
         return shows;
@@ -497,8 +466,8 @@ public class ShowService {
                 showSummary = jObj.getString("summary");
                 showURL = jObj.getString("url");
                 officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
-                if (!jObj.getString("image").equals("null")) {
-                    showImageURL = jObj.getJSONObject("image").getString("medium");
+                if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                    showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                 }
 
                 //change the http:// to https://

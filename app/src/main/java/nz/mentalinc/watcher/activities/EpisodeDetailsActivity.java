@@ -381,8 +381,8 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                     jObj = new JSONObject(jsonString);
                     episodeSummary = jObj.getString("summary");
                     episodeURL = jObj.getString("url");
-                    if (!jObj.getString("image").equals("null")) {
-                        episodeImageURL = jObj.getJSONObject("image").getString("medium");
+                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                        episodeImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
                     episodeURL = episodeURL.replace("http://", "https://");
@@ -516,8 +516,8 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                             ShowRuntime = jObj.getString("averageRuntime");
                         }
                         officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
-                        if (!jObj.getString("image").equals("null")) {
-                            showImageURL = jObj.getJSONObject("image").getString("medium");
+                        if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                            showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                         }
 
                         showImageURL = showImageURL.replace("http://", "https://");
