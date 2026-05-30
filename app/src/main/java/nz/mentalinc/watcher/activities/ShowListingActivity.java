@@ -67,6 +67,7 @@ import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.ItemClickSupport;
+import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
@@ -522,19 +523,7 @@ public class ShowListingActivity extends AppCompatActivity {
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
-        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
-        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
-
-        for (Show show : showList) {
-            if (sorting.equals(episodeOrderOptions[0])) {
-                show.getEpisodes().sort(new EpisodeAscendingComparator());
-            } else if (sorting.equals(episodeOrderOptions[1])) {
-                show.getEpisodes().sort(new EpisodeDescendingComparator());
-            }
-        }
+        EpisodesController.sortEpisodesOfShows(this, showList);
     }
 
     private void AddEpisodeToShow(Episode episode) {
@@ -768,97 +757,7 @@ public class ShowListingActivity extends AppCompatActivity {
     }
 
     private void resetPageFilters(User user) {
-
-        try {
-            userService.login(user.getUsername(), user.getPassword());
-            //this should read from preferences in time but manual building for now
-            //unaquired 1
-            //Unwatched 2
-            //Ignored 4
-            //Pilots 2048
-            //Localized Airdate 4096
-            String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
-
-
-            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
-                //unaquired 1
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=1";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=1";
-                }
-
-                Log.d(LOG_TAG, "SHOW_LISTING_UNACQUIRED_ENABLED" + " " + urlParameters);
-            }
-            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
-                //Unwatched 2
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=2";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=2";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " + urlParameters);
-
-            }
-
-            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
-                //Ignored 4
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=4";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=4";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
-            }
-
-            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
-                //Pilots 2048
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=2048";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=2048";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
-
-            }
-
-
-            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
-                //Localized Airdate 4096
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=4096";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=4096";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
-            }
-
-
-            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-            int postDataLength = postData.length;
-            String request = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
-            URL url = new URL(request);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("charset", "utf-8");
-            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-            conn.setUseCaches(false);
-            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                wr.write(postData);
-                wr.flush();
-            }
-
-            InputStream stream = conn.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 8);
-            String result = reader.readLine();
-
-        } catch (Exception e) {
-            String message = "Error resetting episode filter";
-            Log.e(LOG_TAG, message, e);
-        }
+        ShowService.resetPageFilters(user);
     }
 
     private void getEpisodes() {

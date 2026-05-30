@@ -70,6 +70,7 @@ import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
 import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodesService;
+import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.DateUtil;
 import nz.mentalinc.watcher.utils.TaskRunner;
@@ -104,6 +105,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
     //private Resources res; // Resource object to get Drawables
     // private android.content.res.Configuration conf;
     private Map<Date, List<Episode>> listedAirDates = null;
+    private List<Map.Entry<Date, List<Episode>>> listedAirDatesList = null;
     private boolean collapsed = true;
     //private boolean isOnelineCheck;
     private ExpandableListView expandableListView;
@@ -212,16 +214,8 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 episode = shows.get(listGroupId).getEpisodes().get(listChildId);
                 break;
             case EPISODES_BY_DATE:
-                Iterator<Map.Entry<Date, List<Episode>>> iter = listedAirDates.entrySet().iterator();
-                int i = 0;
-                while (iter.hasNext()) {
-                    Map.Entry entry = iter.next();
-                    if (i == listGroupId) {
-                        episode = listedAirDates.get(entry.getKey()).get(listChildId);
-                        break;
-                    } else {
-                        i++;
-                    }
+                if (listedAirDatesList != null && listGroupId < listedAirDatesList.size()) {
+                    episode = listedAirDatesList.get(listGroupId).getValue().get(listChildId);
                 }
                 break;
             default: //added for code quality
@@ -241,16 +235,8 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 episodes = shows.get(listGroupId).getEpisodes();
                 break;
             case EPISODES_BY_DATE:
-                Iterator<Map.Entry<Date, List<Episode>>> iter = listedAirDates.entrySet().iterator();
-                int i = 0;
-                while (iter.hasNext()) {
-                    Map.Entry entry = iter.next();
-                    if (i == listGroupId) {
-                        episodes = listedAirDates.get(entry.getKey());
-                        break;
-                    } else {
-                        i++;
-                    }
+                if (listedAirDatesList != null && listGroupId < listedAirDatesList.size()) {
+                    episodes = listedAirDatesList.get(listGroupId).getValue();
                 }
                 break;
             default: //added for code quality
@@ -268,15 +254,8 @@ public class EpisodeListingActivity extends AppCompatActivity {
             case EPISODES_BY_SHOW:
                 return new Date(shows.get(listGroupId).getEpisodes().get(0).getAirDate());
             case EPISODES_BY_DATE:
-                Iterator<Map.Entry<Date, List<Episode>>> iter = listedAirDates.entrySet().iterator();
-                int i = 0;
-                while (iter.hasNext()) {
-                    Map.Entry entry = iter.next();
-                    if (i == listGroupId) {
-                        return (Date) entry.getKey();
-                    } else {
-                        i++;
-                    }
+                if (listedAirDatesList != null && listGroupId < listedAirDatesList.size()) {
+                    return (Date) listedAirDatesList.get(listGroupId).getKey();
                 }
                 break;
             default: //added for code quality
@@ -546,15 +525,23 @@ public class EpisodeListingActivity extends AppCompatActivity {
             case EPISODES_BY_DATE: {
                 listedAirDates = new LinkedHashMap<>();
                 Map<Date, Integer> workingMap = new TreeMap<>();
+                Map<Long, List<Episode>> dateEpisodesMap = new HashMap<>();
                 for (Show show : shows) {
                     for (Episode episode : show.getEpisodes()) {
-                        Date airDate = new Date(episode.getAirDate());
+                        long airDateMillis = episode.getAirDate();
+                        Date airDate = new Date(airDateMillis);
                         if (!workingMap.containsKey(airDate)) {
                             workingMap.put(airDate, 1);
                         } else {
                             int count = workingMap.get(airDate);
                             workingMap.put(airDate, ++count);
                         }
+                        List<Episode> epsList = dateEpisodesMap.get(airDateMillis);
+                        if (epsList == null) {
+                            epsList = new ArrayList<>();
+                            dateEpisodesMap.put(airDateMillis, epsList);
+                        }
+                        epsList.add(episode);
                     }
                 }
 
@@ -563,8 +550,9 @@ public class EpisodeListingActivity extends AppCompatActivity {
                     int countEp = workingMap.get(key);
                     map.put(EPISODE_ROW_TITLE, DateUtil.formatDateFull(key) + " [ " + countEp + " ]");
                     headerList.add(map);
-                    listedAirDates.put(key, null);
+                    listedAirDates.put(key, dateEpisodesMap.get(key.getTime()));
                 }
+                listedAirDatesList = new ArrayList<>(listedAirDates.entrySet());
                 break;
             }
             case EPISODES_BY_SHOW: {
@@ -587,22 +575,16 @@ public class EpisodeListingActivity extends AppCompatActivity {
         switch (listMode) {
             case EPISODES_BY_DATE: {
                 for (Map.Entry<Date, List<Episode>> dateListEntry : listedAirDates.entrySet()) {
-                    Date listedAirDate = dateListEntry.getKey();
-                    List<Episode> episodeList = new ArrayList<>();
-
+                    List<Episode> episodeList = dateListEntry.getValue();
                     List<Map<String, String>> subListSecondLvl = new ArrayList<>();
-                    for (Show show : shows) {
-                        for (Episode episode : show.getEpisodes()) {
-                            if (listedAirDate.getTime() == episode.getAirDate()) {
-                                HashMap<String, String> map = new HashMap<>();
-                                map.put(EPISODE_ROW_CHILD_TITLE, episode.getShowName());
-                                map.put(EPISODE_ROW_CHILD_DETAIL, "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
-                                subListSecondLvl.add(map);
-                                episodeList.add(episode);
-                            }
+                    if (episodeList != null) {
+                        for (Episode episode : episodeList) {
+                            HashMap<String, String> map = new HashMap<>();
+                            map.put(EPISODE_ROW_CHILD_TITLE, episode.getShowName());
+                            map.put(EPISODE_ROW_CHILD_DETAIL, "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
+                            subListSecondLvl.add(map);
                         }
                     }
-                    dateListEntry.setValue(episodeList);
                     childList.add(subListSecondLvl);
                 }
                 break;
@@ -656,97 +638,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
 
     private void resetPageFilters(User user) {
-
-        try {
-            userService.login(user.getUsername(), user.getPassword());
-            //this should read from preferences in time but manual building for now
-            //unaquired 1
-            //Unwatched 2
-            //Ignored 4
-            //Pilots 2048
-            //Localized Airdate 4096
-            String urlParameters = "";//"eps_filters%5B%5D=1&eps_filters%5B%5D=2&eps_filters%5B%5D=4096";
-
-
-            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
-                //unaquired 1
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=1";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=1";
-                }
-
-                Log.d(LOG_TAG, "SHOW_LISTING_UNACQUIRED_ENABLED" + " " + urlParameters);
-            }
-            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
-                //Unwatched 2
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=2";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=2";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_UNWATCHED_ENABLED" + " " + urlParameters);
-
-            }
-
-            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
-                //Ignored 4
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=4";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=4";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_IGNORED_ENABLED" + " " + urlParameters);
-            }
-
-            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
-                //Pilots 2048
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=2048";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=2048";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_PILOTS_ENABLED" + " " + urlParameters);
-
-            }
-
-
-            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
-                //Localized Airdate 4096
-                if (urlParameters.length() < 1)
-                    urlParameters += "eps_filters%5B%5D=4096";
-                else {
-                    urlParameters += "&eps_filters%5B%5D=4096";
-                }
-                Log.d(LOG_TAG, "SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED" + " " + urlParameters);
-            }
-
-
-            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-            int postDataLength = postData.length;
-            String request = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
-            URL url = new URL(request);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("charset", "utf-8");
-            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-            conn.setUseCaches(false);
-            try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                wr.write(postData);
-                wr.flush();
-            }
-
-            InputStream stream = conn.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 8);
-            String result = reader.readLine();
-
-        } catch (Exception e) {
-            String message = "Error resetting episode filter";
-            Log.e(LOG_TAG, message, e);
-        }
+        ShowService.resetPageFilters(user);
     }
 
 
@@ -861,20 +753,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
-        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
-
-        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
-
-        for (Show show : showList) {
-            if (sorting.equals(episodeOrderOptions[0])) {
-                show.getEpisodes().sort(new EpisodeAscendingComparator());
-            } else if (sorting.equals(episodeOrderOptions[1])) {
-                show.getEpisodes().sort(new EpisodeDescendingComparator());
-            }
-        }
+        EpisodesController.sortEpisodesOfShows(this, showList);
     }
 
     private void markEpisodes(final int EpisodeStatus, final Episode episode) {

@@ -134,17 +134,69 @@ public class ShowService {
 
         return shows;
     }
+
+    public static void resetPageFilters(User user) {
+        try {
+            new UserService().login(user.getUsername(), user.getPassword());
+            StringBuilder urlParameters = new StringBuilder();
+
+            if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
+                if (urlParameters.length() > 0) urlParameters.append("&");
+                urlParameters.append("eps_filters%5B%5D=1");
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
+                if (urlParameters.length() > 0) urlParameters.append("&");
+                urlParameters.append("eps_filters%5B%5D=2");
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
+                if (urlParameters.length() > 0) urlParameters.append("&");
+                urlParameters.append("eps_filters%5B%5D=4");
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
+                if (urlParameters.length() > 0) urlParameters.append("&");
+                urlParameters.append("eps_filters%5B%5D=2048");
+            }
+            if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
+                if (urlParameters.length() > 0) urlParameters.append("&");
+                urlParameters.append("eps_filters%5B%5D=4096");
+            }
+
+            byte[] postData = urlParameters.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            URL url = new URL(MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            try {
+                conn.setDoOutput(true);
+                conn.setInstanceFollowRedirects(false);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                conn.setRequestProperty("charset", "utf-8");
+                conn.setRequestProperty("Content-Length", Integer.toString(postData.length));
+                conn.setUseCaches(false);
+                try (java.io.DataOutputStream wr = new java.io.DataOutputStream(conn.getOutputStream())) {
+                    wr.write(postData);
+                    wr.flush();
+                }
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8), 8)) {
+                    reader.readLine();
+                }
+            } finally {
+                conn.disconnect();
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error resetting episode filter", e);
+        }
+    }
+
     public void addShow(String myEpsidodesShowId, User user) throws InternetConnectivityException, LoginFailedException, ShowAddFailedException {
 
         userService.login(user.getUsername(), user.getPassword());
-        String responsePage;
         int status;
         String URLString = MyEpisodeConstants.MYEPISODES_ADD_SHOW_PAGE + myEpsidodesShowId;
 
         try {
             Response resp = HttpClientProvider.getInstance().get(URLString);
             status = resp.code();
-            responsePage = resp.body() != null ? resp.body().string() : "";
             resp.close();
 
         } catch (UnknownHostException e) {
@@ -246,7 +298,6 @@ public class ShowService {
         int endPosition = selectTag.indexOf(endTag);
         selectTag = selectTag.substring(0, endPosition);
 
-        // Parse all options into a list once
         List<String[]> allOptions = new ArrayList<>();
         int searchIdx = 0;
         while (true) {
@@ -268,13 +319,11 @@ public class ShowService {
 
         AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
 
-        // Collect show IDs for batch runtime lookup
         List<String> allShowIds = new ArrayList<>();
         for (String[] option : allOptions) {
             allShowIds.add(option[0]);
         }
 
-        // Batch load existing runtimes into a map
         Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
         if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED && !allShowIds.isEmpty()) {
             for (EpisodeRuntime rt : database.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(allShowIds)) {
@@ -282,7 +331,6 @@ public class ShowService {
             }
         }
 
-        // Process each show
         int processed = 0;
         for (String[] option : allOptions) {
             if (option[0].isEmpty()) {
@@ -321,22 +369,14 @@ public class ShowService {
         BufferedReader reader = null;
 
         String tvMazeAPIURL = "https://api.tvmaze.com/singlesearch/shows?q=";
-        //Add the show to the end of the URL
-        //need to pull the show out of the list one at a time may?
 
-        // for (int i = 0; i < show.size(); i++) {
-        //for now just work with the first item will build to work with all in time.
-
-
-        Log.d(LOG_TAG, "Show getting searched: "+ show);
-        // Log.d("Response: ", "> " + show);
+        Log.d(LOG_TAG, "Show getting searched: " + show);
         show = show.replace("#", "");
         if (show.startsWith("Error mins - ")) {
             show = show.substring("Error mins - ".length());
         }
 
-        //creates an error for me so forcing it to be fixed.
-        if(show.equals("Top Gear (UK)")){
+        if (show.equals("Top Gear (UK)")) {
             show = "Top Gear";
         }
         show = Uri.encode(show, "utf-8");
@@ -349,16 +389,17 @@ public class ShowService {
             int code = connection.getResponseCode();
             Log.d(LOG_TAG, "API HTTP Status Code: " + code);
 
-            if (code == 429) {
-                Thread.sleep(10000);
-                //wait 10 seconds then try again
+            int retries = 0;
+            while (code == 429 && retries < 3) {
+                retries++;
+                long backoff = (long) Math.pow(2, retries) * 1000;
+                Thread.sleep(backoff);
                 connection = (HttpsURLConnection) url.openConnection();
                 connection.connect();
+                code = connection.getResponseCode();
             }
 
-
             InputStream stream = connection.getInputStream();
-
             reader = new BufferedReader(new InputStreamReader(stream));
 
             StringBuilder buffer = new StringBuilder();
@@ -367,10 +408,7 @@ public class ShowService {
             while ((line = reader.readLine()) != null) {
                 buffer.append(line);
                 buffer.append("\n");
-                //    Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
-
             }
-
 
             String jsonString = buffer.toString();
             JSONObject jObj;
@@ -381,7 +419,6 @@ public class ShowService {
             String showURL = "";
             String showImageURL = "";
             String officialSite = "";
-
 
             try {
                 jObj = new JSONObject(jsonString);
@@ -405,20 +442,15 @@ public class ShowService {
                     showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                 }
 
-                //change the http:// to https://
                 showImageURL = showImageURL.replace("http://", "https://");
-
                 showSummary = showSummary.replaceAll("<[^>]+>", "");
-
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            //now put the tv Show values into a database....
             SeriesDAO seriesDAO = database.getSeriesDAO();
 
-            //Inserting an episodeRuntime
             EpisodeRuntime epsRunTime = new EpisodeRuntime();
             epsRunTime.setshowMyepsID(myEpsID);
             epsRunTime.setShowName(showNameString);
@@ -429,8 +461,6 @@ public class ShowService {
             epsRunTime.setOfficialSite(officialSite);
             epsRunTime.setShowImageURL(showImageURL);
 
-            //  Log.d("epsRunTime: ", epsRunTime.toString());
-
             seriesDAO.insert(epsRunTime);
 
         } catch (IOException | InterruptedException e) {
@@ -439,7 +469,6 @@ public class ShowService {
             }
             Log.e(LOG_TAG, "Error fetching show data", e);
         } finally {
-            //database.close();
             if (connection != null) {
                 connection.disconnect();
             }
@@ -476,10 +505,13 @@ public class ShowService {
                     break;
                 default: //added for code quality
             }
- 
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.getResponseCode();
 
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            try {
+                conn.getResponseCode();
+            } finally {
+                conn.disconnect();
+            }
 
         } catch (UnknownHostException e) {
             String message = COULD_NOT_CONNECT_TO_HOST;
@@ -492,5 +524,53 @@ public class ShowService {
         }
 
         return getFavoriteOrIgnoredShows(user, showType);
+    }
+
+    public static JSONObject fetchTvMazeShowJson(String tvmazeId) throws IOException, InterruptedException, JSONException {
+        String response = fetchUrl("https://api.tvmaze.com/shows/" + tvmazeId);
+        return new JSONObject(response);
+    }
+
+    private static String fetchUrl(String urlString) throws IOException, InterruptedException {
+        HttpsURLConnection connection = null;
+        BufferedReader reader = null;
+        try {
+            URL url = new URL(urlString);
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.connect();
+            int code = connection.getResponseCode();
+            int retries = 0;
+            while (code == 429 && retries < 3) {
+                retries++;
+                long backoff = (long) Math.pow(2, retries) * 1000;
+                Thread.sleep(backoff);
+                connection = (HttpsURLConnection) url.openConnection();
+                connection.connect();
+                code = connection.getResponseCode();
+            }
+            InputStream stream = connection.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(stream));
+            StringBuilder buffer = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+                buffer.append("\n");
+            }
+            return buffer.toString();
+        } finally {
+            if (reader != null) {
+                try { reader.close(); } catch (IOException ignored) { }
+            }
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    public static String stripHtml(String input) {
+        if (input == null) return null;
+        return input.replace("<p>", "").replace("</p>", "")
+                    .replace("<b>", "").replace("</b>", "")
+                    .replace("<i>", "").replace("</i>", "");
     }
 }

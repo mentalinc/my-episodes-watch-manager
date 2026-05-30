@@ -57,6 +57,7 @@ import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.enums.ListMode;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
+import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.utils.DateUtil;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
@@ -475,85 +476,36 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                 showSummaryHash.put(MyEpisodeConstants.SHOW_STATUS, showStatus);
 
             } else {
-                HttpsURLConnection connection = null;
-                BufferedReader reader = null;
-                String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0];
-
                 try {
-                    URL url = new URL(episodeSummaryAPIURL);
-                    connection = (HttpsURLConnection) url.openConnection();
-                    connection.connect();
-                    int code = connection.getResponseCode();
-                    Log.d(LOG_TAG, "API HTTP Status Code: " + code);
+                    JSONObject jObj = ShowService.fetchTvMazeShowJson(params[0]);
+                    showSummary = jObj.getString("summary");
+                    ShowName = jObj.getString("name");
+                    showURL = jObj.getString("url");
+                    ShowRuntime = jObj.getString("runtime");
 
-                    if (code == 429) {
-                        Thread.sleep(10000);
-                        connection = (HttpsURLConnection) url.openConnection();
-                        connection.connect();
+                    if (ShowRuntime.equals("null") || ShowRuntime == null) {
+                        ShowRuntime = jObj.getString("averageRuntime");
                     }
 
-                    InputStream stream = connection.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(stream));
-
-                    StringBuilder buffer = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        buffer.append(line);
-                        buffer.append("\n");
+                    officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
+                    showStatus = jObj.optString("status", null);
+                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                        showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
-                    String jsonString = buffer.toString();
-                    JSONObject jObj;
+                    showImageURL = showImageURL.replace("http://", "https://");
+                    showSummary = ShowService.stripHtml(showSummary);
 
-                    try {
-                        jObj = new JSONObject(jsonString);
-                        showSummary = jObj.getString("summary");
-                        ShowName = jObj.getString("name");
-                        showURL = jObj.getString("url");
-                        ShowRuntime = jObj.getString("runtime");
-                        if (ShowRuntime.equals("null") || ShowRuntime == null) {
-                            ShowRuntime = jObj.getString("averageRuntime");
-                        }
-                        officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
-                        if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
-                            showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
-                        }
+                    showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
+                    showSummaryHash.put(MyEpisodeConstants.SHOW_SUMMARY, showSummary);
+                    showSummaryHash.put(MyEpisodeConstants.SHOW_IMAGE_URL, showImageURL);
+                    showSummaryHash.put(MyEpisodeConstants.OFFICIAL_SITE, officialSite);
+                    showSummaryHash.put("ShowName", ShowName);
+                    showSummaryHash.put(MyEpisodeConstants.SHOW_RUNTIME, ShowRuntime);
+                    showSummaryHash.put(MyEpisodeConstants.SHOW_STATUS, showStatus);
 
-                        showImageURL = showImageURL.replace("http://", "https://");
-
-                        showSummary = showSummary.replace("<p>", "");
-                        showSummary = showSummary.replace("</p>", "");
-                        showSummary = showSummary.replace("<b>", "");
-                        showSummary = showSummary.replace("</b>", "");
-                        showSummary = showSummary.replace("<i>", "");
-                        showSummary = showSummary.replace("</i>", "");
-
-                        showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
-                        showSummaryHash.put(MyEpisodeConstants.SHOW_SUMMARY, showSummary);
-                        showSummaryHash.put(MyEpisodeConstants.SHOW_IMAGE_URL, showImageURL);
-                        showSummaryHash.put(MyEpisodeConstants.OFFICIAL_SITE, officialSite);
-                        showSummaryHash.put("ShowName", ShowName);
-                        showSummaryHash.put(MyEpisodeConstants.SHOW_RUNTIME, ShowRuntime);
-                        showSummaryHash.put(MyEpisodeConstants.SHOW_STATUS, showStatus);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                } catch (IOException | InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-                } finally {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
-                    try {
-                        if (reader != null) {
-                            reader.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
 
@@ -770,20 +722,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
-        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
-
-        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
-
-        for (Show show : showList) {
-            if (sorting.equals(episodeOrderOptions[0])) {
-                show.getEpisodes().sort(new EpisodeAscendingComparator());
-            } else if (sorting.equals(episodeOrderOptions[1])) {
-                show.getEpisodes().sort(new EpisodeDescendingComparator());
-            }
-        }
+        EpisodesController.sortEpisodesOfShows(this, showList);
     }
 
 }

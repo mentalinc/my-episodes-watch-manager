@@ -1,14 +1,21 @@
 package nz.mentalinc.watcher.controllers;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
+
+import androidx.preference.PreferenceManager;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.domain.Episode;
+import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
+import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.utils.TaskRunner;
@@ -18,6 +25,7 @@ public class EpisodesController {
     private List<Episode> acquireEpisodes = new ArrayList<>();
     private List<Episode> comingEpisodes = new ArrayList<>();
     private ArrayList<Show> shows;
+    private final HashMap<String, Show> showNameMap = new HashMap<>();
     private final HashMap<String, Show> watchShows = new HashMap<>();
     private final HashMap<String, Show> acquireShows = new HashMap<>();
     private final HashMap<String, Show> comingShows = new HashMap<>();
@@ -306,11 +314,13 @@ public class EpisodesController {
     }
 
     private void AddEpisodeToShow(Episode episode) {
-        Show currentShow = CheckShowDuplicate(episode.getShowName());
+        String showName = episode.getShowName();
+        Show currentShow = showNameMap.get(showName);
         if (currentShow == null) {
-            Show tempShow = new Show(episode.getShowName());
+            Show tempShow = new Show(showName);
             tempShow.addEpisode(episode);
             shows.add(tempShow);
+            showNameMap.put(showName, tempShow);
         } else {
             currentShow.addEpisode(episode);
         }
@@ -318,12 +328,7 @@ public class EpisodesController {
 
 
     private Show CheckShowDuplicate(String episodename) {
-        for (Show show : shows) {
-            if (show.getShowName().equals(episodename)) {
-                return show;
-            }
-        }
-        return null;
+        return showNameMap.get(episodename);
     }
 
     public void AddToWatchShow(List<Episode> episodeList) {
@@ -351,60 +356,49 @@ public class EpisodesController {
         Log.w(LOG_TAG, "AddToWatchShow method completed.");
     }
 
+    public static void sortEpisodesOfShows(Context context, List<Show> showList) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
+        String[] episodeOrderOptions = context.getResources().getStringArray(R.array.episodeOrderOptionsValues);
 
-    public void AddToAcquireShow(List<Episode> episodeList) { //pass the full episode type list to then split into all the shows.
+        for (Show show : showList) {
+            if (sorting.equals(episodeOrderOptions[0])) {
+                show.getEpisodes().sort(new EpisodeAscendingComparator());
+            } else if (sorting.equals(episodeOrderOptions[1])) {
+                show.getEpisodes().sort(new EpisodeDescendingComparator());
+            }
+        }
+    }
 
-        // TODO Consider passing episode type and making same method work for all types but get working for watch first
-        //need to get the array list and loop the episodes putting each episode in the array into its own show, then once have all the shows created, then add them finally to the ArrayMap using the myepisodeid as the key
-
+    public void AddToAcquireShow(List<Episode> episodeList) {
         for (Episode eps : episodeList) {
-
-            //check if show is in the array map if yes return from the ArrayMap, add the episode then update the ArrayMap with new.
             String myEpID = eps.getMyEpisodeID();
-            //current show for the if statement below maybe?
 
-            Show showTemp = acquireShows.get(myEpID); //may need to test for null to determine if in the arraymayp
-            if (showTemp != null) { //use code below
-                //Add episode to the show then add back to the the array,/update
+            Show showTemp = acquireShows.get(myEpID);
+            if (showTemp != null) {
                 showTemp.addEpisode(eps);
                 acquireShows.replace(myEpID, showTemp);
             } else {
                 Show showNew = new Show(eps.getShowName(), eps.getMyEpisodeID());
                 showNew.addEpisode(eps);
                 acquireShows.put(myEpID, showNew);
-
             }
-        } //end for loop
-
-        Log.w(LOG_TAG, "AddToWatchShow method completed.");
+        }
     }
 
-
-    public void AddToComingShow(List<Episode> episodeList) { //pass the full episode type list to then split into all the shows.
-
-        // TODO Consider passing episode type and making same method work for all types but get working for watch first
-        //need to get the array list and loop the episodes putting each episode in the array into its own show, then once have all the shows created, then add them finally to the ArrayMap using the myepisodeid as the key
-
+    public void AddToComingShow(List<Episode> episodeList) {
         for (Episode eps : episodeList) {
-
-            //check if show is in the array map if yes return from the ArrayMap, add the episode then update the ArrayMap with new.
             String myEpID = eps.getMyEpisodeID();
-            //current show for the if statement below maybe?
 
-            Show showTemp = comingShows.get(myEpID); //may need to test for null to determine if in the arraymayp
-            if (showTemp != null) { //use code below
-                //Add episode to the show then add back to the the array,/update
+            Show showTemp = comingShows.get(myEpID);
+            if (showTemp != null) {
                 showTemp.addEpisode(eps);
                 comingShows.replace(myEpID, showTemp);
             } else {
                 Show showNew = new Show(eps.getShowName(), eps.getMyEpisodeID());
                 showNew.addEpisode(eps);
                 comingShows.put(myEpID, showNew);
-
             }
-        } //end for loop
-
-        Log.w(LOG_TAG, "AddToWatchShow method completed.");
+        }
     }
-
 }

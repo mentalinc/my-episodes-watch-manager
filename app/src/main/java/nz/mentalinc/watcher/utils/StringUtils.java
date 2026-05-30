@@ -15,15 +15,6 @@ public class StringUtils {
      * be the index of the first occurence in the source. Returns -1 if the search value hasn't been found!
      */
     public static int indexOf(String source, String search) {
-        int result = -1;
-        if (source.startsWith(search)) {
-            result = 0;
-        } else {
-            String[] split = source.split(search);
-            if (split.length > 0) {
-                result = split[0].length();
-            }
-        }
-        return result;
+        return source.indexOf(search);
     }
 }

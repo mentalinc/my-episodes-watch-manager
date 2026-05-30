@@ -33,6 +33,7 @@ import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.database.SeriesDAO;
 import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
+import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
@@ -170,70 +171,24 @@ public class ShowManagementPortalActivity extends Activity {
             EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
             String showRuntime = showInfo.getShowRuntime();
 
-            HttpsURLConnection connection = null;
-            BufferedReader reader = null;
-            String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0];
-
             try {
-                URL url = new URL(episodeSummaryAPIURL);
-                connection = (HttpsURLConnection) url.openConnection();
-                connection.connect();
-                int code = connection.getResponseCode();
-                Log.d(LOG_TAG, "API HTTP Status Code: " + code);
+                JSONObject jObj = ShowService.fetchTvMazeShowJson(params[0]);
 
-                if (code == 429) {
-                    Thread.sleep(10000);
-                    connection = (HttpsURLConnection) url.openConnection();
-                    connection.connect();
+                showRuntime = jObj.getString("runtime");
+
+                if (showRuntime.equals("null") || showRuntime == null) {
+                    showRuntime = jObj.getString("averageRuntime");
                 }
 
-                InputStream stream = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
+                showSummaryHash.put("showRuntime", showRuntime);
+                EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showInfo.getShowMyEpsID());
 
-                StringBuilder buffer = new StringBuilder();
-                String line;
+                showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
 
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line);
-                    buffer.append("\n");
-                }
+                seriesDAO.update(showSummaryInfo);
 
-                String jsonString = buffer.toString();
-                JSONObject jObj;
-
-                try {
-                    jObj = new JSONObject(jsonString);
-
-                    showRuntime = jObj.getString("runtime");
-
-                    if (showRuntime.equals("null") || showRuntime == null) {
-                        showRuntime = jObj.getString("averageRuntime");
-                    }
-
-                    showSummaryHash.put("showRuntime", showRuntime);
-                    EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showInfo.getShowMyEpsID());
-
-                    showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
-
-                    seriesDAO.update(showSummaryInfo);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            } catch (IOException | InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         });
     }

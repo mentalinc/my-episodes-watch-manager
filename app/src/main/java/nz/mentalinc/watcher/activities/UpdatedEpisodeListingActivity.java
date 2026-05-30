@@ -448,20 +448,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        // String sorting = Preferences.getPreference(this, PreferencesKeys.EPISODE_SORTING_KEY);
-        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
-
-        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
-
-        for (Show show : showList) {
-            if (sorting.equals(episodeOrderOptions[0])) {
-                show.getEpisodes().sort(new EpisodeAscendingComparator());
-            } else if (sorting.equals(episodeOrderOptions[1])) {
-                show.getEpisodes().sort(new EpisodeDescendingComparator());
-            }
-        }
+        EpisodesController.sortEpisodesOfShows(this, showList);
     }
 
     private void AddEpisodeToShow(Episode episode) {

@@ -39,14 +39,15 @@ public final class CacheUtils {
             long diff = milliseconds2 - milliseconds1;
             long diffHours = diff / (60 * 60 * 1000);
             long diffDays = diff / (24 * 60 * 60 * 1000);
+            double cacheAge = Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
             Log.d(LOG_TAG, "Time in hours: " + diffHours + " hours.");
             Log.d(LOG_TAG, "Time in days: " + diffDays + " days.");
-            Log.d(LOG_TAG, "Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) + " days " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
+            Log.d(LOG_TAG, "Cache age setting: " + cacheAge + " days " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
             Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate);
-            if (diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)) {
+            if (diffDays >= cacheAge) {
                 Log.d(LOG_TAG, "Delete File too many DAYS old...");
                 deleteFile(filetoDelete);
-            } else if (Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) < 1) {
+            } else if (cacheAge < 1) {
                 if (diffHours >= 6 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.25")) {
                     Log.d(LOG_TAG, "Delete File too many HOURS old, Greater than 6...");
                     deleteFile(filetoDelete);

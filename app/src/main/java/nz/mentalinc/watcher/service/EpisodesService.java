@@ -140,7 +140,7 @@ public class EpisodesService {
             Episode episode = new Episode();
 
             String guid = item.getGuid();
-            String myEpisodeID = item.getGuid().split("-")[0].trim();
+            String myEpisodeID = guid.split("-")[0].trim();
 
 
             StringBuilder title = new StringBuilder(item.getTitle());
@@ -158,23 +158,14 @@ public class EpisodesService {
                     String airDateString = episodeInfo[3].trim();
                     episode.setType(episodesType);
 
-                    //Log.d(LOG_TAG, "airDateString: " + airDateString);
-
-                    // airDateString = airDateString.replace("-","/");
-
-
                     try {
                         airDate = parseDate(airDateString);
                     } catch (Exception e) {
                         airDate = DateUtil.convertToDate(airDateString);
                     }
 
-                    // Log.d(LOG_TAG, "airDateString: " + airDateString);
-
                     episode.setAirDate(airDate != null ? airDate.getTime() : 0);
-                    //         String guid = item.getGuid();
-                    //           String myEpisodeID = item.getGuid().split("-")[0].trim();
-                    episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
+                    episode.setMyEpisodeID(myEpisodeID);
                     //episode.setTVMazeWebSite(item.getLink());
 
 
@@ -208,7 +199,7 @@ public class EpisodesService {
                 } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
                     //Solves problem mentioned in Issue 20
                     episode.setName(episodeInfo[2].trim() + "...");
-                    episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
+                    episode.setMyEpisodeID(myEpisodeID);
                     //episode.setTVMazeWebSite(item.getLink());
 
                     EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
@@ -372,9 +363,6 @@ public class EpisodesService {
      */
 
     private synchronized StringWriter downloadFullUnwatched(User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
-        if (fullUnwatchedDownloaded) {
-            return new StringWriter();
-        }
         String urlRep = MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE;
         userService.login(user.getUsername(), user.getPassword());
 
