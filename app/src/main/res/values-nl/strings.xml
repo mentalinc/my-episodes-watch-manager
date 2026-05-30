@@ -5,8 +5,7 @@
 <string name="yes">Ja</string>
 <string name="no">Nee</string>
 <string name="close">Sluiten</string>
-<string name="attention">Aandacht</string>
-<string name="done">Gereed</string>
+    <string name="done">Gereed</string>
 <string name="search">Zoeken</string>
 
 <!-- login form -->
@@ -16,8 +15,7 @@
 <string name="loginPasswordHint">Wachtwoord</string>
 <string name="loginLoginBtn">Aanmelden</string>
 <string name="loginStartLogin">Bezig met aanmelden bij MyEpisodes.com</string>
-<string name="loginSuccessfullLogin">Aanmelden gelukt</string>
-<string name="loginLoginFailed">Gebruikersnaam of wachtwoord zijn niet juist, probeer opnieuw!</string>
+    <string name="loginLoginFailed">Gebruikersnaam of wachtwoord zijn niet juist, probeer opnieuw!</string>
 
 <!-- register form -->
 <string name="registerFormTitle">Registreer u hier. Vul alle gebruikersgegevens in en klik op registreer.</string>
@@ -35,18 +33,15 @@
 <string name="acquire">Te Verwerven</string>
 <string name="acquirehome">Te Verwerven (%d)</string>
 <string name="coming">Binnenkort</string>
-    <string name="cominghome">Binnenkort (%d)</string>
     <string name="newCominghome">Nieuwe Binnenkort (%d)</string>
-<string name="more">Meer</string>
-<string name="watchListTitle">Lijst series/afleveringen</string>
+    <string name="watchListTitle">Lijst series/afleveringen</string>
 <string name="watchListSubTitleWatch">%d aflevering te bekijken</string>
 <string name="watchListSubTitleAcquire">%d aflevering te verwerven</string>
 <string name="watchListSubTitleComing">%d komende aflevering</string>
 <string name="watchListSubTitleWatchPlural">%d afleveringen te bekijken</string>
 <string name="watchListSubTitleAcquirePlural">%d afleveringen te verwerven</string>
 <string name="watchListSubTitleComingPlural">%d komende afleveringen</string>
-<string name="watchListEmpty">Geen afleveringen gevonden.</string>
-<string name="watchListFull">De limiet van 200 afleveringen is bereikt, overweeg het aanzetten van de optie \'200+ Afleveringen\'</string>
+    <string name="watchListFull">De limiet van 200 afleveringen is bereikt, overweeg het aanzetten van de optie \'200+ Afleveringen\'</string>
 
 <!-- Episode details -->
 <string name="details">Details</string>
@@ -81,15 +76,12 @@
 
 <!-- random episode picker -->
 <string name="randompicker">Willekeurige Aflevering-kiezer</string>
-<string name="randompickershort">Willekeurige Kiezer</string>
 
-<!-- progressDialog -->
+    <!-- progressDialog -->
 <string name="progressLoadingTitle">Laden&#8230;</string>
-<string name="progressLoadingBody">Verzenden/Ontvangen data</string>
 
-<!-- aboutDialog -->
-<string name="aboutTitle">Over&#8230;</string>
-<string name="aboutVersion">Versie:</string>
+    <!-- aboutDialog -->
+    <string name="aboutVersion">Versie:</string>
 <string name="aboutLicense">Licentie:</string>
 <string name="aboutWebsite">Website:</string>
 <string name="aboutEmail">Email:</string>
@@ -119,9 +111,7 @@
 <string name="manageShows">Beheer Series</string>
 <string name="about">Over</string>
 <string name="logout">Afmelden</string>
-<string name="whatsNew">Nieuwigheden</string>
-<string name="preferences">Voorkeuren</string>
-<!-- show specific menu -->
+    <!-- show specific menu -->
 <string name="menuShowMarkAcquired">Markeer alle afleveringen als verworven</string>
 <string name="menuShowMarkWatched">Markeer alle afleveringen als bekeken</string>
 <!-- episode specific menu -->
@@ -131,15 +121,12 @@
 <string name="menuTweet">Tweet dit!</string>
 
 <!-- preferences titles -->
-<string name="generalPreferences">Algemeen</string>
-<string name="showPreferences">Serie</string>
+    <string name="showPreferences">Serie</string>
 <string name="orderPreferences">Volgorde</string>
 <string name="disablePreferences">Uitschakelen</string>
-<string name="languagePreferences">Taal</string>
 
-<!-- preferences -->
-<string name="applyPreferences">Door het aanpassen van de instellingen zullen de afleveringen nu herladen worden!</string>
-<!-- Show sorting -->
+    <!-- preferences -->
+    <!-- Show sorting -->
 <string name="showWatchOrderPrompt">Volgorde van bekeken afleveringen</string>
 <string name="showAcquireOrderPrompt">Volgorde van te verwerven afleveringen</string>
 <string name="showComingOrderPrompt">Volgorde van aankomende shows</string>
@@ -169,17 +156,9 @@
 <item>Enkel gisteren</item>
 </string-array>
 <!-- Default opening tab -->
-<string name="openDefaultPrompt">Standaard tabblad</string>
-<string name="openDefaultPromptExtra">Standaard tabblad bij het openen van de applicatie</string>
-<string-array name="openDefaultTabOptions">
-<item>Te bekijken</item>
-<item>Te verwerven</item>
-<item>Binnenkort</item>
-</string-array>
-<!-- Change Theme -->
+    <!-- Change Theme -->
 <string name="ThemePrompt">Kies een thema</string>
-<string name="ThemePromptExtra">Selecteer uw thema</string>
-<string-array name="ThemeOptions">
+    <string-array name="ThemeOptions">
 <item>Licht</item>
 <item>Donker</item>
 </string-array>

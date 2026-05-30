@@ -5,7 +5,6 @@
     <string name="yes">Si</string>
     <string name="no">No</string>
     <string name="close">Uscire</string>
-    <string name="attention">Attenzione</string>
     <string name="done">Fatto</string>
     <string name="search">Ricerca</string>
 
@@ -16,7 +15,6 @@
     <string name="loginPasswordHint">Password</string>
     <string name="loginLoginBtn">Entra</string>
     <string name="loginStartLogin">Entrando su MyEpisodes.com</string>
-    <string name="loginSuccessfullLogin">Utente riconosciuto</string>
     <string name="loginLoginFailed">Utente o password sbagliato. Prova di nuovo !</string>
 
     <!-- register form -->
@@ -35,9 +33,7 @@
     <string name="acquire">Acquistare</string>
     <string name="acquirehome">Acquistare (%d)</string>
     <string name="coming">A venire</string>
-    <string name="cominghome">A venire (%d)</string>
     <string name="newCominghome">Nuovi A venire (%d)</string>
-    <string name="more">Di più</string>
     <string name="watchListTitle">Lista delle serie/episodi</string>
     <string name="watchListSubTitleWatch">%d episodio da guardare</string>
     <string name="watchListSubTitleAcquire">%d episodio da acquistare</string>
@@ -45,7 +41,6 @@
     <string name="watchListSubTitleWatchPlural">%d episodi da guardare</string>
     <string name="watchListSubTitleAcquirePlural">%d episodi da acquistare</string>
     <string name="watchListSubTitleComingPlural">%d episodi a venire</string>
-    <string name="watchListEmpty">Nessun episodio trovato.</string>
     <string name="watchListFull">Limite di 200 episodi raggiunto, considera permettere 200+ episodi nelle impostazioni.</string>
     
     <!-- Episode details -->
@@ -81,14 +76,11 @@
 
 	<!-- random episode picker -->
 	<string name="randompicker">Selezionatore arbitrario di episodio</string>
-	<string name="randompickershort">Selezionatore arbitrario</string>
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Caricamento&#8230;</string>
-    <string name="progressLoadingBody">Invio/Richiamo di dati</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">A proposito&#8230;</string>
     <string name="aboutVersion">Versione:</string>
     <string name="aboutLicense">Licenza:</string>
     <string name="aboutWebsite">Sito:</string>
@@ -120,8 +112,6 @@
     <string name="manageShows">Gestire Episodi</string>
     <string name="about">A proposito</string>
     <string name="logout">Uscire</string>
-    <string name="changelog" tools:ignore="ExtraTranslation">Che cosa è cambiato</string>
-    <string name="preferences">Impostazioni</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Contrassegnare tutti gli episodi come Acquistati</string>
     <string name="menuShowMarkWatched">Contrassegnare tutti gli episodi come Guardati</string>
@@ -132,14 +122,11 @@
     <string name="menuTweet">Condividere questo!</string>
 
 	<!-- preferences titles -->
-    <string name="generalPreferences">Generale</string>
     <string name="showPreferences">Episodi</string>
     <string name="orderPreferences">Ordine</string>
     <string name="disablePreferences">Disabilità</string>
-    <string name="languagePreferences">Lingua</string>
 
     <!-- preferences Dialog -->
-    <string name="applyPreferences">Impostazioni cambiate, episodi verrano ripristinati</string>
     <!-- Show sorting -->
     <string name="showWatchOrderPrompt">Ordine dei episodi già guardati</string>
     <string name="showAcquireOrderPrompt">Ordine dei episodi acquistati</string>
@@ -170,16 +157,8 @@
             <item>Soltanto ieri</item>
     </string-array>
     <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Selezionare l\'etichetta principale da aprire</string>
-    <string name="openDefaultPromptExtra">Selezionare l\'etichetta principale quando l\'applicazione si apre</string>
-    <string-array name="openDefaultTabOptions">
-            <item>Guarda</item>
-            <item>Acquista</item>
-            <item>In arrivo</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Scelga uno Tema</string>
-    <string name="ThemePromptExtra">Scelga il suo tema</string>
     <string-array name="ThemeOptions">
             <item>Chiaro</item>
             <item>Scuro</item>

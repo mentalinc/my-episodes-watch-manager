@@ -5,7 +5,6 @@
     <string name="yes">Sí</string>
     <string name="no">No</string>
     <string name="close">Cerrar</string>
-    <string name="attention">Atención</string>
     <string name="done">Hecho</string>
     <string name="search">Buscar</string>
 
@@ -16,7 +15,6 @@
     <string name="loginPasswordHint">Contraseña</string>
     <string name="loginLoginBtn">Acceder</string>
     <string name="loginStartLogin">Accediendo a Myepisodios.com</string>
-    <string name="loginSuccessfullLogin">Acceso correcto</string>
     <string name="loginLoginFailed">Usuario o contraseña incorrectos. Por favor, prueba de nuevo</string>
     
 	<!-- register form -->
@@ -35,9 +33,7 @@
     <string name="acquire">Por adquirir</string>
     <string name="acquirehome">Por adquirir (%d)</string>
     <string name="coming">Próximamente</string>
-    <string name="cominghome">Próximamente (%d)</string>
     <string name="newCominghome">Nuevos Próximamente (%d)</string>
-    <string name="more">Más</string>
     <string name="watchListTitle">Lista de series / episodios</string>
     <string name="watchListSubTitleWatch">%d episodio por ver</string>
     <string name="watchListSubTitleAcquire">%d episodio por adquirir</string>
@@ -45,7 +41,6 @@
     <string name="watchListSubTitleWatchPlural">%d episodios por ver</string>
     <string name="watchListSubTitleAcquirePlural">%d episodios por adquirir</string>
     <string name="watchListSubTitleComingPlural">%d próximos episodios</string>
-    <string name="watchListEmpty">No se han encontrado episodios.</string>
     <string name="watchListFull">Alcanzado el límite de 200 episodios.</string>
 
    <!-- Episode details -->
@@ -74,21 +69,17 @@
     <!-- Favo and ingored showa -->
     <string name="favoIgnoredDeleteShow">Borrar serie</string>
     <string name="favoIgnoredIgnoreShow">Ignorar serie</string>
-    <string name="favoIgnoredUnignoreShOW">Designorar serie</string>
     <string name="favoIgnoredConfirmationDeleteMessage">¿Está seguro que quieres borrar esta serie?</string>
     <string name="favoIgnoredConfirmationIgnoreMessage">¿Está seguro que quieres ignorar esta serie?</string>
     <string name="favoIgnoredConfirmationUnignoreMessage">¿Está seguro que quieres designorar esta serie?</string>
 
 	<!-- random episode picker -->
 	<string name="randompicker">Selector al azar de episodios</string>
-	<string name="randompickershort">Al azar</string>
-	
+
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Cargando&#8230;</string>
-    <string name="progressLoadingBody">Enviando / Recibiendo datos</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Sobre&#8230;</string>
     <string name="aboutVersion">Versión:</string>
     <string name="aboutLicense">Licencia:</string>
     <string name="aboutWebsite">Website:</string>
@@ -119,8 +110,6 @@
     <string name="manageShows">Gestionar series</string>
     <string name="about">Sobre</string>
     <string name="logout">Cerrar sesión</string>
-    <string name="whatsNew">Novedades</string>
-    <string name="preferences">Preferencias</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Marcar todos los episodios como Adquiridos</string>
     <string name="menuShowMarkWatched">Marcar todos los episodios como Vistos</string>
@@ -131,16 +120,12 @@
    <string name="menuTweet">¡Twitealo!</string>
    
 	<!-- preferences titles -->
-    <string name="generalPreferences">General</string>
     <string name="showPreferences">Series</string>
     <string name="orderPreferences">Orden</string>
     <string name="disablePreferences">Deshabilitar</string>
-    <string name="languagePreferences">Lenguaje</string>
-   
+
     <!-- preferences Dialog -->
-    <string name="applyPreferences">Las preferencias se han cambiado. La lista de episodios se recargará ahora.</string>
     <!-- show sorting -->
-    <string name="showOrderPrompt">Ordena por series</string>
     <string name="showAcquireOrderPrompt">Ordena por series adquiridas</string>
     <string name="showComingOrderPrompt">Ordena por emisión de las series</string>
     <string-array name="showOrderOptions">
@@ -169,16 +154,8 @@
             <item>Sólo las de ayer</item>
     </string-array>
  <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Pestaña por defecto</string>
-    <string name="openDefaultPromptExtra">Selecciona la pestaña que quieres que se vea al comenzar la aplicación</string>
-    <string-array name="openDefaultTabOptions">
-            <item>Ver</item>
-            <item>Adquirir</item>
-            <item>Por emitir</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Elige el tema</string>
-    <string name="ThemePromptExtra">Selecciona el tema</string>
     <string-array name="ThemeOptions">
             <item>Luminoso</item>
             <item>Oscuro</item>
@@ -189,7 +166,6 @@
     <string name="disableAcquire">Deshabilitar adquirir</string>
     <string name="disableComing">Deshabilitar próximamente</string>
     <!-- Change Language -->
-    <string name="serieLanguagePrompt">Cambiar el idioma</string>
 
     <!-- Basic Dialog -->
     <string name="dialogOK">OK</string>
@@ -203,7 +179,6 @@
     <string name="networkIssues">¡Error de Red! Comprueba tus ajustes de red y prueba a recargar manualmente.</string>
     <string name="watchListUnableToReadFeed">¡Error de Red! \nPrueba a recargar manualmente.</string>
     <string name="watchListUnableToMarkWatched">¡Error al marcar este capítulo como Visto! \nComprueba tu conexión a Internet o recarga la lista</string>
-	<string name="searchserieUnabletoAdd">Error al añadir la serie. Por favor, inténtalo de nuevo. Si el error continúa, por favor manda un informe</string>
     <string name="aboutEmailValue">mentalinc@outlook.com</string>
     <string name="aboutLicenseValue">GNU GPL V3 License</string>
     <string name="aboutOriginalIdeaValue">Dirk Vranckaert</string>

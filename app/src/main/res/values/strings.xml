@@ -6,7 +6,6 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
-    <string name="attention">Attention</string>
     <string name="done">Done</string>
     <string name="search">Search</string>
 
@@ -17,7 +16,6 @@
     <string name="loginPasswordHint">Password</string>
     <string name="loginLoginBtn">Login</string>
     <string name="loginStartLogin">Logging in to MyEpisodes.com</string>
-    <string name="loginSuccessfullLogin">Successfully logged in</string>
     <string name="loginLoginFailed">Username or password incorrect, please try again!</string>
 
     <!-- register form -->
@@ -31,18 +29,14 @@
     <string name="registerFailed">Username already exists, please choose another username.</string>
 
     <!-- episode_listing_tab -->
-    <string name="newWatch">New Watch</string>
     <string name="newWatchhome">New Watch (%d)</string>
     <string name="watch">Watch</string>
     <string name="watchhome">Watch (%d)</string>
-    <string name="newAcquire">New Acquire</string>
     <string name="newAcquirehome">Acquire (%d)</string>
     <string name="acquire">Acquire</string>
     <string name="acquirehome">Acquire (%d)</string>
     <string name="coming">Coming</string>
-    <string name="cominghome">Coming (%d)</string>
     <string name="newCominghome">New Coming (%d)</string>
-    <string name="more">More</string>
     <string name="settings">Settings</string>
     <string name="watchListTitle">List of shows/episodes</string>
     <string name="watchListSubTitleWatch" tools:ignore="PluralsCandidate">%d episode to watch</string>
@@ -51,15 +45,12 @@
     <string name="watchListSubTitleWatchPlural" tools:ignore="PluralsCandidate">%d episodes to watch</string>
     <string name="watchListSubTitleAcquirePlural" tools:ignore="PluralsCandidate">%d episodes to acquire</string>
     <string name="watchListSubTitleComingPlural" tools:ignore="PluralsCandidate">%d future episodes</string>
-    <string name="watchListEmpty">No episodes found.</string>
     <string name="watchListFull">Reached the limit of 200 episodes, consider enabling 200+ episodes in settings.</string>
 
 
     <!-- Show info -->
 
-    <string name="show_menu_overflow">More options</string>
     <string name="norating">n/a</string>
-    <string name="list_empty">You can add shows to this list</string>
 
 
     <!-- Episode details -->
@@ -102,7 +93,6 @@
     <string name="calendar">Calendar</string>
     <string name="calendarTitle">Episode Calendar</string>
     <string name="noEpisodesOnDate">No episodes on this date</string>
-    <string name="calendarLegend">● %1$s  ● %2$s  ● %3$s</string>
     <string name="watchLabel">Watch</string>
     <string name="acquireLabel">Acquire</string>
     <string name="comingLabel">Coming</string>
@@ -126,7 +116,6 @@
 
     <!-- random episode picker -->
     <string name="randompicker">Random Episode</string>
-    <string name="randompickershort">Random Episode</string>
     <string name="randompickerBar">Random</string>
     <string name="filterUnder15">&lt;15m</string>
     <string name="filterUnder30">&lt;30m</string>
@@ -137,13 +126,10 @@
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Loading&#8230;</string>
     <string name="progressLoadingTitleCache" tools:ignore="MissingTranslation">Loading from cache&#8230;</string>
-    <string name="progressLoadingBody">Sending/Retrieving data</string>
     <string name="progressLoadingOnlineCheck">Checking if user is online</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">About&#8230;</string>
     <string name="aboutVersion">Version:</string>
-    <string name="aboutVersionNumber">""</string>
     <string name="aboutLicense">License:</string>
     <string name="aboutWebsite">Website:</string>
     <string name="aboutEmail">Email:</string>
@@ -195,8 +181,6 @@
     <string name="manageShows">Manage Shows</string>
     <string name="about">About</string>
     <string name="logout">Logout</string>
-    <string name="whatsNew">What\'s new</string>
-    <string name="preferences">Preferences</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Mark all episodes as Acquired</string>
     <string name="menuShowMarkWatched">Mark all episodes as Watched</string>
@@ -207,15 +191,12 @@
     <string name="menuTweet">Tweet this!</string>
 
     <!-- preferences titles -->
-    <string name="generalPreferences">General</string>
     <string name="showPreferences">Shows</string>
     <string name="orderPreferences">Order</string>
     <string name="filterPreferences">Website Filters</string>
     <string name="disablePreferences">Disable</string>
-    <string name="languagePreferences">Language</string>
 
     <!-- preferences -->
-    <string name="applyPreferences">Because settings are changed, the episodes will be refreshed now!</string>
     <!-- Show sorting -->
     <string name="showWatchOrderPrompt">Order of shows to watch</string>
     <string name="showAcquireOrderPrompt">Order of shows to acquire</string>
@@ -307,16 +288,8 @@
         <item>Only yesterday</item>
     </string-array>
     <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Default tab to open</string>
-    <string name="openDefaultPromptExtra">Default tab to select when opening the application</string>
-    <string-array name="openDefaultTabOptions">
-        <item>Watch</item>
-        <item>Acquire</item>
-        <item>Coming</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Choose Theme</string>
-    <string name="ThemePromptExtra">Select your theme</string>
     <string-array name="ThemeOptions">
         <item>System</item>
         <item>Light</item>
@@ -327,12 +300,6 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
-    </string-array>
-    <string-array name="ThemeMaterial3Values">`
-        <item>R.style.ThemeDayNight</item>
-        <item>R.style.ThemeLight</item>
-        <item>R.style.ThemeDark</item>
-
     </string-array>
     <!-- Store password -->
     <string name="storePasswordPrompt">Store password</string>
@@ -393,10 +360,6 @@
     <string name="BarComing">Coming</string>
 
 
-    <string-array name="AcquireValues">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
     <!-- Next two arrays should be in the same order always!!! -->
     <string-array name="showLanguageOptionsValues">
         <item>nl</item>
@@ -424,11 +387,6 @@
         <item>Swedish</item>
         <item>Norwegian</item>
     </string-array>
-    <string name="favoIgnoredUnignoreShOW">Unignore Show</string>
-    <string name="searchserieUnabletoAdd">Error adding the series. Please try again. If the error persists, please submit a report.</string>
-    <string name="serieLanguagePrompt">Change language</string>
-    <string name="showOrderPrompt">TV series order</string>
-    <string name="changelog">Many many things</string>
     <string name="episodeNotFoundViaAPI">Episode not found via API</string>
     <string name="processingFavouriteShows">Processing favourite shows…</string>
     <string name="showCountFormat">%1$d shows — %2$d episodes</string>

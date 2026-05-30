@@ -4,7 +4,6 @@
     <string name="yes">Ja</string>
     <string name="no">Nei</string>
     <string name="close">Lukk</string>
-    <string name="attention">Advarsel</string>
     <string name="done">Ferdig</string>
     <string name="search">Søk</string>
 
@@ -15,7 +14,6 @@
     <string name="loginPasswordHint">Passord</string>
     <string name="loginLoginBtn">Logg inn</string>
     <string name="loginStartLogin">Logger in på MyEpisodes.com</string>
-    <string name="loginSuccessfullLogin">Inloggningen lyckades</string>
     <string name="loginLoginFailed">Feil brukernavn eller passord, forsøk igjen!</string>
     
     <!-- register form -->
@@ -32,7 +30,6 @@
     <string name="watch">Se</string>
     <string name="acquire">Hente</string>
     <string name="coming">Kommer</string>
-    <string name="cominghome">Kommer (%d)</string>
     <string name="newCominghome">Nye Kommer (%d)</string>
     <string name="watchListTitle">Liste av serier/episoder</string>
     <string name="watchListSubTitleWatch">%d episoder å se</string>
@@ -41,7 +38,6 @@
     <string name="watchListSubTitleWatchPlural">%d episoder å se</string>
     <string name="watchListSubTitleAcquirePlural">%d episoder å hente</string>
     <string name="watchListSubTitleComingPlural">%d fremtidige episoder</string>
-    <string name="watchListEmpty">Ingen episoder funnet.</string>
 
     <!-- Episode details -->
     <string name="episodeDetailsSeasonLabel">Sesong: </string>
@@ -73,10 +69,8 @@
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Laster&#8230;</string>
-    <string name="progressLoadingBody">Sender/Tar imot data</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Om&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">Lisens:</string>
     <string name="aboutWebsite">Webside:</string>
@@ -103,8 +97,6 @@
     <string name="manageShows">Håndtere TV-serier</string>
     <string name="about">Om</string>
     <string name="logout">Logg ut</string>
-    <string name="whatsNew">Nyheter</string>
-    <string name="preferences">Instillinger</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Markere alle som \"Hentet\"</string>
     <string name="menuShowMarkWatched">Markere alle som \"Sett\"</string>
@@ -114,9 +106,7 @@
     <string name="menuEpisodeMarkWatched">Marker som \"Sett\"</string>
 
     <!-- preferences Dialog -->
-    <string name="applyPreferences">Fordi instillingene er endret må episodene oppdateres nå.</string>
     <!-- Show sorting -->
-    <string name="showOrderPrompt">Sortering av serier</string>
     <string-array name="showOrderOptions">
         <item>Default</item>
         <item>Stigende</item>
@@ -131,16 +121,8 @@
         <item>Nyeste først</item>
     </string-array>
     <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Default tab å åpne</string>
-    <string name="openDefaultPromptExtra">Default tab ved start av app</string>
-    <string-array name="openDefaultTabOptions">
-            <item>Se</item>
-            <item>Hentet</item>
-            <item>Kommer</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Velg tema</string>
-    <string name="ThemePromptExtra">Velg ditt tema</string>
     <string-array name="ThemeOptions">
             <item>Lys</item>
             <item>Mørk</item>

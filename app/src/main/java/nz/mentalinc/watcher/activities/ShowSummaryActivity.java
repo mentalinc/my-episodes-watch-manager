@@ -150,7 +150,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
 
 
         //       episodeSummaryHashMap.get("episodeURL");
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
+        View appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
             Log.w(LOG_TAG, "Home button clicked.");
             Intent home = new Intent(ShowSummaryActivity.this, HomeActivity.class);

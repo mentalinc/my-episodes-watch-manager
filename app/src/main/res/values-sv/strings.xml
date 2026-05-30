@@ -5,7 +5,6 @@
     <string name="yes">Ja</string>
     <string name="no">Nej</string>
     <string name="close">Stäng</string>
-    <string name="attention">Varning</string>
     <string name="done">Klar</string>
     <string name="search">Sök</string>
 
@@ -16,7 +15,6 @@
     <string name="loginPasswordHint">Lösenord</string>
     <string name="loginLoginBtn">Inloggning</string>
     <string name="loginStartLogin">Loggar in på MyEpisodes.com</string>
-    <string name="loginSuccessfullLogin">Inloggningen lyckades</string>
     <string name="loginLoginFailed">Fel användarnamn eller lösenord, försök igen!</string>
     
 	<!-- register form -->
@@ -35,9 +33,7 @@
     <string name="acquire">Hämta</string>
     <string name="acquirehome">Hämta (%d)</string>
     <string name="coming">Kommande</string>
-    <string name="cominghome">Kommande (%d)</string>
     <string name="newCominghome">Nya Kommande (%d)</string>
-    <string name="more">Mer</string>
     <string name="watchListTitle">TV-Serier/Avsnitt</string>
     <string name="watchListSubTitleWatch">%d avsnitt att se</string>
     <string name="watchListSubTitleAcquire">%d avsnitt att hämta</string>
@@ -45,7 +41,6 @@
     <string name="watchListSubTitleWatchPlural">%d avsnitt att se</string>
     <string name="watchListSubTitleAcquirePlural">%d avsnitt att hämta</string>
     <string name="watchListSubTitleComingPlural">%d framtida avsnitt</string>
-    <string name="watchListEmpty">Inga avsnitt hittade.</string>
     <string name="watchListFull">Tak på max 200 avsnitt nått, försölå på 200+ i inställningarna.</string>
 
     <!-- Episode details -->
@@ -81,14 +76,11 @@
 
 	<!-- random episode picker -->
 	<string name="randompicker">Slumpgenerera avsnitt</string>
-	<string name="randompickershort">Slumpgenerator</string>
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Laddar&#8230;</string>
-    <string name="progressLoadingBody">Skickar/Tar emot data</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Om&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">Lisens:</string>
     <string name="aboutWebsite">Website:</string>
@@ -119,8 +111,6 @@
     <string name="manageShows">Hantera TV-serier</string>
     <string name="about">Om</string>
     <string name="logout">Logga ut</string>
-    <string name="whatsNew">Nyheter</string>
-    <string name="preferences">Inställningar</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Markera alla som \"Hämtat\"</string>
     <string name="menuShowMarkWatched">Markera alla som \"Sett\"</string>
@@ -131,14 +121,11 @@
     <string name="menuTweet">Posta till Twitter!</string>
 
   <!-- preferences Dialog -->
-    <string name="generalPreferences">Allmänt</string>
     <string name="showPreferences">TV-Serier</string>
     <string name="orderPreferences">Sortering</string>
     <string name="disablePreferences">Avaktivera</string>
-    <string name="languagePreferences">Språk</string>
 
     <!-- preferences -->
-    <string name="applyPreferences">För att spara inställningarna, starta om programmet, eller ladda om listan med avsnitt.</string>
     <!-- Show sorting -->
     <string name="showWatchOrderPrompt">Sortering av sedda serier</string>
     <string name="showAcquireOrderPrompt">Sortering av hämtade serier</string>
@@ -169,16 +156,8 @@
             <item>Bara gårdagens</item>
     </string-array>
     <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Startflik</string>
-    <string name="openDefaultPromptExtra">Flik att öppna vid start av app</string>
-    <string-array name="openDefaultTabOptions">
-            <item>Se</item>
-            <item>Hämta</item>
-            <item>Kommande</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Välj tema</string>
-    <string name="ThemePromptExtra">Välj ditt tema</string>
     <string-array name="ThemeOptions">
             <item>Ljust</item>
             <item>Mörkt</item>

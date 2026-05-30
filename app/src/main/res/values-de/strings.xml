@@ -5,7 +5,6 @@
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="close">Schließen</string>
-    <string name="attention">Achtung</string>
     <string name="done">Fertig</string>
     <string name="search">Suche</string>
 
@@ -16,7 +15,6 @@
     <string name="loginPasswordHint">Passwort</string>
     <string name="loginLoginBtn">Anmelden</string>
     <string name="loginStartLogin">Anmeldung bei MyEpisodes.com</string>
-    <string name="loginSuccessfullLogin">Erfolgreich angemeldet</string>
     <string name="loginLoginFailed">Benutzer oder Passwort falsch, bitte nochmal versuchen!</string>
 
 	<!-- register form -->
@@ -35,9 +33,7 @@
     <string name="acquire">Erwerben</string>
     <string name="acquirehome">Erwerben (%d)</string>
     <string name="coming">Kommend</string>
-    <string name="cominghome">Kommend (%d)</string>
     <string name="newCominghome">Neue Kommend (%d)</string>
-    <string name="more">Mehr</string>
     <string name="watchListTitle">Liste der Serien/Folgen</string>
     <string name="watchListSubTitleWatch">%d Folge zu schauen</string>
     <string name="watchListSubTitleAcquire">%d Folge zu erwerben</string>
@@ -45,7 +41,6 @@
     <string name="watchListSubTitleWatchPlural">%d Folgen zu schauen</string>
     <string name="watchListSubTitleAcquirePlural">%d Folgen zu erwerben</string>
     <string name="watchListSubTitleComingPlural">%d zukünftige Folgen</string>
-    <string name="watchListEmpty">Keine Folgen gefunden.</string>
     <string name="watchListFull">Limit von 200 Folgen wurde erreicht, erwäge 200+ Folgen in den Optionen zu aktivieren.</string>
 
     <!-- Episode details -->
@@ -81,14 +76,11 @@
 
     <!-- random episode picker -->
     <string name="randompicker">Zufalls-Folgen-Wähler</string>
-    <string name="randompickershort">Zufallswähler</string>
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Lädt&#8230;</string>
-    <string name="progressLoadingBody">Sende/Empfange Daten</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Info&#8230;</string>
     <string name="aboutVersion">Version:</string>
     <string name="aboutLicense">Lizenz:</string>
     <string name="aboutWebsite">Webseite:</string>
@@ -119,8 +111,6 @@
     <string name="manageShows">Serien verwalten</string>
     <string name="about">Info</string>
     <string name="logout">Abmelden</string>
-    <string name="whatsNew">Was ist neu?</string>
-    <string name="preferences">Einstellungen</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Markiere alle Folgen als Erworben</string>
     <string name="menuShowMarkWatched">Markiere alle Folgen als Gesehen</string>
@@ -131,14 +121,11 @@
     <string name="menuTweet">Tweeten!</string>
 
 	<!-- preferences titles -->
-    <string name="generalPreferences">Allgemein</string>
     <string name="showPreferences">Serien</string>
     <string name="orderPreferences">Anordnung</string>
     <string name="disablePreferences">Deaktivieren</string>
-    <string name="languagePreferences">Sprache</string>
-	
+
     <!-- preferences -->
-    <string name="applyPreferences">Da Einstellungen geändert wurden, werden die Folgen jetzt aktualisiert!</string>
     <!-- Show sorting -->
 	<string name="showWatchOrderPrompt">Anordnung der gesehenen Serien</string>
     <string name="showAcquireOrderPrompt">Anordnung der erworbenen Serien</string>
@@ -169,16 +156,8 @@
             <item>Nur von gestern</item>
     </string-array>
     <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Standard Tab</string>
-    <string name="openDefaultPromptExtra">Aktiver Tab nach Programmstart</string>
-    <string-array name="openDefaultTabOptions">
-            <item>Schauen</item>
-            <item>Erwerben</item>
-            <item>Kommend</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Wähle Farbe</string>
-    <string name="ThemePromptExtra">Selektiere deine Farbe</string>
     <string-array name="ThemeOptions">
             <item>Hell</item>
             <item>Dunkel</item>

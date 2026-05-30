@@ -5,7 +5,6 @@
     <string name="yes">Igen</string>
     <string name="no">Nem</string>
     <string name="close">Bezárás</string>
-    <string name="attention">Figyelem</string>
     <string name="done">Kész</string>
     <string name="search">Keresés</string>
 
@@ -16,7 +15,6 @@
     <string name="loginPasswordHint">Jelszó</string>
     <string name="loginLoginBtn">Bejelentkezés</string>
     <string name="loginStartLogin">Bejelentkezés a MyEpisodes.com-ra</string>
-    <string name="loginSuccessfullLogin">Sikeres bejelentkezés</string>
     <string name="loginLoginFailed">A felhasználónév vagy a jelszó hibás, próbáld meg újra!</string>
     
 	<!-- register form -->
@@ -35,9 +33,7 @@
     <string name="acquire">Beszerzendő</string>
 	<string name="acquirehome">Beszerzendő (%d)</string>
     <string name="coming">Várható</string>
-    <string name="cominghome">Várható (%d)</string>
     <string name="newCominghome">Új Várható (%d)</string>
-	<string name="more">Egyebek</string>
     <string name="watchListTitle">Műsorok/részek listája</string>
     <string name="watchListSubTitleWatch">%d megnézendő rész</string>
     <string name="watchListSubTitleAcquire">%d beszerzendő rész</string>
@@ -45,8 +41,7 @@
     <string name="watchListSubTitleWatchPlural">%d megnézendő rész</string>
     <string name="watchListSubTitleAcquirePlural">%d beszerzendő rész</string>
     <string name="watchListSubTitleComingPlural">%d jövőbeni rész</string>
-    <string name="watchListEmpty">Nincs egy rész se.</string>
-	<string name="watchListFull">200 rész megjelenítve, esetleg engedélyezd a 200+ módot a beállításoknál.</string>
+    <string name="watchListFull">200 rész megjelenítve, esetleg engedélyezd a 200+ módot a beállításoknál.</string>
 
     <!-- Episode details -->
 	<string name="details">Részletek</string>
@@ -81,14 +76,11 @@
 
 	<!-- random episode picker -->
 	<string name="randompicker">Véletlen Rész-választó</string>
-	<string name="randompickershort">Véletlen rész</string>
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Betöltés&#8230;</string>
-    <string name="progressLoadingBody">Adatok küldése/fogadása</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Névjegy</string>
     <string name="aboutVersion">Verzió:</string>
     <string name="aboutLicense">Licensz:</string>
     <string name="aboutWebsite">Honlap:</string>
@@ -119,8 +111,6 @@
     <string name="manageShows">Műsorkezelés</string>
     <string name="about">Névjegy</string>
     <string name="logout">Kijelentkezés</string>
-    <string name="whatsNew">Változások</string>
-    <string name="preferences">Beállítások</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Mindegyik részt beszereztem</string>
     <string name="menuShowMarkWatched">Mindegyik részt megnéztem</string>
@@ -131,14 +121,11 @@
 	<string name="menuTweet">Tweet erről!</string>
 	
 	<!-- preferences titles -->
-    <string name="generalPreferences">Általános</string>
     <string name="showPreferences">Műsorok</string>
     <string name="orderPreferences">Sorrend</string>
     <string name="disablePreferences">Letiltás</string>
-    <string name="languagePreferences">Nyelv</string>
 
     <!-- preferences Dialog -->
-    <string name="applyPreferences">Mivel a beállítások megváltoztak, a részek listája most frissül!</string>
     <!-- Show sorting -->
     <string name="showWatchOrderPrompt">Megnézendők sorrendje</string>
     <string name="showAcquireOrderPrompt">Beszerzendők sorrendje</string>
@@ -169,16 +156,8 @@
             <item>Csak a tegnapiak</item>
     </string-array>
     <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Kezdőfül beállítása</string>
-    <string name="openDefaultPromptExtra">Az alkalmazás indulásakor megnyíló fül</string>
-    <string-array name="openDefaultTabOptions">
-            <item>Megnézendő</item>
-            <item>Beszerzendő</item>
-            <item>Várható</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Témaválasztás</string>
-    <string name="ThemePromptExtra">Válassz témát!</string>
     <string-array name="ThemeOptions">
             <item>Világos</item>
             <item>Sötét</item>

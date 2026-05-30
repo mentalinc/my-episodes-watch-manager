@@ -5,7 +5,6 @@
     <string name="yes">Jā</string>
     <string name="no">Nē</string>
     <string name="close">Aizvērt</string>
-    <string name="attention">Uzmanību</string>
     <string name="done">Darīts</string>
     <string name="search">Meklēt</string>
     
@@ -16,7 +15,6 @@
     <string name="loginPasswordHint">Parole</string>
     <string name="loginLoginBtn">Ieiet</string>
     <string name="loginStartLogin">Notiek autorizācija MyEpisodes.com</string>
-    <string name="loginSuccessfullLogin">Autorizācija notika veiksmīgi!</string>
     <string name="loginLoginFailed">Lietotājvārds vai parole nav pareizi, mēģini vēlreiz!</string>
     
 	<!-- register form -->
@@ -33,7 +31,6 @@
     <string name="watch">Jāapskata</string>
     <string name="acquire">Jāiegūst</string>
     <string name="coming">Drīzumā</string>
-    <string name="cominghome">Drīzumā (%d)</string>
     <string name="newCominghome">Jauni Drīzumā (%d)</string>
     <string name="watchListTitle">Pārraižu un sēriju saraksts</string>
     <string name="watchListSubTitleWatch">%d apskatāmā sērija</string>
@@ -42,7 +39,6 @@
     <string name="watchListSubTitleWatchPlural">%d apskatāmās sērijas</string>
     <string name="watchListSubTitleAcquirePlural">%d iegūstamās sērijas</string>
     <string name="watchListSubTitleComingPlural">%d drīzumā sērijas</string>
-    <string name="watchListEmpty">Neviena sērija nav atrasta.</string>
 
     <!-- Episode details -->
     <string name="episodeDetailsSeasonLabel">Sezona: </string>
@@ -74,10 +70,8 @@
 
     <!-- progressDialog -->
     <string name="progressLoadingTitle">Ielāde&#8230;</string>
-    <string name="progressLoadingBody">Dati tiek nosūtīti/saņemti</string>
 
     <!-- aboutDialog -->
-    <string name="aboutTitle">Informācija par programmu&#8230;</string>
     <string name="aboutVersion">Versija:</string>
     <string name="aboutLicense">Licence:</string>
     <string name="aboutWebsite">Mājas lapa:</string>
@@ -97,8 +91,6 @@
     <string name="manageShows">Pārraižu vadība</string>
     <string name="about">Par programmu</string>
     <string name="logout">Izeja</string>
-    <string name="whatsNew">Kas jauns</string>
-    <string name="preferences">Papildiespējas</string>
     <!-- show specific menu -->
     <string name="menuShowMarkAcquired">Atzīmēt visas sērijas kā iegūtas</string>
     <string name="menuShowMarkWatched">Atzīmēt visas sērijas kā apskatītas</string>
@@ -108,9 +100,7 @@
     <string name="menuEpisodeMarkWatched">Atzīmēt kā apskatītu</string>
 
     <!-- preferences Dialog -->
-    <string name="applyPreferences">Ņemot vērā to, ka tika veiktas izmaiņas, sēriju saraksts tiks atjaunināts!</string>
     <!-- Show sorting -->
-    <string name="showOrderPrompt">Raidījumu secība</string>
     <string-array name="showOrderOptions">
         <item>Default</item>
         <item>Ascending</item>
@@ -125,16 +115,8 @@
         <item>Sākt ar jaunāko</item>
     </string-array>
     <!-- Default opening tab -->
-    <string name="openDefaultPrompt">Sadaļa, kuru atvērt pēc noklusējuma</string>
-    <string name="openDefaultPromptExtra">Sadaļa, kuru izvēlēties pēc noklusējuma atverot aplikāciju</string>
-    <string-array name="openDefaultTabOptions">
-            <item>Apskatīt</item>
-            <item>Iegūt</item>
-            <item>Drīzumā</item>
-    </string-array>
     <!-- Change Theme -->
     <string name="ThemePrompt">Izvēlēties izskatu</string>
-    <string name="ThemePromptExtra">Atzīmēt izvēlēto izskatu</string>
     <string-array name="ThemeOptions">
             <item>Gaiša</item>
             <item>Tumša</item>
