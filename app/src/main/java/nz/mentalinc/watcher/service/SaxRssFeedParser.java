@@ -19,15 +19,13 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.util.Calendar;
-import java.util.Date;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.domain.Feed;
+import nz.mentalinc.watcher.utils.CacheUtils;
 import nz.mentalinc.watcher.domain.FeedItem;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.exception.FeedUrlParsingException;
@@ -252,7 +250,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             return null;
         }
         if (MyEpisodeConstants.isOnline()) {
-            deleteOldCacheFiles(file);
+            CacheUtils.deleteOldCacheFiles(file);
         } else {
             Log.d(LOG_TAG, "Offline, Cache files not checked for aging");
         }
@@ -285,55 +283,6 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             return writer.toString();
         } else {
             return "";
-
-        }
-    }
-
-    private void deleteOldCacheFiles(File filetoDelete) {
-        if (!MyEpisodeConstants.CACHE_EPISODES_ENABLED || MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0")) {
-            Log.d(LOG_TAG, "Cache aging is disabled. Cache files not deleted");
-        } else {
-            Date lastModDate = new Date(filetoDelete.lastModified());
-            Date Now = new Date();
-            Calendar ModDate = Calendar.getInstance();
-            Calendar NowDate = Calendar.getInstance();
-            ModDate.setTime(lastModDate);
-            NowDate.setTime(Now);
-            long milliseconds1 = ModDate.getTimeInMillis();
-            long milliseconds2 = NowDate.getTimeInMillis();
-            long diff = milliseconds2 - milliseconds1;
-            long diffHours = diff / (60 * 60 * 1000);
-            long diffDays = diff / (24 * 60 * 60 * 1000);
-            Log.d(LOG_TAG, "Time in hours: " + diffHours + " hours.");
-            Log.d(LOG_TAG, "Time in days: " + diffDays + " days.");
-            Log.d(LOG_TAG, "Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) + " days " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
-            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate);
-            if (diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)) {
-                Log.d(LOG_TAG, "Delete File too many DAYS old...");
-                deleteFile(filetoDelete);
-            } else if (Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) < 1) {
-                if (diffHours >= 6 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.25")) {
-                    Log.d(LOG_TAG, "Delete File too many HOURS old, Greater than 6...");
-                    deleteFile(filetoDelete);
-                }
-                if (diffHours >= 12 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.5")) {
-                    Log.d(LOG_TAG, "Delete File too many HOURS old, Greater than 12...");
-                    deleteFile(filetoDelete);
-                }
-            } else {
-                Log.d(LOG_TAG, filetoDelete.getName() + " cache not deleted. Cache still current.");
-
-            }
-        }
-    }
-
-    private void deleteFile(File filetoDelete) {
-        if (filetoDelete.exists()) {
-            if (filetoDelete.delete()) {
-                Log.d(LOG_TAG, filetoDelete.getName() + " deleted");
-            } else {
-                Log.e(LOG_TAG, "ERROR deleting " + filetoDelete.getName());
-            }
         }
     }
 }

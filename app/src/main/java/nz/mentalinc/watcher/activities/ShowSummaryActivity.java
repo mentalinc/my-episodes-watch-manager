@@ -107,7 +107,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
         data = this.getIntent().getExtras();
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
-        episode = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
+        episode = Objects.requireNonNull(data).getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
         String title = data.getString(ActivityConstants.EXTRA_TITLE);
 
         //showDetail = new Show(title, showMyEpisodeID);

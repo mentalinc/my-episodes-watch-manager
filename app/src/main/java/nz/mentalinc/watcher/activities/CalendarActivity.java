@@ -229,24 +229,24 @@ public class CalendarActivity extends AppCompatActivity {
 
         for (Episode ep : controller.getEpisodes(EpisodeType.EPISODES_TO_WATCH)) {
             allEpisodes.add(new CalendarEpisode(ep, EpisodeType.EPISODES_TO_WATCH));
-            if (ep.getAirDate() != null) {
-                String dateStr = sdf.format(ep.getAirDate());
+            if (ep.getAirDate() != 0) {
+                String dateStr = sdf.format(new Date(ep.getAirDate()));
                 episodeDateSet.add(dateStr);
                 watchDateSet.add(dateStr);
             }
         }
         for (Episode ep : controller.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE)) {
             allEpisodes.add(new CalendarEpisode(ep, EpisodeType.EPISODES_TO_ACQUIRE));
-            if (ep.getAirDate() != null) {
-                String dateStr = sdf.format(ep.getAirDate());
+            if (ep.getAirDate() != 0) {
+                String dateStr = sdf.format(new Date(ep.getAirDate()));
                 episodeDateSet.add(dateStr);
                 acquireDateSet.add(dateStr);
             }
         }
         for (Episode ep : controller.getEpisodes(EpisodeType.EPISODES_COMING)) {
             allEpisodes.add(new CalendarEpisode(ep, EpisodeType.EPISODES_COMING));
-            if (ep.getAirDate() != null) {
-                String dateStr = sdf.format(ep.getAirDate());
+            if (ep.getAirDate() != 0) {
+                String dateStr = sdf.format(new Date(ep.getAirDate()));
                 episodeDateSet.add(dateStr);
                 comingDateSet.add(dateStr);
             }
@@ -271,8 +271,8 @@ public class CalendarActivity extends AppCompatActivity {
 
         Map<String, Integer> dayCounts = new HashMap<>();
         for (CalendarEpisode ce : allEpisodes) {
-            if (ce.episode.getAirDate() != null) {
-                String dateStr = sdf.format(ce.episode.getAirDate());
+            if (ce.episode.getAirDate() != 0) {
+                String dateStr = sdf.format(new Date(ce.episode.getAirDate()));
                 dayCounts.merge(dateStr, 1, Integer::sum);
             }
         }
@@ -319,8 +319,8 @@ public class CalendarActivity extends AppCompatActivity {
 
         List<CalendarEpisode> filtered = new ArrayList<>();
         for (CalendarEpisode ce : allEpisodes) {
-            if (ce.episode.getAirDate() != null) {
-                String episodeDate = sdf.format(ce.episode.getAirDate());
+            if (ce.episode.getAirDate() != 0) {
+                String episodeDate = sdf.format(new Date(ce.episode.getAirDate()));
                 if (episodeDate.equals(targetDate)) {
                     switch (ce.type) {
                         case EPISODES_TO_WATCH:

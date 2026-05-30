@@ -266,7 +266,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
         switch (listMode) {
             case EPISODES_BY_SHOW:
-                return shows.get(listGroupId).getEpisodes().get(0).getAirDate();
+                return new Date(shows.get(listGroupId).getEpisodes().get(0).getAirDate());
             case EPISODES_BY_DATE:
                 Iterator<Map.Entry<Date, List<Episode>>> iter = listedAirDates.entrySet().iterator();
                 int i = 0;
@@ -421,7 +421,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         String markEpisode = Objects.requireNonNull(data).getString(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE);
 
         if (markEpisode != null && !Objects.equals(markEpisode, "")) {
-            Episode episode = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
+            Episode episode = data.getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
 
             if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)) {
                 markEpisodes(0, episode);
@@ -548,7 +548,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
                 Map<Date, Integer> workingMap = new TreeMap<>();
                 for (Show show : shows) {
                     for (Episode episode : show.getEpisodes()) {
-                        Date airDate = episode.getAirDate();
+                        Date airDate = new Date(episode.getAirDate());
                         if (!workingMap.containsKey(airDate)) {
                             workingMap.put(airDate, 1);
                         } else {
@@ -593,7 +593,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
                     List<Map<String, String>> subListSecondLvl = new ArrayList<>();
                     for (Show show : shows) {
                         for (Episode episode : show.getEpisodes()) {
-                            if (listedAirDate.equals(episode.getAirDate())) {
+                            if (listedAirDate.getTime() == episode.getAirDate()) {
                                 HashMap<String, String> map = new HashMap<>();
                                 map.put(EPISODE_ROW_CHILD_TITLE, episode.getShowName());
                                 map.put(EPISODE_ROW_CHILD_DETAIL, "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());

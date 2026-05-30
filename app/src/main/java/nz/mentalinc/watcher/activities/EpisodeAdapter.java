@@ -16,6 +16,7 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +118,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
             episodeName.setText(episodeFullNumbering);
 
             TextView episodeAirTime = holder.episodetime;
-            episodeAirTime.setText(DateFormat.getDateInstance().format(episode.getAirDate()));
+            episodeAirTime.setText(DateFormat.getDateInstance().format(new Date(episode.getAirDate())));
 
             TextView textViewEpisodeShowsRunTime = holder.episodeRuntime;
             String myepisodeID = episode.getMyEpisodeID();

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -130,7 +131,7 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
             String episodesRemaining;
 
            /* Date today = Calendar.getInstance().getTime();
-            if(show.getFirstEpisode().getAirDate().after(today)){
+            if(new Date(show.getFirstEpisode().getAirDate()).after(today)){
                 episodesRemaining = show.getNumberEpisodes() + " episodes coming";
             }else{
                 episodesRemaining = show.getNumberEpisodes() + " episodes remaining";

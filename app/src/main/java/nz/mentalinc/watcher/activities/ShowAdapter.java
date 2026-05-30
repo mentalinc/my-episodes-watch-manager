@@ -124,13 +124,13 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             nextEpisode.setText(episodeFullNumbering);
 
             TextView episodeAirTime = holder.episodetime;
-            episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
+            episodeAirTime.setText(DateFormat.getDateInstance().format(new Date(show.getFirstEpisode().getAirDate())));
 
             TextView textViewShowsRemaining = holder.textViewShowsRemaining;
             String episodesRemaining;
 
             Date today = Calendar.getInstance().getTime();
-            if (show.getFirstEpisode().getAirDate().before(today)) {
+            if (new Date(show.getFirstEpisode().getAirDate()).before(today)) {
                 episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
             } else {
                 episodesRemaining = show.getNumberEpisodes() + " episodes coming";

@@ -132,7 +132,7 @@ public class RandomEpPickerActivity extends Activity {
         seasonText.setText(seasonString);
         episodeText.setText(episodeString);
 
-        Date airdate = random.getAirDate();
+        Date airdate = new Date(random.getAirDate());
         String formattedAirDate;
         if (airdate != null) {
             formattedAirDate = DateUtil.formatDateLong(airdate);

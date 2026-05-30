@@ -104,7 +104,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
         Bundle data = this.getIntent().getExtras();
         title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
 
-        episode = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
+        episode = Objects.requireNonNull(data).getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
 
@@ -188,7 +188,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
         seasonText.setText(ep.getSeasonString());
         episodeText.setText(ep.getEpisodeString());
 
-        Date airdate = ep.getAirDate();
+        Date airdate = new Date(ep.getAirDate());
         String formattedAirDate;
         if (airdate != null) {
             formattedAirDate = DateUtil.formatDateLong(airdate);

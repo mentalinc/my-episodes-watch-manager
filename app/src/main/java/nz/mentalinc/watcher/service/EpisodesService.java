@@ -30,6 +30,7 @@ import java.util.Objects;
 
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
+import nz.mentalinc.watcher.utils.CacheUtils;
 import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.database.SeriesDAO;
 import nz.mentalinc.watcher.domain.Episode;
@@ -170,7 +171,7 @@ public class EpisodesService {
 
                     // Log.d(LOG_TAG, "airDateString: " + airDateString);
 
-                    episode.setAirDate(airDate);
+                    episode.setAirDate(airDate != null ? airDate.getTime() : 0);
                     //         String guid = item.getGuid();
                     //           String myEpisodeID = item.getGuid().split("-")[0].trim();
                     episode.setMyEpisodeID(item.getGuid().split("-")[0].trim());
@@ -257,7 +258,7 @@ public class EpisodesService {
 
             Log.d(LOG_TAG, "Save file Path" + MyEpisodeConstants.CONTEXT.getFilesDir().toString());
             if (MyEpisodeConstants.isOnline()) {
-                deleteOldCacheFiles(file);
+                CacheUtils.deleteOldCacheFiles(file);
             } else {
                 Log.d(LOG_TAG, "Offline, Cache files not checked for aging");
             }
@@ -293,53 +294,6 @@ public class EpisodesService {
         }
 
         return EpisodeXML.toString();
-    }
-
-    private void deleteFile(File filetoDelete) {
-        if (filetoDelete.exists()) {
-            if (filetoDelete.delete()) {
-                Log.d(LOG_TAG, filetoDelete.getName() + " deleted");
-            } else {
-                Log.e(LOG_TAG, "ERROR deleting " + filetoDelete.getName());
-            }
-        }
-    }
-
-    private void deleteOldCacheFiles(File filetoDelete) {
-        if (!MyEpisodeConstants.CACHE_EPISODES_ENABLED || MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0")) {
-            Log.d(LOG_TAG, "Cache aging is disabled. Cache files not deleted");
-        } else {
-            Date lastModDate = new Date(filetoDelete.lastModified());
-            Date Now = new Date();
-            Calendar ModDate = Calendar.getInstance();
-            Calendar NowDate = Calendar.getInstance();
-            ModDate.setTime(lastModDate);
-            NowDate.setTime(Now);
-            long milliseconds1 = ModDate.getTimeInMillis();
-            long milliseconds2 = NowDate.getTimeInMillis();
-            long diff = milliseconds2 - milliseconds1;
-            long diffHours = diff / (60 * 60 * 1000);
-            long diffDays = diff / (24 * 60 * 60 * 1000);
-            Log.d(LOG_TAG, "Time in hours: " + diffHours + " hours.");
-            Log.d(LOG_TAG, "Time in days: " + diffDays + " days.");
-            Log.d(LOG_TAG, "Cache age setting: " + Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) + " days " + MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE);
-            Log.d(LOG_TAG, "Filename: " + filetoDelete.getName() + " Diff: " + diffDays + " last modified @ : " + lastModDate);
-            if (diffDays >= Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE)) {
-                Log.d(LOG_TAG, "Delete File too many DAYS old...");
-                deleteFile(filetoDelete);
-            } else if (Double.parseDouble(MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE) < 1) {
-                if (diffHours >= 6 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.25")) {
-                    Log.d(LOG_TAG, "Delete File too many HOURS old, Greater than 6...");
-                    deleteFile(filetoDelete);
-                }
-                if (diffHours >= 12 && MyEpisodeConstants.CACHE_EPISODES_CACHE_AGE.equalsIgnoreCase("0.5")) {
-                    Log.d(LOG_TAG, "Delete File too many HOURS old, Greater than 12...");
-                    deleteFile(filetoDelete);
-                }
-            } else {
-                Log.d(LOG_TAG, filetoDelete.getName() + " cache not deleted. Cache still current.");
-            }
-        }
     }
 
     public void watchedEpisode(Episode episode, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
@@ -398,8 +352,7 @@ public class EpisodesService {
                 .replace(MyEpisodeConstants.MYEPISODES_UPDATE_PAGE_SEASON_REPLACEMENT, String.valueOf(episode.getSeason()))
                 .replace(MyEpisodeConstants.MYEPISODES_UPDATE_PAGE_SHOWID_REPLACEMENT, episode.getMyEpisodeID());
 
-        try {
-            Response response = HttpClientProvider.getInstance().get(urlRep);
+        try (Response response = HttpClientProvider.getInstance().get(urlRep)) {
             if (!response.isSuccessful()) {
                 String message = "Updating the show status failed with HTTP " + response.code() + " for URL " + urlRep;
                 Log.w(LOG_TAG, message);
@@ -610,159 +563,146 @@ public class EpisodesService {
     private String[] getDaysBack() {
         String[] controlPanelSettings = new String[20];
 
-
-        //control panel settings to read.
-        String eps_timezone;
-        String eps_time_offset;
-        String dateformat;
-        String timeformat;
-        String eps_number_format;
-        String ce_dback;
-        String ce_dforward;
-        String colorpast1;
-        String colorpast2;
-        String colortoday;
-        String color1;
-        String color2;
-        String colorhover;
-        String sw_acquire_delay;
-        String cal_firstday;
-        String action;
-        String loginpage;
-        String sw_hidefuture;
-        String sw_presentonly;
-        String sw_currentseasononly;
-
-        action = "Save";
+        String action = "Save";
 
         try {
             String response = HttpClientProvider.getInstance().getBody(MyEpisodeConstants.MYEPISODES_CONTROL_PANEL);
-            String settingsHTML = response;
+            String html = response;
+            int cursor = 0;
+            int idx;
 
-            ce_dback = settingsHTML.substring(settingsHTML.indexOf("name=\"ce_dback\" value=\"") + 23);
-                    ce_dback = ce_dback.substring(0, ce_dback.indexOf("\""));
+            idx = html.indexOf("name=\"ce_dback\" value=\"", cursor);
+            cursor = idx + 23;
+            String ce_dback = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    eps_time_offset = settingsHTML.substring(settingsHTML.indexOf("name=\"eps_time_offset\" value=\"") + 30);
-                    eps_time_offset = eps_time_offset.substring(0, eps_time_offset.indexOf("\""));
+            idx = html.indexOf("name=\"eps_time_offset\" value=\"", cursor);
+            cursor = idx + 30;
+            String eps_time_offset = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    dateformat = settingsHTML.substring(settingsHTML.indexOf("name=\"dateformat\" value=\"") + 25);
-                    dateformat = dateformat.substring(0, dateformat.indexOf("\""));
+            idx = html.indexOf("name=\"dateformat\" value=\"", cursor);
+            cursor = idx + 25;
+            String dateformat = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    timeformat = settingsHTML.substring(settingsHTML.indexOf("name=\"timeformat\" value=\"") + 25);
-                    timeformat = timeformat.substring(0, timeformat.indexOf("\""));
+            idx = html.indexOf("name=\"timeformat\" value=\"", cursor);
+            cursor = idx + 25;
+            String timeformat = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    eps_number_format = settingsHTML.substring(settingsHTML.indexOf("name=\"eps_number_format\" value=\"") + 32);
-                    eps_number_format = eps_number_format.substring(0, eps_number_format.indexOf("\""));
+            idx = html.indexOf("name=\"eps_number_format\" value=\"", cursor);
+            cursor = idx + 32;
+            String eps_number_format = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    ce_dforward = settingsHTML.substring(settingsHTML.indexOf("name=\"ce_dforward\" value=\"") + 26);
-                    ce_dforward = ce_dforward.substring(0, ce_dforward.indexOf("\""));
+            idx = html.indexOf("name=\"ce_dforward\" value=\"", cursor);
+            cursor = idx + 26;
+            String ce_dforward = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    colorpast1 = settingsHTML.substring(settingsHTML.indexOf("'link1');\" type=\"text\" value=\"") + 30);
-                    colorpast1 = colorpast1.substring(0, colorpast1.indexOf("\""));
+            idx = html.indexOf("'link1');\" type=\"text\" value=\"", cursor);
+            cursor = idx + 30;
+            String colorpast1 = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    colorpast2 = settingsHTML.substring(settingsHTML.indexOf("'link2');\" type=\"text\" value=\"") + 30);
-                    colorpast2 = colorpast2.substring(0, colorpast2.indexOf("\""));
+            idx = html.indexOf("'link2');\" type=\"text\" value=\"", cursor);
+            cursor = idx + 30;
+            String colorpast2 = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    colortoday = settingsHTML.substring(settingsHTML.indexOf("'link3');\" type=\"text\" value=\"") + 30);
-                    colortoday = colortoday.substring(0, colortoday.indexOf("\""));
+            idx = html.indexOf("'link3');\" type=\"text\" value=\"", cursor);
+            cursor = idx + 30;
+            String colortoday = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    color1 = settingsHTML.substring(settingsHTML.indexOf("'link4');\" type=\"text\" value=\"") + 30);
-                    color1 = color1.substring(0, color1.indexOf("\""));
+            idx = html.indexOf("'link4');\" type=\"text\" value=\"", cursor);
+            cursor = idx + 30;
+            String color1 = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    color2 = settingsHTML.substring(settingsHTML.indexOf("'link5');\" type=\"text\" value=\"") + 30);
-                    color2 = color2.substring(0, color2.indexOf("\""));
+            idx = html.indexOf("'link5');\" type=\"text\" value=\"", cursor);
+            cursor = idx + 30;
+            String color2 = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    colorhover = settingsHTML.substring(settingsHTML.indexOf("'link6');\" type=\"text\" value=\"") + 30);
-                    colorhover = colorhover.substring(0, colorhover.indexOf("\""));
+            idx = html.indexOf("'link6');\" type=\"text\" value=\"", cursor);
+            cursor = idx + 30;
+            String colorhover = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    sw_acquire_delay = settingsHTML.substring(settingsHTML.indexOf("name=\"sw_acquire_delay\" value=\"") + 31);
-                    sw_acquire_delay = sw_acquire_delay.substring(0, sw_acquire_delay.indexOf("\""));
+            idx = html.indexOf("name=\"sw_acquire_delay\" value=\"", cursor);
+            cursor = idx + 31;
+            String sw_acquire_delay = html.substring(cursor, html.indexOf("\"", cursor));
+            cursor = html.indexOf("\"", cursor) + 1;
 
-                    cal_firstday = settingsHTML.substring(settingsHTML.indexOf("name=\"cal_firstday\""));
-                    cal_firstday = cal_firstday.substring(cal_firstday.indexOf("selected") - 3, cal_firstday.indexOf("selected") - 2);
+            idx = html.indexOf("name=\"cal_firstday\"", cursor);
+            cursor = idx;
+            String cal_firstday = html.substring(html.indexOf("selected", cursor) - 3, html.indexOf("selected", cursor) - 2);
 
-                    //todo figure out whats wrong with this
-                    /*
+            idx = html.indexOf("name=\"eps_timezone\"", cursor);
+            String eps_timezone = html.substring(idx);
+            int timeZoneSelectedIndex = eps_timezone.indexOf("</select>");
+            String timezoneRange = html.substring(idx, idx + timeZoneSelectedIndex);
+            String[] splitTimeZones = timezoneRange.split("</option>");
+            for (String a : splitTimeZones) {
+                int selectedIndex = a.indexOf("selected");
+                if (selectedIndex > 1) {
+                    eps_timezone = a.substring(a.indexOf(">") + 1);
+                }
+            }
+            cursor = idx + timeZoneSelectedIndex + "</select>".length();
 
-                    ERROR HERE SO IT ALL FAILS NEED TO CHECK WHATS IS HAPPENNING
+            idx = html.indexOf("name=\"loginpage\"", cursor);
+            cursor = idx + 17;
+            int loginpageSelectedIndex = html.indexOf("</select>", cursor);
+            String loginpageRange = html.substring(cursor, loginpageSelectedIndex);
+            String loginpage = "";
+            String[] splitLoginpage = loginpageRange.split("</option>");
+            for (String a : splitLoginpage) {
+                int selectedIndex = a.indexOf("selected");
+                if (selectedIndex > 1) {
+                    loginpage = a.substring(a.indexOf("=") + 2);
+                    loginpage = loginpage.substring(0, loginpage.indexOf("\""));
+                }
+            }
+            cursor = loginpageSelectedIndex + "</select>".length();
 
-                    Not logged in so fails as there is only 1 default option
+            idx = html.indexOf("name=\"sw_hidefuture\"", cursor);
+            String sw_hidefuture = html.substring(idx + 21, idx + 28).trim();
+            sw_hidefuture = sw_hidefuture.equals(CHECKED) ? "on" : null;
+            cursor = idx + 28;
 
-                     */
+            idx = html.indexOf("name=\"sw_presentonly\"", cursor);
+            String sw_presentonly = html.substring(idx + 22, idx + 29).trim();
+            sw_presentonly = sw_presentonly.equals(CHECKED) ? "on" : null;
+            cursor = idx + 29;
 
-                    int timeZoneIndex = settingsHTML.indexOf("name=\"eps_timezone\"");
-                    eps_timezone = settingsHTML.substring(timeZoneIndex);
-                    int timeZoneSelectedIndex = eps_timezone.indexOf("</select>");
-                    String TimezoneRange = settingsHTML.substring(timeZoneIndex, timeZoneIndex + timeZoneSelectedIndex);
-                    String[] SplitTimeZones = TimezoneRange.split("</option>");
+            idx = html.indexOf("name=\"sw_currentseasononly\"", cursor);
+            String sw_currentseasononly = html.substring(idx + 28, idx + 35).trim();
+            sw_currentseasononly = sw_currentseasononly.equals(CHECKED) ? "on" : null;
+            cursor = idx + 35;
 
-                    for (String a : SplitTimeZones) {
-                        int selectedIndex = a.indexOf("selected");
-                        if (selectedIndex > 1) {
-                            eps_timezone = a.substring(a.indexOf(">") + 1);
-                        }
-                    }
-
-
-                    //                   eps_timezone = "US/Eastern";
-                    int loginpageIndex = settingsHTML.indexOf("name=\"loginpage\"") + 17;
-                    loginpage = settingsHTML.substring(loginpageIndex);
-                    int loginpageSelectedIndex = loginpage.indexOf("</select>");
-                    String loginpageRange = settingsHTML.substring(loginpageIndex, loginpageIndex + loginpageSelectedIndex);
-                    String[] Splitloginpage = loginpageRange.split("</option>");
-
-                    for (String a : Splitloginpage) {
-                        int selectedIndex = a.indexOf("selected");
-                        if (selectedIndex > 1) {
-                            loginpage = a.substring(a.indexOf("=") + 2);
-                            loginpage = loginpage.substring(0, loginpage.indexOf("\""));
-                        }
-                    }
-
-                    sw_hidefuture = settingsHTML.substring(settingsHTML.indexOf("name=\"sw_hidefuture\""));
-                    sw_hidefuture = sw_hidefuture.substring(21, 28);
-                    if (sw_hidefuture.equals(CHECKED)) {
-                        sw_hidefuture = "on";
-                    } else {
-                        sw_hidefuture = null;
-                    }
-
-                    sw_presentonly = settingsHTML.substring(settingsHTML.indexOf("name=\"sw_presentonly\""));
-                    sw_presentonly = sw_presentonly.substring(22, 29);
-                    if (sw_presentonly.equals(CHECKED)) {
-                        sw_presentonly = "on";
-                    } else {
-                        sw_presentonly = null;
-                    }
-
-                    sw_currentseasononly = settingsHTML.substring(settingsHTML.indexOf("name=\"sw_currentseasononly\""));
-                    sw_currentseasononly = sw_currentseasononly.substring(28, 35);
-                    if (sw_currentseasononly.equals(CHECKED)) {
-                        sw_currentseasononly = "on";
-                    } else {
-                        sw_currentseasononly = null;
-                    }
-
-                    controlPanelSettings[0] = eps_timezone;
-                    controlPanelSettings[1] = eps_time_offset;
-                    controlPanelSettings[2] = dateformat;
-                    controlPanelSettings[3] = timeformat;
-                    controlPanelSettings[4] = eps_number_format;
-                    controlPanelSettings[5] = ce_dback;
-                    controlPanelSettings[6] = ce_dforward;
-                    controlPanelSettings[7] = colorpast1;
-                    controlPanelSettings[8] = colorpast2;
-                    controlPanelSettings[9] = colortoday;
-                    controlPanelSettings[10] = color1;
-                    controlPanelSettings[11] = color2;
-                    controlPanelSettings[12] = colorhover;
-                    controlPanelSettings[13] = sw_acquire_delay;
-                    controlPanelSettings[14] = cal_firstday;
-                    controlPanelSettings[15] = action;
-                    controlPanelSettings[16] = loginpage;
-                    controlPanelSettings[17] = sw_hidefuture;
-                    controlPanelSettings[18] = sw_presentonly;
-                    controlPanelSettings[19] = sw_currentseasononly;
+            controlPanelSettings[0] = eps_timezone;
+            controlPanelSettings[1] = eps_time_offset;
+            controlPanelSettings[2] = dateformat;
+            controlPanelSettings[3] = timeformat;
+            controlPanelSettings[4] = eps_number_format;
+            controlPanelSettings[5] = ce_dback;
+            controlPanelSettings[6] = ce_dforward;
+            controlPanelSettings[7] = colorpast1;
+            controlPanelSettings[8] = colorpast2;
+            controlPanelSettings[9] = colortoday;
+            controlPanelSettings[10] = color1;
+            controlPanelSettings[11] = color2;
+            controlPanelSettings[12] = colorhover;
+            controlPanelSettings[13] = sw_acquire_delay;
+            controlPanelSettings[14] = cal_firstday;
+            controlPanelSettings[15] = action;
+            controlPanelSettings[16] = loginpage;
+            controlPanelSettings[17] = sw_hidefuture;
+            controlPanelSettings[18] = sw_presentonly;
+            controlPanelSettings[19] = sw_currentseasononly;
         } catch (Exception e) {
             String message = "Error reading control panel settings";
             Log.e(LOG_TAG, message, e);

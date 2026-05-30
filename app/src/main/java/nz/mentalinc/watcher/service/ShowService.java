@@ -7,20 +7,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +32,7 @@ import nz.mentalinc.watcher.exception.ShowAddFailedException;
 import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
 import nz.mentalinc.watcher.http.HttpClientProvider;
 import nz.mentalinc.watcher.utils.StringUtils;
+import okhttp3.Response;
 
 
 public class ShowService {
@@ -61,49 +53,17 @@ public class ShowService {
 
     public List<Show> searchShows(String search, User user) throws InternetConnectivityException, LoginFailedException {
 
-
         userService.login(user.getUsername(), user.getPassword());
 
-
-        URL url;
-        StringBuilder response = new StringBuilder();
-        java.net.CookieManager msCookieManager = new java.net.CookieManager();
-        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
+        String response = "";
         try {
-            url = new URL(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE);
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-
-            OutputStream os = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-
             HashMap<String, String> postDataParams = new HashMap<>();
             postDataParams.put(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_SHOW, search);
             postDataParams.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_ACTION_VALUE);
 
-            writer.write(getPostDataString(postDataParams));
-
-            writer.flush();
-            writer.close();
-            os.close();
-            int responseCode = conn.getResponseCode();
-
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                String line;
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    response.append(line);
-                }
-            } else {
-                response = new StringBuilder();
-
+            try (Response resp = HttpClientProvider.getInstance().postForm(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE, postDataParams)) {
+                response = resp.isSuccessful() && resp.body() != null ? resp.body().string() : "";
             }
-
 
         } catch (UnknownHostException e) {
             String message = COULD_NOT_CONNECT_TO_HOST;
@@ -119,7 +79,7 @@ public class ShowService {
             Log.e(LOG_TAG, message, e);
         }
 
-        List<Show> shows = extractSearchResults(response.toString());
+        List<Show> shows = extractSearchResults(response);
 
         Log.d(LOG_TAG, shows.size() + " shows found for search value " + search);
 
@@ -174,43 +134,18 @@ public class ShowService {
 
         return shows;
     }
-
-    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (first)
-                first = false;
-            else
-                result.append("&");
-
-            result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
-        }
-
-        return result.toString();
-    }
-
-
     public void addShow(String myEpsidodesShowId, User user) throws InternetConnectivityException, LoginFailedException, ShowAddFailedException {
 
         userService.login(user.getUsername(), user.getPassword());
-        String responsePage = "";
+        String responsePage;
         int status;
         String URLString = MyEpisodeConstants.MYEPISODES_ADD_SHOW_PAGE + myEpsidodesShowId;
 
         try {
-            URL url = new URL(URLString);
-
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            status = conn.getResponseCode();
-
-            String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((line = br.readLine()) != null) {
-                responsePage += line;
-            }
+            Response resp = HttpClientProvider.getInstance().get(URLString);
+            status = resp.code();
+            responsePage = resp.body() != null ? resp.body().string() : "";
+            resp.close();
 
         } catch (UnknownHostException e) {
             String message = COULD_NOT_CONNECT_TO_HOST;
@@ -473,12 +408,7 @@ public class ShowService {
                 //change the http:// to https://
                 showImageURL = showImageURL.replace("http://", "https://");
 
-                showSummary = showSummary.replace("<p>", "");
-                showSummary = showSummary.replace("</p>", "");
-                showSummary = showSummary.replace("<b>", "");
-                showSummary = showSummary.replace("</b>", "");
-                showSummary = showSummary.replace("<i>", "");
-                showSummary = showSummary.replace("</i>", "");
+                showSummary = showSummary.replaceAll("<[^>]+>", "");
 
 
             } catch (JSONException e) {

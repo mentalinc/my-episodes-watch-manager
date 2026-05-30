@@ -122,7 +122,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         String markEpisode = Objects.requireNonNull(data).getString(ActivityConstants.EXTRA_BUNDLE_VAR_MARK_EPISODE);
 
         if (markEpisode != null && !Objects.equals(markEpisode, "")) {
-            Episode episode = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
+            Episode episode = data.getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
 
             if (markEpisode.equals(ActivityConstants.EXTRA_BUNDLE_VALUE_WATCH)) {
                 markEpisodes(0, episode);
