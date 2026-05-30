@@ -331,7 +331,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
             String showRuntime = showInfo.getShowRuntime();
             String showStatus = showInfo.getShowStatus();
 
-            if (showName != null && showURL != null && officialSite != null && showSummary != null && showStatus != null && showImageURL != null && !showRuntime.equals("null")) {
+            if (showName != null && showURL != null && officialSite != null && showSummary != null && showStatus != null && showImageURL != null && !"null".equals(showRuntime)) {
                 showSummaryHash.put("showName", showName);
                 showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
                 showSummaryHash.put(MyEpisodeConstants.OFFICIAL_SITE, officialSite);
@@ -347,13 +347,13 @@ public class ShowSummaryActivity extends AppCompatActivity {
                     showURL = jObj.getString("url");
                     showRuntime = jObj.getString("runtime");
 
-                    if (showRuntime.equals("null") || showRuntime == null) {
+                    if (showRuntime == null || "null".equals(showRuntime)) {
                         showRuntime = jObj.getString("averageRuntime");
                     }
 
                     officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
                     showStatus = jObj.optString("status", null);
-                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                    if (!"null".equals(jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY))) {
                         showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
@@ -368,19 +368,17 @@ public class ShowSummaryActivity extends AppCompatActivity {
                     showSummaryHash.put("showRuntime", showRuntime);
                     showSummaryHash.put(MyEpisodeConstants.SHOW_STATUS, showStatus);
 
-                    EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
+                    showInfo.setShowSummary(showSummaryHash.get(MyEpisodeConstants.SHOW_SUMMARY));
+                    showInfo.setShowURL(showSummaryHash.get(MyEpisodeConstants.SHOW_URL));
+                    showInfo.setOfficialSite(showSummaryHash.get(MyEpisodeConstants.OFFICIAL_SITE));
+                    showInfo.setShowImageURL(showSummaryHash.get(MyEpisodeConstants.SHOW_IMAGE_URL));
+                    showInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
+                    showInfo.setShowStatus(showSummaryHash.get(MyEpisodeConstants.SHOW_STATUS));
 
-                    showSummaryInfo.setShowSummary(showSummaryHash.get(MyEpisodeConstants.SHOW_SUMMARY));
-                    showSummaryInfo.setShowURL(showSummaryHash.get(MyEpisodeConstants.SHOW_URL));
-                    showSummaryInfo.setOfficialSite(showSummaryHash.get(MyEpisodeConstants.OFFICIAL_SITE));
-                    showSummaryInfo.setShowImageURL(showSummaryHash.get(MyEpisodeConstants.SHOW_IMAGE_URL));
-                    showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
-                    showSummaryInfo.setShowStatus(showSummaryHash.get(MyEpisodeConstants.SHOW_STATUS));
-
-                    seriesDAO.update(showSummaryInfo);
+                    seriesDAO.update(showInfo);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Error downloading show summary", e);
                 }
             }
 
@@ -400,7 +398,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
 
                 TextView officialShowDetailWebsite = findViewById(R.id.officialShowWebsite);
                 String showOfficialWebsite = result.get(MyEpisodeConstants.OFFICIAL_SITE);
-                if (!showOfficialWebsite.equals("null")) {
+                if (!"null".equals(showOfficialWebsite)) {
                     officialShowDetailWebsite.setText(showOfficialWebsite);
                     Linkify.addLinks(officialShowDetailWebsite, Linkify.WEB_URLS);
                 } else {
@@ -410,7 +408,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
                 TextView tvMazeShowDetailSummary = findViewById(R.id.tvMazeShowSummary);
                 String episodeSummary = result.get(MyEpisodeConstants.SHOW_SUMMARY);
 
-                if (!episodeSummary.equals("null")) {
+                if (!"null".equals(episodeSummary)) {
                     tvMazeShowDetailSummary.setText(episodeSummary);
                 } else {
                     tvMazeShowDetailSummary.setVisibility(View.GONE);
@@ -419,7 +417,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
                 ImageView showImage = findViewById(R.id.showImage);
                 String showImageURLStr = result.get(MyEpisodeConstants.SHOW_IMAGE_URL);
 
-                if (!showImageURLStr.equals("")) {
+                if (!showImageURLStr.isEmpty()) {
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.placeholder(R.drawable.placeholder);
                     requestOptions.error(R.drawable.error);

@@ -761,13 +761,13 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
         TaskRunner.getExecutor().execute(() -> {
             markEpisode(EpisodeStatus, episode);
-            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+            if (exceptionMessageResId == null) {
                 getEpisodes();
             }
 
             runOnUiThread(() -> {
                 dismissLoadingDialog();
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                             exceptionDialog(EpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
@@ -785,12 +785,12 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
         TaskRunner.getExecutor().execute(() -> {
             markAllEpisodes(episodeStatus, episodes);
-            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+            if (exceptionMessageResId == null) {
                 getEpisodes();
             }
 
             runOnUiThread(() -> {
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     dismissLoadingDialog();
                             exceptionDialog(EpisodeListingActivity.this);
                     exceptionMessageResId = null;

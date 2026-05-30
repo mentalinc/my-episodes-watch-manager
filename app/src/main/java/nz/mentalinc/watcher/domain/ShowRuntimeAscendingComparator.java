@@ -14,10 +14,10 @@ public class ShowRuntimeAscendingComparator implements Comparator<Show> {
             return 1;
         }
 
-        if (o1.getRunTime().equals("null") || o1.getRunTime().isEmpty()) {
+        if ("null".equals(o1.getRunTime()) || o1.getRunTime().isEmpty()) {
             return -1;
         }
-        if (o2.getRunTime().equals("null") || o2.getRunTime().isEmpty()) {
+        if ("null".equals(o2.getRunTime()) || o2.getRunTime().isEmpty()) {
             return 1;
         }
 

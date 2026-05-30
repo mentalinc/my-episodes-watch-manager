@@ -308,7 +308,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         TaskRunner.getExecutor().execute(() -> {
             doSearch(query);
             runOnUiThread(() -> {
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     dismissLoadingDialog();
                     showExceptionDialog(exceptionMessageResId);
                     exceptionMessageResId = null;
@@ -374,7 +374,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
             addShow(show);
             runOnUiThread(() -> {
                 dismissLoadingDialog();
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     showExceptionDialog(exceptionMessageResId);
                     exceptionMessageResId = null;
                 } else {

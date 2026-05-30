@@ -168,7 +168,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         for (int i = 0; i < runtimeList.size(); i++) {
             EpisodeRuntime showRuntime = runtimeList.get(i);
 
-            if (showRuntime.getShowRuntime() == null || showRuntime.getShowRuntime().equals("null")) {
+            if (showRuntime.getShowRuntime() == null || "null".equals(showRuntime.getShowRuntime())) {
 
                 //get the runtime for the null from TVMaze
                 HashMap<String, String> showSummaryHashMap = new HashMap<>();
@@ -198,19 +198,16 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
 
                 showRuntime = jObj.getString("runtime");
 
-                if (showRuntime.equals("null") || showRuntime == null) {
+                if (showRuntime == null || "null".equals(showRuntime)) {
                     showRuntime = jObj.getString("averageRuntime");
                 }
 
                 showSummaryHash.put("showRuntime", showRuntime);
-                EpisodeRuntime showSummaryInfo = seriesDAO.getEpisodeRuntimeWithMyEpsId(showInfo.getShowMyEpsID());
-
-                showSummaryInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
-
-                seriesDAO.update(showSummaryInfo);
+                showInfo.setShowRuntime(showSummaryHash.get("showRuntime"));
+                seriesDAO.update(showInfo);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Error downloading show summary", e);
             }
         });
     }
@@ -395,7 +392,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         TaskRunner.getExecutor().execute(() -> {
             getRuntimeShows();
             runOnUiThread(() -> {
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     dismissLoadingDialog();
                     exceptionDialog(ShowManagementRunTimeActivity.this);
                 } else {

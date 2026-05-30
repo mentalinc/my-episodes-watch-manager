@@ -415,7 +415,7 @@ public class EpisodesService {
 
                 for (String a : EpisodeTable) {
                     //split each column into a array
-                    if (a.equals("")) {
+                    if (a.isEmpty()) {
                         Log.d(LOG_TAG, "No Episodes found.");
                     }
                     if (a.contains("class=\"header\"")) {
@@ -628,18 +628,27 @@ public class EpisodesService {
             cursor = idx;
             String cal_firstday = html.substring(html.indexOf("selected", cursor) - 3, html.indexOf("selected", cursor) - 2);
 
+            String eps_timezone = null;
             idx = html.indexOf("name=\"eps_timezone\"", cursor);
-            String eps_timezone = html.substring(idx);
-            int timeZoneSelectedIndex = eps_timezone.indexOf("</select>");
-            String timezoneRange = html.substring(idx, idx + timeZoneSelectedIndex);
-            String[] splitTimeZones = timezoneRange.split("</option>");
-            for (String a : splitTimeZones) {
-                int selectedIndex = a.indexOf("selected");
-                if (selectedIndex > 1) {
-                    eps_timezone = a.substring(a.indexOf(">") + 1);
+            if (idx != -1) {
+                eps_timezone = html.substring(idx);
+                int timeZoneSelectedIndex = eps_timezone.indexOf("</select>");
+                if (timeZoneSelectedIndex != -1) {
+                    String timezoneRange = html.substring(idx, idx + timeZoneSelectedIndex);
+                    String[] splitTimeZones = timezoneRange.split("</option>");
+                    for (String a : splitTimeZones) {
+                        int selectedIndex = a.indexOf("selected");
+                        if (selectedIndex > 1) {
+                            eps_timezone = a.substring(a.indexOf(">") + 1);
+                        }
+                    }
+                    cursor = idx + timeZoneSelectedIndex + "</select>".length();
+                } else {
+                    cursor = html.length();
                 }
+            } else {
+                cursor = html.length();
             }
-            cursor = idx + timeZoneSelectedIndex + "</select>".length();
 
             idx = html.indexOf("name=\"loginpage\"", cursor);
             cursor = idx + 17;

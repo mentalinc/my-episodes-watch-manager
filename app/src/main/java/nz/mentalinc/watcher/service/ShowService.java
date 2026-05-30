@@ -354,7 +354,7 @@ public class ShowService {
                     try {
                         ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(LOG_TAG, "Error fetching runtime for show", e);
                     }
                 }
             }
@@ -424,10 +424,10 @@ public class ShowService {
                 jObj = new JSONObject(jsonString);
                 showNameString = jObj.getString("name");
                 showRuntimeString = jObj.getString("runtime");
-                if (showRuntimeString == null || showRuntimeString.equals("null") || showRuntimeString.isEmpty()) {
+                if (showRuntimeString == null || "null".equals(showRuntimeString) || showRuntimeString.isEmpty()) {
                     try {
                         showRuntimeString = jObj.getString("averageRuntime");
-                        if (showRuntimeString == null || showRuntimeString.equals("null") || showRuntimeString.isEmpty()) {
+                        if (showRuntimeString == null || "null".equals(showRuntimeString) || showRuntimeString.isEmpty()) {
                             showRuntimeString = "";
                         }
                     } catch (JSONException e) {
@@ -438,7 +438,7 @@ public class ShowService {
                 showSummary = jObj.getString("summary");
                 showURL = jObj.getString("url");
                 officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
-                if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                if (!"null".equals(jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY))) {
                     showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                 }
 
@@ -446,7 +446,7 @@ public class ShowService {
                 showSummary = showSummary.replaceAll("<[^>]+>", "");
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Error parsing TVMaze JSON", e);
             }
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
@@ -477,7 +477,7 @@ public class ShowService {
                     reader.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Error closing reader", e);
             }
         }
     }

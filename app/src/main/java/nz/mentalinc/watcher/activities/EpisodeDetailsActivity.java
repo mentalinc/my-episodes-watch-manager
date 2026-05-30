@@ -382,7 +382,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                     jObj = new JSONObject(jsonString);
                     episodeSummary = jObj.getString("summary");
                     episodeURL = jObj.getString("url");
-                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                    if (!"null".equals(jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY))) {
                         episodeImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
@@ -395,11 +395,11 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                     episodeSummaryHash.put("episodeImageURL", episodeImageURL);
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Error parsing episode JSON", e);
                 }
 
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Error fetching episode from API", e);
             } finally {
                 if (connection != null) {
                     connection.disconnect();
@@ -409,7 +409,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                         reader.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Error closing reader", e);
                 }
             }
 
@@ -424,7 +424,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                 String episodeSummaryStr = result.get("episodeSummary");
 
                 if (!(episodeSummaryStr == null)) {
-                    if (!episodeSummaryStr.equals("null")) {
+                    if (!"null".equals(episodeSummaryStr)) {
                         tvMazeEpisodeSummary.setText(episodeSummaryStr);
                     } else {
                         tvMazeEpisodeSummary.setVisibility(View.GONE);
@@ -433,7 +433,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
 
                 String episodeImageURLStr = result.get("episodeImageURL");
                 ImageView episodeImage = findViewById(R.id.episodeImage);
-                if (!episodeImageURLStr.equals("")) {
+                if (!episodeImageURLStr.isEmpty()) {
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.placeholder(R.drawable.placeholder);
                     requestOptions.error(R.drawable.error);
@@ -483,13 +483,13 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                     showURL = jObj.getString("url");
                     ShowRuntime = jObj.getString("runtime");
 
-                    if (ShowRuntime.equals("null") || ShowRuntime == null) {
+                    if (ShowRuntime == null || "null".equals(ShowRuntime)) {
                         ShowRuntime = jObj.getString("averageRuntime");
                     }
 
                     officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
                     showStatus = jObj.optString("status", null);
-                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                    if (!"null".equals(jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY))) {
                         showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
@@ -505,22 +505,19 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                     showSummaryHash.put(MyEpisodeConstants.SHOW_STATUS, showStatus);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Error downloading show summary", e);
                 }
             }
 
             HashMap<String, String> result = showSummaryHash;
 
-            AppDatabase db = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-            SeriesDAO sDAO = db.getSeriesDAO();
-            EpisodeRuntime showSummaryInfo = sDAO.getEpisodeRuntimeWithMyEpsId(episode.getMyEpisodeID());
-            showSummaryInfo.setShowSummary(result.get(MyEpisodeConstants.SHOW_SUMMARY));
-            showSummaryInfo.setShowURL(result.get(MyEpisodeConstants.SHOW_URL));
-            showSummaryInfo.setOfficialSite(result.get(MyEpisodeConstants.OFFICIAL_SITE));
-            showSummaryInfo.setShowRuntime(result.get(MyEpisodeConstants.SHOW_RUNTIME));
-            showSummaryInfo.setShowImageURL(result.get(MyEpisodeConstants.SHOW_IMAGE_URL));
-            showSummaryInfo.setShowStatus(result.get(MyEpisodeConstants.SHOW_STATUS));
-            sDAO.update(showSummaryInfo);
+            showInfo.setShowSummary(result.get(MyEpisodeConstants.SHOW_SUMMARY));
+            showInfo.setShowURL(result.get(MyEpisodeConstants.SHOW_URL));
+            showInfo.setOfficialSite(result.get(MyEpisodeConstants.OFFICIAL_SITE));
+            showInfo.setShowRuntime(result.get(MyEpisodeConstants.SHOW_RUNTIME));
+            showInfo.setShowImageURL(result.get(MyEpisodeConstants.SHOW_IMAGE_URL));
+            showInfo.setShowStatus(result.get(MyEpisodeConstants.SHOW_STATUS));
+            seriesDAO.update(showInfo);
 
             runOnUiThread(() -> {
                 TextView ShowRuntimeTV = findViewById(R.id.episodeRuntime);

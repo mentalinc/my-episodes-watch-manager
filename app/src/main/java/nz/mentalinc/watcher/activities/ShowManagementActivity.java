@@ -218,7 +218,7 @@ public class ShowManagementActivity extends AppCompatActivity {
         TaskRunner.getExecutor().execute(() -> {
             getShows(user, showType);
             runOnUiThread(() -> {
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     dismissLoadingDialog();
                     exceptionDialog(ShowManagementActivity.this);
                 } else {
@@ -367,7 +367,7 @@ public class ShowManagementActivity extends AppCompatActivity {
 
             markShow(user, showType, action, show);
             runOnUiThread(() -> {
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     dismissLoadingDialog();
                     exceptionDialog(ShowManagementActivity.this);
                 } else {

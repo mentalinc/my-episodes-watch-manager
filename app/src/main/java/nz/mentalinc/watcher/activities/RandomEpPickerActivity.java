@@ -535,7 +535,7 @@ public class RandomEpPickerActivity extends Activity {
 
                     episodeSummary = jObj.getString("summary");
                     episodeURL = jObj.getString("url");
-                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                    if (!"null".equals(jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY))) {
                         episodeImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
@@ -548,11 +548,11 @@ public class RandomEpPickerActivity extends Activity {
                     episodeSummaryHash.put("episodeImageURL", episodeImageURL);
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Error parsing episode JSON", e);
                 }
 
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Error fetching episode from API", e);
             } finally {
                 if (connection != null) {
                     connection.disconnect();
@@ -562,7 +562,7 @@ public class RandomEpPickerActivity extends Activity {
                         reader.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Error closing reader", e);
                 }
             }
 
@@ -577,7 +577,7 @@ public class RandomEpPickerActivity extends Activity {
                 String episodeSummaryStr = result.get("episodeSummary");
 
                 if (!(episodeSummaryStr == null)) {
-                    if (!episodeSummaryStr.equals("null")) {
+                    if (!"null".equals(episodeSummaryStr)) {
                         tvMazeEpisodeSummary.setText(episodeSummaryStr);
                     } else {
                         tvMazeEpisodeSummary.setVisibility(View.GONE);
@@ -586,7 +586,7 @@ public class RandomEpPickerActivity extends Activity {
 
                 String episodeImageURLStr = result.get("episodeImageURL");
                 ImageView episodeImage = findViewById(R.id.episodeImage);
-                if (episodeImageURLStr != null && !episodeImageURLStr.equals("")) {
+                if (episodeImageURLStr != null && !episodeImageURLStr.isEmpty()) {
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.placeholder(R.drawable.placeholder);
                     requestOptions.error(R.drawable.error);
@@ -617,7 +617,7 @@ public class RandomEpPickerActivity extends Activity {
             String showImageURL = showInfo.getShowImageURL();
             String ShowRuntime = showInfo.getShowRuntime();
 
-            if (!ShowName.equals("") && !showURL.equals("") && !officialSite.equals("") && !showSummary.equals("") && !showImageURL.equals("")) {
+            if (!ShowName.isEmpty() && !showURL.isEmpty() && !officialSite.isEmpty() && !showSummary.isEmpty() && !showImageURL.isEmpty()) {
 
                 showSummaryHash.put("ShowName", ShowName);
                 showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
@@ -634,7 +634,7 @@ public class RandomEpPickerActivity extends Activity {
                     showURL = jObj.getString("url");
                     ShowRuntime = jObj.getString("runtime");
                     officialSite = jObj.getString(MyEpisodeConstants.OFFICIAL_SITE);
-                    if (!jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY).equals("null")) {
+                    if (!"null".equals(jObj.getString(MyEpisodeConstants.TVMAZE_IMAGE_KEY))) {
                         showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
@@ -649,7 +649,7 @@ public class RandomEpPickerActivity extends Activity {
                     showSummaryHash.put(MyEpisodeConstants.SHOW_RUNTIME, ShowRuntime);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Error downloading show summary", e);
                 }
             }
         });

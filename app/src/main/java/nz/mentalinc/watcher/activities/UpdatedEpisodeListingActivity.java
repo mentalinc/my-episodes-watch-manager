@@ -538,16 +538,17 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         showLoadingDialog(R.string.progressLoadingTitle);
         TaskRunner.getExecutor().execute(() -> {
             markEpisode(EpisodeStatus, episode);
-            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+            if (exceptionMessageResId == null) {
                 getEpisodes();
                 returnEpisodes();
             }
             runOnUiThread(() -> {
                 dismissLoadingDialog();
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     exceptionDialog(UpdatedEpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
+                    dismissLoadingDialog();
                     refreshEpisodeAdapter();
                 }
             });
@@ -559,17 +560,16 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         showLoadingDialog(R.string.progressLoadingTitle);
         TaskRunner.getExecutor().execute(() -> {
             markAllEpisodes(episodeStatus, episodes);
-            if (exceptionMessageResId == null || exceptionMessageResId.equals("")) {
+            if (exceptionMessageResId == null) {
                 getEpisodes();
                 returnEpisodes();
             }
             runOnUiThread(() -> {
-                if (exceptionMessageResId != null && !exceptionMessageResId.equals("")) {
+                if (exceptionMessageResId != null) {
                     dismissLoadingDialog();
                     exceptionDialog(UpdatedEpisodeListingActivity.this);
                     exceptionMessageResId = null;
                 } else {
-                    dismissLoadingDialog();
                     refreshEpisodeAdapter();
                 }
             });

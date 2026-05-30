@@ -44,7 +44,7 @@ public class UserService {
             response = http.postFormBody(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE, params);
         } catch (Exception e) {
             response = "";
-            e.printStackTrace();
+            Log.e(LOG_TAG, "Login failed", e);
         }
 
         boolean result = false;
