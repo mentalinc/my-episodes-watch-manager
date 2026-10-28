@@ -11,14 +11,14 @@ jobs:
 
     steps:
     - name: checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
-    - name: Setup Java 17
-      uses: actions/setup-java@v5
+    - name: Setup Java latest
+      uses: actions/setup-java@v6
       with:
         distribution: temurin
-        java-version: 17
-        cache: gradle
+        java-version: latest
+        force-download: true
 
     - name: Make Gradle executable
       run: chmod +x ./gradlew
@@ -33,7 +33,7 @@ jobs:
        fi
 
     - name: Upload Workflow Artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: app-debug-${{ env.VERSION_NAME }}
         path: app/build/outputs/apk/debug/*.apk
