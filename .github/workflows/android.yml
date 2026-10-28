@@ -32,6 +32,12 @@ jobs:
          echo "VERSION_NAME=1.0.${{ github.run_number }}" >> $GITHUB_ENV
        fi
 
+    - name: Build Debug APK
+      run: |
+        ./gradlew clean assembleDebug \
+        -PversionCode=${{ github.run_number }} \
+        -PversionName=$VERSION_NAME  
+
     - name: Upload Workflow Artifact
       uses: actions/upload-artifact@v6
       with:
