@@ -146,6 +146,8 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
         }
 
         Preference[] reloadListeners = {
+                findPreference(MyEpisodeConstants.PREF_API_KEY),
+                findPreference(MyEpisodeConstants.PREF_FEED_KEY),
                 findPreference("showWatchOrder"),
                 findPreference("showAcquireOrder"),
                 findPreference("showComingOrder"),

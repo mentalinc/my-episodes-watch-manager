@@ -3,6 +3,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
 
+    <PreferenceCategory android:title="@string/apiPreferences">
+
+        <nz.mentalinc.watcher.preferences.LinkSummaryEditTextPreference
+            android:dialogTitle="@string/apiKeyDialogTitle"
+            android:icon="@drawable/outline_password_white_24"
+            android:inputType="textPassword"
+            android:key="apiKey"
+            android:title="@string/apiKeyTitle"
+            app:summary="@string/apiKeySummary" />
+
+        <nz.mentalinc.watcher.preferences.LinkSummaryEditTextPreference
+            android:dialogTitle="@string/feedKeyDialogTitle"
+            android:icon="@drawable/outline_language_white_24"
+            android:inputType="textPassword"
+            android:key="feedKey"
+            android:title="@string/feedKeyTitle"
+            app:summary="@string/feedKeySummary" />
+
+    </PreferenceCategory>
+
 
     <PreferenceCategory android:title="@string/showPreferences">
 

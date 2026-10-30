@@ -191,12 +191,20 @@
     <string name="menuTweet">Tweet this!</string>
 
     <!-- preferences titles -->
+    <string name="apiPreferences">API Keys</string>
     <string name="showPreferences">Shows</string>
     <string name="orderPreferences">Order</string>
     <string name="filterPreferences">Website Filters</string>
     <string name="disablePreferences">Disable</string>
 
     <!-- preferences -->
+    <!-- API and RSS feed keys -->
+    <string name="apiKeyTitle">API key</string>
+    <string name="apiKeySummary">Enter your read/write API key to leverage API.\nGo to https://www.myepisodes.com/account/apikeys/ to get your API key.</string>
+    <string name="apiKeyDialogTitle">API key</string>
+    <string name="feedKeyTitle">Feed key</string>
+    <string name="feedKeySummary">Enter your RSS feed key to load your feeds.\nGo to https://www.myepisodes.com/account/feedkey/ to get your new RSS feed key.</string>
+    <string name="feedKeyDialogTitle">Feed key</string>
     <!-- Show sorting -->
     <string name="showWatchOrderPrompt">Order of shows to watch</string>
     <string name="showAcquireOrderPrompt">Order of shows to acquire</string>

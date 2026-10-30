@@ -19,7 +19,7 @@ public class EpisodeTest {
         episode.setName("Test Episode");
         episode.setSeason(3);
         episode.setEpisode(7);
-        episode.setAirDate(new Date(1700000000000L));
+        episode.setAirDate(1700000000000L);
         episode.setMyEpisodeID("12345");
         episode.setType(EpisodeType.EPISODES_TO_WATCH);
         episode.setTVMazeWebSite("https://tvmaze.com/episodes/1");
@@ -75,7 +75,7 @@ public class EpisodeTest {
     @Test
     public void testToString() {
         Date date = new Date(1700000000000L);
-        episode.setAirDate(date);
+        episode.setAirDate(date.getTime());
         String expected = "Test Show S03E07 - Test Episode (12345) (" + date + ")";
         assertEquals(expected, episode.toString());
     }
@@ -102,8 +102,8 @@ public class EpisodeTest {
 
     @Test
     public void testAirDate() {
-        Date now = new Date();
+        long now = System.currentTimeMillis();
         episode.setAirDate(now);
-        assertSame(now, episode.getAirDate());
+        assertEquals(now, episode.getAirDate());
     }
 }
