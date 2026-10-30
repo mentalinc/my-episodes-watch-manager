@@ -145,94 +145,103 @@ public class EpisodesService {
 
             StringBuilder title = new StringBuilder(item.getTitle());
 
-            if (title.length() > 0) {
+            if (!title.isEmpty()) {
+
                 //Sample title: [ Reaper ][ 01x14 ][ Rebellion ][ 23-Apr-2008 ]
-                title = title.replace(0, 2, ""); //Strip off first bracket [
-                title = title.replace(title.length() - 2, title.length(), ""); //Strip off last bracket ]
-                String[] episodeInfo = title.toString().split(MyEpisodeConstants.FEED_TITLE_SEPERATOR);
-                episode.setShowName(episodeInfo[0].trim());
-                getSeasonAndEpisodeNumber(episodeInfo[1], episode);
-                Date airDate = null;
-                if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS) {
-                    episode.setName(episodeInfo[2].trim());
-                    String airDateString = episodeInfo[3].trim();
-                    episode.setType(episodesType);
 
-                    try {
-                        airDate = parseDate(airDateString);
-                    } catch (Exception e) {
-                        airDate = DateUtil.convertToDate(airDateString);
-                    }
-
-                    episode.setAirDate(airDate != null ? airDate.getTime() : 0);
-                    episode.setMyEpisodeID(myEpisodeID);
-                    //episode.setTVMazeWebSite(item.getLink());
+                if (item.getTitle().equals("[ MyEpisodes ][ Action needed: update your feed URL ]")) {
 
 
-                    //episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
-                    try {
+                } else {
+                    title = title.replace(0, 2, ""); //Strip off first bracket [
+                    title = title.replace(title.length() - 2, title.length(), ""); //Strip off last bracket ]
+                    String[] episodeInfo = title.toString().split(MyEpisodeConstants.FEED_TITLE_SEPERATOR);
+                    episode.setShowName(episodeInfo[0].trim());
+                    getSeasonAndEpisodeNumber(episodeInfo[1], episode);
+                    Date airDate = null;
 
-                        //RunTimeEnable = true = show runtime
-                        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
-                            EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
-                            //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
-                            //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
-                            episode.setShowName(episode.getShowName());
-                            if (showRuntime != null) {
-                                episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
-                            }
+                    if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS) {
+                        episode.setName(episodeInfo[2].trim());
+                        String airDateString = episodeInfo[3].trim();
+                        episode.setType(episodesType);
 
-                        } else {
-                            episode.setShowName(episode.getShowName());
-
+                        try {
+                            airDate = parseDate(airDateString);
+                        } catch (Exception e) {
+                            airDate = DateUtil.convertToDate(airDateString);
                         }
 
-                    } catch (NullPointerException e) {
+                        episode.setAirDate(airDate != null ? airDate.getTime() : 0);
+                        episode.setMyEpisodeID(myEpisodeID);
+                        //episode.setTVMazeWebSite(item.getLink());
+
+
+                        //episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
+                        try {
+
+                            //RunTimeEnable = true = show runtime
+                            if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+                                EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
+                                //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
+                                //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
+                                episode.setShowName(episode.getShowName());
+                                if (showRuntime != null) {
+                                    episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
+                                }
+
+                            } else {
+                                episode.setShowName(episode.getShowName());
+
+                            }
+
+                        } catch (NullPointerException e) {
+                            episode.setShowName(episode.getShowName());
+                            String message = "Problem reading runtime for " + episode.getName();
+                            Log.e(LOG_TAG, message);
+                        }
+
+
+                        //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
+
+//                    Log.d(LOG_TAG, "Episode from feed: ID=" + episode.getMyEpisodeID() + " " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
+                    } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
+                        //Solves problem mentioned in Issue 20
+                        episode.setName(episodeInfo[2].trim() + "...");
+                        episode.setMyEpisodeID(myEpisodeID);
+                        //episode.setTVMazeWebSite(item.getLink());
+
+                        EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
+                        //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
+                        //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
                         episode.setShowName(episode.getShowName());
-                        String message = "Problem reading runtime for " + episode.getName();
+                        if (showRuntime != null) {
+                            episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
+                        }
+
+                        //episode.setTVMazeWebSite("Link to episode description coming soon");
+                        //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).getShowTVMazeID(), episode.getSeason(), episode.getEpisode()));
+
+                    } else {
+                        String message = "Problem parsing a feed item. Feed details: " + item;
                         Log.e(LOG_TAG, message);
                     }
 
-                    //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
 
-//                    Log.d(LOG_TAG, "Episode from feed: ID=" + episode.getMyEpisodeID() + " " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
-                } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
-                    //Solves problem mentioned in Issue 20
-                    episode.setName(episodeInfo[2].trim() + "...");
-                    episode.setMyEpisodeID(myEpisodeID);
-                    //episode.setTVMazeWebSite(item.getLink());
-
-                    EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
-                    //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
-                    //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
-                    episode.setShowName(episode.getShowName());
-                    if (showRuntime != null) {
-                        episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
-                    }
-
-                    //episode.setTVMazeWebSite("Link to episode description coming soon");
-                    //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).getShowTVMazeID(), episode.getSeason(), episode.getEpisode()));
-
-                } else {
-                    String message = "Problem parsing a feed item. Feed details: " + item;
-                    Log.e(LOG_TAG, message);
-                }
-
-
-                if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
-                    Calendar rightNow = Calendar.getInstance();
-                    rightNow.add(Calendar.DATE, -1);
-                    Date yesterday = rightNow.getTime();
-                    if (airDate != null && airDate.after(yesterday)) {
+                    if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
+                        Calendar rightNow = Calendar.getInstance();
+                        rightNow.add(Calendar.DATE, -1);
+                        Date yesterday = rightNow.getTime();
+                        if (airDate != null && airDate.after(yesterday)) {
+                            episodes.add(episode);
+                        }
+                    } else if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
+                        Calendar rightNow = Calendar.getInstance();
+                        if (airDate == null || !airDate.after(rightNow.getTime())) {
+                            episodes.add(episode);
+                        }
+                    } else {
                         episodes.add(episode);
                     }
-                } else if (episodesType.equals(EpisodeType.EPISODES_TO_ACQUIRE)) {
-                    Calendar rightNow = Calendar.getInstance();
-                    if (airDate == null || !airDate.after(rightNow.getTime())) {
-                        episodes.add(episode);
-                    }
-                } else {
-                    episodes.add(episode);
                 }
             }
         }
