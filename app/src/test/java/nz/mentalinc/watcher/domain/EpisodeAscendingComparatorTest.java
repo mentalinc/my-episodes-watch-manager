@@ -34,11 +34,17 @@ public class EpisodeAscendingComparatorTest {
         eps.add(s1e1);
         Collections.sort(eps, comparator);
 
+        // Expected order: S1E1, S1E2, S1E3, S2E1, S2E3
+        assertEquals(1, eps.get(0).getSeason());
         assertEquals(1, eps.get(0).getEpisode());
+        assertEquals(1, eps.get(1).getSeason());
         assertEquals(2, eps.get(1).getEpisode());
+        assertEquals(1, eps.get(2).getSeason());
         assertEquals(3, eps.get(2).getEpisode());
-        assertEquals(1, eps.get(3).getSeason());
-        assertEquals(1, eps.get(4).getEpisode());
+        assertEquals(2, eps.get(3).getSeason());
+        assertEquals(1, eps.get(3).getEpisode());
+        assertEquals(2, eps.get(4).getSeason());
+        assertEquals(3, eps.get(4).getEpisode());
     }
 
     @Test
