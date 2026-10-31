@@ -136,6 +136,20 @@ MyEpisodes Manager is an unofficial companion app. It is not affiliated with MyE
 
 > If episode lists fail to load, check that your RSS feed key is correct in **Settings → API Keys**.
 
+
+---
+
+
+## Screenshots
+
+![Home](docs/MyEpisodes Manager-Home)
+![Show Info](docs/MyEpisodes Manager-ShowInfo)
+![Episode Info](docs/MyEpisodes Manager-EpisodeInfo)
+![Calendar](docs/MyEpisodes Manager-Calendar)
+![Coming](docs/MyEpisodes Manager-Coming)
+![Settings](docs/MyEpisodes Manager-Settings)
+
+
 ---
 
 ## Settings reference
