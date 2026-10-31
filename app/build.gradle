@@ -1,18 +1,15 @@
-
-
 apply plugin: 'com.android.application'
 
-
-
 android {
-    compileSdkVersion 31
+    compileSdkVersion  = 37
     defaultConfig {
-        applicationId "eu.vranckaert.episodeWatcher"
-        minSdk 29
-        targetSdk 31
-        versionCode 38
-        versionName "1.8.7"
+        applicationId = "nz.mentalinc.episodeWatcher"
+        minSdk 36
+        targetSdk 37
+        versionCode = 41
+        versionName = '1.9.4'
 
+        missingDimensionStrategy   'react-native-camera', 'general'
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -20,6 +17,7 @@ android {
             }
         }
     }
+
     signingConfigs {
         debug {
             storeFile file('../keystore/debug.keystore')
@@ -33,39 +31,74 @@ android {
     }
     buildTypes {
         debug {
-            versionNameSuffix " - DEBUG"
+            versionNameSuffix '- DEBUG'
             applicationIdSuffix ".debug"
-            signingConfig signingConfigs.debug
+            signingConfig = signingConfigs.debug
         }
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+           // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.release
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:deprecation"
+        }
     }
     productFlavors {
     }
-    buildToolsVersion '30.0.3'
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
+    namespace = 'nz.mentalinc.watcher'
+    buildToolsVersion = '37.0.0'
 }
+
 
 dependencies {
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.room:room-runtime:2.4.1'
-    annotationProcessor 'androidx.room:room-compiler:2.4.1'
-    // For Kotlin use kapt instead of annotationProcessor
-    implementation 'androidx.test:runner:1.4.0'
-    implementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation 'com.github.bumptech.glide:glide:4.13.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
+    implementation 'androidx.room:room-runtime:2.8.5'
+    implementation 'androidx.fragment:fragment:1.9.1'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
 
-    implementation 'com.google.android.material:material:1.5.0'
+    annotationProcessor 'androidx.room:room-compiler:2.8.5'
 
- //   implementation 'com.jakewharton:butterknife:10.1.0'
- //   annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    androidTestImplementation 'androidx.room:room-testing:2.8.5'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.24.0'
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:5.5.1'
+    implementation 'androidx.core:core:1.19.1'
+
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'androidx.annotation:annotation:1.11.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.5.1'
+
+    implementation 'com.github.bumptech.glide:glide:5.0.9'
+    annotationProcessor 'com.github.bumptech.glide:compiler:5.0.9'
+    sonar {
+        properties {
+            property "sonar.projectKey", "MyEpispodes"
+            property "sonar.host.url", "http://192.168.2.94:9000"  // URL of your SonarQube server
+            property "sonar.projectName", "MyEpispodes"
+            property "sonar.organization", "mentalinc"
+            property "sonar.java.binaries", "**\\intermediates\\javac"
+
+        }
+    }
 }

@@ -1,36 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@id/home"
         android:contentDescription="@string/home"
         android:enabled="true"
-        android:icon="@drawable/ic_title_home"
+        android:icon="@drawable/outline_home_white_36"
         android:title="@string/home"
         android:visible="true"
-        android:showAsAction="ifRoom|withText" />
+        app:showAsAction="always|withText" />
 
     <item
         android:id="@+id/markAsSeen"
         android:enabled="true"
-        android:icon="@android:drawable/ic_menu_view"
-        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/outline_done_white_24"
+        app:showAsAction="always|withText"
         android:title="@string/menuEpisodeMarkWatched"
         android:visible="true" />
     <item
         android:id="@+id/markAsAquired"
         android:enabled="true"
-        android:icon="@android:drawable/ic_menu_save"
-        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/outline_upcoming_white_48"
+        app:showAsAction="always|withText"
         android:title="@string/menuEpisodeMarkAcquired"
-        android:visible="true" />
-
-    <item
-        android:id="@+id/btn_title_share"
-        android:contentDescription="@string/TweetTitle"
-        android:enabled="true"
-        android:icon="@drawable/ic_title_share"
-        android:showAsAction="ifRoom|withText"
-        android:title="@string/TweetTitle"
         android:visible="true" />
 
 </menu>

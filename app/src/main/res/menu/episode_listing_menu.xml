@@ -6,7 +6,7 @@
         android:id="@id/home"
         android:contentDescription="@string/home"
         android:enabled="true"
-        android:icon="@drawable/ic_title_home"
+        android:icon="@drawable/outline_home_white_36"
         app:showAsAction="ifRoom|withText"
         android:title="@string/home"
         android:visible="true" />
@@ -15,7 +15,7 @@
     <item
         android:id="@+id/btn_title_collapse"
         android:enabled="true"
-        android:icon="@drawable/ic_title_collapse"
+        android:icon="@drawable/outline_expand_white_24"
         app:showAsAction="ifRoom|withText"
         android:title="@string/collapse"
         android:visible="true" />
@@ -23,10 +23,9 @@
     <item
         android:id="@+id/btn_title_refresh"
         android:enabled="true"
-        android:icon="@drawable/ic_title_refresh"
+        android:icon="@drawable/outline_refresh_white_24"
         app:showAsAction="ifRoom|withText"
         android:title="@string/refresh"
         android:visible="true" />
-
 
 </menu>

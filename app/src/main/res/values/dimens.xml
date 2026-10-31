@@ -14,10 +14,40 @@
     limitations under the License.
 -->
 <resources>
-    <dimen name="colorstrip_height">6dip</dimen>
-    <dimen name="title_height">45dip</dimen>
-    <dimen name="now_playing_height">90dip</dimen>
-    <dimen name="text_size_small">14sp</dimen>
     <dimen name="text_size_medium">18sp</dimen>
-    <dimen name="text_size_large">22sp</dimen>
+
+
+    <dimen name="padding_button">12dp</dimen>
+
+    <!-- List widget -->
+
+    <!-- Grids -->
+    <dimen name="grid_topbottom_padding">8dp</dimen>
+    <dimen name="grid_leftright_padding">8dp</dimen>
+
+    <!-- RecyclerView Fast Scroller decoration -->
+
+    <!-- Show posters, 2:3 aspect ratio -->
+    <dimen name="show_poster_width_default">69dp</dimen>
+    <dimen name="show_poster_height_default">104dp</dimen>
+
+    <!-- Most launchers display 72dp icons, scale from recommended 128x176dp product icon size. -->
+
+    <!-- Person images -->
+
+    <!-- Movie posters, 2:3 aspect ratio, though using 66% here to fit percent layouts -->
+
+    <!-- Movies -->
+
+    <!-- Inline buttons -->
+
+    <!-- Refresh progress circle -->
+
+    <!-- Floating action button -->
+    <!-- Below Android 5.0 seems to add auto-padding for shadows, so reduce margin. -->
+
+    <!-- Others -->
+    <dimen name="toolbar_height">40dp</dimen>
+
+
 </resources>

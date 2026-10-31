@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/preferences"
+        android:id="@+id/home"
+        android:background="@color/primaryColor"
+        android:contentDescription="@string/home"
         android:enabled="true"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:showAsAction="ifRoom|withText"
-        android:title="@string/preferences"
-        android:visible="true" />
+        android:icon="@drawable/outline_home_white_36"
+        android:textColor="@color/on_text_white"
+        android:title="@string/home"
+        android:titleTextColor="@color/on_text_white"
+        android:visible="true"
+        app:iconTint="@color/on_text_white"
+        app:itemTextColor="@color/on_text_white"
+        app:showAsAction="ifRoom|withText" />
 
 </menu>

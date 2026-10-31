@@ -1,81 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="eu.vranckaert.episodeWatcher"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
 
     <application
-        android:name="MyEpisodes"
-        android:allowBackup="false"
+        android:name=".MyEpisodes"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme">
-        tools:ignore="GoogleAppIndexingWarning">
+        android:theme="@style/ThemeDayNight">
+        <activity
+            android:name=".activities.ShowHomeTabActivity"
+            android:exported="false"
+            android:label="NOT SURE WHERE THIS IS NOW"
+            android:theme="@style/ThemeDayNight.NoActionBar" />
         <activity
             android:name=".activities.HomeActivity"
-            android:label="@string/app_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.EpisodeListingActivity"
-            android:exported="false"
+            android:name=".activities.ShowSummaryActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:label="ShowSummaryActivity" />
+        <activity
+            android:name=".activities.EpisodeListingActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/watch" />
         <activity
             android:name=".activities.LoginActivity"
-            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/loginLoginBtn" />
         <activity
             android:name=".activities.RegisterActivity"
-            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/registerBtn" />
         <activity
             android:name=".activities.EpisodeDetailsActivity"
-            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/details" />
-        <activity
-            android:name=".activities.PreferencesActivity"
-            android:exported="false"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/preferences" />
         <activity
             android:name=".activities.ShowManagementPortalActivity"
             android:exported="false"
             android:label="@string/manageShows" />
         <activity
-            android:name=".activities.ShowManagementActivity"
+            android:name=".activities.SettingsScreenActivity"
             android:exported="false"
+            android:label="@string/settings" />
+        <activity
+            android:name=".activities.ShowManagementActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/favouriteShows" />
         <activity
             android:name=".activities.ShowManagementAddActivity"
-            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/addShow" />
         <activity
             android:name=".activities.ShowManagementRunTimeActivity"
-            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/ShowRuntime" />
         <activity
             android:name=".activities.RandomEpPickerActivity"
-            android:exported="false"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/randompicker" />
+        <activity
+            android:name=".activities.CalendarActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:label="@string/calendarTitle" />
         <activity
             android:name=".activities.AboutActivity"
             android:exported="false"
@@ -84,18 +91,18 @@
             android:name=".activities.ChangelogActivity"
             android:exported="false"
             android:label="@string/whatsNewTitle" />
-
+        <activity
+            android:name=".activities.ShowListingActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:label="ShowListing" />
+        <activity
+            android:name=".activities.UpdatedEpisodeListingActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:label="UpdatedEpisodeListing" />
 
         <uses-library android:name="android.test.runner" />
     </application>
-
-
-    <!--
-Profielnaam: 	myepisodeswatchmanager-android.vranckaert.eu
-Website-URL: 	http://myepisodeswatchmanager-android.vranckaert.eu
-Webeigendom-id [?] : 	UA-3183255-2
-Status voor het bijhouden van conversies: 	waarschuwing   Bijhouden van conversies niet geïnstalleerd (Laatst gecontroleerd op: 3-apr-2010 8:25:44 )
-De conversiecode van Google Analytics is niet gedetecteerd op de startpagina van uw website. Voor een correcte werking van Analytics moet de conversiecode door u of uw webbeheerder aan elke pagina van uw website worden toegevoegd. 
-     -->
 
 </manifest>

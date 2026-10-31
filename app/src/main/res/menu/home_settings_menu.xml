@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/btn_settings"
+        android:background="@color/primaryColor"
+        android:contentDescription="@string/settings"
+        android:icon="@drawable/outline_settings_24"
+        android:textColor="@color/on_text_white"
+        android:title="@string/settings"
+        android:visible="true"
+        app:iconTint="@color/on_text_white"
+        app:itemTextColor="@color/on_text_white"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/logout"
+        android:background="@color/primaryColor"
+        android:contentDescription="@string/logout"
+        android:icon="@drawable/outline_logout_24"
+        android:textColor="@color/on_text_white"
+        android:title="@string/logout"
+        android:visible="true"
+        app:iconTint="@color/on_text_white"
+        app:itemTextColor="@color/on_text_white"
+        app:showAsAction="ifRoom" />
+
+
+</menu>

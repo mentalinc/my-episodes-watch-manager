@@ -1,19 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/android:list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:choiceMode="singleChoice" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayoutShowManagement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical"
+        android:background="@color/colorPrimary"
+        android:elevation="6dp"
+        android:translationZ="10dp">
 
-    <TextView
-        android:id="@+id/text_view_id"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBarShowManagement"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            app:titleTextColor="@color/on_text_white"
+            android:background="@color/primaryColor"
+            android:textColor="@color/on_text_white"
+            app:menu="@menu/home_menu"
+            style="@style/Widget.MaterialComponents.Toolbar.Primary" />
 
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice" />
+
+        <TextView
+            android:id="@+id/text_view_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </FrameLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigationManage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:backgroundTint="@color/colorPrimary"
+        app:itemPaddingTop="4dp"
+        app:itemPaddingBottom="4dp"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_navigation_menu_manage" />
 
 </LinearLayout>
