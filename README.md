@@ -139,19 +139,16 @@ MyEpisodes Manager is an unofficial companion app. It is not affiliated with MyE
 ---
 
 ## Screenshots
+Overview of the key screens within the app
 
-### Home
-![Home screenshot](docs/MyEpisodes_Manager-Home.jpg)
-### Show Info
-![Show Info screenshot](docs/MyEpisodes_Manager-ShowInfo.jpg)
-### Episode Info
-![Episode Info screenshot](docs/MyEpisodes_Manager-EpisodeInfo.jpg)
-### Calendar
-![Calendar screenshot](docs/MyEpisodes_Manager-Calendar.jpg)
-### Watch, Acquire, Coming
-![Watch, Acquire, Coming screenshot](docs/MyEpisodes_Manager-Coming.jpg)
-### Settings
-![Settings Screenshot]docs/MyEpisodes_Manager-Settings.jpg)
+-  Home
+-  Show Info
+-  Episode Info
+-  Calendar
+-  Watch, Acquire, Coming
+-  Settings
+
+![Home screenshot](docs/Screenshots.jpg)
 
 ---
 
