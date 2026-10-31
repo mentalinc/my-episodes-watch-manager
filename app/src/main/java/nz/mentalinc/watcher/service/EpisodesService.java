@@ -2,8 +2,11 @@ package nz.mentalinc.watcher.service;
 
 import static nz.mentalinc.watcher.constants.MyEpisodeConstants.TV_MAZE_SHOWS_URL;
 
+import android.net.Uri;
 import android.util.Log;
 import android.util.Xml;
+
+import androidx.preference.PreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -790,7 +793,56 @@ public class EpisodesService {
 
     private URL buildEpisodesUrl(EpisodeType episodesType, final String username, final String encryptedPassword)
             throws FeedUrlBuildingFaildException {
-        String urlRep = "";
+        String feedKey = getFeedKey();
+        String urlRep;
+
+        if (!feedKey.isEmpty()) {
+            urlRep = buildFeedKeyEpisodesUrl(episodesType, feedKey);
+        } else {
+            urlRep = buildLegacyEpisodesUrl(episodesType, username, encryptedPassword);
+        }
+
+        URL url;
+        try {
+            url = new URL(urlRep);
+        } catch (MalformedURLException e) {
+            String message = "The feed URL could not be build";
+            Log.e(LOG_TAG, message, e);
+            throw new FeedUrlBuildingFaildException(message, e);
+        }
+
+        Log.d(LOG_TAG, "FEED URL: " + url);
+
+        return url;
+    }
+
+    private String buildFeedKeyEpisodesUrl(EpisodeType episodesType, String feedKey) {
+        String urlRep;
+        switch (episodesType) {
+            case EPISODES_TO_WATCH:
+                urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_FEED_URL;
+                break;
+            case EPISODES_TO_ACQUIRE:
+                urlRep = MyEpisodeConstants.UNAQUIRED_EPISODES_FEED_URL;
+                break;
+            case EPISODES_TO_YESTERDAY1:
+                urlRep = MyEpisodeConstants.YESTERDAY_EPISODES_FEED_URL;
+                break;
+            case EPISODES_TO_YESTERDAY2:
+                urlRep = MyEpisodeConstants.YESTERDAY2_EPISODES_FEED_URL;
+                break;
+            case EPISODES_COMING:
+                urlRep = MyEpisodeConstants.COMING_EPISODES_FEED_URL;
+                break;
+            default: //added for code quality
+                urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_FEED_URL;
+        }
+
+        return urlRep.replace(MyEpisodeConstants.FEED_KEY_REPLACEMENT_STRING, Uri.encode(feedKey));
+    }
+
+    private String buildLegacyEpisodesUrl(EpisodeType episodesType, String username, String encryptedPassword) {
+        String urlRep;
         switch (episodesType) {
             case EPISODES_TO_WATCH:
                 urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_URL;
@@ -808,24 +860,20 @@ public class EpisodesService {
                 urlRep = MyEpisodeConstants.COMING_EPISODES_URL;
                 break;
             default: //added for code quality
+                urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_URL;
         }
 
         urlRep = urlRep.replace(MyEpisodeConstants.UID_REPLACEMENT_STRING, username);
-        urlRep = urlRep.replace(MyEpisodeConstants.PWD_REPLACEMENT_STRING, encryptedPassword);
-
-        URL url;
-        try {
-            url = new URL(urlRep);
-        } catch (MalformedURLException e) {
-            String message = "The feed URL could not be build";
-            Log.e(LOG_TAG, message, e);
-            throw new FeedUrlBuildingFaildException(message, e);
-        }
-
-        Log.d(LOG_TAG, "FEED URL: " + url);
-
-        return url;
+        return urlRep.replace(MyEpisodeConstants.PWD_REPLACEMENT_STRING, encryptedPassword);
     }
 
+    private String getFeedKey() {
+        if (MyEpisodeConstants.CONTEXT == null) {
+            return "";
+        }
+        String feedKey = PreferenceManager.getDefaultSharedPreferences(MyEpisodeConstants.CONTEXT)
+                .getString(MyEpisodeConstants.PREF_FEED_KEY, "");
+        return feedKey != null ? feedKey.trim() : "";
+    }
 
 }

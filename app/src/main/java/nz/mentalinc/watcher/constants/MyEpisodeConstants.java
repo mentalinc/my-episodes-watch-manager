@@ -73,6 +73,22 @@ public class MyEpisodeConstants {
             "&onlyunacquired=1" +
             "&uid=" + UID_REPLACEMENT_STRING +
             "&pwdmd5=" + PWD_REPLACEMENT_STRING;
+
+    // Feed-key based RSS addresses. These replace the deprecated uid/pwdmd5 addresses.
+    public static final String MYEPISODES_FEED_RSS_BASE_URL = "https://www.myepisodes.com/feed/rss/";
+    public static final String FEED_KEY_REPLACEMENT_STRING = "[FEEDKEY]";
+
+    public static final String UNWATCHED_EPISODES_FEED_URL = MYEPISODES_FEED_RSS_BASE_URL + "unwatched/" +
+            FEED_KEY_REPLACEMENT_STRING + "/?showignored=" + SHOW_IGNORED;
+    public static final String UNAQUIRED_EPISODES_FEED_URL = MYEPISODES_FEED_RSS_BASE_URL + "unacquired/" +
+            FEED_KEY_REPLACEMENT_STRING + "/?showignored=" + SHOW_IGNORED;
+    public static final String YESTERDAY_EPISODES_FEED_URL = MYEPISODES_FEED_RSS_BASE_URL + "yesterday/" +
+            FEED_KEY_REPLACEMENT_STRING + "/?showignored=" + SHOW_IGNORED + "&onlyunacquired=1";
+    public static final String YESTERDAY2_EPISODES_FEED_URL = MYEPISODES_FEED_RSS_BASE_URL + "today/" +
+            FEED_KEY_REPLACEMENT_STRING + "/?showignored=" + SHOW_IGNORED + "&onlyunacquired=1";
+    public static final String COMING_EPISODES_FEED_URL = MYEPISODES_FEED_RSS_BASE_URL + "mylist/" +
+            FEED_KEY_REPLACEMENT_STRING + "/?showignored=" + SHOW_IGNORED + "&onlyunacquired=1";
+
     public static final String PASSWORD_ENCRYPTION_TYPE = "MD5";
     public static final String FEED_TITLE_SEPERATOR = " \\]\\[ ";
     public static final String SEASON_EPISODE_NUMBER_SEPERATOR = "x";
