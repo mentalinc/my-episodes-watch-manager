@@ -306,9 +306,10 @@ public class EpisodesService {
 
 
         userService.login(user.getUsername(), user.getPassword());
+        String csrfToken = HttpClientProvider.getInstance().getAjaxCsrfToken();
 
         for (Episode episode : episodes) {
-            markAnEpisode(0, episode);
+            markAnEpisode(0, episode, csrfToken);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_COMING, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
@@ -328,9 +329,10 @@ public class EpisodesService {
     public void acquireEpisodes(List<Episode> episodes, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
 
         userService.login(user.getUsername(), user.getPassword());
+        String csrfToken = HttpClientProvider.getInstance().getAjaxCsrfToken();
 
         for (Episode episode : episodes) {
-            markAnEpisode(1, episode);
+            markAnEpisode(1, episode, csrfToken);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().addEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
             EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
@@ -345,14 +347,22 @@ public class EpisodesService {
         }
     }
 
-    private void markAnEpisode(int EpisodeStatus, Episode episode) throws ShowUpdateFailedException, InternetConnectivityException {
+    private void markAnEpisode(int EpisodeStatus, Episode episode, String csrfToken) throws ShowUpdateFailedException, InternetConnectivityException {
         String urlRep = (EpisodeStatus == 0 ? MyEpisodeConstants.MYEPISODES_UPDATE_WATCH :
                 MyEpisodeConstants.MYEPISODES_UPDATE_ACQUIRE)
                 .replace(MyEpisodeConstants.MYEPISODES_UPDATE_PAGE_EPISODE_REPLACEMENT, String.valueOf(episode.getEpisode()))
                 .replace(MyEpisodeConstants.MYEPISODES_UPDATE_PAGE_SEASON_REPLACEMENT, String.valueOf(episode.getSeason()))
                 .replace(MyEpisodeConstants.MYEPISODES_UPDATE_PAGE_SHOWID_REPLACEMENT, episode.getMyEpisodeID());
 
-        try (Response response = HttpClientProvider.getInstance().get(urlRep)) {
+        Map<String, String> csrfHeaders = null;
+        if (csrfToken != null && !csrfToken.isEmpty()) {
+            csrfHeaders = new HashMap<>();
+            csrfHeaders.put(MyEpisodeConstants.MYEPISODES_CSRF_TOKEN_HEADER, csrfToken);
+        } else {
+            Log.w(LOG_TAG, "No CSRF token available for " + urlRep);
+        }
+
+        try (Response response = HttpClientProvider.getInstance().get(urlRep, csrfHeaders)) {
             if (!response.isSuccessful()) {
                 String message = "Updating the show status failed with HTTP " + response.code() + " for URL " + urlRep;
                 Log.w(LOG_TAG, message);
@@ -382,7 +392,16 @@ public class EpisodesService {
             setDaysBack(controlPanelSettings, false);
 
             Log.d(LOG_TAG, "DOWNLOADING FULL LIST");
-            String htmlContent = HttpClientProvider.getInstance().getBody(urlRep);
+            String htmlContent;
+            // Use the shared client so the session cookie is sent, and include the CSRF header
+            // for this AJAX endpoint.
+            try (Response response = HttpClientProvider.getInstance().get(
+                    urlRep, HttpClientProvider.getInstance().getCsrfHeaders())) {
+                if (!response.isSuccessful()) {
+                    throw new ShowUpdateFailedException("HTTP " + response.code() + " for GET " + urlRep);
+                }
+                htmlContent = response.body() != null ? response.body().string() : "";
+            }
 
             StringBuilder HTML = new StringBuilder(htmlContent);
 
@@ -739,6 +758,7 @@ public class EpisodesService {
                     }
                 }
             }
+            HttpClientProvider.getInstance().addCsrfToken(MyEpisodeConstants.MYEPISODES_CONTROL_PANEL, postDataParams);
             HttpClientProvider.getInstance().postFormBody(MyEpisodeConstants.MYEPISODES_CONTROL_PANEL, postDataParams);
         } catch (Exception e) {
             String message = "Error setting days back";

@@ -41,6 +41,8 @@ public class UserService {
             params.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_USERNAME, username);
             params.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
             params.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_ACTION_VALUE);
+            http.addCsrfToken(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE, params);
+
             response = http.postFormBody(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE, params);
         } catch (Exception e) {
             response = "";
@@ -72,6 +74,8 @@ public class UserService {
             params.put(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_PASSWORD, password);
             params.put(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_EMAIL, email);
             params.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_REGISTER_PAGE_PARAM_ACTION_VALUE);
+            http.addCsrfToken(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE, params);
+
             response = http.postFormBody(MyEpisodeConstants.MYEPISODES_REGISTER_PAGE, params);
         } catch (Exception e) {
             String message = "An error occurred during registration";

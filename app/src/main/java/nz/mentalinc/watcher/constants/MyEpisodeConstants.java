@@ -78,6 +78,9 @@ public class MyEpisodeConstants {
     public static final String SEASON_EPISODE_NUMBER_SEPERATOR = "x";
     public static final int FEED_TITLE_EPISODE_FIELDS = 4;
     public static final String MYEPISODES_FORM_PARAM_ACTION = "action";
+    public static final String MYEPISODES_CSRF_TOKEN_PARAM = "csrf_token";
+    public static final String MYEPISODES_CSRF_TOKEN_HEADER = "X-CSRF-Token";
+    public static final String MYEPISODES_AJAX_CSRF_PAGE = "https://www.myepisodes.com/ajax/csrf.php";
     public static final String MYEPISODES_REGISTER_PAGE = "https://www.myepisodes.com/register.php";
     public static final String MYEPISODES_REGISTER_PAGE_PARAM_USERNAME = "username";
     public static final String MYEPISODES_REGISTER_PAGE_PARAM_PASSWORD = "password";

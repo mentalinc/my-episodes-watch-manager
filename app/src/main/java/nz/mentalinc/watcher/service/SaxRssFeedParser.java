@@ -31,6 +31,7 @@ import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.exception.FeedUrlParsingException;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.RssFeedParserException;
+import nz.mentalinc.watcher.http.HttpClientProvider;
 
 public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     private static final String LOG_TAG = SaxRssFeedParser.class.getSimpleName();
@@ -69,7 +70,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             inputStream = openCacheFile("Watch.xml");
                             if (inputStream == null) {
                                 Log.d(LOG_TAG, "No cached Watch.xml file found. Downloading...");
-                                inputStream = url.openConnection().getInputStream();
+                                inputStream = openFeed(url);
                                 String content = convertStreamToString(inputStream, UTF_8);
                                 FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Watch.xml", 0);
                                 fos.write(content.getBytes());
@@ -80,10 +81,10 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                         }
                         break;
                     case EPISODES_TO_YESTERDAY1:
-                        inputStream = url.openConnection().getInputStream();
+                        inputStream = openFeed(url);
                         break;
                     case EPISODES_TO_YESTERDAY2:
-                        inputStream = url.openConnection().getInputStream();
+                        inputStream = openFeed(url);
                         break;
                     case EPISODES_TO_ACQUIRE:
                         if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
@@ -93,7 +94,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             inputStream = openCacheFile("Acquire.xml");
                             if (inputStream == null) {
                                 Log.d(LOG_TAG, "No cached Acquire.xml file found. Downloading...");
-                                InputStream downloadStream = url.openConnection().getInputStream();
+                                InputStream downloadStream = openFeed(url);
                                 String content = convertStreamToString(downloadStream, UTF_8);
                                 FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Acquire.xml", 0);
                                 fos.write(content.getBytes());
@@ -107,7 +108,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                         inputStream = openCacheFile("Coming.xml");
                         if (inputStream == null) {
                             Log.d(LOG_TAG, "No cached Coming.xml file found. Downloading...");
-                            InputStream downloadStream = url.openConnection().getInputStream();
+                            InputStream downloadStream = openFeed(url);
                             String content = convertStreamToString(downloadStream, UTF_8);
                             FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Coming.xml", 0);
                             fos.write(content.getBytes());
@@ -120,7 +121,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     default:
                         //this should not be used
                         Log.d(LOG_TAG, "Default switch statement being called for ep type: " + episodesType);
-                        inputStream = url.openConnection().getInputStream();
+                        inputStream = openFeed(url);
                 }
 
 
@@ -139,7 +140,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     }
                 } else {
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet RSS Feeds");
-                    inputStream = url.openConnection().getInputStream();
+                    inputStream = openFeed(url);
                 }
 
                 Log.w(LOG_TAG, "check inputStream");
@@ -169,6 +170,13 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         //Log.d(LOG_TAG, " Feed size: " + feed.getItems().size());
 
         return feed;
+    }
+
+    /**
+     * Downloads a feed with the shared HTTP client so the MyEpisodes session cookie is sent.
+     */
+    private InputStream openFeed(URL url) throws IOException {
+        return new ByteArrayInputStream(HttpClientProvider.getInstance().getBytes(url.toString()));
     }
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) {

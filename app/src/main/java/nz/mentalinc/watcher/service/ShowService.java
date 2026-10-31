@@ -60,6 +60,7 @@ public class ShowService {
             HashMap<String, String> postDataParams = new HashMap<>();
             postDataParams.put(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_SHOW, search);
             postDataParams.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_SEARCH_PAGE_PARAM_ACTION_VALUE);
+            HttpClientProvider.getInstance().addCsrfToken(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE, postDataParams);
 
             try (Response resp = HttpClientProvider.getInstance().postForm(MyEpisodeConstants.MYEPISODES_SEARCH_PAGE, postDataParams)) {
                 response = resp.isSuccessful() && resp.body() != null ? resp.body().string() : "";
@@ -161,27 +162,12 @@ public class ShowService {
                 urlParameters.append("eps_filters%5B%5D=4096");
             }
 
-            byte[] postData = urlParameters.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
-            URL url = new URL(MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            try {
-                conn.setDoOutput(true);
-                conn.setInstanceFollowRedirects(false);
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                conn.setRequestProperty("charset", "utf-8");
-                conn.setRequestProperty("Content-Length", Integer.toString(postData.length));
-                conn.setUseCaches(false);
-                try (java.io.DataOutputStream wr = new java.io.DataOutputStream(conn.getOutputStream())) {
-                    wr.write(postData);
-                    wr.flush();
-                }
-                try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                        new java.io.InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8), 8)) {
-                    reader.readLine();
-                }
-            } finally {
-                conn.disconnect();
+            HttpClientProvider http = HttpClientProvider.getInstance();
+            try (Response response = http.postFormEncoded(
+                    MyEpisodeConstants.MYEPISODES_FULL_UNWATCHED_LISTING_TABLE,
+                    urlParameters.toString(),
+                    http.getCsrfHeaders())) {
+                Log.d(LOG_TAG, "Reset episode filter, HTTP " + response.code());
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error resetting episode filter", e);
@@ -488,29 +474,27 @@ public class ShowService {
         userService.login(user.getUsername(), user.getPassword());
 
         try {
-            URL url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID());
+            String url = MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID();
 
             switch (showAction) {
                 case IGNORE:
                     Log.d(LOG_TAG, "IGNORING SHOWS");
-                    url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_URL + show.getMyEpisodeID());
+                    url = MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_URL + show.getMyEpisodeID();
                     break;
                 case UNIGNORE:
                     Log.d(LOG_TAG, "UNIGNORING SHOWS");
-                    url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_UNIGNORE_URL + show.getMyEpisodeID());
+                    url = MyEpisodeConstants.MYEPISODES_FAVO_UNIGNORE_URL + show.getMyEpisodeID();
                     break;
                 case DELETE:
                     Log.d(LOG_TAG, "DELETING SHOWS");
-                    url = new URL(MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID());
+                    url = MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID();
                     break;
                 default: //added for code quality
             }
 
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            try {
-                conn.getResponseCode();
-            } finally {
-                conn.disconnect();
+            // Use the shared client so the session cookie (including myeps_sso) is sent.
+            try (Response response = HttpClientProvider.getInstance().get(url)) {
+                Log.d(LOG_TAG, "Mark show response: HTTP " + response.code());
             }
 
         } catch (UnknownHostException e) {
