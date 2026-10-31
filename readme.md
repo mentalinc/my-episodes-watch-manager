@@ -142,13 +142,22 @@ MyEpisodes Manager is an unofficial companion app. It is not affiliated with MyE
 
 ## Screenshots
 
-![Home](docs/MyEpisodes Manager-Home)
-![Show Info](docs/MyEpisodes Manager-ShowInfo)
-![Episode Info](docs/MyEpisodes Manager-EpisodeInfo)
-![Calendar](docs/MyEpisodes Manager-Calendar)
-![Coming](docs/MyEpisodes Manager-Coming)
-![Settings](docs/MyEpisodes Manager-Settings)
+### Home
+![MyEpisodes Manager](docs/MyEpisodes_Manager-Home)
 
+### Show Info
+![MyEpisodes Manager](docs/MyEpisodes_Manager-ShowInfo)
+
+### Episode Info
+![MyEpisodes Manager](docs/MyEpisodes_Manager-EpisodeInfo)
+
+### Calendar
+![MyEpisodes Manager](docs/MyEpisodes_Manager-Calendar)
+### Coming
+![MyEpisodes Manager](docs/MyEpisodes_Manager-Coming)
+
+### Settings
+![MyEpisodes Manager]docs/MyEpisodes_Manager-Settings)
 
 ---
 
