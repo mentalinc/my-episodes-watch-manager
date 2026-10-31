@@ -1,7 +1,10 @@
 package nz.mentalinc.watcher;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -174,6 +177,29 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
         Preference aboutVersion = findPreference("aboutVersion");
         if (aboutVersion != null) {
             aboutVersion.setSummary("You're using Version " + BuildConfig.VERSION_NAME);
+        }
+
+        Preference aboutWebsite = findPreference("aboutWebsite");
+        if (aboutWebsite != null) {
+            aboutWebsite.setOnPreferenceClickListener(preference -> {
+                openWebsite();
+                return true;
+            });
+        }
+    }
+
+    private void openWebsite() {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse(getString(R.string.aboutWebsiteValue)));
+            context.startActivity(browserIntent);
+        } catch (ActivityNotFoundException e) {
+            Log.e(LOG_TAG, "No app available to open the website", e);
         }
     }
 

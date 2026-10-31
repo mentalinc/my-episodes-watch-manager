@@ -268,7 +268,7 @@
 
         <!-- Website -->
 
-        <Preference
+        <nz.mentalinc.watcher.preferences.LinkSummaryPreference
             android:id="@+id/aboutWebsite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
