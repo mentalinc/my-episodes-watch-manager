@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import nz.mentalinc.watcher.exception.InternetConnectivityException;
+import nz.mentalinc.watcher.exception.ShowUpdateFailedException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -16,7 +18,7 @@ public class HttpClientProviderTest {
     private final HttpClientProvider client = HttpClientProvider.getInstance();
 
     @Test
-    public void testGet() throws IOException, InterruptedException {
+    public void testGet() throws IOException, InterruptedException, InternetConnectivityException, ShowUpdateFailedException {
         MockWebServer server = new MockWebServer();
         server.enqueue(new MockResponse().setBody("hello").setResponseCode(200));
         server.start();

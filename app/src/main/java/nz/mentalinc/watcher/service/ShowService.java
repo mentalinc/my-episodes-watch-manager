@@ -429,7 +429,7 @@ public class ShowService {
                 }
 
                 showImageURL = showImageURL.replace("http://", "https://");
-                showSummary = showSummary.replaceAll("<[^>]+>", "");
+                showSummary = stripHtmlTags(showSummary);
 
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Error parsing TVMaze JSON", e);
@@ -556,5 +556,39 @@ public class ShowService {
         return input.replace("<p>", "").replace("</p>", "")
                     .replace("<b>", "").replace("</b>", "")
                     .replace("<i>", "").replace("</i>", "");
+    }
+
+    /**
+     * Removes HTML tags from network-supplied text without using a regular expression.
+     *
+     * <p>The previous implementation used {@code replaceAll("<[^>]+>", "")}. Running a
+     * regular expression over uncontrolled input is flagged by static analysis as a
+     * potential super-linear (polynomial) match, so this scans the input once instead.
+     * It keeps the same behaviour as the old expression: anything between a {@code '<'}
+     * and the next {@code '>'} is removed, while an unclosed {@code '<'} leaves the rest
+     * of the text untouched.
+     */
+    static String stripHtmlTags(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        StringBuilder result = new StringBuilder(input.length());
+        int index = 0;
+        while (index < input.length()) {
+            int tagStart = input.indexOf('<', index);
+            if (tagStart < 0) {
+                result.append(input, index, input.length());
+                break;
+            }
+            int tagEnd = input.indexOf('>', tagStart + 1);
+            if (tagEnd < 0) {
+                result.append(input, index, input.length());
+                break;
+            }
+            result.append(input, index, tagStart);
+            index = tagEnd + 1;
+        }
+        return result.toString();
     }
 }

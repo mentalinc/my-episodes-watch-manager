@@ -91,10 +91,13 @@ public class ShowRuntimeAscendingComparatorTest {
         assertEquals("60", shows.get(5).getRunTime());
     }
 
-    @Test(expected = NumberFormatException.class)
-    public void testNonNumericRuntime_throws() {
+    @Test
+    public void testNonNumericRuntime_treatedAsEqual() {
+        // The comparator catches NumberFormatException and treats unparseable
+        // runtimes as equal rather than letting the sort fail.
         Show invalid = new Show("Bad", "abc", "1");
         Show normal = new Show("Good", "30", "2");
-        comparator.compare(normal, invalid);
+        assertEquals(0, comparator.compare(normal, invalid));
+        assertEquals(0, comparator.compare(invalid, normal));
     }
 }

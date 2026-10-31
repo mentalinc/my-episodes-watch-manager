@@ -15,6 +15,11 @@ public class RowControllerTest {
     @Before
     public void setUp() {
         controller = RowController.getInstance();
+        // RowController is a singleton, so state set by one test would otherwise leak
+        // into the next test and make the "defaultEmpty" assertions order dependent.
+        controller.setOpenWatchRows(new ArrayList<>());
+        controller.setOpenAcquireRows(new ArrayList<>());
+        controller.setOpenComingRows(new ArrayList<>());
     }
 
     @Test
