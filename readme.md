@@ -29,7 +29,7 @@ MyEpisodes Manager is an unofficial companion app. It is not affiliated with MyE
 - Provides show landing pages with summaries, images, links, episode counts, and season progress.
 - Provides episode details with air dates, summaries, links, and swipe navigation.
 - Manages favourite and ignored shows, adds new shows by search, and edits show runtimes.
-- Works around the MyEpisodes 200-episode listing limit with configurable day ranges.
+- Works around the MyEpisodes RSS feed 200-episode listing limit with configurable day ranges.
 - Supports light, dark, and system themes, multiple languages, and local caching.
 
 ---
@@ -100,10 +100,8 @@ MyEpisodes Manager is an unofficial companion app. It is not affiliated with MyE
 
 ### Caching and performance
 
-- Optional local cache of episode lists (`Watch.xml` and `Acquire.xml`).
+- Optional local cache of episode lists.
 - Configurable cache age, from 6 hours up to 1 month.
-- Room database cache for TVMaze show metadata and runtimes.
-- Shared OkHttp client with a cookie jar for MyEpisodes sessions.
 - Pull-to-refresh and manual refresh support.
 
 ### Personalisation
@@ -119,29 +117,11 @@ MyEpisodes Manager is an unofficial companion app. It is not affiliated with MyE
 - All requests to MyEpisodes.com and TVMaze use HTTPS.
 - Account passwords are never stored in plain text when password storage is enabled.
 - Stored passwords are encrypted with AES-256-GCM using a key held in the Android Keystore.
-- MyEpisodes session cookies are retained by the shared HTTP client so server-set cookies such as `myeps_sso` are forwarded automatically.
 - POST and AJAX requests use the CSRF token issued by MyEpisodes.com.
 - No analytics, advertising, or third-party tracking SDKs are included.
 
 ---
 
-## How it works
-
-| Source | Used for |
-| --- | --- |
-| **MyEpisodes.com** | Account login, tracked shows, Watch/Acquire/Coming lists, show search, add/ignore/delete actions, runtime settings, and website filters. |
-| **TVMaze API** | Show summaries, cover images, runtimes, status, and external links. |
-| **Local storage** | Room database for show metadata, XML cache files for episode lists, preferences, and encrypted credentials. |
-
-Episode lists are requested from the modern MyEpisodes feed format:
-
-```text
-https://www.myepisodes.com/feed/rss/<feed>/<feedKey>/
-```
-
-If no feed key is configured, the app falls back to the legacy `rss.php?uid=...&pwdmd5=...` addresses.
-
----
 
 ## Getting started
 
@@ -170,84 +150,6 @@ If no feed key is configured, the app falls back to the legacy `rss.php?uid=...&
 | **Personalisation** | Theme, language, username, password, store password |
 | **About** | Version, license, credits, website, email |
 | **What's new** | Changelog |
-
----
-
-## Building from source
-
-### Requirements
-
-- **JDK 17**
-- **Android SDK Platform 37**
-- **Android Build Tools 37.0.0**
-- Android Studio or the command-line Android SDK tools
-- Internet access for Gradle dependencies
-
-The Gradle wrapper is included, so a separate Gradle installation is not required.
-
-### Build
-
-```bash
-git clone https://github.com/mentalinc/my-episodes-watch-manager.git
-cd my-episodes-watch-manager
-
-# Linux / macOS
-./gradlew assembleDebug
-
-# Windows
-gradlew.bat assembleDebug
-```
-
-The debug APK is written to:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-### Run the unit tests
-
-```bash
-./gradlew :app:testDebugUnitTest
-```
-
-### Compile the instrumented tests
-
-```bash
-./gradlew :app:compileDebugAndroidTestJavaWithJavac
-```
-
-Instrumented tests require a connected device or emulator:
-
-```bash
-./gradlew :app:connectedDebugAndroidTest
-```
-
-The GitHub Actions workflow builds a debug APK on every tag, and publishes a GitHub Release for tags that start with `v`.
-
----
-
-## Project structure
-
-```text
-app/
-├── src/main/java/nz/mentalinc/watcher/
-│   ├── activities/       Screens and navigation
-│   ├── constants/        App-wide constants, URLs, and preference keys
-│   ├── controllers/      In-memory episode and row state
-│   ├── database/         Room database and DAO
-│   ├── domain/           Episode, Show, User, comparators
-│   ├── enums/            Episode types, show types, actions, list modes
-│   ├── exception/        App-specific exceptions
-│   ├── http/             Shared OkHttp client, cookies, CSRF handling
-│   ├── preferences/      Custom preference widgets
-│   ├── service/          MyEpisodes, TVMaze, credential, and feed services
-│   └── utils/            Date, string, cache, task, and input helpers
-├── src/main/res/         Layouts, menus, themes, strings, and translations
-├── src/test/             Local JVM unit tests
-└── src/androidTest/      Instrumented tests
-docs/                     Promotional artwork
-releases/                 Historical release APKs
-```
 
 ---
 
@@ -303,6 +205,5 @@ See <https://www.gnu.org/licenses/gpl-3.0.html> for the full license text.
 - **Original idea:** Dirk Vranckaert
 - **Programmed by:** mentalinc, Ivo Janssen, Dirk Vranckaert
 - **Website:** <https://github.com/mentalinc/my-episodes-watch-manager>
-- **Email:** mentalinc@outlook.com
 
 Episode and show metadata is provided by [TVMaze](https://www.tvmaze.com/). Tracked-show data and account actions are provided by [MyEpisodes.com](https://www.myepisodes.com/).
