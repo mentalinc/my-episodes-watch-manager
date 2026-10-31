@@ -7,7 +7,7 @@ android {
         minSdk 36
         targetSdk 37
         versionCode = 41
-        versionName = '1.9.2'
+        versionName = '1.9.3'
 
         missingDimensionStrategy   'react-native-camera', 'general'
 

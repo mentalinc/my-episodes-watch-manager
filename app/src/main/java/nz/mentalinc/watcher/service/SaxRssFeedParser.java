@@ -1,5 +1,6 @@
 package nz.mentalinc.watcher.service;
 
+import android.text.Html;
 import android.util.Log;
 
 import org.xml.sax.Attributes;
@@ -173,6 +174,17 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     }
 
     /**
+     * Decodes HTML/XML entities such as {@code &#039;} or {@code &amp;} that can appear
+     * double-encoded in MyEpisodes feed titles.
+     */
+    private String decodeHtmlEntities(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY).toString();
+    }
+
+    /**
      * Downloads a feed with the shared HTTP client so the MyEpisodes session cookie is sent.
      */
     private InputStream openFeed(URL url) throws IOException {
@@ -209,7 +221,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             item.setGuid(nodeValue.toString());
         }
         if (inItem && localName.equals("title")) {
-            item.setTitle(tempTitle.toString());
+            item.setTitle(decodeHtmlEntities(tempTitle.toString()));
             tempTitle = new StringBuilder();
         }
         if (inItem && localName.equals("link")) {
