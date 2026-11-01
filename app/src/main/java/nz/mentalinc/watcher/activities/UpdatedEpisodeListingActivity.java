@@ -152,7 +152,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
         adapter = new EpisodeAdapter(episodes, new HashMap<>());
-        adapter.submitList(episodes);
         rvEpisode.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -246,7 +245,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
                 adapter = new EpisodeAdapter(episodes, new HashMap<>());
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
                 rv.setAdapter(adapter);
-                adapter.submitList(episodes);
                 loadRuntimeMapForEpisodes(episodes, adapter);
                 if (swipeRefreshEps != null) {
                     swipeRefreshEps.setRefreshing(false);
@@ -626,7 +624,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
                 EpisodeAdapter newAdapter = new EpisodeAdapter(episodes, finalMap);
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
                 rv.setAdapter(newAdapter);
-                newAdapter.submitList(episodes);
             });
         });
     }
@@ -634,7 +631,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
     private void refreshEpisodeAdapter() {
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
         adapter = new EpisodeAdapter(episodes, new HashMap<>());
-        adapter.submitList(episodes);
         rvEpisode.setAdapter(adapter);
         loadRuntimeMapForEpisodes(episodes, adapter);
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.topAppBarEpisodesView);

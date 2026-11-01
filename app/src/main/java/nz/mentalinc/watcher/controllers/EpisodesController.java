@@ -342,7 +342,8 @@ public class EpisodesController {
         //pass the full episode type list to then split into all the shows.
         //need to get the array list and loop the episodes putting each episode in the array into its own show, then once have all the shows created, then add them finally to the ArrayMap using the myepisodeid as the key
 
-        for (Episode eps : episodeList) {
+        // Iterate a copy: callers may pass a show's own episode list, which this method appends to.
+        for (Episode eps : new ArrayList<>(episodeList)) {
 
             //check if show is in the array map if yes return from the ArrayMap, add the episode then update the ArrayMap with new.
             String myEpID = eps.getMyEpisodeID();
@@ -378,7 +379,8 @@ public class EpisodesController {
     }
 
     public void AddToAcquireShow(List<Episode> episodeList) {
-        for (Episode eps : episodeList) {
+        // Iterate a copy: callers may pass a show's own episode list, which this method appends to.
+        for (Episode eps : new ArrayList<>(episodeList)) {
             String myEpID = eps.getMyEpisodeID();
 
             Show showTemp = acquireShows.get(myEpID);
@@ -394,7 +396,8 @@ public class EpisodesController {
     }
 
     public void AddToComingShow(List<Episode> episodeList) {
-        for (Episode eps : episodeList) {
+        // Iterate a copy: callers may pass a show's own episode list, which this method appends to.
+        for (Episode eps : new ArrayList<>(episodeList)) {
             String myEpID = eps.getMyEpisodeID();
 
             Show showTemp = comingShows.get(myEpID);

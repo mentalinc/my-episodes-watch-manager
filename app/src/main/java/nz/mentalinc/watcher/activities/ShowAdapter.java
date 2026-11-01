@@ -1,8 +1,5 @@
 package nz.mentalinc.watcher.activities;
 
-import static nz.mentalinc.watcher.constants.MyEpisodeConstants.CONTEXT;
-
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,45 +14,60 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
-import java.text.DateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
+import nz.mentalinc.watcher.utils.DateUtil;
 
 public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
     private static final String LOG_TAG = ShowAdapter.class.getSimpleName();
-    private List<Show> showsList;
-    Context context = CONTEXT.getApplicationContext();
+    private static final RequestOptions POSTER_REQUEST_OPTIONS = new RequestOptions()
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.error);
     private final Map<String, EpisodeRuntime> runtimeMap;
 
     public ShowAdapter(List<Show> shows, Map<String, EpisodeRuntime> runtimeMap) {
         super(DIFF_CALLBACK);
-        this.showsList = shows != null ? new ArrayList<>(shows) : new ArrayList<>();
         this.runtimeMap = runtimeMap;
-        submitList(this.showsList);
+        submitList(shows != null ? new ArrayList<>(shows) : new ArrayList<>());
     }
 
     public void addMoreShows(List<Show> newShows) {
-        showsList.addAll(newShows);
-        submitList(showsList); // DiffUtil takes care of the check
+        if (newShows == null || newShows.isEmpty()) {
+            return;
+        }
+        // ListAdapter short-circuits submitList when the same instance is passed in, so build a
+        // new list instead of mutating the one currently held by the adapter.
+        List<Show> updatedShows = new ArrayList<>(getCurrentList());
+        updatedShows.addAll(newShows);
+        submitList(updatedShows);
     }
 
     public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<Show>() {
         @Override
         public boolean areItemsTheSame(Show oldItem, Show newItem) {
-            return oldItem.getShowName().equals(newItem.getShowName());
+            return Objects.equals(oldItem.getShowName(), newItem.getShowName())
+                    && Objects.equals(oldItem.getMyEpisodeID(), newItem.getMyEpisodeID());
         }
 
         @Override
         public boolean areContentsTheSame(Show oldItem, Show newItem) {
-            return (oldItem.getShowName().equals(newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
+            if (!areItemsTheSame(oldItem, newItem)
+                    || oldItem.getNumberEpisodes() != newItem.getNumberEpisodes()) {
+                return false;
+            }
+            Episode oldEpisode = oldItem.getFirstEpisode();
+            Episode newEpisode = newItem.getFirstEpisode();
+            return Objects.equals(oldEpisode.getName(), newEpisode.getName())
+                    && oldEpisode.getAirDate() == newEpisode.getAirDate()
+                    && Objects.equals(oldItem.getRunTime(), newItem.getRunTime());
         }
     };
 
@@ -117,20 +129,22 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
             showName.setText(displayName);
             TextView nextEpisode = holder.TextViewShowListNextEpisode;
             //need to build the show array up with episodes attached to the show before adding complex data.
-            String seasonNumber = show.getFirstEpisode().getSeasonString();
-            String episodeNumber = show.getFirstEpisode().getEpisodeString();
-            String episodeName = show.getFirstEpisode().getName();
+            Episode firstEpisode = show.getFirstEpisode();
+            String seasonNumber = firstEpisode.getSeasonString();
+            String episodeNumber = firstEpisode.getEpisodeString();
+            String episodeName = firstEpisode.getName();
             String episodeFullNumbering = "S" + seasonNumber + "E" + episodeNumber + " " + episodeName;
             nextEpisode.setText(episodeFullNumbering);
 
             TextView episodeAirTime = holder.episodetime;
-            episodeAirTime.setText(DateFormat.getDateInstance().format(new Date(show.getFirstEpisode().getAirDate())));
+            episodeAirTime.setText(DateUtil.formatAirDateMedium(firstEpisode.getAirDate(),
+                    holder.itemView.getContext().getString(R.string.unknownAirDate)));
 
             TextView textViewShowsRemaining = holder.textViewShowsRemaining;
             String episodesRemaining;
 
-            Date today = Calendar.getInstance().getTime();
-            if (new Date(show.getFirstEpisode().getAirDate()).before(today)) {
+            LocalDate airDate = DateUtil.toLocalDate(firstEpisode.getAirDate());
+            if (airDate != null && airDate.isBefore(LocalDate.now())) {
                 episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
             } else {
                 episodesRemaining = show.getNumberEpisodes() + " episodes coming";
@@ -140,8 +154,7 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
 
             TextView textViewShowsRunTime = holder.textViewShowsRunTime;
 
-            Episode nextEpisodeToWatch = show.getFirstEpisode();
-            String myepisodeID = nextEpisodeToWatch.getMyEpisodeID();
+            String myepisodeID = firstEpisode.getMyEpisodeID();
 
             EpisodeRuntime showRuntime = runtimeMap.get(myepisodeID);
             if (showRuntime != null) {
@@ -151,13 +164,9 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
                 String showImageURL = showRuntime.getShowImageURL();
                 ImageView showPoster = holder.showposter;
 
-                RequestOptions requestOptions = new RequestOptions();
-                requestOptions.placeholder(R.drawable.placeholder);
-                requestOptions.error(R.drawable.error);
-
                 Glide.with(holder.showposter)
                         .load(showImageURL)
-                        .apply(requestOptions)
+                        .apply(POSTER_REQUEST_OPTIONS)
                         .into(showPoster);
             }
 

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -17,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
-import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,26 +27,16 @@ import androidx.preference.PreferenceManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;
@@ -73,6 +61,7 @@ import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.DateUtil;
+import nz.mentalinc.watcher.utils.NetworkUtils;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 
@@ -85,10 +74,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private static final int SETTINGS_RESULT = 6;
     private static final String LOG_TAG = EpisodeListingActivity.class.getSimpleName();
     private static final String DIALOG_LOADING_TAG = "LOADING";
-    private static final String DIALOG_ONLINE_TAG = "ONLINE";
-    private static final String EPISODE_ROW_TITLE = "episodeRowTitle";
-    private static final String EPISODE_ROW_CHILD_TITLE = "episodeRowChildTitle";
-    private static final String EPISODE_ROW_CHILD_DETAIL = "episodeRowChildDetail";
     private long settingsTimestamp;
 
     private User user;
@@ -97,15 +82,15 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private List<Show> shows = new ArrayList<>();
     //private TextView Title;
     private TextView subTitle;
-    private SimpleExpandableListAdapter episodeAdapter;
+    private EpisodeExpandableAdapter episodeAdapter;
     private Integer exceptionMessageResId = null;
     private static EpisodeType episodesType;
     private ListMode listMode;
     private String title;
     //private Resources res; // Resource object to get Drawables
     // private android.content.res.Configuration conf;
-    private Map<Date, List<Episode>> listedAirDates = null;
-    private List<Map.Entry<Date, List<Episode>>> listedAirDatesList = null;
+    private Map<LocalDate, List<Episode>> listedAirDates = null;
+    private List<Map.Entry<LocalDate, List<Episode>>> listedAirDatesList = null;
     private boolean collapsed = true;
     //private boolean isOnelineCheck;
     private ExpandableListView expandableListView;
@@ -170,7 +155,8 @@ public class EpisodeListingActivity extends AppCompatActivity {
                     menu.setHeaderTitle(shows.get(groupid).getShowName());
                     break;
                 case EPISODES_BY_DATE:
-                    menu.setHeaderTitle(DateUtil.formatDateLong(determineDate(groupid)));
+                    menu.setHeaderTitle(DateUtil.formatAirDate(determineDate(groupid),
+                            getString(R.string.unknownAirDate)));
                     break;
                 default: //added for code quality
             }
@@ -244,7 +230,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         return episodes;
     }
 
-    private Date determineDate(int listGroupId) {
+    private LocalDate determineDate(int listGroupId) {
 
         if (listGroupId < 0) {
             return null;
@@ -252,10 +238,10 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
         switch (listMode) {
             case EPISODES_BY_SHOW:
-                return new Date(shows.get(listGroupId).getEpisodes().get(0).getAirDate());
+                return DateUtil.toLocalDate(shows.get(listGroupId).getEpisodes().get(0).getAirDate());
             case EPISODES_BY_DATE:
                 if (listedAirDatesList != null && listGroupId < listedAirDatesList.size()) {
-                    return (Date) listedAirDatesList.get(listGroupId).getKey();
+                    return listedAirDatesList.get(listGroupId).getKey();
                 }
                 break;
             default: //added for code quality
@@ -416,20 +402,14 @@ public class EpisodeListingActivity extends AppCompatActivity {
     }
 
     private void initExendableList() {
-        episodeAdapter = new SimpleExpandableListAdapter(
-                this,
-                createGroups(),
-                R.layout.episode_listing_tab_row_group,
-                new String[]{EPISODE_ROW_TITLE},
-                new int[]{R.id.episodeRowTitle},
-                createChilds(),
-                R.layout.episode_listing_tab_row_child,
-                new String[]{EPISODE_ROW_CHILD_TITLE, EPISODE_ROW_CHILD_DETAIL},
-                new int[]{R.id.episodeRowChildTitle, R.id.episodeRowChildDetail}
-        );
-        expandableListView.setAdapter(episodeAdapter);
-        episodeAdapter.notifyDataSetChanged();
-        registerForContextMenu(expandableListView);
+        List<EpisodeExpandableAdapter.Group> groups = createGroups();
+        if (episodeAdapter == null) {
+            episodeAdapter = new EpisodeExpandableAdapter(this, groups);
+            expandableListView.setAdapter(episodeAdapter);
+            registerForContextMenu(expandableListView);
+        } else {
+            episodeAdapter.submitList(groups);
+        }
 
         int countEpisodes = EpisodesController.getInstance().getEpisodesCount(episodesType);
 
@@ -486,8 +466,9 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private void openListRows(List<String> openRows) {
         for (String rowName : openRows) {
             for (int i = 0; i < episodeAdapter.getGroupCount(); i++) {
-                if (rowName.equals((episodeAdapter.getGroup(i).toString().split("\\["))[0]))
+                if (rowName.equals(episodeAdapter.getGroupKey(i))) {
                     expandableListView.expandGroup(i);
+                }
             }
         }
     }
@@ -497,7 +478,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
         for (int i = 0; i < episodeAdapter.getGroupCount(); i++) {
             if (expandableListView.collapseGroup(i)) {
-                rows.add((episodeAdapter.getGroup(i).toString().split("\\["))[0]);
+                rows.add(episodeAdapter.getGroupKey(i));
             }
 
         }
@@ -518,93 +499,58 @@ public class EpisodeListingActivity extends AppCompatActivity {
         }
     }
 
-    private List<? extends Map<String, ?>> createGroups() {
-        List<Map<String, String>> headerList = new ArrayList<>();
+    private List<EpisodeExpandableAdapter.Group> createGroups() {
+        List<EpisodeExpandableAdapter.Group> groups = new ArrayList<>();
+        String unknownAirDate = getString(R.string.unknownAirDate);
 
         switch (listMode) {
             case EPISODES_BY_DATE: {
                 listedAirDates = new LinkedHashMap<>();
-                Map<Date, Integer> workingMap = new TreeMap<>();
-                Map<Long, List<Episode>> dateEpisodesMap = new HashMap<>();
+                Map<LocalDate, Integer> workingMap = new TreeMap<>();
+                Map<LocalDate, List<Episode>> dateEpisodesMap = new HashMap<>();
+                List<Episode> unknownDateEpisodes = new ArrayList<>();
                 for (Show show : shows) {
                     for (Episode episode : show.getEpisodes()) {
-                        long airDateMillis = episode.getAirDate();
-                        Date airDate = new Date(airDateMillis);
-                        if (!workingMap.containsKey(airDate)) {
-                            workingMap.put(airDate, 1);
-                        } else {
-                            int count = workingMap.get(airDate);
-                            workingMap.put(airDate, ++count);
+                        LocalDate airDate = DateUtil.toLocalDate(episode.getAirDate());
+                        if (airDate == null) {
+                            unknownDateEpisodes.add(episode);
+                            continue;
                         }
-                        List<Episode> epsList = dateEpisodesMap.get(airDateMillis);
-                        if (epsList == null) {
-                            epsList = new ArrayList<>();
-                            dateEpisodesMap.put(airDateMillis, epsList);
-                        }
-                        epsList.add(episode);
+                        workingMap.merge(airDate, 1, Integer::sum);
+                        dateEpisodesMap.computeIfAbsent(airDate, key -> new ArrayList<>())
+                                .add(episode);
                     }
                 }
 
-                for (Date key : workingMap.keySet()) {
-                    Map<String, String> map = new HashMap<>();
-                    int countEp = workingMap.get(key);
-                    map.put(EPISODE_ROW_TITLE, DateUtil.formatDateFull(key) + " [ " + countEp + " ]");
-                    headerList.add(map);
-                    listedAirDates.put(key, dateEpisodesMap.get(key.getTime()));
+                for (Map.Entry<LocalDate, Integer> entry : workingMap.entrySet()) {
+                    LocalDate key = entry.getKey();
+                    String title = DateUtil.formatAirDateFull(key, unknownAirDate);
+                    List<Episode> groupEpisodes = dateEpisodesMap.get(key);
+                    groups.add(new EpisodeExpandableAdapter.Group(title,
+                            title + " [ " + entry.getValue() + " ]", groupEpisodes));
+                    listedAirDates.put(key, groupEpisodes);
+                }
+                if (!unknownDateEpisodes.isEmpty()) {
+                    groups.add(new EpisodeExpandableAdapter.Group(unknownAirDate,
+                            unknownAirDate + " [ " + unknownDateEpisodes.size() + " ]",
+                            unknownDateEpisodes));
+                    listedAirDates.put(null, unknownDateEpisodes);
                 }
                 listedAirDatesList = new ArrayList<>(listedAirDates.entrySet());
                 break;
             }
             case EPISODES_BY_SHOW: {
                 for (Show show : shows) {
-                    Map<String, String> map = new HashMap<>();
-                    map.put(EPISODE_ROW_TITLE, show.getShowName() + " [ " + show.getNumberEpisodes() + " ]");
-                    headerList.add(map);
+                    groups.add(new EpisodeExpandableAdapter.Group(show.getShowName(),
+                            show.getShowName() + " [ " + show.getNumberEpisodes() + " ]",
+                            show.getEpisodes()));
                 }
                 break;
             }
             default: //added for code quality
         }
- 
-        return headerList;
-    }
 
-    private List<? extends List<? extends Map<String, ?>>> createChilds() {
-        List<List<Map<String, String>>> childList = new ArrayList<>();
-
-        switch (listMode) {
-            case EPISODES_BY_DATE: {
-                for (Map.Entry<Date, List<Episode>> dateListEntry : listedAirDates.entrySet()) {
-                    List<Episode> episodeList = dateListEntry.getValue();
-                    List<Map<String, String>> subListSecondLvl = new ArrayList<>();
-                    if (episodeList != null) {
-                        for (Episode episode : episodeList) {
-                            HashMap<String, String> map = new HashMap<>();
-                            map.put(EPISODE_ROW_CHILD_TITLE, episode.getShowName());
-                            map.put(EPISODE_ROW_CHILD_DETAIL, "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
-                            subListSecondLvl.add(map);
-                        }
-                    }
-                    childList.add(subListSecondLvl);
-                }
-                break;
-            }
-            case EPISODES_BY_SHOW: {
-                for (Show show : shows) {
-                    List<Map<String, String>> subListSecondLvl = new ArrayList<>();
-                    for (Episode episode : show.getEpisodes()) {
-                        HashMap<String, String> map = new HashMap<>();
-                        map.put(EPISODE_ROW_CHILD_TITLE, episode.getShowName());
-                        map.put(EPISODE_ROW_CHILD_DETAIL, "S" + episode.getSeasonString() + "E" + episode.getEpisodeString() + " - " + episode.getName());
-                        subListSecondLvl.add(map);
-                    }
-                    childList.add(subListSecondLvl);
-                }
-                break;
-            }
-            default: //added for code quality
-        }
-        return childList;
+        return groups;
     }
 
     private void openEpisodeDetails(Episode episode, EpisodeType episodeType) {
@@ -867,11 +813,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
     }
 
     public void onRefreshClick() {
-        Log.v(LOG_TAG, "Show online dialog.");
-        showOnlineDialog();
-        boolean onlineCheck = isOnline();
-        Log.v(LOG_TAG, "Hide online dialog.");
-        dismissOnlineDialog();
+        boolean onlineCheck = NetworkUtils.isOnline(this);
 
         Log.d(LOG_TAG, "Check if online: " + onlineCheck);
 
@@ -939,36 +881,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
         startActivity(home);
     }
 
-    private Boolean isOnline() {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        try {
-            //Thread.sleep(3000);
-            URL url = new URL("https://www.myepisodes.com/favicon.ico");
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", "yourAgent");
-            connection.setRequestProperty("Connection", "close");
-            connection.setConnectTimeout(1000);
-            connection.connect();
-
-            if (connection.getResponseCode() == 200) {
-                connection.disconnect();
-                Log.v(LOG_TAG, "Online.");
-                return true;
-            } else {
-                connection.disconnect();
-                return false;
-            }
-        } catch (UnknownHostException e) {
-            Log.e(LOG_TAG, e.toString());
-            Log.v(LOG_TAG, "Offline!!");
-            return false;
-        } catch (Exception e) {
-            Log.e(LOG_TAG, e.toString());
-            return false;
-        }
-    }
-
     public static class LoadingDialogFragment extends DialogFragment {
         private static final String ARG_MESSAGE = "message";
 
@@ -1000,18 +912,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
     private void dismissLoadingDialog() {
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
-        if (prev != null) ((DialogFragment) prev).dismiss();
-    }
-
-    private void showOnlineDialog() {
-        if (getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getSupportFragmentManager(), DIALOG_ONLINE_TAG);
-            getSupportFragmentManager().executePendingTransactions();
-        }
-    }
-
-    private void dismissOnlineDialog() {
-        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 }

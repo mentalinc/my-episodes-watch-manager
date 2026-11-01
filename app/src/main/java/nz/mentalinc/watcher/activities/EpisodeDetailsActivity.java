@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -189,14 +188,8 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
         seasonText.setText(ep.getSeasonString());
         episodeText.setText(ep.getEpisodeString());
 
-        Date airdate = new Date(ep.getAirDate());
-        String formattedAirDate;
-        if (airdate != null) {
-            formattedAirDate = DateUtil.formatDateLong(airdate);
-        } else {
-            formattedAirDate = getString(R.string.episodeDetailsAirDateLabelDateNotFound);
-        }
-        airdateText.setText(formattedAirDate);
+        airdateText.setText(DateUtil.formatAirDate(ep.getAirDate(),
+                getString(R.string.unknownAirDate)));
 
         Button markAsAcquiredButton = findViewById(R.id.markAsAcquiredButton);
         Button markAsSeenButton = findViewById(R.id.markAsSeenButton);

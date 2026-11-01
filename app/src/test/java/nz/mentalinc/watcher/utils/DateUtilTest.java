@@ -104,4 +104,35 @@ public class DateUtilTest {
     public void testConvertToDate_nullInput_throws() {
         assertThrows(NullPointerException.class, () -> DateUtil.convertToDate(null));
     }
+
+    @Test
+    public void testToLocalDate_zeroMillis_returnsNull() {
+        assertNull(DateUtil.toLocalDate(0L));
+    }
+
+    @Test
+    public void testToLocalDate_negativeMillis_returnsNull() {
+        assertNull(DateUtil.toLocalDate(-1L));
+    }
+
+    @Test
+    public void testToLocalDate_validMillis_returnsDate() {
+        Calendar cal = new GregorianCalendar(2024, Calendar.MARCH, 15);
+        assertEquals(java.time.LocalDate.of(2024, 3, 15),
+                DateUtil.toLocalDate(cal.getTimeInMillis()));
+    }
+
+    @Test
+    public void testFormatAirDate_unknownMillis_returnsFallback() {
+        assertEquals("Unknown air date", DateUtil.formatAirDate(0L, "Unknown air date"));
+    }
+
+    @Test
+    public void testFormatAirDate_validMillis_matchesLongFormat() {
+        Calendar cal = new GregorianCalendar(2024, Calendar.MARCH, 15);
+        Date date = cal.getTime();
+        DateFormat longFormat = DateFormat.getDateInstance(DateFormat.LONG);
+        assertEquals(longFormat.format(date),
+                DateUtil.formatAirDate(cal.getTimeInMillis(), "Unknown air date"));
+    }
 }

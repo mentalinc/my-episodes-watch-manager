@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -37,15 +36,11 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;
@@ -69,6 +64,7 @@ import nz.mentalinc.watcher.service.EpisodesService;
 import nz.mentalinc.watcher.service.ItemClickSupport;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.service.UserService;
+import nz.mentalinc.watcher.utils.NetworkUtils;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 public class ShowListingActivity extends AppCompatActivity {
@@ -81,7 +77,6 @@ public class ShowListingActivity extends AppCompatActivity {
     private boolean sortByRuntime = false;
     private static EpisodeType episodesType;
     private static final String DIALOG_LOADING_TAG = "LOADING";
-    private static final String DIALOG_ONLINE_TAG = "ONLINE";
     private Integer exceptionMessageResId = null;
     private EpisodesService service;
     private User user;
@@ -638,11 +633,7 @@ public class ShowListingActivity extends AppCompatActivity {
     }
 
     public void onRefreshClick() {
-        Log.v(LOG_TAG, "Show online dialog.");
-        showOnlineDialog();
-        boolean onlineCheck = isOnline();
-        Log.v(LOG_TAG, "Hide online dialog.");
-        dismissOnlineDialog();
+        boolean onlineCheck = NetworkUtils.isOnline(this);
 
         Log.d(LOG_TAG, "Check if online: " + onlineCheck);
 
@@ -693,36 +684,6 @@ public class ShowListingActivity extends AppCompatActivity {
     }
 
 
-
-    private Boolean isOnline() {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        try {
-            //Thread.sleep(3000);
-            URL url = new URL("https://www.myepisodes.com/favicon.ico");
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", "yourAgent");
-            connection.setRequestProperty("Connection", "close");
-            connection.setConnectTimeout(1000);
-            connection.connect();
-
-            if (connection.getResponseCode() == 200) {
-                connection.disconnect();
-                Log.v(LOG_TAG, "Online.");
-                return true;
-            } else {
-                connection.disconnect();
-                return false;
-            }
-        } catch (UnknownHostException e) {
-            Log.e(LOG_TAG, e.toString());
-            Log.v(LOG_TAG, "Offline!!");
-            return false;
-        } catch (Exception e) {
-            Log.e(LOG_TAG, e.toString());
-            return false;
-        }
-    }
 
     private void getEpisodesMyEpisodes() {
         try {
@@ -821,18 +782,6 @@ public class ShowListingActivity extends AppCompatActivity {
 
     private void dismissLoadingDialog() {
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
-        if (prev != null) ((DialogFragment) prev).dismiss();
-    }
-
-    private void showOnlineDialog() {
-        if (getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG) == null) {
-            LoadingDialogFragment.newInstance(R.string.progressLoadingOnlineCheck).show(getSupportFragmentManager(), DIALOG_ONLINE_TAG);
-            getSupportFragmentManager().executePendingTransactions();
-        }
-    }
-
-    private void dismissOnlineDialog() {
-        Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 }

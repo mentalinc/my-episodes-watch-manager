@@ -1,8 +1,5 @@
 package nz.mentalinc.watcher.activities;
 
-import static nz.mentalinc.watcher.constants.MyEpisodeConstants.CONTEXT;
-
-import android.content.Context;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,9 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.domain.Episode;
@@ -31,31 +29,29 @@ import nz.mentalinc.watcher.service.EpisodeRuntime;
 public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewHolder> {
 
     private static final String LOG_TAG = ShowDetailAdapter.class.getSimpleName();
-    private List<Show> showsList;
-    Context context = CONTEXT.getApplicationContext();
+    private static final RequestOptions POSTER_REQUEST_OPTIONS = new RequestOptions()
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.error);
     private final Map<String, EpisodeRuntime> runtimeMap;
 
 
     public ShowDetailAdapter(List<Show> shows, Map<String, EpisodeRuntime> runtimeMap) {
         super(DIFF_CALLBACK);
         this.runtimeMap = runtimeMap;
-    }
-
-
-    public void addMoreShows(List<Show> newShows) {
-        showsList.addAll(newShows);
-        submitList(showsList); // DiffUtil takes care of the check
+        submitList(shows != null ? new ArrayList<>(shows) : new ArrayList<>());
     }
 
     public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<Show>() {
         @Override
         public boolean areItemsTheSame(Show oldItem, Show newItem) {
-            return oldItem.getShowName().equals(newItem.getShowName());
+            return Objects.equals(oldItem.getShowName(), newItem.getShowName())
+                    && Objects.equals(oldItem.getMyEpisodeID(), newItem.getMyEpisodeID());
         }
 
         @Override
         public boolean areContentsTheSame(Show oldItem, Show newItem) {
-            return (oldItem.getShowName().equals(newItem.getShowName()) && oldItem.getMyEpisodeID().equals(newItem.getMyEpisodeID()));
+            return areItemsTheSame(oldItem, newItem)
+                    && Objects.equals(oldItem.getRunTime(), newItem.getRunTime());
         }
     };
 
@@ -103,8 +99,6 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
     public void onBindViewHolder(ShowDetailAdapter.ViewHolder holder, int position) {
 
         Show show = getItem(position);
-        showsList.add(show);
-
 
         try {
 
@@ -171,13 +165,9 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
             String showImageURL = showRuntime.getShowImageURL();
             ImageView showPoster = holder.showposter;
 
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.placeholder(R.drawable.placeholder);
-            requestOptions.error(R.drawable.error);
-
             Glide.with(holder.showposter)
                     .load(showImageURL)
-                    .apply(requestOptions)
+                    .apply(POSTER_REQUEST_OPTIONS)
                     .into(showPoster);
 
         } catch (NullPointerException e) {

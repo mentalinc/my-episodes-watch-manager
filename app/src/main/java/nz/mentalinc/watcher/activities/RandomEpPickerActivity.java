@@ -34,7 +34,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,13 +136,8 @@ public class RandomEpPickerActivity extends Activity {
         seasonText.setText(seasonString);
         episodeText.setText(episodeString);
 
-        Date airdate = new Date(random.getAirDate());
-        String formattedAirDate;
-        if (airdate != null) {
-            formattedAirDate = DateUtil.formatDateLong(airdate);
-        } else {
-            formattedAirDate = getString(R.string.episodeDetailsAirDateLabelDateNotFound);
-        }
+        String formattedAirDate = DateUtil.formatAirDate(random.getAirDate(),
+                getString(R.string.unknownAirDate));
 
         String airdateString = " " + formattedAirDate;
         airdateText.setText(airdateString);

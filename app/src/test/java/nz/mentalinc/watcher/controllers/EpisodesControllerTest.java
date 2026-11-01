@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -186,5 +187,57 @@ public class EpisodesControllerTest {
                 controller.getEpisodesShows(EpisodeType.COMING_BY_SHOW);
         assertNotNull(shows);
         assertTrue(shows.containsKey("sid3"));
+    }
+
+    @Test
+    public void testAddToWatchShow_acceptsShowEpisodeList() {
+        Episode first = new Episode();
+        first.setMyEpisodeID("cme-show");
+        first.setShowName("CME Show");
+        first.setSeason(1);
+        first.setEpisode(1);
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH,
+                new ArrayList<>(Collections.singletonList(first)));
+        controller.AddToWatchShow(controller.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
+
+        List<Episode> showEpisodes =
+                controller.getShowTypeEpisodes(EpisodeType.WATCH_BY_SHOW, "cme-show");
+        assertNotNull(showEpisodes);
+
+        Episode acquired = new Episode();
+        acquired.setMyEpisodeID("cme-show");
+        acquired.setShowName("CME Show");
+        acquired.setSeason(1);
+        acquired.setEpisode(2);
+        showEpisodes.add(acquired);
+
+        // Regression: this used to throw ConcurrentModificationException because the method
+        // appended to the very list it was iterating over. Any exception fails the test.
+        controller.AddToWatchShow(showEpisodes);
+    }
+
+    @Test
+    public void testAddToWatchShow_addsSingleEpisodeToExistingShow() {
+        Episode first = new Episode();
+        first.setMyEpisodeID("single-show");
+        first.setShowName("Single Show");
+        first.setSeason(1);
+        first.setEpisode(1);
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH,
+                new ArrayList<>(Collections.singletonList(first)));
+        controller.AddToWatchShow(controller.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
+
+        Episode acquired = new Episode();
+        acquired.setMyEpisodeID("single-show");
+        acquired.setShowName("Single Show");
+        acquired.setSeason(1);
+        acquired.setEpisode(2);
+        controller.AddToWatchShow(Collections.singletonList(acquired));
+
+        List<Episode> showEpisodes =
+                controller.getShowTypeEpisodes(EpisodeType.WATCH_BY_SHOW, "single-show");
+        assertNotNull(showEpisodes);
+        assertEquals(2, showEpisodes.size());
+        assertTrue(showEpisodes.contains(acquired));
     }
 }

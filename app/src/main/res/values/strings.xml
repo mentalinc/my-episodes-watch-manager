@@ -61,6 +61,7 @@
     <string name="episodeDetailsAirDateLabel">Airdate: </string>
     <string name="episodeRuntimeLabel">Runtime: </string>
     <string name="episodeDetailsAirDateLabelDateNotFound">Unsupported date format!</string>
+    <string name="unknownAirDate">Unknown air date</string>
     <string name="TweetTitle">Share</string>
     <string name="Tweet">I have watched \'%s\' #MyEpisodesManager #Android</string>
 

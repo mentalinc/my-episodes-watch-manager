@@ -7,6 +7,8 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import nz.mentalinc.watcher.utils.NetworkUtils;
+
 public class MyEpisodeConstants {
     public static final String UID_REPLACEMENT_STRING = "[UID]";
     public static final String PWD_REPLACEMENT_STRING = "[PWD]";
@@ -144,6 +146,11 @@ public class MyEpisodeConstants {
     private static Boolean sIsOnline = null;
 
     public static boolean isOnline() {
+        if (CONTEXT != null) {
+            // Local connectivity check: no HTTP probe and no cached result, so callers never pay
+            // a network timeout and never see a stale answer after connectivity changes.
+            return NetworkUtils.isOnline(CONTEXT);
+        }
         if (sIsOnline != null) {
             return sIsOnline;
         }

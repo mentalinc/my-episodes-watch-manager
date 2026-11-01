@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -339,14 +340,10 @@ public class EpisodesService {
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().addEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
             EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
-            List<Episode> tempList = EpisodesController.getInstance().getShowTypeEpisodes(EpisodeType.WATCH_BY_SHOW, episode.getMyEpisodeID());
-            if (tempList == null) {
-                tempList = new ArrayList<>();
-                tempList.add(episode);
-            }else{
-                tempList.add(episode);
-            }
-            EpisodesController.getInstance().AddToWatchShow(tempList);
+            // Add only the newly acquired episode. Reusing the show's own episode list here made
+            // AddToWatchShow iterate that list while adding to it, which threw a
+            // ConcurrentModificationException after the server had already accepted the update.
+            EpisodesController.getInstance().AddToWatchShow(Collections.singletonList(episode));
         }
     }
 
