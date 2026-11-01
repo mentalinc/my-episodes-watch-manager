@@ -5,6 +5,9 @@ import android.util.Log;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.Locale;
+
+import okhttp3.Response;
 
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.domain.User;
@@ -43,26 +46,50 @@ public class UserService {
             params.put(MyEpisodeConstants.MYEPISODES_FORM_PARAM_ACTION, MyEpisodeConstants.MYEPISODES_LOGIN_PAGE_PARAM_ACTION_VALUE);
             http.addCsrfToken(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE, params);
 
-            response = http.postFormBody(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE, params);
+            try (Response httpResponse = http.postForm(MyEpisodeConstants.MYEPISODES_LOGIN_PAGE, params)) {
+                if (!httpResponse.isSuccessful()) {
+                    throw new LoginFailedException("Login to MyEpisodes failed with HTTP " + httpResponse.code());
+                }
+                response = httpResponse.body() != null ? httpResponse.body().string() : "";
+            }
+        } catch (LoginFailedException e) {
+            throw e;
         } catch (Exception e) {
-            response = "";
-            Log.e(LOG_TAG, "Login failed", e);
+            // A network/IO failure is a login failure. Never fall through and report success.
+            String message = "Login to MyEpisodes failed: " + e.getMessage();
+            Log.e(LOG_TAG, message, e);
+            throw new LoginFailedException(message, e);
         }
-
-        boolean result = false;
 
         String responsePage = response;
 
-        if (responsePage.contains("Invalid password") || responsePage.contains("Username not found") || responsePage.contains("ERR_INVALID_REQ")) { // || !responsePage.contains(username)) {
-            String message = "Login to MyEpisodes failed. Login page: " + MyEpisodeConstants.MYEPISODES_LOGIN_PAGE + " Username: " + username +
-                    " Password: ***** Leaving with status code " + result;
+        if (responsePage.trim().isEmpty()) {
+            String message = "Login to MyEpisodes returned an empty response.";
             Log.w(LOG_TAG, message);
             throw new LoginFailedException(message);
-        } else {
-            Log.d(LOG_TAG, "Successful login to " + MyEpisodeConstants.MYEPISODES_LOGIN_PAGE);
-            result = true;
         }
-        //  return msCookieManager;
+
+        boolean looksLoggedIn = responsePage.toLowerCase(Locale.ROOT).contains("logout");
+        if (responsePage.contains("Invalid password")
+                || responsePage.contains("Username not found")
+                || responsePage.contains("ERR_INVALID_REQ")
+                || (!looksLoggedIn && looksLikeLoginForm(responsePage))) {
+            String message = "Login to MyEpisodes failed. Login page: " + MyEpisodeConstants.MYEPISODES_LOGIN_PAGE
+                    + " Username: " + username + " Password: *****";
+            Log.w(LOG_TAG, message);
+            throw new LoginFailedException(message);
+        }
+
+        Log.d(LOG_TAG, "Successful login to " + MyEpisodeConstants.MYEPISODES_LOGIN_PAGE);
+    }
+
+    /**
+     * Detects the login form in the response. A successful login redirects away from the form;
+     * if the form is still present the credentials were not accepted.
+     */
+    private boolean looksLikeLoginForm(String page) {
+        return page.contains("name=\"password\"")
+                && (page.contains("login.php") || page.contains("action=login"));
     }
 
     private boolean RegisterUser(String username, String password, String email) throws RegisterFailedException {

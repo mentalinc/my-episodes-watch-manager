@@ -47,9 +47,10 @@ public class LoginActivity extends AppCompatActivity {
         if (prev != null) ((DialogFragment) prev).dismiss();
     }
 
-    private void showErrorDialog() {
+    private void showErrorDialog(int messageResId) {
         if (getSupportFragmentManager().findFragmentByTag(DIALOG_ERROR_TAG) == null) {
-            new ErrorDialogFragment().show(getSupportFragmentManager(), DIALOG_ERROR_TAG);
+            int message = messageResId > 0 ? messageResId : R.string.defaultExceptionMessage;
+            ErrorDialogFragment.newInstance(message).show(getSupportFragmentManager(), DIALOG_ERROR_TAG);
         }
     }
 
@@ -93,31 +94,33 @@ public class LoginActivity extends AppCompatActivity {
                 if (username.length() > 0 && password.length() > 0) {
                     final User user = new User(username, password);
 
-                    //TODO login failed exception doesn't get shown to the user or stop and login takes user to homeactivity but is blank, so need to logout to try again.
                     showLoadingDialog();
-                    //loginDialog(LoginActivity.this);
 
                     TaskRunner.getExecutor().execute(() -> {
-                        login(user);
-                        //todo add a test here to check for a type of cookie to show login has worked ok....
-                        //remove true and add in the cookie test
-                        //    if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                        storeLoginCredentials(user);
-                        //    }
+                        boolean loginSucceeded = login(user);
+                        final int errorMessageResId = exceptionMessageResId;
+                        if (loginSucceeded) {
+                            try {
+                                storeLoginCredentials(user);
+                            } catch (RuntimeException e) {
+                                // Login itself worked; failing to persist the credentials must not
+                                // turn a successful login into a failure.
+                                Log.e(LOG_TAG, "Could not store login credentials", e);
+                            }
+                        }
 
                         runOnUiThread(() -> {
+                            if (isFinishing() || isDestroyed()) {
+                                return;
+                            }
                             dismissLoadingDialog();
-                            //todo add a test here to check for a type of cookie to show login has worked ok....
-                            //remove true and add in the cookie test
-                            // if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                            //  Toast.makeText(LoginActivity.this, R.string.loginSuccessfullLogin, Toast.LENGTH_LONG).show();
-                            finalizeLogin();
-                            //   } else {
-                            ((EditText) findViewById(R.id.loginUsername)).setText("");
-                            ((EditText) findViewById(R.id.loginPassword)).setText("");
-                            showErrorDialog();
-
-                            //   }
+                            if (loginSucceeded) {
+                                ((EditText) findViewById(R.id.loginUsername)).setText("");
+                                ((EditText) findViewById(R.id.loginPassword)).setText("");
+                                finalizeLogin();
+                            } else {
+                                showErrorDialog(errorMessageResId);
+                            }
                         });
                     });
                 } else {
@@ -154,9 +157,24 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public static class ErrorDialogFragment extends DialogFragment {
+        private static final String ARG_MESSAGE = "message";
+
+        public static ErrorDialogFragment newInstance(int messageResId) {
+            ErrorDialogFragment frag = new ErrorDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_MESSAGE, messageResId);
+            frag.setArguments(args);
+            return frag;
+        }
+
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int messageResId = getArguments() != null
+                    ? getArguments().getInt(ARG_MESSAGE, R.string.defaultExceptionMessage)
+                    : R.string.defaultExceptionMessage;
             return new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.exceptionDialogTitle)
+                    .setMessage(messageResId)
                     .setCancelable(false)
                     .setNeutralButton(R.string.dialogOK, (dialog, id) -> dismiss())
                     .create();
@@ -199,20 +217,23 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void login(User user) {
-        //java.net.CookieManager cookieManager = new java.net.CookieManager();
+    /**
+     * Attempts to log in and returns whether it succeeded. Callers must only persist credentials
+     * and leave the screen when this returns {@code true}.
+     */
+    private boolean login(User user) {
+        exceptionMessageResId = -1;
         try {
             service.login(user);
+            return true;
         } catch (LoginFailedException e) {
-            String message = "Login failed";
-            Log.e(LOG_TAG, message, e);
+            Log.e(LOG_TAG, "Login failed", e);
             exceptionMessageResId = R.string.loginLoginFailed;
         } catch (Exception e) {
-            String message = "Some Exception occured";
-            Log.e(LOG_TAG, message, e);
+            Log.e(LOG_TAG, "Unexpected error during login", e);
             exceptionMessageResId = R.string.defaultExceptionMessage;
         }
-        // return cookieManager;
+        return false;
     }
 
     private boolean checkLoginCredentials() {

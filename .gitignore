@@ -13,3 +13,7 @@ wear/build/
 app/google-services.json
 gradlew old.7z
 .sonarlint/connectedMode.json
+# Signing material must never be committed.
+*.keystore
+*.jks
+/keystore/

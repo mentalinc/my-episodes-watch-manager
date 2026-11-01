@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import nz.mentalinc.watcher.domain.Episode;
+import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
 
 import static org.junit.Assert.*;
@@ -118,6 +119,31 @@ public class EpisodesControllerTest {
         ep.setMyEpisodeID("1");
         controller.addEpisode(EpisodeType.EPISODES_TO_WATCH, ep);
         assertFalse(controller.areListsEmpty());
+    }
+
+    @Test
+    public void testGetRandomWatchEpisodeShowList_canBeCalledTwice() {
+        Episode ep = new Episode();
+        ep.setMyEpisodeID("random-show");
+        ep.setShowName("Random Show");
+        ep.setSeason(1);
+        ep.setEpisode(1);
+        ep.setName("Pilot");
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, Arrays.asList(ep));
+
+        List<Show> first = controller.getRandomWatchEpisodeShowList();
+        List<Show> second = controller.getRandomWatchEpisodeShowList();
+
+        assertEquals(1, first.size());
+        assertEquals(1, second.size());
+        assertEquals("Random Show", second.get(0).getShowName());
+    }
+
+    @Test
+    public void testGetRandomWatchEpisodeShowList_emptyWhenNothingToWatch() {
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
+
+        assertTrue(controller.getRandomWatchEpisodeShowList().isEmpty());
     }
 
     @Test

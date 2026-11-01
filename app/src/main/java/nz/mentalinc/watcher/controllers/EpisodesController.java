@@ -261,11 +261,18 @@ public class EpisodesController {
     }
 
     public List<Show> getRandomWatchEpisodeShowList() {
+        // The show list is rebuilt on every call, so the lookup cache must be reset too.
+        // Otherwise AddEpisodeToShow reuses stale Show objects that are no longer in `shows`,
+        // leaving `shows` empty and making nextInt(0) throw.
         shows = new ArrayList<>();
-        if (watchEpisodes != null && watchEpisodes.size() > 0) {
+        showNameMap.clear();
+        if (watchEpisodes != null) {
             for (Episode ep : watchEpisodes) {
                 AddEpisodeToShow(ep);
             }
+        }
+        if (shows.isEmpty()) {
+            return new ArrayList<>();
         }
         SecureRandom r = new SecureRandom();
         int randint = r.nextInt(shows.size());

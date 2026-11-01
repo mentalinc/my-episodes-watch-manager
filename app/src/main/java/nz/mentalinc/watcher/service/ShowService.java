@@ -474,26 +474,42 @@ public class ShowService {
         userService.login(user.getUsername(), user.getPassword());
 
         try {
+            // These actions change state, so they must be sent as a POST with a CSRF token
+            // rather than as a GET link that any page can trigger. The parameters are kept in
+            // the query string as well as the body for compatibility with the site's handler.
             String url = MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID();
+            HashMap<String, String> params = new HashMap<>();
+            params.put("showid", show.getMyEpisodeID());
 
             switch (showAction) {
                 case IGNORE:
                     Log.d(LOG_TAG, "IGNORING SHOWS");
                     url = MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_URL + show.getMyEpisodeID();
+                    params.put("action", "Ignore");
+                    params.put("Ignore", "1");
                     break;
                 case UNIGNORE:
                     Log.d(LOG_TAG, "UNIGNORING SHOWS");
                     url = MyEpisodeConstants.MYEPISODES_FAVO_UNIGNORE_URL + show.getMyEpisodeID();
+                    params.put("action", "Ignore");
+                    params.put("Ignore", "0");
                     break;
                 case DELETE:
                     Log.d(LOG_TAG, "DELETING SHOWS");
                     url = MyEpisodeConstants.MYEPISODES_FAVO_REMOVE_ULR + show.getMyEpisodeID();
+                    params.put("action", "Remove");
+                    params.put("Remove", "1");
                     break;
                 default: //added for code quality
             }
 
             // Use the shared client so the session cookie (including myeps_sso) is sent.
-            try (Response response = HttpClientProvider.getInstance().get(url)) {
+            HttpClientProvider http = HttpClientProvider.getInstance();
+            http.addCsrfToken(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE, params);
+            try (Response response = http.postForm(url, params)) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("HTTP " + response.code() + " for " + url);
+                }
                 Log.d(LOG_TAG, "Mark show response: HTTP " + response.code());
             }
 

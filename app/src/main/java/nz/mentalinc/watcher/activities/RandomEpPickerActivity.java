@@ -113,6 +113,10 @@ public class RandomEpPickerActivity extends Activity {
     }
 
     private void displayShow(Show show) {
+        if (show == null || show.getEpisodes().isEmpty()) {
+            Log.w(LOG_TAG, "Cannot display a show without episodes");
+            return;
+        }
         shows.clear();
         shows.add(show);
         showMyEpisodeID = show.getMyEpisodeID();
@@ -148,6 +152,10 @@ public class RandomEpPickerActivity extends Activity {
             TaskRunner.getExecutor().execute(() -> {
                 AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
                 EpisodeRuntime showRuntime = database.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(random.getMyEpisodeID());
+                if (showRuntime == null || TextUtils.isEmpty(showRuntime.getShowTVMazeID())) {
+                    runOnUiThread(() -> aboutWebsite.setVisibility(View.GONE));
+                    return;
+                }
                 String showTVMazeID = showRuntime.getShowTVMazeID();
                 runOnUiThread(() -> {
                     HashMap<String, String> episodeSummaryHashMap = new HashMap<>();
@@ -189,7 +197,12 @@ public class RandomEpPickerActivity extends Activity {
                 case 4: pickRandomByRuntime(60, -1); break;
                 default:
                     shows = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
-                    displayShow(shows.get(0));
+                    if (!shows.isEmpty()) {
+                        displayShow(shows.get(0));
+                    } else {
+                        Toast.makeText(RandomEpPickerActivity.this,
+                                R.string.randompickerNothingToWatch, Toast.LENGTH_LONG).show();
+                    }
                     break;
             }
             dialog.dismiss();
@@ -609,6 +622,10 @@ public class RandomEpPickerActivity extends Activity {
 
             SeriesDAO seriesDAO = database.getSeriesDAO();
             EpisodeRuntime showInfo = seriesDAO.getEpisodeRuntimeWithTVMazeId(params[0]);
+            if (showInfo == null) {
+                Log.w(LOG_TAG, "No cached runtime for TVMaze id " + params[0]);
+                return;
+            }
 
             String ShowName = showInfo.getShowName();
             String showURL = showInfo.getShowURL();
@@ -617,7 +634,9 @@ public class RandomEpPickerActivity extends Activity {
             String showImageURL = showInfo.getShowImageURL();
             String ShowRuntime = showInfo.getShowRuntime();
 
-            if (!ShowName.isEmpty() && !showURL.isEmpty() && !officialSite.isEmpty() && !showSummary.isEmpty() && !showImageURL.isEmpty()) {
+            if (!TextUtils.isEmpty(ShowName) && !TextUtils.isEmpty(showURL)
+                    && !TextUtils.isEmpty(officialSite) && !TextUtils.isEmpty(showSummary)
+                    && !TextUtils.isEmpty(showImageURL)) {
 
                 showSummaryHash.put("ShowName", ShowName);
                 showSummaryHash.put(MyEpisodeConstants.SHOW_URL, showURL);
@@ -638,6 +657,9 @@ public class RandomEpPickerActivity extends Activity {
                         showImageURL = jObj.getJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).getString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM);
                     }
 
+                    if (showImageURL == null) {
+                        showImageURL = "";
+                    }
                     showImageURL = showImageURL.replace("http://", "https://");
                     showSummary = ShowService.stripHtml(showSummary);
 

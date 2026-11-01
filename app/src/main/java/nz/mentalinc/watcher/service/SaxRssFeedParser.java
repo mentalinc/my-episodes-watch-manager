@@ -36,12 +36,10 @@ import nz.mentalinc.watcher.http.HttpClientProvider;
 
 public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     private static final String LOG_TAG = SaxRssFeedParser.class.getSimpleName();
-    private static final String UTF_8 = "UTF_8";
+    private static final String UTF_8 = "UTF-8";
 
     private boolean inItem = false;
     private boolean inDescription = true;
-    private boolean recordTitleString = false;
-    private StringBuilder tempTitle = new StringBuilder();
     private StringBuilder nodeValue = null;
     private final Feed feed = new Feed();
     private FeedItem item = null;
@@ -66,7 +64,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     case EPISODES_TO_WATCH:
                         if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                             Log.d(LOG_TAG, "MyEpisodeConstants.EXTENDED_EPISODES_XML:  " + MyEpisodeConstants.EXTENDED_EPISODES_XML);
-                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
+                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML));
                         } else {
                             inputStream = openCacheFile("Watch.xml");
                             if (inputStream == null) {
@@ -74,7 +72,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                                 inputStream = openFeed(url);
                                 String content = convertStreamToString(inputStream, UTF_8);
                                 FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Watch.xml", 0);
-                                fos.write(content.getBytes());
+                                fos.write(content.getBytes(StandardCharsets.UTF_8));
                                 fos.close();
                                 Log.d(LOG_TAG, "Watch.xml saved to disk");
                                 inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
@@ -90,7 +88,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                     case EPISODES_TO_ACQUIRE:
                         if (MyEpisodeConstants.DAYS_BACK_ENABLED) {
                             Log.d(LOG_TAG, "MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE:  " + MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE);
-                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE.getBytes(StandardCharsets.UTF_8));
+                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE));
                         } else {
                             inputStream = openCacheFile("Acquire.xml");
                             if (inputStream == null) {
@@ -98,7 +96,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                                 InputStream downloadStream = openFeed(url);
                                 String content = convertStreamToString(downloadStream, UTF_8);
                                 FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Acquire.xml", 0);
-                                fos.write(content.getBytes());
+                                fos.write(content.getBytes(StandardCharsets.UTF_8));
                                 fos.close();
                                 Log.d(LOG_TAG, "Acquire.xml saved to disk");
                                 inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
@@ -112,7 +110,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                             InputStream downloadStream = openFeed(url);
                             String content = convertStreamToString(downloadStream, UTF_8);
                             FileOutputStream fos = MyEpisodeConstants.CONTEXT.openFileOutput("Coming.xml", 0);
-                            fos.write(content.getBytes());
+                            fos.write(content.getBytes(StandardCharsets.UTF_8));
                             fos.close();
                             Log.d(LOG_TAG, "Coming.xml saved to disk");
                             inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
@@ -131,13 +129,13 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
                 if (url.toString().substring(0, 16).equalsIgnoreCase("http://127.0.0.1")) {
                     switch (episodesType) {
                         case EPISODES_TO_WATCH:
-                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
+                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML));
                             break;
                         case EPISODES_TO_ACQUIRE:
-                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE.getBytes(StandardCharsets.UTF_8));
+                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE));
                             break;
                         default:
-                            inputStream = new ByteArrayInputStream(MyEpisodeConstants.EXTENDED_EPISODES_XML.getBytes(StandardCharsets.UTF_8));
+                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML));
                     }
                 } else {
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet RSS Feeds");
@@ -158,6 +156,16 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         }
 
         SAXParserFactory saxFactory = SAXParserFactory.newInstance();
+        // Harden the parser against XXE (external entity) attacks. Feeds are untrusted input.
+        setFeatureQuietly(saxFactory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeatureQuietly(saxFactory, "http://xml.org/sax/features/external-general-entities", false);
+        setFeatureQuietly(saxFactory, "http://xml.org/sax/features/external-parameter-entities", false);
+        setFeatureQuietly(saxFactory, "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        try {
+            saxFactory.setXIncludeAware(false);
+        } catch (UnsupportedOperationException e) {
+            Log.w(LOG_TAG, "XInclude cannot be disabled on this parser", e);
+        }
         SAXParser parser = saxFactory.newSAXParser();
 
         try {
@@ -191,7 +199,23 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
         return new ByteArrayInputStream(HttpClientProvider.getInstance().getBytes(url.toString()));
     }
 
+    private static byte[] xmlBytes(String xml) {
+        return xml == null ? new byte[0] : xml.getBytes(StandardCharsets.UTF_8);
+    }
+
+    private void setFeatureQuietly(SAXParserFactory factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (Exception e) {
+            // Not every platform parser implements every feature; keep the ones it does support.
+            Log.w(LOG_TAG, "Parser feature not supported: " + feature, e);
+        }
+    }
+
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        // Start a fresh buffer for every element. characters() appends to it because SAX is
+        // free to split the text of a single element across multiple callbacks.
+        nodeValue = new StringBuilder();
         switch (localName) {
             case "item":
                 item = new FeedItem();
@@ -217,18 +241,28 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             inItem = false;
         }
 
-        if (inItem && localName.equals("guid")) {
-            item.setGuid(nodeValue.toString());
-        }
-        if (inItem && localName.equals("title")) {
-            item.setTitle(decodeHtmlEntities(tempTitle.toString()));
-            tempTitle = new StringBuilder();
-        }
-        if (inItem && localName.equals("link")) {
-            if (nodeValue != null) {
-                item.setLink(nodeValue.toString());
+        if (inItem && nodeValue != null) {
+            switch (localName) {
+                case "guid":
+                    item.setGuid(nodeValue.toString().trim());
+                    break;
+                case "title":
+                    // Sample title: [ Reaper ][ 01x14 ][ Rebellion ][ 23-Apr-2008 ]
+                    // Keep the whole title, including when the parser splits it into chunks.
+                    String rawTitle = nodeValue.toString().trim();
+                    if (rawTitle.startsWith("[ ")) {
+                        item.setTitle(decodeHtmlEntities(rawTitle));
+                    }
+                    break;
+                case "link":
+                    item.setLink(nodeValue.toString().trim());
+                    break;
+                default:
+                    break;
             }
         }
+        // The description buffer is deliberately not populated (see issue 96), but keep the
+        // empty description on the item so callers still see a non-null value.
         if (inItem && localName.equals("description")) {
             item.setDescription("");
         }
@@ -238,28 +272,8 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     @Override
     public void characters(char[] ch, int start, int length) {
         //Fix for issue 96: If we ignore the description tag the issue is solved!
-        if (!inDescription) {
-            nodeValue = new StringBuilder(new String(ch, start, length));
-            if (recordTitleString) {
-                if (nodeValue.length() == 1 && nodeValue.toString().equals("]")) {
-                    tempTitle.append(nodeValue);
-                    recordTitleString = false;
-                } else if (nodeValue.length() > 1 && nodeValue.substring(nodeValue.length() - 2, nodeValue.length()).equals(" ]")) {
-                    tempTitle.append(nodeValue);
-                    recordTitleString = false;
-                } else {
-                    tempTitle.append(nodeValue);
-                }
-            } else {
-                if (nodeValue.length() > 1 && nodeValue.substring(0, 2).equals("[ ")) {
-                    if (nodeValue.length() > 1 && nodeValue.substring(nodeValue.length() - 2, nodeValue.length()).equals(" ]")) {
-                        tempTitle.append(nodeValue);
-                    } else {
-                        tempTitle.append(nodeValue);
-                        recordTitleString = true;
-                    }
-                }
-            }
+        if (!inDescription && nodeValue != null) {
+            nodeValue.append(ch, start, length);
         }
     }
 

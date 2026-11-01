@@ -117,6 +117,7 @@
     <!-- random episode picker -->
     <string name="randompicker">Random Episode</string>
     <string name="randompickerBar">Random</string>
+    <string name="randompickerNothingToWatch">Nothing new to watch</string>
     <string name="filterUnder15">&lt;15m</string>
     <string name="filterUnder30">&lt;30m</string>
     <string name="filterUnder45">&lt;45m</string>

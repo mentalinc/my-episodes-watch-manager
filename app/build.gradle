@@ -6,8 +6,8 @@ android {
         applicationId = "nz.mentalinc.episodeWatcher"
         minSdk 36
         targetSdk 37
-        versionCode = 41
-        versionName = '1.9.5'
+        versionCode = project.hasProperty('versionCode') ? project.property('versionCode').toString().toInteger() : 41
+        versionName = project.hasProperty('versionName') ? project.property('versionName').toString() : '1.9.6'
 
         missingDimensionStrategy   'react-native-camera', 'general'
 
@@ -18,27 +18,32 @@ android {
         }
     }
 
+    // Signing material is never committed. Set KEYSTORE_FILE to an absolute path (CI decodes it
+    // from a repository secret) together with storepwd/keyalias/keypwd. Without it, debug builds
+    // use the automatically generated debug keystore and release builds stay unsigned.
+    def releaseKeystore = System.getenv("KEYSTORE_FILE")
+
     signingConfigs {
-        debug {
-            storeFile file('../keystore/debug.keystore')
-        }
-        release {
-            storeFile file('../keystore/dvr-android.keystore')
-            storePassword System.getenv("storepwd")
-            keyAlias System.getenv("keyalias")
-            keyPassword System.getenv("keypwd")
+        if (releaseKeystore) {
+            release {
+                storeFile file(releaseKeystore)
+                storePassword System.getenv("storepwd")
+                keyAlias System.getenv("keyalias")
+                keyPassword System.getenv("keypwd")
+            }
         }
     }
     buildTypes {
         debug {
             versionNameSuffix '- DEBUG'
             applicationIdSuffix ".debug"
-            signingConfig = signingConfigs.debug
         }
         release {
             minifyEnabled false
            // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig = signingConfigs.release
+            if (releaseKeystore) {
+                signingConfig = signingConfigs.release
+            }
         }
     }
     compileOptions {
