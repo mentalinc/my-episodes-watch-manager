@@ -266,11 +266,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
                         return true;
                     }else if( R.id.barAcquire == nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
-                        if (shows.size() > 0) {
-                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
-                        } else {
-                            openEpisodeListing(EpisodeType.EPISODES_TO_ACQUIRE);
-                        }
+                        openEpisodeListing(EpisodeType.EPISODES_TO_ACQUIRE);
                         return true;
                     }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");

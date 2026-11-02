@@ -423,18 +423,31 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         List<Episode> episodesRaw;
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
         episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
-        //setting to a new list when this is called risks there being now show left to work with if there are no episodes of a particular type left.
-        //shows = new ArrayList<>();
+        // Rebuild the show list for the current episode type so stale shows from a previous
+        // type cannot make the Acquire/Watch/Coming tabs open the wrong (empty) list.
+        shows = new ArrayList<>();
         episodes = new ArrayList<>();
 
         String ShowTitle = "";
         if (episodesRaw != null && episodesRaw.size() > 0) {
             for (Episode ep : episodesRaw) {
-                if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
+                if (showMyEpisodeID != null && ep.getMyEpisodeID().equals(showMyEpisodeID)) {
                     //add to the episode List to show next
                     episodes.add(ep);
                     ShowTitle = ep.getShowName();
                     AddEpisodeToShow(ep);
+                }
+            }
+            // Fallback: if the show id did not match anything (e.g. id was null or stale),
+            // match by the show title so the single acquire/watch/coming episode still shows.
+            if (episodes.isEmpty()) {
+                String titleToMatch = data != null ? data.getString(ActivityConstants.EXTRA_TITLE) : null;
+                for (Episode ep : episodesRaw) {
+                    if (titleToMatch != null && titleToMatch.equals(ep.getShowName())) {
+                        episodes.add(ep);
+                        ShowTitle = ep.getShowName();
+                        AddEpisodeToShow(ep);
+                    }
                 }
             }
         } else {

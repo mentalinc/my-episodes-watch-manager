@@ -76,8 +76,7 @@ androidComponents {
         def appName = "MyEpisodes"
         def date = new Date().format("yyyyMMdd_HHmm")
         def versionName = android.defaultConfig.versionName
-        def versionCode = android.defaultConfig.versionCode
-        def fileName = "${appName}_v${versionName}_${versionCode}_${date}"
+        def fileName = "${appName}_v${versionName}_${date}"
 
         variant.outputs.each { output ->
             output.outputFileName.set("${fileName}.apk")

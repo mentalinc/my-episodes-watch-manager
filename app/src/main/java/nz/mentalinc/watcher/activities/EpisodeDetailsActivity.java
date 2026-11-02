@@ -269,11 +269,10 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                // switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        if (!shows.isEmpty()) {
+                        if (!shows.isEmpty() && shows.get(0).getFirstEpisode() != null) {
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
                         } else {
-                            //openEpisodeListing(episodesType);
-
+                            openShowSummary(episode, episodesType);
                         }
                         return true;
                     } else if (R.id.barEpisodeOverview == nextItem) {
@@ -298,11 +297,8 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                     return true;
                 }else if ( R.id.barAcquire == nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
-                        if (shows.size() > 0) {
-                            openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
-                        } else {
-                            openEpisodeListing(episodesType);
-                        }
+                        episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
+                        openEpisodeListing(episodesType);
                         return true;
                     }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
