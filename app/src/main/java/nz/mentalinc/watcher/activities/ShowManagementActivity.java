@@ -158,6 +158,7 @@ public class ShowManagementActivity extends AppCompatActivity {
         initializeShowList();
 
         service = new ShowService();
+        ShowService.setCurrentActivity(this);
     }
 
     public void exceptionDialog(Context context) {

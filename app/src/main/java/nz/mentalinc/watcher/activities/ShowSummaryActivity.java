@@ -101,6 +101,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
         }
  
         setContentView(R.layout.show_overview);
+        ShowService.setCurrentActivity(this);
 
         findViewById(R.id.appBarShowOverviewLayout2).setZ(100f);
 
@@ -138,7 +139,14 @@ public class ShowSummaryActivity extends AppCompatActivity {
         TaskRunner.getExecutor().execute(() -> {
             AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
             EpisodeRuntime showRuntime = database.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(showMyEpisodeID);
-            if (showRuntime != null && showRuntime.getShowTVMazeID() != null) {
+            if (showRuntime != null && "NOT_FOUND".equals(showRuntime.getShowTVMazeID())) {
+                Log.d(LOG_TAG, "Show not available on TVMaze: " + showMyEpisodeID);
+                runOnUiThread(() -> {
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowOverview), R.string.showDetailsNotAvailable, Snackbar.LENGTH_LONG);
+                    snackbar.setAnchorView(bottomNavigationView);
+                    snackbar.show();
+                });
+            } else if (showRuntime != null && showRuntime.getShowTVMazeID() != null) {
                 String tvmazeId = showRuntime.getShowTVMazeID();
                 runOnUiThread(() -> downloadShowSummary(showSummaryHashMap, tvmazeId));
             } else if (showRuntime != null) {

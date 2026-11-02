@@ -1,7 +1,14 @@
 package nz.mentalinc.watcher.service;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.text.util.Linkify;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.util.Log;
 
 import androidx.preference.PreferenceManager;
@@ -17,6 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,6 +61,16 @@ public class ShowService {
         return t;
     });
     private static final Set<String> IN_FLIGHT_RUNTIME_IDS = ConcurrentHashMap.newKeySet();
+
+    private static volatile Activity currentActivity;
+
+    public static void setCurrentActivity(Activity activity) {
+        currentActivity = activity;
+    }
+
+    public static Activity getCurrentActivity() {
+        return currentActivity;
+    }
 
     public ShowService() {
         userService = new UserService();
@@ -496,6 +517,11 @@ public class ShowService {
         if (runtime == null) {
             return false;
         }
+        // A show that TVMaze reported as missing (404) is cached as "NOT_FOUND"; treat that
+        // as a usable (final) result so we do not keep retrying the lookup.
+        if ("NOT_FOUND".equals(runtime.getShowTVMazeID())) {
+            return true;
+        }
         String value = runtime.getShowRuntime();
         if (value == null) {
             return false;
@@ -609,13 +635,226 @@ public class ShowService {
         } catch (IOException | InterruptedException e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
+                Log.e(LOG_TAG, "Error fetching show data", e);
+                return;
             }
-            Log.e(LOG_TAG, "Error fetching show data", e);
+            // A 404 from TVMaze means the single-search endpoint could not match the title.
+            // Fall back to the broader /search/shows endpoint, honouring a (YYYY) suffix as a
+            // year filter against the result's "premiered" field, and let the user pick if needed.
+            String message = e.getMessage();
+            if (message != null && message.contains("HTTP 404")) {
+                Log.d(LOG_TAG, "Single show search returned 404 for: " + show + "; trying generic search");
+                tryGenericTvMazeSearch(show, myEpsID, database);
+            } else {
+                Log.e(LOG_TAG, "Error fetching show data", e);
+            }
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error fetching show data", e);
         }
     }
 
+
+    /**
+     * Fallback used when the exact single-search endpoint returns a 404. Queries the broader
+     * {@code /search/shows} endpoint, optionally filtering by a trailing {@code (YYYY)} year
+     * against the result's {@code premiered} field, and lets the user choose when ambiguous.
+     */
+    private void tryGenericTvMazeSearch(String originalShow, String myEpsID, AppDatabase database) {
+        if (database == null) {
+            return;
+        }
+
+        String year = null;
+        Matcher yearMatcher = Pattern.compile("\\((\\d{4})\\)").matcher(originalShow);
+        if (yearMatcher.find()) {
+            year = yearMatcher.group(1);
+        }
+        String cleaned = originalShow;
+        if (year != null) {
+            cleaned = originalShow.replace(yearMatcher.group(0), "").trim();
+        }
+        if (cleaned.isEmpty()) {
+            cleaned = originalShow;
+        }
+
+        String searchUrl = "https://api.tvmaze.com/search/shows?q=" + Uri.encode(cleaned, "utf-8");
+        JSONArray results;
+        try {
+            results = new JSONArray(fetchUrl(searchUrl));
+        } catch (Exception e) {
+            Log.w(LOG_TAG, "Generic TVMaze search failed for: " + cleaned, e);
+            cacheNotFound(myEpsID, originalShow, database);
+            return;
+        }
+
+        List<JSONObject> candidates = new ArrayList<>();
+        for (int i = 0; i < results.length(); i++) {
+            try {
+                JSONObject item = results.optJSONObject(i);
+                if (item == null) {
+                    continue;
+                }
+                JSONObject showObj = item.optJSONObject("show");
+                if (showObj == null) {
+                    continue;
+                }
+                if (year != null) {
+                    String premiered = showObj.optString("premiered", "");
+                    String pYear = premiered.length() >= 4 ? premiered.substring(0, 4) : "";
+                    if (!year.equals(pYear)) {
+                        continue;
+                    }
+                }
+                candidates.add(showObj);
+            } catch (Exception ignored) {
+                // Skip malformed entries.
+            }
+        }
+
+        // If the year filter removed everything, fall back to the unfiltered list.
+        if (candidates.isEmpty() && year != null) {
+            for (int i = 0; i < results.length(); i++) {
+                JSONObject item = results.optJSONObject(i);
+                if (item != null) {
+                    JSONObject showObj = item.optJSONObject("show");
+                    if (showObj != null) {
+                        candidates.add(showObj);
+                    }
+                }
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            Log.d(LOG_TAG, "No generic TVMaze matches for: " + originalShow);
+            cacheNotFound(myEpsID, originalShow, database);
+            return;
+        }
+
+        JSONObject selected = null;
+        if (candidates.size() == 1) {
+            selected = candidates.get(0);
+        } else {
+            selected = promptForShowSelection(candidates, originalShow);
+        }
+
+        if (selected == null) {
+            cacheNotFound(myEpsID, originalShow, database);
+            return;
+        }
+
+        storeTvMazeRuntime(myEpsID, originalShow, selected, database);
+    }
+
+    private void cacheNotFound(String myEpsID, String showName, AppDatabase database) {
+        try {
+            EpisodeRuntime notFound = new EpisodeRuntime();
+            notFound.setshowMyepsID(myEpsID);
+            notFound.setShowName(showName);
+            notFound.setShowTVMazeID("NOT_FOUND");
+            notFound.setShowRuntime("");
+            database.getSeriesDAO().insert(notFound);
+        } catch (Exception insertError) {
+            Log.w(LOG_TAG, "Could not cache 404 result for " + showName, insertError);
+        }
+    }
+
+    private JSONObject promptForShowSelection(List<JSONObject> candidates, String originalShow) {
+        Activity activity = getCurrentActivity();
+        if (activity == null) {
+            // No foreground UI available; fall back to the first candidate.
+            return candidates.isEmpty() ? null : candidates.get(0);
+        }
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<JSONObject> selected = new AtomicReference<>();
+
+        activity.runOnUiThread(() -> {
+            String[] items = new String[candidates.size()];
+            for (int i = 0; i < candidates.size(); i++) {
+                JSONObject s = candidates.get(i);
+                String name = s.optString("name", "");
+                String premiered = s.optString("premiered", "");
+                String pYear = premiered.length() >= 4 ? premiered.substring(0, 4) : "";
+                items[i] = name + (pYear.isEmpty() ? "" : " (" + pYear + ")")
+                        + "  -  " + s.optString("url", "");
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("Select the correct show for: " + originalShow);
+            // Clickable link to MyEpisodes to support matching.
+            android.text.SpannableString link = new android.text.SpannableString(
+                    "MyEpisodes: https://www.myepisodes.com/search.php?tvshow=" + Uri.encode(originalShow));
+            Linkify.addLinks(link, Linkify.WEB_URLS);
+            builder.setMessage(link);
+            builder.setItems(items, (dialog, which) -> {
+                selected.set(candidates.get(which));
+                dialog.dismiss();
+            });
+            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+            AlertDialog dialog = builder.create();
+            dialog.setOnDismissListener(d -> latch.countDown());
+            dialog.show();
+        });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return selected.get();
+    }
+
+    private void storeTvMazeRuntime(String myEpsID, String originalShow, JSONObject tvmazeShow, AppDatabase database) {
+        try {
+            String tvdbId = "";
+            if (tvmazeShow.has("externals")) {
+                JSONObject externals = tvmazeShow.optJSONObject("externals");
+                if (externals != null) {
+                    tvdbId = externals.optString("thetvdb", "");
+                }
+            }
+
+            JSONObject details;
+            if (!tvdbId.isEmpty() && !"null".equals(tvdbId)) {
+                details = new JSONObject(fetchUrl("https://api.tvmaze.com/lookup/shows?thetvdb=" + tvdbId));
+            } else {
+                details = new JSONObject(fetchUrl("https://api.tvmaze.com/shows/" + tvmazeShow.optString("id")));
+            }
+
+            String showNameString = details.optString("name", originalShow);
+            String showRuntimeString = details.optString("runtime", "");
+            if (showRuntimeString == null || "null".equals(showRuntimeString) || showRuntimeString.isEmpty()) {
+                showRuntimeString = details.optString("averageRuntime", "");
+                if (showRuntimeString == null || "null".equals(showRuntimeString) || showRuntimeString.isEmpty()) {
+                    showRuntimeString = "";
+                }
+            }
+            String tvmazeShowID = details.optString("id", tvmazeShow.optString("id", ""));
+            String showSummary = stripHtmlTags(details.optString("summary", ""));
+            String showURL = details.optString("url", "");
+            String officialSite = details.optString(MyEpisodeConstants.OFFICIAL_SITE, "");
+            String showImageURL = "";
+            if (details.has(MyEpisodeConstants.TVMAZE_IMAGE_KEY) && !details.isNull(MyEpisodeConstants.TVMAZE_IMAGE_KEY)) {
+                showImageURL = details.optJSONObject(MyEpisodeConstants.TVMAZE_IMAGE_KEY).optString(MyEpisodeConstants.TVMAZE_IMAGE_SIZE_MEDIUM, "");
+            }
+            showImageURL = showImageURL.replace("http://", "https://");
+
+            EpisodeRuntime epsRunTime = new EpisodeRuntime();
+            epsRunTime.setshowMyepsID(myEpsID);
+            epsRunTime.setShowName(showNameString);
+            epsRunTime.setShowTVMazeID(tvmazeShowID);
+            epsRunTime.setShowRuntime(showRuntimeString);
+            epsRunTime.setShowSummary(showSummary);
+            epsRunTime.setShowURL(showURL);
+            epsRunTime.setOfficialSite(officialSite);
+            epsRunTime.setShowImageURL(showImageURL);
+
+            database.getSeriesDAO().insert(epsRunTime);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error fetching runtime after generic search", e);
+            cacheNotFound(myEpsID, originalShow, database);
+        }
+    }
 
     public List<Show> markShow(User user, Show show, ShowAction showAction, ShowType showType) throws LoginFailedException, InternetConnectivityException {
 

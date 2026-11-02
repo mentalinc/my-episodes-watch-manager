@@ -157,15 +157,12 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
 
         SAXParserFactory saxFactory = SAXParserFactory.newInstance();
         // Harden the parser against XXE (external entity) attacks. Feeds are untrusted input.
-        setFeatureQuietly(saxFactory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        // Android's built-in Expat parser only honours features in the http://xml.org/sax/features/
+        // namespace; the Apache-specific features and XInclude are not supported and only produced
+        // noisy "feature not supported" log lines, so they are intentionally omitted. External
+        // entities are disabled by the parser by default.
         setFeatureQuietly(saxFactory, "http://xml.org/sax/features/external-general-entities", false);
         setFeatureQuietly(saxFactory, "http://xml.org/sax/features/external-parameter-entities", false);
-        setFeatureQuietly(saxFactory, "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        try {
-            saxFactory.setXIncludeAware(false);
-        } catch (UnsupportedOperationException e) {
-            Log.w(LOG_TAG, "XInclude cannot be disabled on this parser", e);
-        }
         SAXParser parser = saxFactory.newSAXParser();
 
         try {

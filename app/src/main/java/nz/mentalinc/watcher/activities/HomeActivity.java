@@ -185,6 +185,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
         MyEpisodeConstants.CONTEXT = getApplicationContext();
+        ShowService.setCurrentActivity(this);
 
 
         String[] showOrderOptions = getResources().getStringArray(R.array.showOrderOptionsValues);
