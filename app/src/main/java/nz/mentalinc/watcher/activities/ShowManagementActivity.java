@@ -35,6 +35,7 @@ import java.util.Objects;
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.domain.User;
+import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.enums.ShowAction;
 import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
@@ -279,7 +280,7 @@ public class ShowManagementActivity extends AppCompatActivity {
             Show show = shows.get(position);
             topText.setText(show.getShowName());
 
-            row.setOnClickListener(ShowManagementActivity.this::openContextMenu);
+            row.setOnClickListener(v -> openShowSummary(show));
 
             return row;
         }
@@ -391,6 +392,15 @@ public class ShowManagementActivity extends AppCompatActivity {
             Log.e(LOG_TAG, message, e);
             exceptionMessageResId = R.string.networkIssues;
         }
+    }
+
+    private void openShowSummary(Show show) {
+        Intent intent = new Intent(this, ShowSummaryActivity.class);
+        intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+        intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, show.getMyEpisodeID());
+        intent.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
+        intent.putExtra(ShowType.class.getSimpleName(), showType);
+        startActivity(intent);
     }
 
     public void onHomeClick(View v) {

@@ -321,6 +321,36 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <LinearLayout
+                android:id="@+id/showActionsSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIgnoreShow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/favoIgnoredIgnoreShow"
+                    android:textColor="@color/on_text_white"
+                    app:backgroundTint="@color/colorPrimary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDeleteShow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/favoIgnoredDeleteShow"
+                    android:textColor="@color/on_text_white"
+                    app:backgroundTint="@color/warningColor" />
+            </LinearLayout>
+
         </LinearLayout>
 
     </ScrollView>

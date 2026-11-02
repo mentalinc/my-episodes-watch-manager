@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -51,11 +52,15 @@ import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
+import nz.mentalinc.watcher.domain.User;
 import nz.mentalinc.watcher.domain.ShowAscendingComparator;
 import nz.mentalinc.watcher.domain.ShowDescendingComparator;
 import nz.mentalinc.watcher.domain.ShowRuntimeAscendingComparator;
 import nz.mentalinc.watcher.enums.EpisodeType;
+import nz.mentalinc.watcher.enums.ShowAction;
+import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.service.EpisodeRuntime;
+import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
@@ -68,6 +73,8 @@ public class ShowSummaryActivity extends AppCompatActivity {
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
     private Episode episode = null;
+    private ShowType showType = ShowType.FAVOURITE_SHOWS;
+    private User user;
 
     private static final String LOG_TAG = EpisodeDetailsActivity.class.getSimpleName();
     private BottomNavigationView bottomNavigationView;
@@ -103,11 +110,45 @@ public class ShowSummaryActivity extends AppCompatActivity {
         setContentView(R.layout.show_overview);
         ShowService.setCurrentActivity(this);
 
+        com.google.android.material.button.MaterialButton btnIgnoreShow = findViewById(R.id.btnIgnoreShow);
+        com.google.android.material.button.MaterialButton btnDeleteShow = findViewById(R.id.btnDeleteShow);
+        if (showType == ShowType.IGNORED_SHOWS) {
+            btnIgnoreShow.setText(R.string.favoIgnoredUnignoreShow);
+        }
+        btnIgnoreShow.setOnClickListener(v -> {
+            ShowAction action = (showType == ShowType.IGNORED_SHOWS) ? ShowAction.UNIGNORE : ShowAction.IGNORE;
+            performShowAction(action);
+        });
+        btnDeleteShow.setOnClickListener(v -> {
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(ShowSummaryActivity.this)
+                    .setTitle(R.string.favoIgnoredDeleteShow)
+                    .setMessage(R.string.favoIgnoredConfirmationDeleteMessage)
+                    .setNegativeButton(R.string.no, (d, w) -> d.dismiss())
+                    .setPositiveButton(R.string.yes, (d, w) -> performShowAction(ShowAction.DELETE))
+                    .setCancelable(false)
+                    .show();
+        });
+
         findViewById(R.id.appBarShowOverviewLayout2).setZ(100f);
 
         data = this.getIntent().getExtras();
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
+        ShowType passedShowType = data.getSerializable(ShowType.class.getSimpleName(), ShowType.class);
+        if (passedShowType != null) {
+            showType = passedShowType;
+        }
+        com.google.android.material.button.MaterialButton btnIgnoreShowExisting = findViewById(R.id.btnIgnoreShow);
+        if (btnIgnoreShowExisting != null) {
+            if (showType == ShowType.IGNORED_SHOWS) {
+                btnIgnoreShowExisting.setText(R.string.favoIgnoredUnignoreShow);
+            } else {
+                btnIgnoreShowExisting.setText(R.string.favoIgnoredIgnoreShow);
+            }
+        }
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        user = new User(sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
+                CredentialStore.getPassword(ShowSummaryActivity.this));
         episode = Objects.requireNonNull(data).getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
         String title = data.getString(ActivityConstants.EXTRA_TITLE);
 
@@ -568,6 +609,40 @@ public class ShowSummaryActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.seasonProgressSection).setVisibility(View.VISIBLE);
+    }
+
+    private void performShowAction(ShowAction action) {
+        TaskRunner.getExecutor().execute(() -> {
+            ShowService service = new ShowService();
+            String showName = data != null ? data.getString(ActivityConstants.EXTRA_TITLE) : "";
+            Show show = new Show(showName != null ? showName : "", showMyEpisodeID);
+            try {
+                service.markShow(user, show, action, showType);
+                if (action == ShowAction.IGNORE) {
+                    showType = ShowType.IGNORED_SHOWS;
+                } else if (action == ShowAction.UNIGNORE) {
+                    showType = ShowType.FAVOURITE_SHOWS;
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Failed to update show", e);
+            }
+            runOnUiThread(() -> {
+                com.google.android.material.button.MaterialButton btnIgnoreShow = findViewById(R.id.btnIgnoreShow);
+                if (showType == ShowType.IGNORED_SHOWS) {
+                    btnIgnoreShow.setText(R.string.favoIgnoredUnignoreShow);
+                } else {
+                    btnIgnoreShow.setText(R.string.favoIgnoredIgnoreShow);
+                }
+                if (action == ShowAction.IGNORE) {
+                    Toast.makeText(ShowSummaryActivity.this, "Show ignored", Toast.LENGTH_SHORT).show();
+                } else if (action == ShowAction.UNIGNORE) {
+                    Toast.makeText(ShowSummaryActivity.this, "Show unignored", Toast.LENGTH_SHORT).show();
+                }
+                if (action == ShowAction.DELETE) {
+                    finish();
+                }
+            });
+        });
     }
 
     private int dpToPx(int dp) {
