@@ -8,6 +8,7 @@ import android.util.Xml;
 
 import androidx.preference.PreferenceManager;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.pojava.datetime.DateTime;
@@ -65,6 +66,18 @@ public class EpisodesService {
     }
 
     public List<Episode> retrieveEpisodes(EpisodeType episodesType, final User user) throws Exception {
+        // Prefer the JSON API for the Acquire view when an API key is saved. Any failure falls
+        // back to the existing RSS/HTML flow below.
+        String apiKey = getApiKey();
+        if (!apiKey.isEmpty() && (episodesType == EpisodeType.EPISODES_TO_ACQUIRE
+                || episodesType == EpisodeType.EPISODES_COMING)) {
+            try {
+                return retrieveEpisodesFromApi(episodesType, user, apiKey);
+            } catch (Exception e) {
+                Log.w(LOG_TAG, "MyEpisodes API episodes request failed; falling back to RSS feed", e);
+            }
+        }
+
         String encryptedPassword = userService.encryptPassword(user.getPassword());
 
         URL feedUrl;
@@ -766,6 +779,171 @@ public class EpisodesService {
         }
     }
 
+
+    private String getApiKey() {
+        if (MyEpisodeConstants.CONTEXT == null) {
+            return "";
+        }
+        String apiKey = PreferenceManager.getDefaultSharedPreferences(MyEpisodeConstants.CONTEXT)
+                .getString(MyEpisodeConstants.PREF_API_KEY, "");
+        return apiKey != null ? apiKey.trim() : "";
+    }
+
+    private List<Episode> retrieveEpisodesFromApi(EpisodeType episodesType, User user, String apiKey) throws Exception {
+        Log.d(LOG_TAG, "Using MyEpisodes API for " + episodesType + " episodes");
+        List<Episode> episodes = new ArrayList<>();
+        AppDatabase database = AppDatabase.getInstance(
+                nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+        SeriesDAO seriesDAO = database.getSeriesDAO();
+
+        // Batch load runtimes as in the RSS path.
+        Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
+        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+            // Populated lazily per show id below.
+        }
+
+        int offset = 0;
+        boolean hasMore = true;
+        while (hasMore) {
+            StringBuilder urlBuilder = new StringBuilder(MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/me/episodes");
+            urlBuilder.append("?status=unacquired");
+            if (episodesType == EpisodeType.EPISODES_COMING) {
+                String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                        .format(new Date());
+                urlBuilder.append("&from=").append(today);
+            }
+            urlBuilder.append("&include_ignored=false");
+            urlBuilder.append("&date_basis=local");
+            urlBuilder.append("&order=asc");
+            urlBuilder.append("&limit=").append(MyEpisodeConstants.MYEPISODES_API_PAGE_LIMIT);
+            urlBuilder.append("&offset=").append(offset);
+            String url = urlBuilder.toString();
+
+            Map<String, String> headers = new HashMap<>();
+            headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                    MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+
+            JSONObject page;
+            try (Response response = HttpClientProvider.getInstance().get(url, headers)) {
+                if (response.code() == 429) {
+                    String retryAfter = response.header("Retry-After");
+                    long backoff = 1000;
+                    if (retryAfter != null) {
+                        try {
+                            backoff = Long.parseLong(retryAfter.trim()) * 1000L;
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    Thread.sleep(backoff);
+                    continue;
+                }
+                if (!response.isSuccessful()) {
+                    throw new IOException("HTTP " + response.code() + " for GET " + url);
+                }
+                String body = response.body() != null ? response.body().string() : "";
+                page = new JSONObject(body);
+            }
+
+            JSONArray data = page.optJSONArray("data");
+            int returned = data != null ? data.length() : 0;
+            if (data != null) {
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject item = data.optJSONObject(i);
+                    if (item == null) {
+                        continue;
+                    }
+
+                    int showIdInt = item.optInt("showid", 0);
+                    String myEpisodeID = showIdInt > 0 ? String.valueOf(showIdInt) : item.optString("showid", "").trim();
+                    String showName = item.optString("showname", "").trim();
+                    int season = item.optInt("season", 0);
+                    int episodeNum = item.optInt("episode", 0);
+                    String episodeName = item.optString("name", "").trim();
+                    String airDateString = item.optString("airdate", "").trim();
+
+                    Date airDate = null;
+                    if (!airDateString.isEmpty()) {
+                        try {
+                            airDate = parseDate(airDateString);
+                        } catch (Exception e) {
+                            airDate = DateUtil.convertToDate(airDateString);
+                        }
+                    }
+
+                    // Mirror the RSS filters.
+                    if (episodesType == EpisodeType.EPISODES_TO_ACQUIRE) {
+                        // Only episodes that have already aired (or have no airdate) are "to acquire".
+                        if (airDate != null && airDate.after(new Date())) {
+                            continue;
+                        }
+                    } else if (episodesType == EpisodeType.EPISODES_COMING) {
+                        // Only future episodes (after yesterday) are "coming".
+                        Calendar yesterdayCal = Calendar.getInstance();
+                        yesterdayCal.add(Calendar.DATE, -1);
+                        Date yesterday = yesterdayCal.getTime();
+                        if (airDate == null || !airDate.after(yesterday)) {
+                            continue;
+                        }
+                    }
+
+                    Episode episode = new Episode();
+                    episode.setShowName(showName);
+                    episode.setSeason(season);
+                    episode.setEpisode(episodeNum);
+                    episode.setName(episodeName);
+                    episode.setType(episodesType);
+                    episode.setAirDate(airDate != null ? airDate.getTime() : 0);
+                    episode.setMyEpisodeID(myEpisodeID);
+
+                    // TVMaze website from cached runtime when available.
+                    if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+                        EpisodeRuntime rt = runtimeMap.get(myEpisodeID);
+                        if (rt == null) {
+                            try {
+                                for (EpisodeRuntime r : seriesDAO.getEpisodeRuntimeWithMyEpsIds(
+                                        java.util.Collections.singletonList(myEpisodeID))) {
+                                    runtimeMap.put(r.showMyEpsID, r);
+                                }
+                                rt = runtimeMap.get(myEpisodeID);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        if (rt != null && rt.getShowTVMazeID() != null && !rt.getShowTVMazeID().isEmpty()) {
+                            episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + rt.getShowTVMazeID());
+                        } else {
+                            JSONObject external = item.optJSONObject("external");
+                            if (external != null) {
+                                int tvmazeId = external.optInt("tvmaze", 0);
+                                if (tvmazeId > 0) {
+                                    episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + tvmazeId);
+                                }
+                            }
+                        }
+                    }
+
+                    episodes.add(episode);
+                }
+            }
+
+            JSONObject meta = page.optJSONObject("meta");
+            hasMore = meta != null && meta.optBoolean("has_more", false);
+            int nextOffset = meta != null ? meta.optInt("offset", offset) + returned : offset + returned;
+            if (returned == 0 || nextOffset <= offset) {
+                break;
+            }
+            offset = nextOffset;
+
+            // Be polite to the API rate limit (10 req/sec per credential).
+            try {
+                Thread.sleep(120);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        Log.d(LOG_TAG, "MyEpisodes API returned " + episodes.size() + " " + episodesType + " episode(s)");
+        return episodes;
+    }
 
     private Date parseDate(String date) {
         if (date.endsWith(".") || date.endsWith(";") || date.endsWith(":") || date.endsWith(",") || date.endsWith("-")) {
