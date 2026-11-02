@@ -17,6 +17,7 @@
         android:translationZ="10dp">
 
         <com.google.android.material.appbar.MaterialToolbar
+            android:theme="@style/ThemeOverlay.Material3.Dark"
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbar_height"

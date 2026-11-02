@@ -5,6 +5,7 @@
     <style name="ThemeDayNight" parent="Theme.Material3.DayNight.NoActionBar" >
         <item name="android:windowNoTitle">true</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorControlNormal">@color/on_text_white</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
 
@@ -13,6 +14,7 @@
     <style name="ThemeLight" parent="Theme.Material3.Light.NoActionBar" >
         <item name="android:windowNoTitle">true</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorControlNormal">@color/on_text_white</item>
         <item name="android:textColor">@color/on_text_black</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -23,6 +25,7 @@
     <style name="ThemeDark" parent="Theme.Material3.Dark.NoActionBar" >
         <item name="android:windowNoTitle">true</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorControlNormal">@color/on_text_white</item>
         <item name="android:textColorPrimary">@color/on_text_white</item>
         <item name="android:textColorSecondary">@color/on_text_white</item>
         <item name="android:textColor">@color/on_text_white</item>
