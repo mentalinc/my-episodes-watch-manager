@@ -139,6 +139,17 @@ public class MyEpisodeConstants {
     public static final String MYEPISODES_ADD_SHOW_PAGE = "https://www.myepisodes.com/views.php?type=manageshow&mode=add&showid=";
     public static final String MYEPISODES_FAVO_IGNORE_PAGE = "https://www.myepisodes.com/shows.php?type=manage";
 
+    // JSON API. The manage page above remains the fallback when no API key is saved.
+    public static final String MYEPISODES_API_BASE_URL = "https://api.myepisodes.com";
+    public static final String MYEPISODES_ME_SHOWS_API_URL = MYEPISODES_API_BASE_URL + "/v1/me/shows";
+    public static final String MYEPISODES_ME_SHOW_API_URL = MYEPISODES_ME_SHOWS_API_URL + "/";
+    public static final String MYEPISODES_API_AUTH_HEADER = "Authorization";
+    public static final String MYEPISODES_API_AUTH_SCHEME = "Bearer ";
+    public static final String MYEPISODES_API_IGNORED_PARAM = "ignored";
+    public static final String MYEPISODES_API_IGNORED_FOLLOWED = "0";
+    public static final String MYEPISODES_API_IGNORED_DISMISSED = "1";
+    public static final int MYEPISODES_API_PAGE_LIMIT = 200;
+
     public static final String MYEPISODES_FAVO_IGNORE_URL = "https://www.myepisodes.com/myshows.php?action=Ignore&Ignore=1&showid=";
     public static final String MYEPISODES_FAVO_UNIGNORE_URL = "https://www.myepisodes.com/myshows.php?action=Ignore&Ignore=0&showid=";
     public static final String MYEPISODES_FAVO_REMOVE_ULR = "https://www.myepisodes.com/myshows.php?action=Remove&Remove=1&showid=";

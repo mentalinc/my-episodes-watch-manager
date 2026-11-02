@@ -2,10 +2,22 @@ package nz.mentalinc.watcher.service;
 
 import org.junit.Test;
 
+import nz.mentalinc.watcher.enums.ShowType;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class ShowServiceTest {
+
+    @Test
+    public void apiIgnoredValue_favouriteShowsAreFollowed() {
+        assertEquals("0", ShowService.apiIgnoredValue(ShowType.FAVOURITE_SHOWS));
+    }
+
+    @Test
+    public void apiIgnoredValue_ignoredShowsAreDismissed() {
+        assertEquals("1", ShowService.apiIgnoredValue(ShowType.IGNORED_SHOWS));
+    }
 
     @Test
     public void stripHtmlTags_removesTags() {

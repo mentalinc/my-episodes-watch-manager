@@ -154,6 +154,25 @@ public class HttpClientProvider {
         return client.newCall(request).execute();
     }
 
+    /**
+     * Sends a JSON PATCH request, used by the MyEpisodes API to dismiss or restore a show.
+     */
+    public Response patchJson(String url, String json, Map<String, String> headers) throws IOException {
+        RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+        Request.Builder builder = new Request.Builder().url(url).patch(body);
+        addHeaders(builder, headers);
+        return client.newCall(builder.build()).execute();
+    }
+
+    /**
+     * Sends a DELETE request, used by the MyEpisodes API to unfollow a show.
+     */
+    public Response delete(String url, Map<String, String> headers) throws IOException {
+        Request.Builder builder = new Request.Builder().url(url).delete();
+        addHeaders(builder, headers);
+        return client.newCall(builder.build()).execute();
+    }
+
     public String postBodyResponse(String url, String body, String contentType) throws IOException {
         Response response = postBody(url, body, contentType);
         return response.body() != null ? response.body().string() : "";

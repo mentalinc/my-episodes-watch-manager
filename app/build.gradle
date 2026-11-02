@@ -6,8 +6,8 @@ android {
         applicationId = "nz.mentalinc.episodeWatcher"
         minSdk 36
         targetSdk 37
-        versionCode = project.hasProperty('versionCode') ? project.property('versionCode').toString().toInteger() : 41
-        versionName = project.hasProperty('versionName') ? project.property('versionName').toString() : '1.9.6'
+        versionCode =  41
+        versionName = '1.9.7'
 
         missingDimensionStrategy   'react-native-camera', 'general'
 
@@ -69,6 +69,20 @@ android {
     }
     namespace = 'nz.mentalinc.watcher'
     buildToolsVersion = '37.0.0'
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        def appName = "MyEpisodes"
+        def date = new Date().format("yyyyMMdd_HHmm")
+        def versionName = android.defaultConfig.versionName
+        def versionCode = android.defaultConfig.versionCode
+        def fileName = "${appName}_v${versionName}_${versionCode}_${date}"
+
+        variant.outputs.each { output ->
+            output.outputFileName.set("${fileName}.apk")
+        }
+    }
 }
 
 

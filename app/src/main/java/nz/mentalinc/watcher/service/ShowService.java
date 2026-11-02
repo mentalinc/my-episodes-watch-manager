@@ -1,23 +1,25 @@
 package nz.mentalinc.watcher.service;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.preference.PreferenceManager;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.database.AppDatabase;
@@ -42,6 +44,12 @@ public class ShowService {
 
     private final UserService userService;
 
+    private static final ExecutorService RUNTIME_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "ShowRuntimeEnricher");
+        t.setDaemon(true);
+        return t;
+    });
+    private static final Set<String> IN_FLIGHT_RUNTIME_IDS = ConcurrentHashMap.newKeySet();
 
     public ShowService() {
         userService = new UserService();
@@ -205,59 +213,139 @@ public class ShowService {
     }
 
     public List<Show> getFavoriteOrIgnoredShows(User user, ShowType showType) throws InternetConnectivityException, LoginFailedException {
-
-        userService.login(user.getUsername(), user.getPassword());
-        String responsePage;
-
-        try {
-            responsePage = HttpClientProvider.getInstance().getBody(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
-        } catch (UnknownHostException e) {
-            String message = COULD_NOT_CONNECT_TO_HOST;
-            Log.e(LOG_TAG, message, e);
-            throw new InternetConnectivityException(message, e);
-        } catch (IOException | ShowUpdateFailedException e) {
-            String message = SEARCH_ON_MYEPISODES_FAILED;
-            Log.w(LOG_TAG, message, e);
-            throw new LoginFailedException(message, e);
-        }
-
-        List<Show> shows = parseShowsHtml(responsePage, showType);
-
-        Log.d(LOG_TAG, shows.size() + " show(s) found!");
-
-        return shows;
+        return getFavoriteOrIgnoredShows(user, showType, null);
     }
 
     public List<Show> getFavoriteOrIgnoredShows(User user, ShowType showType, OnRuntimeProgressListener listener) throws InternetConnectivityException, LoginFailedException {
 
-        userService.login(user.getUsername(), user.getPassword());
-        String responsePage;
-
-        try {
-            responsePage = HttpClientProvider.getInstance().getBody(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
-        } catch (UnknownHostException e) {
-            String message = COULD_NOT_CONNECT_TO_HOST;
-            Log.e(LOG_TAG, message, e);
-            throw new InternetConnectivityException(message, e);
-        } catch (IOException | ShowUpdateFailedException e) {
-            String message = SEARCH_ON_MYEPISODES_FAILED;
-            Log.w(LOG_TAG, message, e);
-            throw new LoginFailedException(message, e);
+        // The API is preferred because it returns the show id and name directly, but it is only
+        // available when the user has saved an API key. Any failure falls back to the HTML page.
+        String apiKey = getApiKey();
+        List<String[]> allOptions = null;
+        if (!apiKey.isEmpty()) {
+            try {
+                allOptions = getFavoriteOrIgnoredShowsOptionsFromApi(apiKey, showType);
+                Log.d(LOG_TAG, allOptions.size() + " show(s) found from the MyEpisodes API");
+            } catch (Exception e) {
+                Log.w(LOG_TAG, "MyEpisodes API request failed; falling back to the HTML manage page", e);
+                allOptions = null;
+            }
         }
 
-        List<Show> shows = parseShowsHtml(responsePage, showType, listener);
+        if (allOptions == null) {
+            userService.login(user.getUsername(), user.getPassword());
+            String responsePage;
 
-        Log.d(LOG_TAG, shows.size() + " show(s) found from " + responsePage.length() + " byte response");
+            try {
+                responsePage = HttpClientProvider.getInstance().getBody(MyEpisodeConstants.MYEPISODES_FAVO_IGNORE_PAGE);
+            } catch (UnknownHostException e) {
+                String message = COULD_NOT_CONNECT_TO_HOST;
+                Log.e(LOG_TAG, message, e);
+                throw new InternetConnectivityException(message, e);
+            } catch (IOException | ShowUpdateFailedException e) {
+                String message = SEARCH_ON_MYEPISODES_FAILED;
+                Log.w(LOG_TAG, message, e);
+                throw new LoginFailedException(message, e);
+            }
+
+            allOptions = parseShowsHtml(responsePage, showType);
+            Log.d(LOG_TAG, allOptions.size() + " show(s) found from " + responsePage.length() + " byte response");
+        }
+
+        List<Show> shows = loadShows(allOptions);
+
+        if (listener != null) {
+            // Synchronous enrichment for callers that track progress (e.g. HomeActivity).
+            enrichRuntimes(shows, listener);
+        } else if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+            // Decoupled background enrichment for callers that do not need progress.
+            enrichRuntimesAsync(shows);
+        }
 
         return shows;
     }
 
-    private List<Show> parseShowsHtml(String html, ShowType showType) {
-        return parseShowsHtml(html, showType, null);
+    private String getApiKey() {
+        if (MyEpisodeConstants.CONTEXT == null) {
+            return "";
+        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MyEpisodeConstants.CONTEXT);
+        String apiKey = prefs.getString(MyEpisodeConstants.PREF_API_KEY, "");
+        return apiKey != null ? apiKey.trim() : "";
     }
 
-    private List<Show> parseShowsHtml(String html, ShowType showType, OnRuntimeProgressListener listener) {
-        List<Show> shows = new ArrayList<>();
+    /**
+     * Maps the app's show list type to the API's {@code ignored} query value.
+     */
+    static String apiIgnoredValue(ShowType showType) {
+        return showType == ShowType.IGNORED_SHOWS
+                ? MyEpisodeConstants.MYEPISODES_API_IGNORED_DISMISSED
+                : MyEpisodeConstants.MYEPISODES_API_IGNORED_FOLLOWED;
+    }
+
+    /**
+     * Loads followed or dismissed shows from {@code GET /v1/me/shows}. The endpoint pages its
+     * results, so this keeps requesting pages until {@code meta.has_more} is false.
+     */
+    private List<String[]> getFavoriteOrIgnoredShowsOptionsFromApi(String apiKey, ShowType showType) throws IOException, JSONException {
+        String ignored = apiIgnoredValue(showType);
+
+        Log.d(LOG_TAG,"Using API for shows list");
+
+        List<String[]> allOptions = new ArrayList<>();
+        int offset = 0;
+        boolean hasMore = true;
+
+        while (hasMore) {
+            String url = MyEpisodeConstants.MYEPISODES_ME_SHOWS_API_URL
+                    + "?" + MyEpisodeConstants.MYEPISODES_API_IGNORED_PARAM + "=" + ignored
+                    + "&limit=" + MyEpisodeConstants.MYEPISODES_API_PAGE_LIMIT
+                    + "&offset=" + offset;
+
+            Map<String, String> headers = new HashMap<>();
+            headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                    MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+
+            JSONObject page;
+            try (Response response = HttpClientProvider.getInstance().get(url, headers)) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("HTTP " + response.code() + " for GET " + url);
+                }
+                String body = response.body() != null ? response.body().string() : "";
+                page = new JSONObject(body);
+            }
+
+            JSONArray data = page.optJSONArray("data");
+            int returned = data != null ? data.length() : 0;
+            if (data != null) {
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject show = data.optJSONObject(i);
+                    if (show == null) {
+                        continue;
+                    }
+
+                    String showId = show.optString("showid", "").trim();
+                    String showName = show.optString("showname", "").trim();
+                    if (!showId.isEmpty()) {
+                        allOptions.add(new String[]{showId, showName});
+                    }
+                }
+            }
+
+            JSONObject meta = page.optJSONObject("meta");
+            hasMore = meta != null && meta.optBoolean("has_more", false);
+            int nextOffset = meta != null ? meta.optInt("offset", offset) + returned : offset + returned;
+            if (returned == 0 || nextOffset <= offset) {
+                break;
+            }
+            offset = nextOffset;
+        }
+
+        return allOptions;
+    }
+
+    private List<String[]> parseShowsHtml(String html, ShowType showType) {
+        List<String[]> allOptions = new ArrayList<>();
 
         String startTag = "<select id=\"";
         String endTag = "</select>";
@@ -277,14 +365,13 @@ public class ShowService {
         int startPosition = html.indexOf(startTag);
 
         if (startPosition == -1) {
-            return shows;
+            return allOptions;
         }
 
         String selectTag = html.substring(startPosition);
         int endPosition = selectTag.indexOf(endTag);
         selectTag = selectTag.substring(0, endPosition);
 
-        List<String[]> allOptions = new ArrayList<>();
         int searchIdx = 0;
         while (true) {
             int optStart = selectTag.indexOf(optionStartTag, searchIdx);
@@ -300,59 +387,156 @@ public class ShowService {
             searchIdx = optEnd + optionEndTag.length();
         }
 
-        int total = allOptions.size();
-        Log.d(LOG_TAG, "Found " + total + " show options in the select list");
+        return allOptions;
+    }
 
-        AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+    /**
+     * Loads the show list from {@code [showId, showName]} pairs collected from either the HTML
+     * page or the JSON API. This is a pure mapping step; runtime enrichment is performed
+     * separately by {@link #enrichRuntimes} / {@link #enrichRuntimesAsync}.
+     */
+    public List<Show> loadShows(List<String[]> allOptions) {
+        return buildShows(allOptions);
+    }
 
-        List<String> allShowIds = new ArrayList<>();
-        for (String[] option : allOptions) {
-            allShowIds.add(option[0]);
+    /**
+     * Pure mapping from {@code [showId, showName]} pairs to {@link Show} objects.
+     */
+    public List<Show> buildShows(List<String[]> allOptions) {
+        List<Show> shows = new ArrayList<>();
+        if (allOptions == null) {
+            return shows;
         }
-
-        Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
-        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED && !allShowIds.isEmpty()) {
-            for (EpisodeRuntime rt : database.getSeriesDAO().getEpisodeRuntimeWithMyEpsIds(allShowIds)) {
-                runtimeMap.put(rt.showMyEpsID, rt);
-            }
-        }
-
-        int processed = 0;
         for (String[] option : allOptions) {
-            if (option[0].isEmpty()) {
+            if (option == null || option.length < 2 || option[0] == null || option[0].isEmpty()) {
                 continue;
             }
+            shows.add(new Show(option[1], option[0]));
+        }
+        Log.d(LOG_TAG, "Found " + shows.size() + " show(s) to process");
+        return shows;
+    }
 
-            Show show = new Show(option[1], option[0]);
-            shows.add(show);
-            Log.d(LOG_TAG, "Show found: " + show.getShowName() + " (" + show.getMyEpisodeID() + ")");
+    /**
+     * Backwards-compatible overload retaining the original listener parameter; enrichment is now
+     * decoupled, so the listener is ignored here.
+     */
+    public List<Show> buildShows(List<String[]> allOptions, OnRuntimeProgressListener listener) {
+        return buildShows(allOptions);
+    }
 
+    /**
+     * Enriches the cached runtime data for the supplied shows synchronously.
+     */
+    public void enrichRuntimes(List<Show> shows) {
+        enrichRuntimes(shows, null);
+    }
+
+    /**
+     * Enriches the cached runtime data for the supplied shows synchronously. Rows that already
+     * hold a usable runtime are left untouched; missing or unusable rows are fetched from
+     * TVMaze and stored. Does not modify the supplied {@link Show} objects.
+     */
+    public void enrichRuntimes(List<Show> shows, OnRuntimeProgressListener listener) {
+        if (!MyEpisodeConstants.SHOW_RUNTIME_ENABLED || shows == null || shows.isEmpty()) {
+            return;
+        }
+        AppDatabase database = getDatabase();
+        if (database == null) {
+            return;
+        }
+
+        List<String> allShowIds = new ArrayList<>();
+        for (Show show : shows) {
+            allShowIds.add(show.getMyEpisodeID());
+        }
+        Map<String, EpisodeRuntime> runtimeMap = loadCachedRuntimes(allShowIds);
+
+        int total = shows.size();
+        int processed = 0;
+        for (Show show : shows) {
             processed++;
             if (listener != null) {
                 listener.onProgress(processed, total, show.getShowName());
             }
 
-            if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
-                EpisodeRuntime showRuntime = runtimeMap.get(show.getMyEpisodeID());
+            EpisodeRuntime cached = runtimeMap.get(show.getMyEpisodeID());
+            if (hasUsableRuntime(cached)) {
+                continue;
+            }
 
-                if (showRuntime == null) {
-                    Log.d(LOG_TAG, "Show NOT found in Database");
-                    try {
-                        ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, "Error fetching runtime for show", e);
-                    }
-                }
+            if (!IN_FLIGHT_RUNTIME_IDS.add(show.getMyEpisodeID())) {
+                // Already being enriched elsewhere; skip to avoid duplicate work.
+                continue;
+            }
+            try {
+                ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error fetching runtime for show", e);
+            } finally {
+                IN_FLIGHT_RUNTIME_IDS.remove(show.getMyEpisodeID());
             }
         }
-        return shows;
+    }
+
+    /**
+     * Schedules {@link #enrichRuntimes} on the dedicated daemon executor.
+     */
+    public void enrichRuntimesAsync(List<Show> shows) {
+        if (!MyEpisodeConstants.SHOW_RUNTIME_ENABLED || shows == null || shows.isEmpty()) {
+            return;
+        }
+        RUNTIME_EXECUTOR.execute(() -> enrichRuntimes(shows, null));
+    }
+
+    /**
+     * Returns true when the cached runtime row actually contains usable runtime data.
+     */
+    public static boolean hasUsableRuntime(EpisodeRuntime runtime) {
+        if (runtime == null) {
+            return false;
+        }
+        String value = runtime.getShowRuntime();
+        if (value == null) {
+            return false;
+        }
+        String trimmed = value.trim();
+        return !trimmed.isEmpty() && !"null".equalsIgnoreCase(trimmed);
+    }
+
+    public AppDatabase getDatabase() {
+        if (MyEpisodeConstants.CONTEXT == null) {
+            return null;
+        }
+        return AppDatabase.getInstance(MyEpisodeConstants.CONTEXT);
+    }
+
+    public Map<String, EpisodeRuntime> loadCachedRuntimes(List<String> showIds) {
+        Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
+        if (!MyEpisodeConstants.SHOW_RUNTIME_ENABLED || showIds == null || showIds.isEmpty()) {
+            return runtimeMap;
+        }
+        AppDatabase database = getDatabase();
+        if (database == null) {
+            return runtimeMap;
+        }
+        SeriesDAO dao = database.getSeriesDAO();
+        final int chunkSize = 500;
+        for (int i = 0; i < showIds.size(); i += chunkSize) {
+            int end = Math.min(i + chunkSize, showIds.size());
+            List<String> chunk = new ArrayList<>(showIds.subList(i, end));
+            for (EpisodeRuntime rt : dao.getEpisodeRuntimeWithMyEpsIds(chunk)) {
+                runtimeMap.put(rt.showMyEpsID, rt);
+            }
+        }
+        return runtimeMap;
     }
 
 
     public void ShowsRuntime(String show, String myEpsID, AppDatabase database) {
-
-        HttpsURLConnection connection = null;
-        BufferedReader reader = null;
+        if (database == null) {
+            return;
+        }
 
         String tvMazeAPIURL = "https://api.tvmaze.com/singlesearch/shows?q=";
 
@@ -365,38 +549,11 @@ public class ShowService {
         if (show.equals("Top Gear (UK)")) {
             show = "Top Gear";
         }
-        show = Uri.encode(show, "utf-8");
-        tvMazeAPIURL += show;
-        System.out.println(show);
+        tvMazeAPIURL += Uri.encode(show, "utf-8");
+
         try {
-            URL url = new URL(tvMazeAPIURL);
-            connection = (HttpsURLConnection) url.openConnection();
-            connection.connect();
-            int code = connection.getResponseCode();
-            Log.d(LOG_TAG, "API HTTP Status Code: " + code);
+            String jsonString = fetchUrl(tvMazeAPIURL);
 
-            int retries = 0;
-            while (code == 429 && retries < 3) {
-                retries++;
-                long backoff = (long) Math.pow(2, retries) * 1000;
-                Thread.sleep(backoff);
-                connection = (HttpsURLConnection) url.openConnection();
-                connection.connect();
-                code = connection.getResponseCode();
-            }
-
-            InputStream stream = connection.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(stream));
-
-            StringBuilder buffer = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line);
-                buffer.append("\n");
-            }
-
-            String jsonString = buffer.toString();
             JSONObject jObj;
             String showNameString = "";
             String showRuntimeString = "";
@@ -454,22 +611,21 @@ public class ShowService {
                 Thread.currentThread().interrupt();
             }
             Log.e(LOG_TAG, "Error fetching show data", e);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error closing reader", e);
-            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error fetching show data", e);
         }
     }
 
 
     public List<Show> markShow(User user, Show show, ShowAction showAction, ShowType showType) throws LoginFailedException, InternetConnectivityException {
+
+        // Prefer the API when a key is saved. It needs a write-scoped key, so a failure here
+        // (for example a read-only key) falls through to the existing HTML form below.
+        String apiKey = getApiKey();
+        if (!apiKey.isEmpty() && markShowViaApi(apiKey, show, showAction)) {
+            Log.d(LOG_TAG, "Show " + show.getMyEpisodeID() + " updated via the MyEpisodes API");
+            return getFavoriteOrIgnoredShows(user, showType);
+        }
 
         userService.login(user.getUsername(), user.getPassword());
 
@@ -526,44 +682,84 @@ public class ShowService {
         return getFavoriteOrIgnoredShows(user, showType);
     }
 
+    /**
+     * Applies an ignore, unignore or delete action through the JSON API.
+     *
+     * @return true when the API accepted the change, false when the caller should fall back to
+     * the HTML form.
+     */
+    private boolean markShowViaApi(String apiKey, Show show, ShowAction showAction) {
+        String url = MyEpisodeConstants.MYEPISODES_ME_SHOW_API_URL + show.getMyEpisodeID();
+        Map<String, String> headers = new HashMap<>();
+        headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+
+        HttpClientProvider http = HttpClientProvider.getInstance();
+        try {
+            if (showAction == ShowAction.DELETE) {
+                try (Response response = http.delete(url, headers)) {
+                    return isApiResponseSuccessful(response, "DELETE " + url);
+                }
+            }
+
+            if (showAction == ShowAction.IGNORE || showAction == ShowAction.UNIGNORE) {
+                String body = showAction == ShowAction.UNIGNORE
+                        ? "{\"ignored\":false}"
+                        : "{\"ignored\":true}";
+                try (Response response = http.patchJson(url, body, headers)) {
+                    return isApiResponseSuccessful(response, "PATCH " + url);
+                }
+            }
+        } catch (IOException e) {
+            Log.w(LOG_TAG, "MyEpisodes API show update failed; falling back to the HTML page", e);
+        }
+
+        return false;
+    }
+
+    private boolean isApiResponseSuccessful(Response response, String request) throws IOException {
+        if (!response.isSuccessful()) {
+            throw new IOException("HTTP " + response.code() + " for " + request);
+        }
+        return true;
+    }
+
     public static JSONObject fetchTvMazeShowJson(String tvmazeId) throws IOException, InterruptedException, JSONException {
         String response = fetchUrl("https://api.tvmaze.com/shows/" + tvmazeId);
         return new JSONObject(response);
     }
 
     private static String fetchUrl(String urlString) throws IOException, InterruptedException {
-        HttpsURLConnection connection = null;
-        BufferedReader reader = null;
+        HttpClientProvider http = HttpClientProvider.getInstance();
+        int retries = 0;
+        while (true) {
+            try (Response response = http.get(urlString)) {
+                int code = response.code();
+                if (code == 429 && retries < 3) {
+                    retries++;
+                    long backoff = parseRetryAfter(response.header("Retry-After"));
+                    if (backoff <= 0) {
+                        backoff = (long) Math.pow(2, retries) * 1000;
+                    }
+                    Thread.sleep(backoff);
+                    continue;
+                }
+                if (!response.isSuccessful()) {
+                    throw new IOException("HTTP " + code + " for GET " + urlString);
+                }
+                return response.body() != null ? response.body().string() : "";
+            }
+        }
+    }
+
+    private static long parseRetryAfter(String header) {
+        if (header == null) {
+            return -1;
+        }
         try {
-            URL url = new URL(urlString);
-            connection = (HttpsURLConnection) url.openConnection();
-            connection.connect();
-            int code = connection.getResponseCode();
-            int retries = 0;
-            while (code == 429 && retries < 3) {
-                retries++;
-                long backoff = (long) Math.pow(2, retries) * 1000;
-                Thread.sleep(backoff);
-                connection = (HttpsURLConnection) url.openConnection();
-                connection.connect();
-                code = connection.getResponseCode();
-            }
-            InputStream stream = connection.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(stream));
-            StringBuilder buffer = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line);
-                buffer.append("\n");
-            }
-            return buffer.toString();
-        } finally {
-            if (reader != null) {
-                try { reader.close(); } catch (IOException ignored) { }
-            }
-            if (connection != null) {
-                connection.disconnect();
-            }
+            return Long.parseLong(header.trim()) * 1000L;
+        } catch (NumberFormatException ignored) {
+            return -1;
         }
     }
 
