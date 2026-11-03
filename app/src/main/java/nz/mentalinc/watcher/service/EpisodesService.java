@@ -3,7 +3,10 @@ package nz.mentalinc.watcher.service;
 import static nz.mentalinc.watcher.constants.MyEpisodeConstants.TV_MAZE_SHOWS_URL;
 
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 import android.util.Xml;
 
 import androidx.preference.PreferenceManager;
@@ -74,8 +77,17 @@ public class EpisodesService {
             try {
                 return retrieveEpisodesFromApi(episodesType, user, apiKey);
             } catch (Exception e) {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    notifyLegacyDisabled();
+                    throw e;
+                }
                 Log.w(LOG_TAG, "MyEpisodes API episodes request failed; falling back to RSS feed", e);
             }
+        }
+
+        if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
         }
 
         String encryptedPassword = userService.encryptPassword(user.getPassword());
@@ -320,13 +332,25 @@ public class EpisodesService {
     }
 
     public void watchedEpisodes(List<Episode> episodes, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
+        String apiKey = getApiKey();
+        boolean useApi = !apiKey.isEmpty();
 
+        if (!useApi && !MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
 
-        userService.login(user.getUsername(), user.getPassword());
-        String csrfToken = HttpClientProvider.getInstance().getAjaxCsrfToken();
+        if (!useApi) {
+            userService.login(user.getUsername(), user.getPassword());
+        }
+        String csrfToken = useApi ? null : HttpClientProvider.getInstance().getAjaxCsrfToken();
 
         for (Episode episode : episodes) {
-            markAnEpisode(0, episode, csrfToken);
+            if (useApi) {
+                markEpisodeViaApi(apiKey, episode, true);
+            } else {
+                markAnEpisode(0, episode, csrfToken);
+            }
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_COMING, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
@@ -344,12 +368,26 @@ public class EpisodesService {
     }
 
     public void acquireEpisodes(List<Episode> episodes, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
+ 
+        String apiKey = getApiKey();
+        boolean useApi = !apiKey.isEmpty();
 
-        userService.login(user.getUsername(), user.getPassword());
-        String csrfToken = HttpClientProvider.getInstance().getAjaxCsrfToken();
+        if (!useApi && !MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
+
+        if (!useApi) {
+            userService.login(user.getUsername(), user.getPassword());
+        }
+        String csrfToken = useApi ? null : HttpClientProvider.getInstance().getAjaxCsrfToken();
 
         for (Episode episode : episodes) {
-            markAnEpisode(1, episode, csrfToken);
+            if (useApi) {
+                markEpisodeViaApi(apiKey, episode, false);
+            } else {
+                markAnEpisode(1, episode, csrfToken);
+            }
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().addEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
             EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
@@ -357,6 +395,28 @@ public class EpisodesService {
             // AddToWatchShow iterate that list while adding to it, which threw a
             // ConcurrentModificationException after the server had already accepted the update.
             EpisodesController.getInstance().AddToWatchShow(Collections.singletonList(episode));
+        }
+    }
+
+    private void markEpisodeViaApi(String apiKey, Episode episode, boolean watched) throws ShowUpdateFailedException, InternetConnectivityException {
+        String url = MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/me/episodes/"
+                + episode.getMyEpisodeID() + "/" + episode.getSeason() + "/" + episode.getEpisode();
+        Map<String, String> headers = new HashMap<>();
+        headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+
+        String body = watched ? "{\"watched\":true}" : "{\"acquired\":true}";
+        try (Response response = HttpClientProvider.getInstance().putJson(url, body, headers)) {
+            if (!response.isSuccessful()) {
+                String message = "Marking episode via API failed with HTTP " + response.code() + " for " + url;
+                Log.w(LOG_TAG, message);
+                throw new ShowUpdateFailedException(message);
+            }
+            Log.d(LOG_TAG, "Episode marked via API: " + url + " -> " + body);
+        } catch (IOException e) {
+            String message = "Marking episode via API failed for " + url;
+            Log.w(LOG_TAG, message, e);
+            throw new ShowUpdateFailedException(message, e);
         }
     }
 
@@ -943,6 +1003,14 @@ public class EpisodesService {
 
         Log.d(LOG_TAG, "MyEpisodes API returned " + episodes.size() + " " + episodesType + " episode(s)");
         return episodes;
+    }
+
+    private void notifyLegacyDisabled() {
+        if (MyEpisodeConstants.CONTEXT == null) {
+            return;
+        }
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(MyEpisodeConstants.CONTEXT, "Legacy RSS/HTML parsing is disabled", Toast.LENGTH_SHORT).show());
     }
 
     private Date parseDate(String date) {

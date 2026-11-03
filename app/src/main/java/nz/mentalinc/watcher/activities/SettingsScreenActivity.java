@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -16,9 +17,25 @@ import com.google.android.material.navigation.NavigationBarView;
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.SettingScreenFrag;
 import nz.mentalinc.watcher.constants.ActivityConstants;
+import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.enums.EpisodeType;
+import nz.mentalinc.watcher.service.CredentialStore;
 
 public class SettingsScreenActivity extends AppCompatActivity {
+    private boolean fragmentInitialized = false;
+    private SharedPreferences.OnSharedPreferenceChangeListener legacyListener;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (fragmentInitialized) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.settings_Layout, new SettingScreenFrag())
+                    .commit();
+        }
+        fragmentInitialized = true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -51,10 +68,8 @@ public class SettingsScreenActivity extends AppCompatActivity {
                 .replace(R.id.settings_Layout, new SettingScreenFrag())
                 .commit();
 
-
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
         appBarHome.setOnClickListener(v -> {
-            //Log.w(LOG_TAG, "logout button clicked.");
             setResult(RESULT_OK);
             Intent home = new Intent(SettingsScreenActivity.this, HomeActivity.class);
             home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -64,7 +79,6 @@ public class SettingsScreenActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigationSettings);
         bottomNavigationView.getMenu().getItem(0).setChecked(true);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
-
     }
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener = new NavigationBarView.OnItemSelectedListener() {

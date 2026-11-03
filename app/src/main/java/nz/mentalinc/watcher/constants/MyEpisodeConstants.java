@@ -20,6 +20,7 @@ public class MyEpisodeConstants {
     public static boolean DAYS_BACK_ENABLED = false;
     public static boolean CACHE_EPISODES_ENABLED = false;
     public static boolean SHOW_RUNTIME_ENABLED = false;
+    public static boolean LEGACY_PARSING_ENABLED = true;
     public static String CACHE_EPISODES_CACHE_AGE = "Disabled";
 
     public static boolean SHOW_LISTING_UNACQUIRED_ENABLED = false;

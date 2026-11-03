@@ -155,6 +155,16 @@ public class HttpClientProvider {
     }
 
     /**
+     * Sends a JSON PUT request, used by the MyEpisodes API to mark episodes.
+     */
+    public Response putJson(String url, String json, Map<String, String> headers) throws IOException {
+        RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+        Request.Builder builder = new Request.Builder().url(url).put(body);
+        addHeaders(builder, headers);
+        return client.newCall(builder.build()).execute();
+    }
+
+    /**
      * Sends a JSON PATCH request, used by the MyEpisodes API to dismiss or restore a show.
      */
     public Response patchJson(String url, String json, Map<String, String> headers) throws IOException {

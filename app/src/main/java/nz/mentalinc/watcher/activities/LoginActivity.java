@@ -32,6 +32,8 @@ import nz.mentalinc.watcher.utils.TaskRunner;
 public class LoginActivity extends AppCompatActivity {
     private UserService service;
     private int exceptionMessageResId = -1;
+    private boolean enableLegacyOnSuccess = false;
+    private boolean forceLogin = false;
 
     private static final String DIALOG_LOADING_TAG = "LOADING";
     private static final String DIALOG_ERROR_TAG = "ERROR";
@@ -79,7 +81,10 @@ public class LoginActivity extends AppCompatActivity {
  
         init();
 
-        if (!checkLoginCredentials()) {
+        enableLegacyOnSuccess = getIntent().getBooleanExtra("enableLegacyOnSuccess", false);
+        forceLogin = getIntent().getBooleanExtra("forceLogin", false);
+
+        if (forceLogin || !checkLoginCredentials()) {
 
             setContentView(R.layout.login);
 
@@ -90,8 +95,27 @@ public class LoginActivity extends AppCompatActivity {
             loginButton.setOnClickListener(v -> {
                 String username = ((EditText) findViewById(R.id.loginUsername)).getText().toString().trim();
                 String password = ((EditText) findViewById(R.id.loginPassword)).getText().toString().trim();
+                String apiKey = ((EditText) findViewById(R.id.loginApiKey)).getText().toString().trim();
 
-                if (username.length() > 0 && password.length() > 0) {
+                if (!apiKey.isEmpty()) {
+                    // API-key login: no username/password required.
+                    showLoadingDialog();
+                    TaskRunner.getExecutor().execute(() -> {
+                        SharedPreferences apiPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                        apiPrefs.edit().putString(MyEpisodeConstants.PREF_API_KEY, apiKey).apply();
+                        apiPrefs.edit().putBoolean("legacyParsingEnabled", false).apply();
+                        MyEpisodeConstants.LEGACY_PARSING_ENABLED = false;
+
+                        runOnUiThread(() -> {
+                            if (isFinishing() || isDestroyed()) {
+                                return;
+                            }
+                            dismissLoadingDialog();
+                            ((EditText) findViewById(R.id.loginApiKey)).setText("");
+                            finalizeLogin();
+                        });
+                    });
+                } else if (username.length() > 0 && password.length() > 0) {
                     final User user = new User(username, password);
 
                     showLoadingDialog();
@@ -106,6 +130,11 @@ public class LoginActivity extends AppCompatActivity {
                                 // Login itself worked; failing to persist the credentials must not
                                 // turn a successful login into a failure.
                                 Log.e(LOG_TAG, "Could not store login credentials", e);
+                            }
+                            if (enableLegacyOnSuccess) {
+                                PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+                                        .edit().putBoolean("legacyParsingEnabled", true).apply();
+                                MyEpisodeConstants.LEGACY_PARSING_ENABLED = true;
                             }
                         }
 
@@ -239,6 +268,11 @@ public class LoginActivity extends AppCompatActivity {
     private boolean checkLoginCredentials() {
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String apiKey = sharedPref.getString(MyEpisodeConstants.PREF_API_KEY, "");
+        if (apiKey != null && !apiKey.trim().isEmpty()) {
+            MyEpisodeConstants.LEGACY_PARSING_ENABLED = sharedPref.getBoolean("legacyParsingEnabled", false);
+            return true;
+        }
         String username = sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null);
         String password = CredentialStore.getPassword(getBaseContext());
         return username != null && password != null;

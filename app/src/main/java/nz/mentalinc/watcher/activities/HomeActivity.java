@@ -55,6 +55,7 @@ import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodesService;
+import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.TaskRunner;
@@ -167,6 +168,7 @@ public class HomeActivity extends AppCompatActivity {
         MyEpisodeConstants.DAYS_BACK_ENABLED = sharedPref.getBoolean("daysBackwardEnable", false);
         MyEpisodeConstants.CACHE_EPISODES_ENABLED = sharedPref.getBoolean("CacheEpisodes", false);
         MyEpisodeConstants.SHOW_RUNTIME_ENABLED = sharedPref.getBoolean("RunTime", false);
+        MyEpisodeConstants.LEGACY_PARSING_ENABLED = sharedPref.getBoolean("legacyParsingEnabled", true);
 
         MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED = sharedPref.getBoolean("listingUnacquiredFilter", true);
         MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED = sharedPref.getBoolean("listingUnwatchedFilter", true);
@@ -551,12 +553,40 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        // Ask whether to purge the cached show/runtime data before logging out.
+        MaterialAlertDialogBuilder purgeDialog = new MaterialAlertDialogBuilder(HomeActivity.this);
+        purgeDialog.setTitle("Would you like to retain Show Data?");
+        purgeDialog.setMessage("Retaining Show Data (runtime, summaries) speeds up the next login. Choose No to clear it.");
+        purgeDialog.setPositiveButton(R.string.yes, (dialogInterface, which) -> {
+            performLogout(false);
+            dialogInterface.dismiss();
+        });
+        purgeDialog.setNegativeButton(R.string.no, (dialogInterface, which) -> {
+            performLogout(true);
+            dialogInterface.dismiss();
+        });
+        purgeDialog.setCancelable(false);
+        purgeDialog.show();
+    }
 
+    private void performLogout(boolean purgeShowData) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.remove(MyEpisodeConstants.PREF_USERNAME);
+        prefEditor.remove(MyEpisodeConstants.PREF_API_KEY);
+        prefEditor.remove(MyEpisodeConstants.PREF_FEED_KEY);
         prefEditor.apply();
         CredentialStore.removePassword(HomeActivity.this);
+        if (purgeShowData) {
+            TaskRunner.getExecutor().execute(() -> {
+                try {
+                    AppDatabase database = AppDatabase.getInstance(getBaseContext());
+                    database.getSeriesDAO().deleteAll();
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Failed to purge show data", e);
+                }
+            });
+        }
         EpisodesController.getInstance().deleteAll();
         openLoginActivity();
     }

@@ -6,6 +6,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 import android.text.util.Linkify;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -55,7 +58,7 @@ public class ShowService {
 
     private final UserService userService;
 
-    private static final ExecutorService RUNTIME_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
+    private static final ExecutorService RUNTIME_EXECUTOR = Executors.newFixedThreadPool(10, r -> {
         Thread t = new Thread(r, "ShowRuntimeEnricher");
         t.setDaemon(true);
         return t;
@@ -81,6 +84,11 @@ public class ShowService {
     }
 
     public List<Show> searchShows(String search, User user) throws InternetConnectivityException, LoginFailedException {
+ 
+        if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
 
         userService.login(user.getUsername(), user.getPassword());
 
@@ -166,6 +174,9 @@ public class ShowService {
     }
 
     public static void resetPageFilters(User user) {
+        if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            return;
+        }
         try {
             new UserService().login(user.getUsername(), user.getPassword());
             StringBuilder urlParameters = new StringBuilder();
@@ -248,12 +259,24 @@ public class ShowService {
                 allOptions = getFavoriteOrIgnoredShowsOptionsFromApi(apiKey, showType);
                 Log.d(LOG_TAG, allOptions.size() + " show(s) found from the MyEpisodes API");
             } catch (Exception e) {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    notifyLegacyDisabled();
+                    throw e instanceof LoginFailedException ? (LoginFailedException) e
+                            : new LoginFailedException("Legacy RSS/HTML parsing is disabled", e);
+                }
                 Log.w(LOG_TAG, "MyEpisodes API request failed; falling back to the HTML manage page", e);
                 allOptions = null;
             }
+        } else if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
         }
 
         if (allOptions == null) {
+            if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                notifyLegacyDisabled();
+                throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+            }
             userService.login(user.getUsername(), user.getPassword());
             String responsePage;
 
@@ -474,29 +497,38 @@ public class ShowService {
         Map<String, EpisodeRuntime> runtimeMap = loadCachedRuntimes(allShowIds);
 
         int total = shows.size();
-        int processed = 0;
+        java.util.concurrent.atomic.AtomicInteger processed = new java.util.concurrent.atomic.AtomicInteger(0);
+        java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(shows.size());
+
         for (Show show : shows) {
-            processed++;
-            if (listener != null) {
-                listener.onProgress(processed, total, show.getShowName());
-            }
+            RUNTIME_EXECUTOR.execute(() -> {
+                try {
+                    EpisodeRuntime cached = runtimeMap.get(show.getMyEpisodeID());
+                    if (!hasUsableRuntime(cached)) {
+                        if (IN_FLIGHT_RUNTIME_IDS.add(show.getMyEpisodeID())) {
+                            try {
+                                ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
+                            } catch (Exception e) {
+                                Log.e(LOG_TAG, "Error fetching runtime for show", e);
+                            } finally {
+                                IN_FLIGHT_RUNTIME_IDS.remove(show.getMyEpisodeID());
+                            }
+                        }
+                    }
+                } finally {
+                    int p = processed.incrementAndGet();
+                    if (listener != null) {
+                        listener.onProgress(p, total, show.getShowName());
+                    }
+                    latch.countDown();
+                }
+            });
+        }
 
-            EpisodeRuntime cached = runtimeMap.get(show.getMyEpisodeID());
-            if (hasUsableRuntime(cached)) {
-                continue;
-            }
-
-            if (!IN_FLIGHT_RUNTIME_IDS.add(show.getMyEpisodeID())) {
-                // Already being enriched elsewhere; skip to avoid duplicate work.
-                continue;
-            }
-            try {
-                ShowsRuntime(show.getShowName(), show.getMyEpisodeID(), database);
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Error fetching runtime for show", e);
-            } finally {
-                IN_FLIGHT_RUNTIME_IDS.remove(show.getMyEpisodeID());
-            }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -866,6 +898,11 @@ public class ShowService {
             return getFavoriteOrIgnoredShows(user, showType);
         }
 
+        if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
+
         userService.login(user.getUsername(), user.getPassword());
 
         try {
@@ -1000,6 +1037,14 @@ public class ShowService {
         } catch (NumberFormatException ignored) {
             return -1;
         }
+    }
+
+    private void notifyLegacyDisabled() {
+        if (MyEpisodeConstants.CONTEXT == null) {
+            return;
+        }
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(MyEpisodeConstants.CONTEXT, "Legacy RSS/HTML parsing is disabled", Toast.LENGTH_SHORT).show());
     }
 
     public static String stripHtml(String input) {

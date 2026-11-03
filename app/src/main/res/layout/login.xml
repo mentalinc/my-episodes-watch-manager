@@ -21,7 +21,7 @@
             app:title="@string/loginLoginBtn" />
     </com.google.android.material.appbar.AppBarLayout>
 
-
+SWteph
     <ScrollView
         android:id="@+id/ScrollView01"
         android:layout_width="match_parent"
@@ -42,6 +42,14 @@
                 android:padding="15dp"
                 android:text="@string/loginFormTitle" />
 
+            <TextView
+                android:id="@+id/loginOrHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="@string/loginOrHint" />
+
             <EditText
                 android:id="@+id/loginUsername"
                 android:layout_width="match_parent"
@@ -56,6 +64,31 @@
                 android:layout_height="wrap_content"
                 android:autofillHints="" android:hint="@string/loginPasswordHint"
                 android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/loginOr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="OR" />
+
+            <EditText
+                android:id="@+id/loginApiKey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:hint="@string/apiKeyTitle"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/apiKeyInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:autoLink="web"
+                android:text="@string/apiKeyInfo" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/loginLogin"

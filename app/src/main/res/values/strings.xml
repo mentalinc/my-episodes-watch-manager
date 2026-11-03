@@ -11,6 +11,8 @@
 
     <!-- login form -->
     <string name="loginFormTitle">Provide your user details for the MyEpisodes.com website below.</string>
+    <string name="loginOrHint">Login with username \&amp; password OR an API key </string>
+    <string name="apiKeyInfo">Get an API key from https://www.myepisodes.com/api-keys/</string>
     <string name="loginFormRegister">New user?</string>
     <string name="loginUsernameHint">Username</string>
     <string name="loginPasswordHint">Password</string>
@@ -318,6 +320,8 @@
     <string name="disableAcquireSummary">Disable listing shows that need to be acquired</string>
     <string name="disableComing">Disable Coming</string>
     <string name="disableComingSummary">Disable shows that are coming</string>
+    <string name="legacyParsingTitle">Enable legacy RSS/HTML parsing</string>
+    <string name="legacyParsingSummary">Use the older RSS feeds and HTML scraping for MyEpisodes. Disable to use the API only.</string>
     <string name="showDetailsNotAvailable">Show details are not yet available</string>
     <!-- Change Language -->
     <string name="showLanguagePrompt">Change Language</string>

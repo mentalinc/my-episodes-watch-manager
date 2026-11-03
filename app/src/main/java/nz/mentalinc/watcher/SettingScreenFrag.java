@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
@@ -16,7 +17,9 @@ import androidx.preference.SwitchPreference;
 
 import java.io.File;
 
+import nz.mentalinc.watcher.activities.LoginActivity;
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
+import nz.mentalinc.watcher.service.CredentialStore;
 
 public class SettingScreenFrag extends PreferenceFragmentCompat {
 
@@ -32,6 +35,7 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
         SwitchPreference cacheEpisodesEnable = findPreference("CacheEpisodes");
         SwitchPreference disableAcquirePref = findPreference("disableAcquire");
         SwitchPreference disableComingPref = findPreference("disableComing");
+        SwitchPreference legacyParsingPref = findPreference("legacyParsingEnabled");
 
         EditTextPreference daysBackCP = findPreference("daysBack");
         EditTextPreference daysForwardCP = findPreference("daysForward");
@@ -126,6 +130,41 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
                 markSettingsChanged();
                 if (showComingOrderingPref != null) {
                     showComingOrderingPref.setEnabled(!(Boolean) newValue);
+                }
+                return true;
+            });
+        }
+
+        if (legacyParsingPref != null) {
+            legacyParsingPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                markSettingsChanged();
+                if (Boolean.TRUE.equals(newValue)) {
+                    SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
+                    String username = prefs.getString(MyEpisodeConstants.PREF_USERNAME, null);
+                    String password = CredentialStore.getPassword(getContext());
+                    if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+                        android.app.Activity act = getActivity();
+                        if (act != null) {
+                            act.runOnUiThread(() -> {
+                                Toast.makeText(act, "Enable legacy mode requires a username and password. Please log in.", Toast.LENGTH_SHORT).show();
+                                Intent loginIntent = new Intent(act, LoginActivity.class);
+                                loginIntent.putExtra("enableLegacyOnSuccess", true);
+                                loginIntent.putExtra("forceLogin", true);
+                                act.startActivity(loginIntent);
+                            });
+                        } else {
+                            Context c = getContext();
+                            if (c != null) {
+                                Toast.makeText(c, "Enable legacy mode requires a username and password. Please log in.", Toast.LENGTH_SHORT).show();
+                                Intent loginIntent = new Intent(c, LoginActivity.class);
+                                loginIntent.putExtra("enableLegacyOnSuccess", true);
+                                loginIntent.putExtra("forceLogin", true);
+                                loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                c.startActivity(loginIntent);
+                            }
+                        }
+                        return false;
+                    }
                 }
                 return true;
             });

@@ -21,6 +21,13 @@
             android:title="@string/feedKeyTitle"
             app:summary="@string/feedKeySummary" />
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="legacyParsingEnabled"
+            android:title="@string/legacyParsingTitle"
+            android:icon="@drawable/outline_language_white_24"
+            app:summary="@string/legacyParsingSummary"/>
+
     </PreferenceCategory>
 
 
