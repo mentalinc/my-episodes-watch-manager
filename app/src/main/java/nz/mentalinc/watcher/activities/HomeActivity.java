@@ -403,6 +403,7 @@ public class HomeActivity extends AppCompatActivity {
                 } else {
                     List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, user);
                     EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, eps);
+runOnUiThread(this::updateHomeButtonCounts);
                 }
             } catch (InternetConnectivityException e) {
                 exception = true;
@@ -415,6 +416,7 @@ public class HomeActivity extends AppCompatActivity {
             try {
                 List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_COMING, user);
                 EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_COMING, eps);
+runOnUiThread(this::updateHomeButtonCounts);
             } catch (InternetConnectivityException e) {
                 exception = true;
             } catch (Exception e) {
@@ -427,6 +429,7 @@ public class HomeActivity extends AppCompatActivity {
                     try {
                         List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user);
                         EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_WATCH, eps);
+runOnUiThread(this::updateHomeButtonCounts);
                     } catch (InternetConnectivityException e) {
                         exception = true;
                     } catch (Exception e) {
@@ -439,6 +442,9 @@ public class HomeActivity extends AppCompatActivity {
                 CompletableFuture.allOf(watchFuture, acquireFuture, comingFuture).join();
 
                 EpisodesController episodesController = EpisodesController.getInstance();
+                episodesController.getEpisodesShows(EpisodeType.WATCH_BY_SHOW).clear();
+                episodesController.getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW).clear();
+                episodesController.getEpisodesShows(EpisodeType.COMING_BY_SHOW).clear();
                 episodesController.AddToWatchShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
                 if (useYesterday) {
                     episodesController.AddToAcquireShow(episodesController.getEpisodes(EpisodeType.EPISODES_TO_YESTERDAY1));

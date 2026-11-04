@@ -246,6 +246,9 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
                 rv.setAdapter(adapter);
                 loadRuntimeMapForEpisodes(episodes, adapter);
+                com.google.android.material.appbar.MaterialToolbar ShowNameTitle = findViewById(R.id.topAppBarEpisodesView);
+                String titleBase = data.getString(ActivityConstants.EXTRA_TITLE);
+                ShowNameTitle.setTitle(titleBase + " (" + episodes.size() + ")");
                 if (swipeRefreshEps != null) {
                     swipeRefreshEps.setRefreshing(false);
                 }

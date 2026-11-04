@@ -430,7 +430,7 @@ public class ShowListingActivity extends AppCompatActivity {
     }
 
     private void returnEpisodes() {
-        //shows = new ArrayList<>();
+        shows = new ArrayList<>();
         if (episodes != null && episodes.size() > 0) {
             for (Episode ep : episodes) {
                 AddEpisodeToShow(ep);
@@ -624,6 +624,10 @@ public class ShowListingActivity extends AppCompatActivity {
                 ShowAdapter newAdapter = new ShowAdapter(shows, new HashMap<>());
                 rvShows.setAdapter(newAdapter);
                 loadRuntimeMapForShows(shows, newAdapter);
+                EditText searchEditText = findViewById(R.id.searchEditText);
+                if (searchEditText != null) {
+                    filterShows(searchEditText.getText() != null ? searchEditText.getText().toString() : "");
+                }
                 dismissLoadingDialog();
                 if (swipeRefreshShows != null) {
                     swipeRefreshShows.setRefreshing(false);

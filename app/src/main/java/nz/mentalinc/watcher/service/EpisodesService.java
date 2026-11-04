@@ -889,9 +889,23 @@ public class EpisodesService {
             } else {
                 urlBuilder.append("?status=unacquired");
                 if (episodesType == EpisodeType.EPISODES_COMING) {
-                    String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                            .format(new Date());
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);
+                    String today = sdf.format(new Date());
                     urlBuilder.append("&from=").append(today);
+                    int daysForward = 30;
+                    try {
+                        if (MyEpisodeConstants.CONTEXT != null) {
+                            String val = PreferenceManager.getDefaultSharedPreferences(MyEpisodeConstants.CONTEXT)
+                                    .getString("daysForward", "30");
+                            daysForward = Integer.parseInt(val);
+                        } else {
+                            daysForward = Integer.parseInt(MyEpisodeConstants.DAYS_FORWARD_CP);
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    cal.add(java.util.Calendar.DATE, daysForward);
+                    urlBuilder.append("&to=").append(sdf.format(cal.getTime()));
                 }
             }
             urlBuilder.append("&include_ignored=false");
