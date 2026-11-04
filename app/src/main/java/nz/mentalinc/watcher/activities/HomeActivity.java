@@ -392,17 +392,7 @@ public class HomeActivity extends AppCompatActivity {
         boolean useYesterday = acquirePref != null && acquirePref.equals("1");
         Executor executor = TaskRunner.getExecutor();
 
-        CompletableFuture<Void> watchFuture = CompletableFuture.runAsync(() -> {
-            try {
-                List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user);
-                EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_WATCH, eps);
-            } catch (InternetConnectivityException e) {
-                exception = true;
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Error loading Watch episodes", e);
-            }
-        }, executor);
-
+        // Acquire and Coming are quick; process them first, then the (potentially long-running) Watch.
         CompletableFuture<Void> acquireFuture = CompletableFuture.runAsync(() -> {
             try {
                 if (useYesterday) {
@@ -431,6 +421,18 @@ public class HomeActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "Error loading Coming episodes", e);
             }
         }, executor);
+
+        CompletableFuture<Void> watchFuture = CompletableFuture.allOf(acquireFuture, comingFuture)
+                .thenRunAsync(() -> {
+                    try {
+                        List<Episode> eps = service.retrieveEpisodes(EpisodeType.EPISODES_TO_WATCH, user);
+                        EpisodesController.getInstance().setEpisodes(EpisodeType.EPISODES_TO_WATCH, eps);
+                    } catch (InternetConnectivityException e) {
+                        exception = true;
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error loading Watch episodes", e);
+                    }
+                }, executor);
 
         executor.execute(() -> {
             try {
@@ -522,7 +524,7 @@ public class HomeActivity extends AppCompatActivity {
     public void onLogoutClick(Context context) {
 
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
-        dialog.setTitle(R.string.logoutDialogTitle);
+        dialog.setTitle("Would you like to logout?");
         dialog.setMessage(R.string.logoutDialogMessage);
         dialog.setPositiveButton(R.string.yes, (dialogInterface, which) -> logout());
         dialog.setNegativeButton(R.string.no, (dialogInterface, which) -> dialogInterface.dismiss());
@@ -555,8 +557,8 @@ public class HomeActivity extends AppCompatActivity {
     private void logout() {
         // Ask whether to purge the cached show/runtime data before logging out.
         MaterialAlertDialogBuilder purgeDialog = new MaterialAlertDialogBuilder(HomeActivity.this);
-        purgeDialog.setTitle("Would you like to retain Show Data?");
-        purgeDialog.setMessage("Retaining Show Data (runtime, summaries) speeds up the next login. Choose No to clear it.");
+        purgeDialog.setTitle("Would you like to retain Show data?");
+        purgeDialog.setMessage("Retaining Show data (runtime, summaries) speeds up the next login. Choose No to clear it.");
         purgeDialog.setPositiveButton(R.string.yes, (dialogInterface, which) -> {
             performLogout(false);
             dialogInterface.dismiss();
@@ -577,17 +579,7 @@ public class HomeActivity extends AppCompatActivity {
         prefEditor.remove(MyEpisodeConstants.PREF_FEED_KEY);
         prefEditor.apply();
         CredentialStore.removePassword(HomeActivity.this);
-        if (purgeShowData) {
-            TaskRunner.getExecutor().execute(() -> {
-                try {
-                    AppDatabase database = AppDatabase.getInstance(getBaseContext());
-                    database.getSeriesDAO().deleteAll();
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "Failed to purge show data", e);
-                }
-            });
-        }
-        EpisodesController.getInstance().deleteAll();
+        EpisodesController.getInstance().deleteAll(purgeShowData);
         openLoginActivity();
     }
 

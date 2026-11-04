@@ -35,6 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
@@ -72,6 +76,17 @@ public class EpisodesService {
         // Prefer the JSON API for the Acquire view when an API key is saved. Any failure falls
         // back to the existing RSS/HTML flow below.
         String apiKey = getApiKey();
+        if (!apiKey.isEmpty() && episodesType == EpisodeType.EPISODES_TO_WATCH) {
+            try {
+                return retrieveWatchEpisodesFromApi(episodesType, user, apiKey);
+            } catch (Exception e) {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    notifyLegacyDisabled();
+                    throw e;
+                }
+                Log.w(LOG_TAG, "MyEpisodes API episodes request failed; falling back to RSS feed", e);
+            }
+        }
         if (!apiKey.isEmpty() && (episodesType == EpisodeType.EPISODES_TO_ACQUIRE
                 || episodesType == EpisodeType.EPISODES_COMING)) {
             try {
@@ -864,13 +879,20 @@ public class EpisodesService {
 
         int offset = 0;
         boolean hasMore = true;
+        int apiCallCount = 0;
+        int rateLimit429Count = 0;
         while (hasMore) {
+            apiCallCount++;
             StringBuilder urlBuilder = new StringBuilder(MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/me/episodes");
-            urlBuilder.append("?status=unacquired");
-            if (episodesType == EpisodeType.EPISODES_COMING) {
-                String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                        .format(new Date());
-                urlBuilder.append("&from=").append(today);
+            if (episodesType == EpisodeType.EPISODES_TO_WATCH) {
+                urlBuilder.append("?status=unwatched");
+            } else {
+                urlBuilder.append("?status=unacquired");
+                if (episodesType == EpisodeType.EPISODES_COMING) {
+                    String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                            .format(new Date());
+                    urlBuilder.append("&from=").append(today);
+                }
             }
             urlBuilder.append("&include_ignored=false");
             urlBuilder.append("&date_basis=local");
@@ -886,6 +908,7 @@ public class EpisodesService {
             JSONObject page;
             try (Response response = HttpClientProvider.getInstance().get(url, headers)) {
                 if (response.code() == 429) {
+                    rateLimit429Count++;
                     String retryAfter = response.header("Retry-After");
                     long backoff = 1000;
                     if (retryAfter != null) {
@@ -1002,6 +1025,10 @@ public class EpisodesService {
         }
 
         Log.d(LOG_TAG, "MyEpisodes API returned " + episodes.size() + " " + episodesType + " episode(s)");
+        if (episodesType == EpisodeType.EPISODES_TO_WATCH) {
+            Log.d(LOG_TAG, "Watch API required " + apiCallCount + " API call(s)");
+            Log.d(LOG_TAG, "Watch API received " + rateLimit429Count + " HTTP 429 rate-limit response(s)");
+        }
         return episodes;
     }
 
@@ -1011,6 +1038,188 @@ public class EpisodesService {
         }
         new Handler(Looper.getMainLooper()).post(() ->
                 Toast.makeText(MyEpisodeConstants.CONTEXT, "Legacy RSS/HTML parsing is disabled", Toast.LENGTH_SHORT).show());
+    }
+
+    private List<Episode> retrieveWatchEpisodesFromApi(EpisodeType episodesType, User user, String apiKey) throws Exception {
+        Log.d(LOG_TAG, "Using MyEpisodes API for " + episodesType + " episodes (threaded)");
+        final int limit = MyEpisodeConstants.MYEPISODES_API_PAGE_LIMIT;
+        final AtomicInteger nextOffset = new AtomicInteger(0);
+        final AtomicInteger inFlight = new AtomicInteger(1);
+        final java.util.concurrent.atomic.AtomicBoolean hasMoreGlobal = new java.util.concurrent.atomic.AtomicBoolean(true);
+        final java.util.concurrent.atomic.AtomicBoolean stop = new java.util.concurrent.atomic.AtomicBoolean(false);
+        final List<Episode> allEpisodes = java.util.Collections.synchronizedList(new ArrayList<>());
+        final AtomicInteger apiCallCount = new AtomicInteger(0);
+        final AtomicInteger rateLimit429Count = new AtomicInteger(0);
+
+        ExecutorService pool = Executors.newFixedThreadPool(4, r -> {
+            Thread t = new Thread(r, "WatchApiWorker");
+            t.setDaemon(true);
+            return t;
+        });
+
+        Runnable fetchTask = new Runnable() {
+            @Override
+            public void run() {
+                if (stop.get()) {
+                    inFlight.decrementAndGet();
+                    return;
+                }
+                int offset = nextOffset.getAndAdd(limit);
+
+                try {
+                    JSONObject page = null;
+                    int retries = 0;
+                    while (true) {
+                        String url = MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/me/episodes"
+                                + "?status=unwatched"
+                                + "&include_ignored=false"
+                                + "&date_basis=local"
+                                + "&order=asc"
+                                + "&limit=" + limit
+                                + "&offset=" + offset;
+
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                                MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+
+                        apiCallCount.incrementAndGet();
+                        try (Response response = HttpClientProvider.getInstance().get(url, headers)) {
+                            if (response.code() == 429) {
+                                rateLimit429Count.incrementAndGet();
+                                if (pool instanceof java.util.concurrent.ThreadPoolExecutor) {
+                                    java.util.concurrent.ThreadPoolExecutor tpe = (java.util.concurrent.ThreadPoolExecutor) pool;
+                                    int max = tpe.getMaximumPoolSize();
+                                    if (max > 1) {
+                                        tpe.setMaximumPoolSize(max - 1);
+                                    }
+                                }
+                                String retryAfter = response.header("Retry-After");
+                                long backoff = 1000;
+                                if (retryAfter != null) {
+                                    try {
+                                        backoff = Long.parseLong(retryAfter.trim()) * 1000L;
+                                    } catch (NumberFormatException ignored) {
+                                    }
+                                }
+                                Thread.sleep(backoff);
+                                continue;
+                            }
+                            if (!response.isSuccessful()) {
+                                throw new IOException("HTTP " + response.code() + " for GET " + url);
+                            }
+                            String body = response.body() != null ? response.body().string() : "";
+                            page = new JSONObject(body);
+                            break;
+                        }
+                    }
+
+                    JSONArray data = page.optJSONArray("data");
+                    int returned = data != null ? data.length() : 0;
+                    if (data != null) {
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject item = data.optJSONObject(i);
+                            if (item == null) {
+                                continue;
+                            }
+                            int showIdInt = item.optInt("showid", 0);
+                            String myEpisodeID = showIdInt > 0 ? String.valueOf(showIdInt) : item.optString("showid", "").trim();
+                            String showName = item.optString("showname", "").trim();
+                            int season = item.optInt("season", 0);
+                            int episodeNum = item.optInt("episode", 0);
+                            String episodeName = item.optString("name", "").trim();
+                            String airDateString = item.optString("airdate", "").trim();
+
+                            Date airDate = null;
+                            if (!airDateString.isEmpty()) {
+                                try {
+                                    airDate = parseDate(airDateString);
+                                } catch (Exception e) {
+                                    airDate = DateUtil.convertToDate(airDateString);
+                                }
+                            }
+
+                            Episode episode = new Episode();
+                            episode.setShowName(showName);
+                            episode.setSeason(season);
+                            episode.setEpisode(episodeNum);
+                            episode.setName(episodeName);
+                            episode.setType(episodesType);
+                            episode.setAirDate(airDate != null ? airDate.getTime() : 0);
+                            episode.setMyEpisodeID(myEpisodeID);
+
+                            JSONObject external = item.optJSONObject("external");
+                            if (external != null) {
+                                int tvmazeId = external.optInt("tvmaze", 0);
+                                if (tvmazeId > 0) {
+                                    episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + tvmazeId);
+                                }
+                            }
+
+                            allEpisodes.add(episode);
+                        }
+                    }
+
+                    JSONObject meta = page.optJSONObject("meta");
+                    boolean pageHasMore = meta != null && meta.optBoolean("has_more", false);
+                    int nextOff = meta != null ? meta.optInt("offset", offset) + returned : offset + returned;
+                    if (pageHasMore && nextOff > offset && !stop.get()) {
+                        inFlight.incrementAndGet();
+                        pool.execute(this);
+                    } else {
+                        hasMoreGlobal.set(false);
+                    }
+                } catch (Exception e) {
+                    Log.w(LOG_TAG, "Watch API page failed", e);
+                    stop.set(true);
+                } finally {
+                    inFlight.decrementAndGet();
+                }
+            }
+        };
+
+        inFlight.set(1);
+        pool.execute(fetchTask);
+
+        while (inFlight.get() > 0) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        pool.shutdown();
+
+        // Batch load runtimes.
+        AppDatabase database = AppDatabase.getInstance(
+                nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+        SeriesDAO seriesDAO = database.getSeriesDAO();
+        Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
+        if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+            List<String> allIds = new ArrayList<>();
+            for (Episode ep : allEpisodes) {
+                allIds.add(ep.getMyEpisodeID());
+            }
+            try {
+                for (EpisodeRuntime rt : seriesDAO.getEpisodeRuntimeWithMyEpsIds(allIds)) {
+                    runtimeMap.put(rt.showMyEpsID, rt);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        for (Episode episode : allEpisodes) {
+            if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
+                EpisodeRuntime rt = runtimeMap.get(episode.getMyEpisodeID());
+                if (rt != null && rt.getShowTVMazeID() != null && !rt.getShowTVMazeID().isEmpty()) {
+                    episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + rt.getShowTVMazeID());
+                }
+            }
+        }
+
+        Log.d(LOG_TAG, "MyEpisodes API returned " + allEpisodes.size() + " " + episodesType + " episode(s)");
+        Log.d(LOG_TAG, "Watch API required " + apiCallCount.get() + " API call(s)");
+        Log.d(LOG_TAG, "Watch API received " + rateLimit429Count.get() + " HTTP 429 rate-limit response(s)");
+        return allEpisodes;
     }
 
     private Date parseDate(String date) {

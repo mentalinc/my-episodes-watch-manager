@@ -283,6 +283,10 @@ public class EpisodesController {
     }
 
     public void deleteAll() {
+        deleteAll(true);
+    }
+
+    public void deleteAll(boolean clearDatabase) {
         List<Episode> tempList = new ArrayList<>();
         watchEpisodes = tempList;
         acquireEpisodes = tempList;
@@ -290,10 +294,12 @@ public class EpisodesController {
         watchShows.clear();
         acquireShows.clear();
         comingShows.clear();
-        TaskRunner.getExecutor().execute(() -> {
-            AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
-            database.clearAllTables();
-        });
+        if (clearDatabase) {
+            TaskRunner.getExecutor().execute(() -> {
+                AppDatabase database = AppDatabase.getInstance(nz.mentalinc.watcher.activities.HomeActivity.getContext().getApplicationContext());
+                database.clearAllTables();
+            });
+        }
     }
 
     public void addEpisode(EpisodeType episodesType, Episode episode) {
