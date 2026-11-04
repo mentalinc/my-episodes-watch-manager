@@ -299,8 +299,6 @@ public class RandomEpPickerActivity extends Activity {
 
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
-
-            //TODO need to do something to open a blank list instead of failing back when clicking on a button that has no shows to watch.
             if (previousItem != nextItem) {
                // switch (nextItem) {
                     if(R.id.barShowDetail == nextItem) {

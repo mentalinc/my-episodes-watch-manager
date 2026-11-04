@@ -226,7 +226,6 @@ public class EpisodesService {
                             //RunTimeEnable = true = show runtime
                             if (MyEpisodeConstants.SHOW_RUNTIME_ENABLED) {
                                 EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
-                                //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
                                 //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
                                 episode.setShowName(episode.getShowName());
                                 if (showRuntime != null) {
@@ -255,7 +254,6 @@ public class EpisodesService {
                         //episode.setTVMazeWebSite(item.getLink());
 
                         EpisodeRuntime showRuntime = runtimeMap.get(episode.getMyEpisodeID());
-                        //TODO this line is what sets the title to have the runtime. This was only added to make sure the sort worked on episodes with runtime enabled
                         //episode.setShowName(showRuntime.getShowRuntime() + " mins" + " - " + episode.getShowName());
                         episode.setShowName(episode.getShowName());
                         if (showRuntime != null) {
@@ -369,7 +367,6 @@ public class EpisodesService {
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_COMING, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
-            //todo - remove episodes from the hashmap as well
             EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
             EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
             EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_COMING, episode);

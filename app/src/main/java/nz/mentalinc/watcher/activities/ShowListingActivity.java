@@ -75,6 +75,7 @@ public class ShowListingActivity extends AppCompatActivity {
     private List<Episode> episodes = new ArrayList<>();
     private Map<String, EpisodeRuntime> runtimeMap = new HashMap<>();
     private boolean sortByRuntime = false;
+    private boolean reverseSort = false;
     private static EpisodeType episodesType;
     private static final String DIALOG_LOADING_TAG = "LOADING";
     private Integer exceptionMessageResId = null;
@@ -220,6 +221,20 @@ public class ShowListingActivity extends AppCompatActivity {
                 sortByRuntime = !sortByRuntime;
                 toggleRuntimeSort();
                 return true;
+            } else if (id == R.id.btn_title_reverse_sort) {
+                reverseSort = !reverseSort;
+                RecyclerView rv = findViewById(R.id.recyclerViewListItemsShows);
+                ShowAdapter ad = (ShowAdapter) rv.getAdapter();
+                if (ad != null) {
+                    List<Show> current = new ArrayList<>(ad.getCurrentList());
+                    java.util.Collections.reverse(current);
+                    ad.submitList(current, () -> {
+                        if (rv.getLayoutManager() != null) {
+                            rv.getLayoutManager().scrollToPosition(0);
+                        }
+                    });
+                }
+                return true;
             } else if (id == R.id.btn_title_refresh) {
                 Log.w(LOG_TAG, "Refresh button clicked.");
                 onRefreshClick();
@@ -262,6 +277,9 @@ public class ShowListingActivity extends AppCompatActivity {
                     ShowAdapter listAdapter = (ShowAdapter) recyclerView.getAdapter();
                     Show showSelected = listAdapter.getCurrentList().get(position);
                     Episode nextEpisodeToWatch = showSelected.getFirstEpisode();
+
+                    // Preload show info (runtime/summary/image) in the background if it is missing.
+                    preloadShowInfo(showSelected);
 
                     if (showSelected.getNumberEpisodes() == 1) {
                         openEpisodeDetails(nextEpisodeToWatch, episodesType);
@@ -752,6 +770,27 @@ public class ShowListingActivity extends AppCompatActivity {
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsShows);
                 rv.setAdapter(newAdapter);
             });
+        });
+    }
+
+    private void preloadShowInfo(Show show) {
+        if (show == null || show.getFirstEpisode() == null) {
+            return;
+        }
+        String showId = show.getFirstEpisode().getMyEpisodeID();
+        if (showId == null || showId.isEmpty()) {
+            return;
+        }
+        TaskRunner.getExecutor().execute(() -> {
+            try {
+                AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+                EpisodeRuntime rt = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(showId);
+                if (!ShowService.hasUsableRuntime(rt)) {
+                    new ShowService().ShowsRuntime(show.getShowName(), showId, db);
+                }
+            } catch (Exception e) {
+                Log.d(LOG_TAG, "Could not preload show info for " + show.getShowName(), e);
+            }
         });
     }
 

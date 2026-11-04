@@ -26,6 +26,17 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/btn_title_reverse_sort"
+        android:background="@color/primaryColor"
+        android:enabled="true"
+        android:icon="@drawable/outline_sort_up_down_white_24"
+        android:textColor="@color/on_text_white"
+        android:title="@string/reverse_sort"
+        android:titleTextColor="@color/on_text_white"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/btn_title_refresh"
         android:background="@color/primaryColor"
         android:enabled="true"

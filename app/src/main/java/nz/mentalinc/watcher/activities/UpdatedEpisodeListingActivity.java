@@ -38,6 +38,8 @@ import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
+import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
+import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.domain.User;
 import nz.mentalinc.watcher.enums.EpisodeType;
@@ -105,8 +107,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
                 CredentialStore.getPassword(UpdatedEpisodeListingActivity.this)
         );
 
-
-        //todo add the refresh icon to the screen and then the methods to do that
         data = this.getIntent().getExtras();
         episodesType = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         showMyEpisodeID = data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, String.class);
@@ -133,10 +133,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
 
         returnEpisodes();
 
-       /* if (shows.size() < 1) {
-            Show holderShow = new Show(title, showMyEpisodeID);
-            shows.add(holderShow);
-        }*/
 
         if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
             bottomNavigationView.getMenu().getItem(2).setChecked(true);
@@ -183,8 +179,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
 
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
         ItemClickSupport.addTo(rvEpisode).setOnItemClickListener((recyclerView, position, v) -> {
-                    //todo something wrong here AFTer clicking on marked watched - the gui shows the correct view, but the episodes array is the whole watched list.
-                        //need to figure out why not being filtered down correctly to just the show myepisodeID list before being selected.
+
                     Episode episodeSelected = episodes.get(position);
                     //Show Show = episodeSelected.getShowName();
                     openEpisodeDetails(episodeSelected, episodesType);
@@ -281,7 +276,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
             final int previousItem = bottomNavigationView.getSelectedItemId();
             final int nextItem = item.getItemId();
 
-            //TODO need to do something to open a blank list instead of failing back when clicking on a button that has no shows to watch.
             if (previousItem != nextItem) {
                 //switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
@@ -458,7 +452,19 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         }
         Log.w(LOG_TAG, "returnEpisodes() completed");
 
-        sortEpisodesOfShows(shows);
+        sortEpisodes(episodes);
+    }
+
+    private void sortEpisodes(List<Episode> episodeList) {
+        if (episodeList == null || episodeList.isEmpty()) return;
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String sorting = sharedPref.getString("episodeOrder", "oldest_on_top");
+        String[] episodeOrderOptions = getResources().getStringArray(R.array.episodeOrderOptionsValues);
+        if (sorting.equals(episodeOrderOptions[0])) {
+            episodeList.sort(new EpisodeAscendingComparator());
+        } else if (sorting.equals(episodeOrderOptions[1])) {
+            episodeList.sort(new EpisodeDescendingComparator());
+        }
     }
 
     private void sortEpisodesOfShows(List<Show> showList) {

@@ -31,8 +31,6 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- 20dp dense icon, though 48dp touch target -->
-    <!--  TODO: Hidden from view as NO idea how to have this clickable. the other app does something tricky
-       -->
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imageViewShowsSetWatched"
         android:layout_width="48dp"
@@ -47,23 +45,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_watch_white_24dp" />
-
-
-    <!-- 20dp dense icon, though 48dp touch target -->
-
-    <!-- TODO: Hidden from view as NO idea how to have this clickable. the other app does something tricky
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/imageViewShowsContextMenu"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/show_menu_overflow"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@drawable/ic_more_vert_black_20dp"
-        tools:ignore="ContentDescription" />
- -->
 
     <TextView
         android:id="@+id/textViewShowsRemaining"

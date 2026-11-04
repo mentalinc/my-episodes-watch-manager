@@ -86,6 +86,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private Integer exceptionMessageResId = null;
     private static EpisodeType episodesType;
     private ListMode listMode;
+    private boolean dateDescending = false;
     private String title;
     //private Resources res; // Resource object to get Drawables
     // private android.content.res.Configuration conf;
@@ -296,6 +297,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
         Bundle data = this.getIntent().getExtras();
         episodesType = Objects.requireNonNull(data).getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.class);
         listMode = data.getSerializable(ActivityConstants.EXTRA_BUILD_VAR_LIST_MODE, ListMode.class);
+        dateDescending = data.getBoolean(ActivityConstants.EXTRA_BUILD_VAR_DATE_DESCENDING, false);
         title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
         init();
         androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
@@ -537,6 +539,9 @@ public class EpisodeListingActivity extends AppCompatActivity {
                     listedAirDates.put(null, unknownDateEpisodes);
                 }
                 listedAirDatesList = new ArrayList<>(listedAirDates.entrySet());
+                if (dateDescending) {
+                    java.util.Collections.reverse(listedAirDatesList);
+                }
                 break;
             }
             case EPISODES_BY_SHOW: {
