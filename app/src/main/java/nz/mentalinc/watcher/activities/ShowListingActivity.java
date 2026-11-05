@@ -578,6 +578,18 @@ public class ShowListingActivity extends AppCompatActivity {
         }
     }
 
+    private long latestEpisodeAirDate(Show show) {
+        long latest = 0;
+        if (show != null && show.getEpisodes() != null) {
+            for (Episode ep : show.getEpisodes()) {
+                if (ep != null && ep.getAirDate() > latest) {
+                    latest = ep.getAirDate();
+                }
+            }
+        }
+        return latest;
+    }
+
     private void sortShows(List<Show> showList) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String sorting = "";
@@ -605,6 +617,9 @@ public class ShowListingActivity extends AppCompatActivity {
             showList.sort(new ShowDescendingComparator());
         } else if (sorting.equals(showOrderOptions[0])) {
             Log.d(LOG_TAG, "Default my episodes show sorting, nothing to do!");
+        } else if (sorting.equals(showOrderOptions[3])) {
+            Log.d(LOG_TAG, "Sort by latest episode date (oldest first)");
+            showList.sort((s1, s2) -> Long.compare(latestEpisodeAirDate(s1), latestEpisodeAirDate(s2)));
         } else if (sorting.equals(showOrderOptions[4])) {
             Log.d(LOG_TAG, "Sort by Runtime!");
             showList.sort(new ShowRuntimeAscendingComparator());

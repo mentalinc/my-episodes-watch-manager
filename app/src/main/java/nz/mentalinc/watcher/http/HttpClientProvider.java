@@ -165,6 +165,15 @@ public class HttpClientProvider {
     }
 
     /**
+     * Sends an empty PUT request, used by the MyEpisodes API to follow a show.
+     */
+    public Response put(String url, Map<String, String> headers) throws IOException {
+        Request.Builder builder = new Request.Builder().url(url).put(RequestBody.create(new byte[0]));
+        addHeaders(builder, headers);
+        return client.newCall(builder.build()).execute();
+    }
+
+    /**
      * Sends a JSON PATCH request, used by the MyEpisodes API to dismiss or restore a show.
      */
     public Response patchJson(String url, String json, Map<String, String> headers) throws IOException {

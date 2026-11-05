@@ -83,8 +83,71 @@ public class ShowService {
         void onProgress(int processed, int total, String showName);
     }
 
+    private List<Show> searchShowsFromApi(String apiKey, String search) throws IOException, JSONException {
+        List<Show> shows = new ArrayList<>();
+        int offset = 0;
+        boolean hasMore = true;
+        while (hasMore) {
+            String url = MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/shows"
+                    + "?search=" + Uri.encode(search, "utf-8")
+                    + "&limit=1000&offset=" + offset;
+            Map<String, String> headers = new HashMap<>();
+            headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                    MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+
+            JSONObject page;
+            try (Response response = HttpClientProvider.getInstance().get(url, headers)) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("HTTP " + response.code() + " for GET " + url);
+                }
+                String body = response.body() != null ? response.body().string() : "";
+                page = new JSONObject(body);
+            }
+
+            JSONArray data = page.optJSONArray("data");
+            if (data != null) {
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject show = data.optJSONObject(i);
+                    if (show == null) continue;
+                    String showId = String.valueOf(show.optInt("showid", 0));
+                    String showName = show.optString("showname", "").trim();
+                    if (!showId.equals("0") && !showName.isEmpty()) {
+                        shows.add(new Show(showName, showId));
+                    }
+                }
+            }
+
+            JSONObject meta = page.optJSONObject("meta");
+            int returned = data != null ? data.length() : 0;
+            hasMore = meta != null && meta.optBoolean("has_more", false);
+            int nextOffset = meta != null ? meta.optInt("offset", offset) + returned : offset + returned;
+            if (returned == 0 || nextOffset <= offset) {
+                break;
+            }
+            offset = nextOffset;
+        }
+        return shows;
+    }
+
     public List<Show> searchShows(String search, User user) throws InternetConnectivityException, LoginFailedException {
  
+        String apiKey = getApiKey();
+        if (!apiKey.isEmpty()) {
+            try {
+                return searchShowsFromApi(apiKey, search);
+            } catch (Exception e) {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    notifyLegacyDisabled();
+                    throw e instanceof LoginFailedException ? (LoginFailedException) e
+                            : new LoginFailedException("Legacy RSS/HTML parsing is disabled", e);
+                }
+                Log.w(LOG_TAG, "MyEpisodes API search failed; falling back to the HTML search page", e);
+            }
+        } else if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
+
         if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
             notifyLegacyDisabled();
             throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
@@ -215,6 +278,42 @@ public class ShowService {
     }
 
     public void addShow(String myEpsidodesShowId, User user) throws InternetConnectivityException, LoginFailedException, ShowAddFailedException {
+ 
+        String apiKey = getApiKey();
+        if (!apiKey.isEmpty()) {
+            try {
+                String url = MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/me/shows/" + myEpsidodesShowId;
+                Map<String, String> headers = new HashMap<>();
+                headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                        MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+                try (Response response = HttpClientProvider.getInstance().put(url, headers)) {
+                    if (!response.isSuccessful()) {
+                        throw new ShowAddFailedException("HTTP " + response.code() + " for PUT " + url);
+                    }
+                }
+                return;
+            } catch (ShowAddFailedException e) {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    notifyLegacyDisabled();
+                    throw e;
+                }
+                Log.w(LOG_TAG, "MyEpisodes API add show failed; falling back to the HTML page", e);
+            } catch (IOException e) {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    notifyLegacyDisabled();
+                    throw new ShowAddFailedException("Legacy RSS/HTML parsing is disabled", e);
+                }
+                Log.w(LOG_TAG, "MyEpisodes API add show failed; falling back to the HTML page", e);
+            }
+        } else if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
+
+        if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
 
         userService.login(user.getUsername(), user.getPassword());
         int status;

@@ -12,7 +12,7 @@
         android:titleTextColor="@color/on_text_white"
         android:visible="true"
         app:itemTextColor="@color/on_text_white"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/btn_title_sort_runtime"
@@ -23,7 +23,7 @@
         android:title="@string/sort_by_runtime"
         android:titleTextColor="@color/on_text_white"
         android:visible="true"
-        app:showAsAction="ifRoom" />
+         />
 
     <item
         android:id="@+id/btn_title_reverse_sort"
@@ -34,7 +34,7 @@
         android:title="@string/reverse_sort"
         android:titleTextColor="@color/on_text_white"
         android:visible="true"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/btn_title_refresh"

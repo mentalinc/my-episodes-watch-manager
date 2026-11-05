@@ -34,6 +34,7 @@ import java.util.List;
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.domain.User;
+import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.enums.ShowType;
 import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
@@ -160,6 +161,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
 
     private void updateNumberOfResults() {
         TextView numberOfResults = findViewById(R.id.showNameSearchNumberOfResults);
+        TextView noResults = findViewById(R.id.text_view_id);
 
         if (shows.size() > 0) {
             String text = shows.size() + " ";
@@ -171,8 +173,14 @@ public class ShowManagementAddActivity extends AppCompatActivity {
             }
             numberOfResults.setText(text);
             numberOfResults.setVisibility(TextView.VISIBLE);
+            if (noResults != null) {
+                noResults.setVisibility(TextView.GONE);
+            }
         } else {
             numberOfResults.setVisibility(TextView.GONE);
+            if (noResults != null) {
+                noResults.setVisibility(TextView.VISIBLE);
+            }
         }
     }
 
@@ -372,16 +380,41 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         TaskRunner.getExecutor().execute(() -> {
             Show show = shows.get(position);
             addShow(show);
+            final Show addedShow = show;
             runOnUiThread(() -> {
                 dismissLoadingDialog();
                 if (exceptionMessageResId != null) {
                     showExceptionDialog(exceptionMessageResId);
                     exceptionMessageResId = null;
                 } else {
-                    showFinishedDialog();
+                    showFinishedDialogWithShowInfo(addedShow);
                 }
             });
         });
+    }
+
+    private void showFinishedDialogWithShowInfo(Show show) {
+        new MaterialAlertDialogBuilder(ShowManagementAddActivity.this)
+                .setMessage(R.string.showSearchFinished)
+                .setCancelable(false)
+                .setPositiveButton(R.string.done, (dialog, id) -> {
+                    dialog.dismiss();
+                    finish();
+                })
+                .setNeutralButton("Show Info", (dialog, id) -> {
+                    dialog.dismiss();
+                    openShowInfo(show);
+                })
+                .setNegativeButton(R.string.search, (dialog, id) -> dialog.dismiss())
+                .show();
+    }
+
+    private void openShowInfo(Show show) {
+        Intent intent = new Intent(this, ShowSummaryActivity.class);
+        intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
+        intent.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, show.getMyEpisodeID());
+        intent.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
+        startActivity(intent);
     }
 
     private void addShow(Show show) {

@@ -479,12 +479,15 @@ public class ShowSummaryActivity extends AppCompatActivity {
     }
 
     private void populateShowRuntimeAndSummary(HashMap<String, String> showSummaryHashMap) {
-        if (shows.isEmpty()) {
-            Log.w(LOG_TAG, "No shows available to populate runtime");
-            return;
+        final String showName;
+        if (!shows.isEmpty() && shows.get(0).getShowName() != null) {
+            showName = shows.get(0).getShowName();
+        } else if (data != null) {
+            showName = data.getString(ActivityConstants.EXTRA_TITLE);
+        } else {
+            showName = null;
         }
-        String showName = shows.get(0).getShowName();
-        if (showName == null) {
+        if (showName == null || showName.trim().isEmpty()) {
             Log.w(LOG_TAG, "Show name is null, cannot populate runtime");
             return;
         }
