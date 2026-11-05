@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,6 +44,8 @@ import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
+import nz.mentalinc.watcher.database.AppDatabase;
+import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
 public class ShowManagementAddActivity extends AppCompatActivity {
@@ -58,6 +61,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
     private ListView listView;
 
     private boolean showsAdded = false;
+    private boolean showAlreadyInFavorites = false;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
             new NavigationBarView.OnItemSelectedListener() {
@@ -379,11 +383,14 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         showLoadingDialog();
         TaskRunner.getExecutor().execute(() -> {
             Show show = shows.get(position);
+            showAlreadyInFavorites = false;
             addShow(show);
             final Show addedShow = show;
             runOnUiThread(() -> {
                 dismissLoadingDialog();
-                if (exceptionMessageResId != null) {
+                if (showAlreadyInFavorites) {
+                    Toast.makeText(ShowManagementAddActivity.this, "Show already in favorites", Toast.LENGTH_SHORT).show();
+                } else if (exceptionMessageResId != null) {
                     showExceptionDialog(exceptionMessageResId);
                     exceptionMessageResId = null;
                 } else {
@@ -419,6 +426,14 @@ public class ShowManagementAddActivity extends AppCompatActivity {
 
     private void addShow(Show show) {
         try {
+            // Check the local database to see if the show has already been added/enriched.
+            AppDatabase db = AppDatabase.getInstance(getBaseContext());
+            EpisodeRuntime existing = db.getSeriesDAO().getEpisodeRuntimeWithMyEpsId(show.getMyEpisodeID());
+            if (existing != null) {
+                showAlreadyInFavorites = true;
+                return;
+            }
+
             Log.d(LOG_TAG, "Adding show with id " + show.getMyEpisodeID() + " to the account of user " + user.getUsername());
             service.addShow(show.getMyEpisodeID(), user);
             showsAdded = true;
