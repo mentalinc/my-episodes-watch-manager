@@ -410,6 +410,54 @@ public class EpisodesService {
         }
     }
 
+    public void unacquireEpisodes(List<Episode> episodes, User user) throws LoginFailedException, ShowUpdateFailedException, InternetConnectivityException {
+        String apiKey = getApiKey();
+        boolean useApi = !apiKey.isEmpty();
+
+        if (!useApi && !MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+            notifyLegacyDisabled();
+            throw new LoginFailedException("Legacy RSS/HTML parsing is disabled");
+        }
+
+        if (!useApi) {
+            userService.login(user.getUsername(), user.getPassword());
+        }
+
+        for (Episode episode : episodes) {
+            if (useApi) {
+                markEpisodeAcquiredViaApi(apiKey, episode, false);
+            } else {
+                // Legacy fallback: nothing reliable to unacquire; skip.
+            }
+            EpisodesController.getInstance().deleteEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
+            EpisodesController.getInstance().addEpisode(EpisodeType.EPISODES_TO_ACQUIRE, episode);
+            EpisodesController.getInstance().deleteShowEpisode(EpisodeType.EPISODES_TO_WATCH, episode);
+            EpisodesController.getInstance().AddToAcquireShow(Collections.singletonList(episode));
+        }
+    }
+
+    private void markEpisodeAcquiredViaApi(String apiKey, Episode episode, boolean acquired) throws ShowUpdateFailedException, InternetConnectivityException {
+        String url = MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/me/episodes/"
+                + episode.getMyEpisodeID() + "/" + episode.getSeason() + "/" + episode.getEpisode();
+        Map<String, String> headers = new HashMap<>();
+        headers.put(MyEpisodeConstants.MYEPISODES_API_AUTH_HEADER,
+                MyEpisodeConstants.MYEPISODES_API_AUTH_SCHEME + apiKey);
+
+        String body = acquired ? "{\"acquired\":true}" : "{\"acquired\":false}";
+        try (Response response = HttpClientProvider.getInstance().putJson(url, body, headers)) {
+            if (!response.isSuccessful()) {
+                String message = "Marking episode acquired via API failed with HTTP " + response.code() + " for " + url;
+                Log.w(LOG_TAG, message);
+                throw new ShowUpdateFailedException(message);
+            }
+            Log.d(LOG_TAG, "Episode acquired=" + acquired + " via API: " + url);
+        } catch (IOException e) {
+            String message = "Marking episode acquired via API failed for " + url;
+            Log.w(LOG_TAG, message, e);
+            throw new ShowUpdateFailedException(message, e);
+        }
+    }
+
     private void markEpisodeViaApi(String apiKey, Episode episode, boolean watched) throws ShowUpdateFailedException, InternetConnectivityException {
         String url = MyEpisodeConstants.MYEPISODES_API_BASE_URL + "/v1/me/episodes/"
                 + episode.getMyEpisodeID() + "/" + episode.getSeason() + "/" + episode.getEpisode();

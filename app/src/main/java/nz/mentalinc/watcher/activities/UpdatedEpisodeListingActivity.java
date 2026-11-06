@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,7 +55,7 @@ import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.utils.TaskRunner;
 
-public class UpdatedEpisodeListingActivity extends AppCompatActivity {
+public class UpdatedEpisodeListingActivity extends AppCompatActivity implements EpisodeAdapter.OnEpisodeMarkListener {
     private static final String LOG_TAG = UpdatedEpisodeListingActivity.class.getSimpleName();
 
     List<Show> shows = new ArrayList<>();
@@ -148,6 +149,9 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
         adapter = new EpisodeAdapter(episodes, new HashMap<>());
+        adapter.setOnEpisodeMarkListener(this);
+        adapter.setMarkControlsVisible(episodesType != EpisodeType.EPISODES_COMING);
+        adapter.setAcquiredCheckedByDefault(episodesType == EpisodeType.EPISODES_TO_WATCH);
         rvEpisode.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -177,14 +181,24 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
             startActivity(home);
         });
 
+        com.google.android.material.appbar.MaterialToolbar appBar = findViewById(R.id.topAppBarEpisodesView);
+        appBar.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.mark_watched) {
+                markAllWatched();
+                return true;
+            } else if (id == R.id.mark_acquired) {
+                markAllAcquired();
+                return true;
+            }
+            return false;
+        });
+
         // Leveraging ItemClickSupport decorator to handle clicks on items in our recyclerView
         ItemClickSupport.addTo(rvEpisode).setOnItemClickListener((recyclerView, position, v) -> {
-
-                    Episode episodeSelected = episodes.get(position);
-                    //Show Show = episodeSelected.getShowName();
-                    openEpisodeDetails(episodeSelected, episodesType);
-                }
-        );
+            Episode episodeSelected = episodes.get(position);
+            openEpisodeDetails(episodeSelected, episodesType);
+        });
 
 
         ItemClickSupport.addTo(rvEpisode).setOnItemLongClickListener((recyclerView, position, v) -> {
@@ -238,6 +252,8 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 returnEpisodes();
                 adapter = new EpisodeAdapter(episodes, new HashMap<>());
+                adapter.setOnEpisodeMarkListener(this);
+                adapter.setMarkControlsVisible(episodesType != EpisodeType.EPISODES_COMING);
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
                 rv.setAdapter(adapter);
                 loadRuntimeMapForEpisodes(episodes, adapter);
@@ -381,6 +397,67 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodeType);
         updatedEpisodeListActivity.putExtra(ActivityConstants.EXTRA_TITLE, show.getShowName());
         startActivity(updatedEpisodeListActivity);
+    }
+
+    private void markAllWatched() {
+        if (episodes == null || episodes.isEmpty()) return;
+        TaskRunner.getExecutor().execute(() -> {
+            try {
+                service.watchedEpisodes(new ArrayList<>(episodes), user);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Failed to mark watched", e);
+            }
+            runOnUiThread(this::onRefreshClick);
+        });
+    }
+
+    private void markAllAcquired() {
+        if (episodes == null || episodes.isEmpty()) return;
+        TaskRunner.getExecutor().execute(() -> {
+            try {
+                service.acquireEpisodes(new ArrayList<>(episodes), user);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Failed to mark acquired", e);
+            }
+            runOnUiThread(this::onRefreshClick);
+        });
+    }
+
+    @Override
+    public void onMarkWatched(Episode episode) {
+        TaskRunner.getExecutor().execute(() -> {
+            try {
+                service.watchedEpisodes(java.util.Collections.singletonList(episode), user);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Failed to mark watched", e);
+            }
+            runOnUiThread(this::onRefreshClick);
+        });
+    }
+
+    @Override
+    public void onMarkAcquired(Episode episode) {
+        Toast.makeText(this, "Marking acquired: " + episode.getName(), Toast.LENGTH_SHORT).show();
+        TaskRunner.getExecutor().execute(() -> {
+            try {
+                service.acquireEpisodes(java.util.Collections.singletonList(episode), user);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Failed to mark acquired", e);
+            }
+            runOnUiThread(this::onRefreshClick);
+        });
+    }
+
+    @Override
+    public void onMarkUnacquired(Episode episode) {
+        TaskRunner.getExecutor().execute(() -> {
+            try {
+                service.unacquireEpisodes(java.util.Collections.singletonList(episode), user);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Failed to mark unacquired", e);
+            }
+            runOnUiThread(this::onRefreshClick);
+        });
     }
 
     private void openShowSummary(Episode episode, EpisodeType episodeType) {
@@ -644,6 +721,9 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
             Map<String, EpisodeRuntime> finalMap = map;
             runOnUiThread(() -> {
                 EpisodeAdapter newAdapter = new EpisodeAdapter(episodes, finalMap);
+                newAdapter.setOnEpisodeMarkListener(this);
+                newAdapter.setMarkControlsVisible(episodesType != EpisodeType.EPISODES_COMING);
+                newAdapter.setAcquiredCheckedByDefault(episodesType == EpisodeType.EPISODES_TO_WATCH);
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
                 rv.setAdapter(newAdapter);
             });
@@ -653,6 +733,9 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity {
     private void refreshEpisodeAdapter() {
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
         adapter = new EpisodeAdapter(episodes, new HashMap<>());
+        adapter.setOnEpisodeMarkListener(this);
+        adapter.setMarkControlsVisible(episodesType != EpisodeType.EPISODES_COMING);
+        adapter.setAcquiredCheckedByDefault(episodesType == EpisodeType.EPISODES_TO_WATCH);
         rvEpisode.setAdapter(adapter);
         loadRuntimeMapForEpisodes(episodes, adapter);
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.topAppBarEpisodesView);

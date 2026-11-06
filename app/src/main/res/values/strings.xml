@@ -405,4 +405,6 @@
     <string name="episodeNotFoundViaAPI">Episode not found via API</string>
     <string name="processingFavouriteShows">Processing favourite shows…</string>
     <string name="showCountFormat">%1$d shows — %2$d episodes</string>
+    <string name="acquired">Acquired</string>
+    <string name="watched">Watched</string>
 </resources>

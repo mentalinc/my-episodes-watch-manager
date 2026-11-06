@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
+
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,16 +27,37 @@ import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.utils.DateUtil;
 
 public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHolder> {
+    public interface OnEpisodeMarkListener {
+        void onMarkWatched(Episode episode);
+        void onMarkAcquired(Episode episode);
+        void onMarkUnacquired(Episode episode);
+    }
+
     private static final String LOG_TAG = EpisodeAdapter.class.getSimpleName();
     private static final RequestOptions POSTER_REQUEST_OPTIONS = new RequestOptions()
             .placeholder(R.drawable.placeholder)
             .error(R.drawable.error);
     private final Map<String, EpisodeRuntime> runtimeMap;
+    private OnEpisodeMarkListener markListener;
+    private boolean markControlsVisible = true;
+    private boolean acquiredCheckedByDefault = false;
 
     public EpisodeAdapter(List<Episode> episodes, Map<String, EpisodeRuntime> runtimeMap) {
         super(DIFF_CALLBACK);
         this.runtimeMap = runtimeMap;
         submitList(episodes != null ? new ArrayList<>(episodes) : new ArrayList<>());
+    }
+
+    public void setOnEpisodeMarkListener(OnEpisodeMarkListener listener) {
+        this.markListener = listener;
+    }
+
+    public void setMarkControlsVisible(boolean visible) {
+        this.markControlsVisible = visible;
+    }
+
+    public void setAcquiredCheckedByDefault(boolean checked) {
+        this.acquiredCheckedByDefault = checked;
     }
 
 
@@ -77,6 +100,8 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         private TextView episodeName;
         private TextView episodeRuntime;
         private ImageView showposter;
+        private MaterialCheckBox checkboxWatched;
+        private MaterialCheckBox checkboxAcquired;
 
 
         // We also create a constructor that accepts the entire item row
@@ -93,6 +118,8 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
             episodeRuntime = itemView.findViewById(R.id.textViewActivityRunTime);
 
             showposter = itemView.findViewById(R.id.imageViewActivityPoster);
+            checkboxWatched = itemView.findViewById(R.id.checkboxWatched);
+            checkboxAcquired = itemView.findViewById(R.id.checkboxAcquired);
         }
     }
 
@@ -150,6 +177,38 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         } catch (NullPointerException e) {
             String message = "Problem reading runtime for " + episode.getShowName();
             Log.e(LOG_TAG, message);
+        }
+
+        // Per-episode mark controls.
+        int vis = markControlsVisible ? View.VISIBLE : View.GONE;
+        if (holder.checkboxWatched != null) holder.checkboxWatched.setVisibility(vis);
+        if (holder.checkboxAcquired != null) holder.checkboxAcquired.setVisibility(vis);
+        if (markControlsVisible && holder.checkboxWatched != null) {
+            holder.checkboxWatched.setClickable(true);
+            holder.checkboxWatched.setFocusable(true);
+            holder.checkboxWatched.setOnCheckedChangeListener(null);
+            holder.checkboxWatched.setChecked(false);
+            holder.checkboxWatched.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                android.widget.Toast.makeText(buttonView.getContext(), "Watched changed: " + isChecked, android.widget.Toast.LENGTH_SHORT).show();
+                if (isChecked && markListener != null) {
+                    markListener.onMarkWatched(episode);
+                }
+            });
+        }
+        if (holder.checkboxAcquired != null) {
+            holder.checkboxAcquired.setClickable(true);
+            holder.checkboxAcquired.setFocusable(true);
+            holder.checkboxAcquired.setOnCheckedChangeListener(null);
+            holder.checkboxAcquired.setChecked(acquiredCheckedByDefault);
+            holder.checkboxAcquired.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (markListener != null) {
+                    if (isChecked) {
+                        markListener.onMarkAcquired(episode);
+                    } else {
+                        markListener.onMarkUnacquired(episode);
+                    }
+                }
+            });
         }
     }
 }

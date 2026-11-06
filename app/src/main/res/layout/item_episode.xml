@@ -55,13 +55,12 @@
             android:textAppearance="@style/TextAppearance.SeriesGuide.Body2"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toRightOf="@+id/cardViewActivity"
-
             app:layout_constraintTop_toBottomOf="@+id/textViewActivityShow"
             tools:text="2x08 Somewhere in the middle of the park" />
 
         <TextView
             android:id="@+id/textViewActivityRunTime"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="4dp"
@@ -76,6 +75,36 @@
             app:layout_constraintTop_toBottomOf="@+id/textViewActivityEpisode"
             app:layout_constraintVertical_bias="0.0"
             tools:text="60 mins" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkboxAcquired"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/acquired"
+            android:textAppearance="@style/TextAppearance.SeriesGuide.Body2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/textViewActivityRunTime"
+            app:layout_constraintTop_toTopOf="@+id/textViewActivityRunTime" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkboxWatched"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/watched"
+            android:textAppearance="@style/TextAppearance.SeriesGuide.Body2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/checkboxAcquired"
+            app:layout_constraintTop_toTopOf="@+id/textViewActivityRunTime" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardViewActivity"
@@ -98,6 +127,7 @@
                 tools:src="?attr/sgColorShadow" />
 
         </com.google.android.material.card.MaterialCardView>
+
         <!---
                 <com.battlelancer.seriesguide.widgets.WatchedBox
                     android:id="@+id/watchedBoxActivity"
@@ -113,5 +143,4 @@
                     app:layout_constraintTop_toTopOf="parent" />
         -->
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </LinearLayout>
