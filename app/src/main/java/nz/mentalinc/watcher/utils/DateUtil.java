@@ -21,7 +21,8 @@ import java.util.Locale;
 public final class DateUtil {
     private static final String LOG_TAG = DateUtil.class.getSimpleName();
     //http://download.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html#rfc822timezone
-    private static final String[] dateFormats = {"d-MMM-y", "d/M/y", "d-M-y", "d-MM-y"};
+    private static final String[] dateFormats = {"d-MMM-y", "d/M/y", "d-M-y", "d-MM-y",
+            "d MMM y", "dd MMM yyyy", "d MMMM yyyy", "dd-MMM-yyyy", "yyyy-MM-dd"};
     private static final DateTimeFormatter AIR_DATE_FULL =
             DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
     private static final DateTimeFormatter AIR_DATE_LONG =

@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.pojava.datetime.DateTime;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedReader;
@@ -1282,12 +1281,10 @@ public class EpisodesService {
     }
 
     private Date parseDate(String date) {
-        if (date.endsWith(".") || date.endsWith(";") || date.endsWith(":") || date.endsWith(",") || date.endsWith("-")) {
-            date = date.substring(0, date.length() - 1);
-        }
-
-        DateTime parsedDate = new DateTime(date);
-        return parsedDate.toDate();
+        // pojava's DateTime used to be the primary parser; DateUtil.convertToDate already
+        // performs the same trailing-punctuation trim and is the previous fallback, so delegate
+        // to it and drop the legacy pojava dependency.
+        return DateUtil.convertToDate(date);
     }
 
     private void getSeasonAndEpisodeNumber(String seasonEpisodeNumber, Episode episode) {
