@@ -205,10 +205,12 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                 markAsAcquiredButton.setVisibility(View.VISIBLE);
                 markAsSeenButton.setVisibility(View.VISIBLE);
                 break;
-            case EPISODES_COMING:
-                markAsAcquiredButton.setVisibility(View.GONE);
-                markAsSeenButton.setVisibility(View.GONE);
+            case EPISODES_COMING: {
+                boolean today = isToday(ep.getAirDate());
+                markAsAcquiredButton.setVisibility(today ? View.VISIBLE : View.GONE);
+                markAsSeenButton.setVisibility(today ? View.VISIBLE : View.GONE);
                 break;
+            }
             default: //added for code quality
         }
  
@@ -237,6 +239,15 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
         } else {
             aboutWebsite.setVisibility(View.GONE);
         }
+    }
+
+    private boolean isToday(long airDateMillis) {
+        if (airDateMillis <= 0) return false;
+        java.util.Calendar c1 = java.util.Calendar.getInstance();
+        c1.setTimeInMillis(airDateMillis);
+        java.util.Calendar c2 = java.util.Calendar.getInstance();
+        return c1.get(java.util.Calendar.YEAR) == c2.get(java.util.Calendar.YEAR)
+                && c1.get(java.util.Calendar.DAY_OF_YEAR) == c2.get(java.util.Calendar.DAY_OF_YEAR);
     }
 
     private int findEpisodeIndex(Episode target) {

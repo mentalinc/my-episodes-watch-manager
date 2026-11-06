@@ -41,6 +41,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
     private OnEpisodeMarkListener markListener;
     private boolean markControlsVisible = true;
     private boolean acquiredCheckedByDefault = false;
+    private boolean comingMode = false;
 
     public EpisodeAdapter(List<Episode> episodes, Map<String, EpisodeRuntime> runtimeMap) {
         super(DIFF_CALLBACK);
@@ -58,6 +59,19 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
 
     public void setAcquiredCheckedByDefault(boolean checked) {
         this.acquiredCheckedByDefault = checked;
+    }
+
+    public void setComingMode(boolean coming) {
+        this.comingMode = coming;
+    }
+
+    private boolean isToday(long airDateMillis) {
+        if (airDateMillis <= 0) return false;
+        java.util.Calendar c1 = java.util.Calendar.getInstance();
+        c1.setTimeInMillis(airDateMillis);
+        java.util.Calendar c2 = java.util.Calendar.getInstance();
+        return c1.get(java.util.Calendar.YEAR) == c2.get(java.util.Calendar.YEAR)
+                && c1.get(java.util.Calendar.DAY_OF_YEAR) == c2.get(java.util.Calendar.DAY_OF_YEAR);
     }
 
 
@@ -180,10 +194,11 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         }
 
         // Per-episode mark controls.
-        int vis = markControlsVisible ? View.VISIBLE : View.GONE;
+        boolean showControls = markControlsVisible && !(comingMode && !isToday(episode.getAirDate()));
+        int vis = showControls ? View.VISIBLE : View.GONE;
         if (holder.checkboxWatched != null) holder.checkboxWatched.setVisibility(vis);
         if (holder.checkboxAcquired != null) holder.checkboxAcquired.setVisibility(vis);
-        if (markControlsVisible && holder.checkboxWatched != null) {
+        if (showControls && holder.checkboxWatched != null) {
             holder.checkboxWatched.setClickable(true);
             holder.checkboxWatched.setFocusable(true);
             holder.checkboxWatched.setOnCheckedChangeListener(null);

@@ -150,7 +150,8 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
         adapter = new EpisodeAdapter(episodes, new HashMap<>());
         adapter.setOnEpisodeMarkListener(this);
-        adapter.setMarkControlsVisible(episodesType != EpisodeType.EPISODES_COMING);
+        adapter.setMarkControlsVisible(true);
+        adapter.setComingMode(episodesType == EpisodeType.EPISODES_COMING);
         adapter.setAcquiredCheckedByDefault(episodesType == EpisodeType.EPISODES_TO_WATCH);
         rvEpisode.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(this);
@@ -184,11 +185,10 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
         com.google.android.material.appbar.MaterialToolbar appBar = findViewById(R.id.topAppBarEpisodesView);
         appBar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.mark_watched) {
-                markAllWatched();
-                return true;
-            } else if (id == R.id.mark_acquired) {
-                markAllAcquired();
+            if (id == R.id.home) {
+                Intent home = new Intent(UpdatedEpisodeListingActivity.this, HomeActivity.class);
+                home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(home);
                 return true;
             }
             return false;
@@ -722,7 +722,8 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
             runOnUiThread(() -> {
                 EpisodeAdapter newAdapter = new EpisodeAdapter(episodes, finalMap);
                 newAdapter.setOnEpisodeMarkListener(this);
-                newAdapter.setMarkControlsVisible(episodesType != EpisodeType.EPISODES_COMING);
+                newAdapter.setMarkControlsVisible(true);
+                newAdapter.setComingMode(episodesType == EpisodeType.EPISODES_COMING);
                 newAdapter.setAcquiredCheckedByDefault(episodesType == EpisodeType.EPISODES_TO_WATCH);
                 RecyclerView rv = findViewById(R.id.recyclerViewListItemsEps);
                 rv.setAdapter(newAdapter);
@@ -734,7 +735,8 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
         RecyclerView rvEpisode = findViewById(R.id.recyclerViewListItemsEps);
         adapter = new EpisodeAdapter(episodes, new HashMap<>());
         adapter.setOnEpisodeMarkListener(this);
-        adapter.setMarkControlsVisible(episodesType != EpisodeType.EPISODES_COMING);
+        adapter.setMarkControlsVisible(true);
+        adapter.setComingMode(episodesType == EpisodeType.EPISODES_COMING);
         adapter.setAcquiredCheckedByDefault(episodesType == EpisodeType.EPISODES_TO_WATCH);
         rvEpisode.setAdapter(adapter);
         loadRuntimeMapForEpisodes(episodes, adapter);

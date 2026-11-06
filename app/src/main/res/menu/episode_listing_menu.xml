@@ -8,18 +8,6 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/mark_watched"
-        android:icon="@drawable/outline_visibility_white_48"
-        android:title="Mark Watched"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/mark_acquired"
-        android:icon="@drawable/outline_upcoming_white_48"
-        android:title="Mark Acquired"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/btn_title_collapse"
         android:icon="@drawable/outline_sort_white_24"
         android:title="Collapse"
