@@ -933,8 +933,8 @@ public class EpisodesService {
             } else {
                 urlBuilder.append("?status=unacquired");
                 if (episodesType == EpisodeType.EPISODES_COMING) {
-                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US);
-                    String today = sdf.format(new Date());
+                    java.time.format.DateTimeFormatter sdf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd", java.util.Locale.US);
+                    String today = sdf.format(java.time.LocalDate.now());
                     urlBuilder.append("&from=").append(today);
                     int daysForward = 30;
                     try {
@@ -949,7 +949,7 @@ public class EpisodesService {
                     }
                     java.util.Calendar cal = java.util.Calendar.getInstance();
                     cal.add(java.util.Calendar.DATE, daysForward);
-                    urlBuilder.append("&to=").append(sdf.format(cal.getTime()));
+                    urlBuilder.append("&to=").append(sdf.format(cal.getTime().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()));
                 }
             }
             urlBuilder.append("&include_ignored=false");
@@ -1014,7 +1014,7 @@ public class EpisodesService {
                     // Mirror the RSS filters.
                     if (episodesType == EpisodeType.EPISODES_TO_ACQUIRE) {
                         // Only episodes that have already aired (or have no airdate) are "to acquire".
-                        if (airDate != null && airDate.after(new Date())) {
+                        if (airDate != null && airDate.after(java.util.Date.from(java.time.Instant.now()))) {
                             continue;
                         }
                     } else if (episodesType == EpisodeType.EPISODES_COMING) {

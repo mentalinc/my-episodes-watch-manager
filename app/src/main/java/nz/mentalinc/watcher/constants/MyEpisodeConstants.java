@@ -3,11 +3,12 @@ package nz.mentalinc.watcher.constants;
 import android.content.Context;
 
 import java.io.IOException;
-import java.net.URL;
 
-import javax.net.ssl.HttpsURLConnection;
 
+import nz.mentalinc.watcher.http.HttpClientProvider;
 import nz.mentalinc.watcher.utils.NetworkUtils;
+
+import okhttp3.Response;
 
 public class MyEpisodeConstants {
     public static final String UID_REPLACEMENT_STRING = "[UID]";
@@ -166,15 +167,8 @@ public class MyEpisodeConstants {
         if (sIsOnline != null) {
             return sIsOnline;
         }
-        try {
-            URL url = new URL("https://www.myepisodes.com/favicon.ico");
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestProperty("User-Agent", "yourAgent");
-            connection.setRequestProperty("Connection", "close");
-            connection.setConnectTimeout(1000);
-            connection.connect();
-            sIsOnline = connection.getResponseCode() == 200;
-            connection.disconnect();
+        try (Response response = HttpClientProvider.getInstance().get("https://www.myepisodes.com/favicon.ico")) {
+            sIsOnline = response.isSuccessful();
         } catch (IOException e) {
             sIsOnline = false;
         }

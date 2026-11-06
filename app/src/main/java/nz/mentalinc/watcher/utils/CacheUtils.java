@@ -3,6 +3,7 @@ package nz.mentalinc.watcher.utils;
 import android.util.Log;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -29,7 +30,7 @@ public final class CacheUtils {
             Log.d(LOG_TAG, "Cache aging is disabled. Cache files not deleted");
         } else {
             Date lastModDate = new Date(filetoDelete.lastModified());
-            Date Now = new Date();
+            Date Now = Date.from(Instant.now());
             Calendar ModDate = Calendar.getInstance();
             Calendar NowDate = Calendar.getInstance();
             ModDate.setTime(lastModDate);

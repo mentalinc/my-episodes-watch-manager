@@ -27,18 +27,13 @@ import com.google.android.material.snackbar.Snackbar;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;
@@ -56,6 +51,10 @@ import nz.mentalinc.watcher.service.EpisodeRuntime;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.utils.DateUtil;
 import nz.mentalinc.watcher.utils.TaskRunner;
+
+import nz.mentalinc.watcher.http.HttpClientProvider;
+
+import okhttp3.Response;
 
 public class RandomEpPickerActivity extends Activity {
     private Episode random;
@@ -494,43 +493,27 @@ public class RandomEpPickerActivity extends Activity {
 
     private void downloadEpisodeSummary(HashMap<String, String> episodeSummaryHash, String... params) {
         TaskRunner.getExecutor().execute(() -> {
-            HttpsURLConnection connection = null;
-            BufferedReader reader = null;
             String episodeSummaryAPIURL = "https://api.tvmaze.com/shows/" + params[0] + "/episodebynumber?season=" + params[1] + "&number=" + params[2];
 
-            try {
-                URL url = new URL(episodeSummaryAPIURL);
-                connection = (HttpsURLConnection) url.openConnection();
-                connection.connect();
-                int code = connection.getResponseCode();
+            String jsonString = "";
+            try (Response response = HttpClientProvider.getInstance().getWithRetry(episodeSummaryAPIURL)) {
+                int code = response.code();
                 Log.d(LOG_TAG, "API HTTP Status Code: " + code);
 
-                if (code == 429) {
-                    Thread.sleep(10000);
-                    connection = (HttpsURLConnection) url.openConnection();
-                    connection.connect();
-                }
-
-                String jsonString;
                 if (code == 404) {
                     jsonString = "{\"id\":0,\"url\":\"Unknown Episode\",\"name\":\"Unknown Episode\",\"image\":null,\"summary\":\"Unknown Episode\"}";
 
                     Toast.makeText(RandomEpPickerActivity.this, RandomEpPickerActivity.this.getString(R.string.episodeNotFoundViaAPI), Toast.LENGTH_LONG).show();
-                } else {
-                    InputStream stream = connection.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(stream));
-
-                    StringBuilder buffer = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        buffer.append(line);
-                        buffer.append("\n");
-                    }
-                    jsonString = buffer.toString();
+                } else if (code == 429) {
+                    Log.w(LOG_TAG, "Rate limited by TVmaze after retries");
+                } else if (response.isSuccessful() && response.body() != null) {
+                    jsonString = response.body().string();
                 }
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error fetching episode from API", e);
+            }
 
-                JSONObject jObj;
+            JSONObject jObj;
                 String episodeSummary;
                 String episodeURL;
                 String episodeImageURL = "";
@@ -555,21 +538,6 @@ public class RandomEpPickerActivity extends Activity {
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, "Error parsing episode JSON", e);
                 }
-
-            } catch (IOException | InterruptedException e) {
-                Log.e(LOG_TAG, "Error fetching episode from API", e);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, "Error closing reader", e);
-                }
-            }
 
             HashMap<String, String> result = episodeSummaryHash;
             runOnUiThread(() -> {

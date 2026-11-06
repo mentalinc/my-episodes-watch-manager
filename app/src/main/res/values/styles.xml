@@ -36,14 +36,14 @@
 
     <!-- Text styles -->
 
-    <style name="TextAppearance.SeriesGuide.Body2" parent="TextAppearance.Material3.BodyMedium" />
+    <style name="TextAppearance.Watcher.Body2" parent="TextAppearance.Material3.BodyMedium" />
 
-    <style name="TextAppearance.SeriesGuide.Body2.Bold">
+    <style name="TextAppearance.Watcher.Body2.Bold">
         <item name="fontFamily">sans-serif-medium</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <style name="TextAppearance.SeriesGuide.Caption" parent="TextAppearance.Material3.BodySmall" />
+    <style name="TextAppearance.Watcher.Caption" parent="TextAppearance.Material3.BodySmall" />
 
 
     <style name="HomeButton" style="?android:attr/materialButtonOutlinedStyle" parent="Widget.Material3.Button">

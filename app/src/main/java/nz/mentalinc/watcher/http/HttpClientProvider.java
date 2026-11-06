@@ -97,6 +97,68 @@ public class HttpClientProvider {
         return client.newCall(builder.build()).execute();
     }
 
+    /**
+     * GETs {@code url} with a bounded retry on HTTP 429 (Too Many Requests). Honours the
+     * {@code Retry-After} response header (seconds or HTTP-date) and falls back to exponential
+     * backoff capped at 30 seconds. Other status codes and IOExceptions are returned/thrown
+     * without retrying.
+     */
+    public Response getWithRetry(String url) throws IOException {
+        return getWithRetry(url, 3);
+    }
+
+    public Response getWithRetry(String url, int maxAttempts) throws IOException {
+        if (maxAttempts < 1) {
+            maxAttempts = 1;
+        }
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+            Response response = get(url);
+            if (response.code() != 429 || attempt == maxAttempts - 1) {
+                return response;
+            }
+            long waitMs = retryAfterMillis(response);
+            response.close();
+            if (waitMs <= 0) {
+                waitMs = backoffMillis(attempt);
+            }
+            if (waitMs > 30_000L) {
+                waitMs = 30_000L;
+            }
+            try {
+                Thread.sleep(waitMs);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        // Unreachable: the loop always returns on the last attempt.
+        return get(url);
+    }
+
+    private long retryAfterMillis(Response response) {
+        String value = response.header("Retry-After");
+        if (value == null || value.trim().isEmpty()) {
+            return 0;
+        }
+        try {
+            return Long.parseLong(value.trim()) * 1000L;
+        } catch (NumberFormatException ignored) {
+        }
+        try {
+            java.util.Date date = new java.text.SimpleDateFormat(
+                    "EEE, dd MMM yyyy HH:mm:ss zzz", java.util.Locale.US).parse(value.trim());
+            long ms = date.getTime() - System.currentTimeMillis();
+            return ms > 0 ? ms : 0;
+        } catch (java.text.ParseException ignored) {
+        }
+        return 0;
+    }
+
+    private long backoffMillis(int attempt) {
+        long base = 2000L;
+        long value = base << attempt;
+        return value > 30_000L ? 30_000L : value;
+    }
+
     public String getBody(String url) throws IOException, InternetConnectivityException, ShowUpdateFailedException {
         Response response = get(url);
         if (!response.isSuccessful()) {

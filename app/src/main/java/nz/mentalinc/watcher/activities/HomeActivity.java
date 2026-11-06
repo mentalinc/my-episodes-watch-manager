@@ -40,7 +40,6 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;

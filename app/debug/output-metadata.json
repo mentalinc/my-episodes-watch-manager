@@ -1,0 +1,21 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "nz.mentalinc.episodeWatcher.debug",
+  "variantName": "debug",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 41,
+      "versionName": "1.9.12- DEBUG",
+      "outputFile": "MyEpisodes_v1.9.12_20261107_0730.apk"
+    }
+  ],
+  "elementType": "File",
+  "minSdkVersionForDexing": 36
+}

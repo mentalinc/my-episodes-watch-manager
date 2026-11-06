@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;

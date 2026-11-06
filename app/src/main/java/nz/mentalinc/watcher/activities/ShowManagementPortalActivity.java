@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.controllers.EpisodesController;

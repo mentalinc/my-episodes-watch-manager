@@ -31,7 +31,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,6 +48,7 @@ import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.enums.EpisodeType;
+import nz.mentalinc.watcher.utils.DateUtil;
 
 public class CalendarActivity extends AppCompatActivity {
 
@@ -225,12 +227,12 @@ public class CalendarActivity extends AppCompatActivity {
         comingDateSet.clear();
         EpisodesController controller = EpisodesController.getInstance();
 
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD, Locale.US);
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(DATE_FORMAT_YYYY_MM_DD, Locale.US);
 
         for (Episode ep : controller.getEpisodes(EpisodeType.EPISODES_TO_WATCH)) {
             allEpisodes.add(new CalendarEpisode(ep, EpisodeType.EPISODES_TO_WATCH));
             if (ep.getAirDate() != 0) {
-                String dateStr = sdf.format(new Date(ep.getAirDate()));
+                String dateStr = sdf.format(DateUtil.toLocalDate(ep.getAirDate()));
                 episodeDateSet.add(dateStr);
                 watchDateSet.add(dateStr);
             }
@@ -238,7 +240,7 @@ public class CalendarActivity extends AppCompatActivity {
         for (Episode ep : controller.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE)) {
             allEpisodes.add(new CalendarEpisode(ep, EpisodeType.EPISODES_TO_ACQUIRE));
             if (ep.getAirDate() != 0) {
-                String dateStr = sdf.format(new Date(ep.getAirDate()));
+                String dateStr = sdf.format(DateUtil.toLocalDate(ep.getAirDate()));
                 episodeDateSet.add(dateStr);
                 acquireDateSet.add(dateStr);
             }
@@ -246,7 +248,7 @@ public class CalendarActivity extends AppCompatActivity {
         for (Episode ep : controller.getEpisodes(EpisodeType.EPISODES_COMING)) {
             allEpisodes.add(new CalendarEpisode(ep, EpisodeType.EPISODES_COMING));
             if (ep.getAirDate() != 0) {
-                String dateStr = sdf.format(new Date(ep.getAirDate()));
+                String dateStr = sdf.format(DateUtil.toLocalDate(ep.getAirDate()));
                 episodeDateSet.add(dateStr);
                 comingDateSet.add(dateStr);
             }
@@ -267,12 +269,12 @@ public class CalendarActivity extends AppCompatActivity {
         int todayMonth = today.get(Calendar.MONTH);
         int todayDay = today.get(Calendar.DAY_OF_MONTH);
 
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD, Locale.US);
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(DATE_FORMAT_YYYY_MM_DD, Locale.US);
 
         Map<String, Integer> dayCounts = new HashMap<>();
         for (CalendarEpisode ce : allEpisodes) {
             if (ce.episode.getAirDate() != 0) {
-                String dateStr = sdf.format(new Date(ce.episode.getAirDate()));
+                String dateStr = sdf.format(DateUtil.toLocalDate(ce.episode.getAirDate()));
                 dayCounts.merge(dateStr, 1, Integer::sum);
             }
         }
@@ -285,7 +287,7 @@ public class CalendarActivity extends AppCompatActivity {
         }
         for (int day = 1; day <= daysInMonth; day++) {
             temp.set(year, month, day);
-            String dateStr = sdf.format(temp.getTime());
+            String dateStr = sdf.format(temp.getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             boolean hasWatch = watchDateSet.contains(dateStr);
             boolean hasAcquire = acquireDateSet.contains(dateStr);
             boolean hasComing = comingDateSet.contains(dateStr);
@@ -298,7 +300,7 @@ public class CalendarActivity extends AppCompatActivity {
             days.add(new CalendarDay(day, hasWatch, hasAcquire, hasComing, isToday, dayCount, isSelected));
         }
 
-        String baseMonth = new SimpleDateFormat("MMMM yyyy", Locale.US).format(currentCalendar.getTime());
+        String baseMonth = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US).format(currentCalendar.getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         monthLabel.setText(baseMonth + " (" + monthTotal + ")");
 
         dayAdapter.submitList(days);
@@ -314,13 +316,13 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void filterEpisodesForDate(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_YYYY_MM_DD, Locale.US);
-        String targetDate = sdf.format(date);
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(DATE_FORMAT_YYYY_MM_DD, Locale.US);
+        String targetDate = sdf.format(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 
         List<CalendarEpisode> filtered = new ArrayList<>();
         for (CalendarEpisode ce : allEpisodes) {
             if (ce.episode.getAirDate() != 0) {
-                String episodeDate = sdf.format(new Date(ce.episode.getAirDate()));
+                String episodeDate = sdf.format(DateUtil.toLocalDate(ce.episode.getAirDate()));
                 if (episodeDate.equals(targetDate)) {
                     switch (ce.type) {
                         case EPISODES_TO_WATCH:

@@ -48,7 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import javax.net.ssl.HttpsURLConnection;
 
 import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.database.AppDatabase;
