@@ -9,7 +9,6 @@ android {
         versionCode =  41
         versionName = '1.9.11'
 
-        missingDimensionStrategy   'react-native-camera', 'general'
 
         javaCompileOptions {
             annotationProcessorOptions {

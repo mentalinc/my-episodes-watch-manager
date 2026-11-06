@@ -26,7 +26,7 @@
             app:menu="@menu/home_menu"
             android:background="@color/primaryColor"
             android:textColor="@color/on_text_white"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+            style="@style/Widget.Material3.Toolbar" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -46,7 +46,7 @@
     <style name="TextAppearance.SeriesGuide.Caption" parent="TextAppearance.Material3.BodySmall" />
 
 
-    <style name="HomeButton" style="?android:attr/materialButtonOutlinedStyle" parent="android:Widget.Material.Button">
+    <style name="HomeButton" style="?android:attr/materialButtonOutlinedStyle" parent="Widget.Material3.Button">
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -66,7 +66,7 @@
     </style>
 
 
-    <style name="EpisodeDetailButton" style="?android:attr/materialButtonOutlinedStyle" parent="android:Widget.Material.Button">
+    <style name="EpisodeDetailButton" style="?android:attr/materialButtonOutlinedStyle" parent="Widget.Material3.Button">
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">25dp</item>

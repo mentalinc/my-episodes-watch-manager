@@ -24,7 +24,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:theme="@style/ThemeOverlay.Material3.Dark"
             android:id="@+id/topAppBarEpisodesView"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
+            style="@style/Widget.Material3.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbar_height"
             android:background="@color/primaryColor"
