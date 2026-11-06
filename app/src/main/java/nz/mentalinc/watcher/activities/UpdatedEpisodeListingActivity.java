@@ -104,7 +104,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
  
         sharedPref = prefs;
         user = new User(
-                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
+                MyEpisodeConstants.USERNAME,
                 CredentialStore.getPassword(UpdatedEpisodeListingActivity.this)
         );
 

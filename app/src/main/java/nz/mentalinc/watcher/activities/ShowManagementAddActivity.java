@@ -142,7 +142,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         service = new ShowService();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
+                MyEpisodeConstants.USERNAME,
                 CredentialStore.getPassword(ShowManagementAddActivity.this)
         );
 

@@ -146,7 +146,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
             }
         }
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        user = new User(sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
+        user = new User(MyEpisodeConstants.USERNAME,
                 CredentialStore.getPassword(ShowSummaryActivity.this));
         episode = Objects.requireNonNull(data).getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
         String title = data.getString(ActivityConstants.EXTRA_TITLE);

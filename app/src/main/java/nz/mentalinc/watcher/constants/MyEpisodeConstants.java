@@ -1,6 +1,9 @@
 package nz.mentalinc.watcher.constants;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+
+import androidx.preference.PreferenceManager;
 
 import java.io.IOException;
 
@@ -46,6 +49,36 @@ public class MyEpisodeConstants {
 
 
     public static Context CONTEXT = null;
+
+    public static volatile String API_KEY = "";
+    public static volatile String FEED_KEY = "";
+    public static volatile String USERNAME = null;
+
+    public static void reload(Context context) {
+        if (context == null) {
+            return;
+        }
+        CONTEXT = context.getApplicationContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(CONTEXT);
+        API_KEY = trim(prefs.getString(PREF_API_KEY, ""));
+        FEED_KEY = trim(prefs.getString(PREF_FEED_KEY, ""));
+        USERNAME = prefs.getString(PREF_USERNAME, null);
+        LEGACY_PARSING_ENABLED = prefs.getBoolean("legacyParsingEnabled", true);
+        SHOW_RUNTIME_ENABLED = prefs.getBoolean("RunTime", false);
+        DAYS_BACK_CP = prefs.getString("daysBack", "365");
+        DAYS_FORWARD_CP = prefs.getString("daysForward", "30");
+        CACHE_EPISODES_ENABLED = prefs.getBoolean("CacheEpisodes", false);
+        DAYS_BACK_ENABLED = prefs.getBoolean("daysBackwardEnable", false);
+        SHOW_LISTING_UNACQUIRED_ENABLED = prefs.getBoolean("listingUnacquiredFilter", true);
+        SHOW_LISTING_UNWATCHED_ENABLED = prefs.getBoolean("listingUnwatchedFilter", true);
+        SHOW_LISTING_IGNORED_ENABLED = prefs.getBoolean("listingIgnoredFilter", false);
+        SHOW_LISTING_PILOTS_ENABLED = prefs.getBoolean("listingPilotsFilter", false);
+        SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED = prefs.getBoolean("listingLocalizedAirdatesFilter", true);
+    }
+
+    private static String trim(String value) {
+        return value != null ? value.trim() : "";
+    }
 
     public static String EXTENDED_EPISODES_XML;
     public static String EXTENDED_EPISODES_XML_ACQUIRE;

@@ -900,12 +900,7 @@ public class EpisodesService {
 
 
     private String getApiKey() {
-        if (MyEpisodeConstants.CONTEXT == null) {
-            return "";
-        }
-        String apiKey = PreferenceManager.getDefaultSharedPreferences(MyEpisodeConstants.CONTEXT)
-                .getString(MyEpisodeConstants.PREF_API_KEY, "");
-        return apiKey != null ? apiKey.trim() : "";
+        return MyEpisodeConstants.API_KEY;
     }
 
     private List<Episode> retrieveEpisodesFromApi(EpisodeType episodesType, User user, String apiKey) throws Exception {

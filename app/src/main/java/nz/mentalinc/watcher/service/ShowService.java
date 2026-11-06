@@ -409,12 +409,7 @@ public class ShowService {
     }
 
     private String getApiKey() {
-        if (MyEpisodeConstants.CONTEXT == null) {
-            return "";
-        }
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MyEpisodeConstants.CONTEXT);
-        String apiKey = prefs.getString(MyEpisodeConstants.PREF_API_KEY, "");
-        return apiKey != null ? apiKey.trim() : "";
+        return MyEpisodeConstants.API_KEY;
     }
 
     /**

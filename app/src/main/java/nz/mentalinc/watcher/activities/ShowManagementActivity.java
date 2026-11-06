@@ -151,7 +151,7 @@ public class ShowManagementActivity extends AppCompatActivity {
         }
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(
-                sharedPref.getString(MyEpisodeConstants.PREF_USERNAME, null),
+                MyEpisodeConstants.USERNAME,
                 CredentialStore.getPassword(ShowManagementActivity.this)
         );
 
