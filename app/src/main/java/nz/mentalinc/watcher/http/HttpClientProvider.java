@@ -144,11 +144,11 @@ public class HttpClientProvider {
         } catch (NumberFormatException ignored) {
         }
         try {
-            java.util.Date date = new java.text.SimpleDateFormat(
-                    "EEE, dd MMM yyyy HH:mm:ss zzz", java.util.Locale.US).parse(value.trim());
-            long ms = date.getTime() - System.currentTimeMillis();
+            java.time.ZonedDateTime date = java.time.ZonedDateTime.parse(value.trim(),
+                    java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME);
+            long ms = date.toInstant().toEpochMilli() - System.currentTimeMillis();
             return ms > 0 ? ms : 0;
-        } catch (java.text.ParseException ignored) {
+        } catch (java.time.format.DateTimeParseException ignored) {
         }
         return 0;
     }

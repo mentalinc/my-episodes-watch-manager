@@ -3,12 +3,11 @@ package nz.mentalinc.watcher.utils;
 import android.util.Log;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.Locale;
@@ -65,11 +64,11 @@ public final class DateUtil {
         }
 
         for (String dateFormat : dateFormats) {
-            DateFormat format = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
-            format.setLenient(false);
             try {
-                return format.parse(dateString);
-            } catch (ParseException e) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH);
+                LocalDate localDate = LocalDate.parse(dateString, formatter);
+                return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            } catch (DateTimeParseException e) {
                 Log.d(LOG_TAG, "Dateformat " + dateFormat + " not valid for dateString " + dateString);
             }
         }

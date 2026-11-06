@@ -69,6 +69,27 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
 
         if (daysBackCP != null) {
             daysBackCP.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    Context ctx = getContext();
+                    if (ctx != null) {
+                        new android.app.AlertDialog.Builder(ctx)
+                                .setTitle("Legacy mode required")
+                                .setMessage("Setting days backward requires legacy RSS/HTML parsing, which needs a username and password. Would you like to log in?")
+                                .setPositiveButton("Yes", (d, w) -> {
+                                    Intent loginIntent = new Intent(ctx, LoginActivity.class);
+                                    loginIntent.putExtra("enableLegacyOnSuccess", true);
+                                    loginIntent.putExtra("forceLogin", true);
+                                    if (!(ctx instanceof android.app.Activity)) {
+                                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    }
+                                    ctx.startActivity(loginIntent);
+                                    d.dismiss();
+                                })
+                                .setNegativeButton("No", (d, w) -> d.dismiss())
+                                .show();
+                    }
+                    return false;
+                }
                 markSettingsChanged();
                 if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                     deleteCacheFiles();
@@ -79,6 +100,27 @@ public class SettingScreenFrag extends PreferenceFragmentCompat {
 
         if (daysForwardCP != null) {
             daysForwardCP.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (!MyEpisodeConstants.LEGACY_PARSING_ENABLED) {
+                    Context ctx = getContext();
+                    if (ctx != null) {
+                        new android.app.AlertDialog.Builder(ctx)
+                                .setTitle("Legacy mode required")
+                                .setMessage("Setting days forward requires legacy RSS/HTML parsing, which needs a username and password. Would you like to log in?")
+                                .setPositiveButton("Yes", (d, w) -> {
+                                    Intent loginIntent = new Intent(ctx, LoginActivity.class);
+                                    loginIntent.putExtra("enableLegacyOnSuccess", true);
+                                    loginIntent.putExtra("forceLogin", true);
+                                    if (!(ctx instanceof android.app.Activity)) {
+                                        loginIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    }
+                                    ctx.startActivity(loginIntent);
+                                    d.dismiss();
+                                })
+                                .setNegativeButton("No", (d, w) -> d.dismiss())
+                                .show();
+                    }
+                    return false;
+                }
                 markSettingsChanged();
                 if (MyEpisodeConstants.CACHE_EPISODES_ENABLED) {
                     deleteCacheFiles();
