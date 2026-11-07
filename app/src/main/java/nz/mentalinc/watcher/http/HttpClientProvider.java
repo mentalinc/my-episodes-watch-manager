@@ -125,7 +125,7 @@ public class HttpClientProvider {
                 waitMs = 30_000L;
             }
             try {
-                Thread.sleep(waitMs);
+                TimeUnit.MILLISECONDS.sleep(waitMs);
             } catch (InterruptedException ignored) {
                 Thread.currentThread().interrupt();
             }

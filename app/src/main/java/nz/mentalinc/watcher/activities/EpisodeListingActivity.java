@@ -114,15 +114,6 @@ public class EpisodeListingActivity extends AppCompatActivity {
         super.attachBaseContext(context);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SETTINGS_RESULT && resultCode == RESULT_OK) {
-            EpisodesController.getInstance().deleteAll();
-            finish();
-
-            startActivity(new Intent(getApplicationContext(), HomeActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        }
-    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {

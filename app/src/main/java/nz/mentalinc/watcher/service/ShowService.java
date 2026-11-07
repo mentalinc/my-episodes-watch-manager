@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -1111,7 +1112,7 @@ public class ShowService {
                     if (backoff <= 0) {
                         backoff = (long) Math.pow(2, retries) * 1000;
                     }
-                    Thread.sleep(backoff);
+                    TimeUnit.MILLISECONDS.sleep(backoff);
                     continue;
                 }
                 if (!response.isSuccessful()) {

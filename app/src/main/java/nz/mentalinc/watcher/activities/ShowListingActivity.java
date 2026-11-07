@@ -190,13 +190,16 @@ public class ShowListingActivity extends AppCompatActivity {
         showsFull = new ArrayList<>(shows);
 
         RecyclerView rvShows = findViewById(R.id.recyclerViewListItemsShows);
-        ShowAdapter adapter = new ShowAdapter(shows, new HashMap<>());
-        rvShows.setAdapter(adapter);
-        loadRuntimeMapForShows(shows, adapter);
-        // Set layout manager to position the items
+        if (rvShows == null) {
+            Log.e(LOG_TAG, "recyclerViewListItemsShows not found");
+            return;
+        }
         layoutManager = new LinearLayoutManager(this);
         rvShows.setLayoutManager(layoutManager);
         rvShows.setHasFixedSize(true);
+        ShowAdapter adapter = new ShowAdapter(shows != null ? shows : new ArrayList<>(), new HashMap<>());
+        rvShows.setAdapter(adapter);
+        loadRuntimeMapForShows(shows, adapter);
 
         swipeRefreshShows = findViewById(R.id.swipe_refresh_shows);
         swipeRefreshShows.setOnRefreshListener(this::onRefreshClick);

@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.TimeUnit;
 
 import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
@@ -970,7 +971,7 @@ public class EpisodesService {
                         } catch (NumberFormatException ignored) {
                         }
                     }
-                    Thread.sleep(backoff);
+                    TimeUnit.MILLISECONDS.sleep(backoff);
                     continue;
                 }
                 if (!response.isSuccessful()) {
@@ -1071,7 +1072,7 @@ public class EpisodesService {
 
             // Be polite to the API rate limit (10 req/sec per credential).
             try {
-                Thread.sleep(120);
+                TimeUnit.MILLISECONDS.sleep(120);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
@@ -1154,7 +1155,7 @@ public class EpisodesService {
                                     } catch (NumberFormatException ignored) {
                                     }
                                 }
-                                Thread.sleep(backoff);
+                                TimeUnit.MILLISECONDS.sleep(backoff);
                                 continue;
                             }
                             if (!response.isSuccessful()) {
@@ -1235,7 +1236,7 @@ public class EpisodesService {
 
         while (inFlight.get() > 0) {
             try {
-                Thread.sleep(50);
+                TimeUnit.MILLISECONDS.sleep(50);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

@@ -15,8 +15,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -58,7 +60,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
 
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
-    private ListView listView;
+    private RecyclerView recyclerView;
 
     private boolean showsAdded = false;
     private boolean showAlreadyInFavorites = false;
@@ -146,21 +148,18 @@ public class ShowManagementAddActivity extends AppCompatActivity {
                 CredentialStore.getPassword(ShowManagementAddActivity.this)
         );
 
-        listView = findViewById(android.R.id.list);
+        recyclerView = findViewById(R.id.recyclerViewShows);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         initializeShowList();
     }
 
     private void initializeShowList() {
-        showAdapter = new ShowAdapter(this, shows);
-        listView.setAdapter(showAdapter);
+        showAdapter = new ShowAdapter();
+        recyclerView.setAdapter(showAdapter);
     }
 
     private void updateShowList() {
-        showAdapter.clear();
-        for (Show show : shows) {
-            showAdapter.add(show);
-        }
-        showAdapter.notifyDataSetChanged();
+        showAdapter.setShows(shows);
     }
 
     private void updateNumberOfResults() {
@@ -349,33 +348,47 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         }
     }
 
-    private class ShowAdapter extends ArrayAdapter<Show> {
-        private final List<Show> shows;
+    private class ShowAdapter extends RecyclerView.Adapter<ShowAdapter.ViewHolder> {
+        private final List<Show> shows = new ArrayList<>();
 
-        ShowAdapter(Context context, List<Show> el) {
-            super(context, R.layout.show_management_add_row, el);
-            this.shows = el;
+        void setShows(List<Show> newShows) {
+            shows.clear();
+            if (newShows != null) {
+                shows.addAll(newShows);
+            }
+            notifyDataSetChanged();
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            final int i = position;
-            View row = convertView;
-            if (row == null) {
-                LayoutInflater inflater = getLayoutInflater();
-                row = inflater.inflate(R.layout.show_management_add_row, parent, false);
-            }
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.show_management_add_row, parent, false);
+            return new ViewHolder(row);
+        }
 
-            TextView topText = row.findViewById(R.id.showNameSearchResult);
-
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
             Show show = shows.get(position);
-            topText.setText(show.getShowName());
-            row.setOnClickListener(view -> {
-                showListPosition = i;
-                showAddShowDialog(shows.get(showListPosition).getShowName(), showListPosition);
+            holder.topText.setText(show.getShowName());
+            holder.itemView.setOnClickListener(v -> {
+                int pos = holder.getBindingAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) return;
+                showListPosition = pos;
+                showAddShowDialog(shows.get(pos).getShowName(), pos);
             });
+        }
 
-            return row;
+        @Override
+        public int getItemCount() {
+            return shows.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView topText;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                topText = itemView.findViewById(R.id.showNameSearchResult);
+            }
         }
     }
 
