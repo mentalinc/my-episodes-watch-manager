@@ -63,7 +63,6 @@ public class HomeActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> loginLauncher;
     private ActivityResultLauncher<Intent> settingsLauncher;
     private static final String DIALOG_RUNTIME_TAG = "RUNTIME";
-    private UserService userService;
     private static Context sContext;
     private BottomNavigationView bottomNavigationView;
 
@@ -80,7 +79,6 @@ public class HomeActivity extends AppCompatActivity {
     private com.google.android.material.button.MaterialButton btn_ShowWatchNew;
     private com.google.android.material.button.MaterialButton btn_ShowAcquireNew;
     private com.google.android.material.button.MaterialButton btn_ShowListing;
-    private com.google.android.material.button.MaterialButton btnCalendar;
 
 
     private Intent watchIntent;
@@ -123,7 +121,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
         );
-        userService = new UserService();
+        UserService userService = new UserService();
 
         PreferenceManager.setDefaultValues(getBaseContext(), R.xml.settings_screen, false);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -204,7 +202,7 @@ public class HomeActivity extends AppCompatActivity {
             btnAcquired.setVisibility(View.GONE);
         }
 
-        btnCalendar = findViewById(R.id.btn_calendar);
+        com.google.android.material.button.MaterialButton btnCalendar = findViewById(R.id.btn_calendar);
         btnCalendar.setOnClickListener(this::onCalendarClick);
 
         updateHomeButtonCounts();
@@ -277,23 +275,7 @@ public class HomeActivity extends AppCompatActivity {
                 }else{
 
 
-              /*  case R.id.barRandom:
-                    Log.w(LOG_TAG, "barRandom selected");
-
-                    List<Show> showList = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
-                    Show show = showList.get(0);
-                    Episode randomEpisode = show.getFirstEpisode();
-
-                    Intent episodeDetailsSubActivity = new Intent(getApplicationContext(), EpisodeDetailsActivity.class);
-                    episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, randomEpisode.getShowName());
-                    startActivity(episodeDetailsSubActivity);
-
-                    return true;*/
-            }
+                }
             return false;
         }
 

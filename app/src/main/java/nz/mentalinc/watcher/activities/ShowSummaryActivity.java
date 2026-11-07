@@ -59,11 +59,9 @@ public class ShowSummaryActivity extends AppCompatActivity {
 
     List<Show> shows = new ArrayList<>();
 
-    private List<Episode> episodesRaw = new ArrayList<>();
     private List<Episode> episodes = new ArrayList<>();
     private static EpisodeType episodesType;
     private String showMyEpisodeID;
-    private Episode episode = null;
     private ShowType showType = ShowType.FAVOURITE_SHOWS;
     private User user;
 
@@ -138,7 +136,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         user = new User(MyEpisodeConstants.USERNAME,
                 CredentialStore.getPassword(ShowSummaryActivity.this));
-        episode = Objects.requireNonNull(data).getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
+        Episode episode = Objects.requireNonNull(data).getParcelable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, Episode.class);
         String title = data.getString(ActivityConstants.EXTRA_TITLE);
 
         //showDetail = new Show(title, showMyEpisodeID);
@@ -149,9 +147,6 @@ public class ShowSummaryActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigationShowOverview);
         bottomNavigationView.setOnItemSelectedListener(navigationItemSelectedListener);
 
-
-        //TextView seriesnameView = (TextView) findViewById(R.id.ShowName);
-        //seriesnameView.setText("testing the view works");
 
         returnEpisodes();
 
@@ -215,7 +210,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
                 //switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        if (episodes.size() > 0) {
+                        if (!episodes.isEmpty()) {
                             Log.w(LOG_TAG, "barShowDetail Executing openShowSummary");
                             openShowSummary(episodes.get(0), episodesType);
                         }
@@ -225,7 +220,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
                         //make sure it opens the next WATCH episode details.
                         episodesType = EpisodeType.EPISODES_TO_WATCH;
                         returnEpisodes();
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
 
                         } else {
@@ -240,7 +235,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
                     }else if( R.id.barWatch == nextItem) {
                         Log.w(LOG_TAG, "barWatch selected");
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
                         } else {
                             openEpisodeListing(EpisodeType.EPISODES_TO_WATCH);
@@ -252,7 +247,7 @@ public class ShowSummaryActivity extends AppCompatActivity {
                         return true;
                     }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         } else {
                             openEpisodeListing(EpisodeType.EPISODES_COMING);
@@ -312,11 +307,11 @@ public class ShowSummaryActivity extends AppCompatActivity {
     private void returnEpisodes() {
 
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
-        episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
+        List<Episode> episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
         // shows = new ArrayList<>();
         episodes = new ArrayList<>();
 
-        if (episodesRaw != null && episodesRaw.size() > 0) {
+        if (episodesRaw != null && !episodesRaw.isEmpty()) {
             for (Episode ep : episodesRaw) {
                 if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
                     //add to the episode List to show next

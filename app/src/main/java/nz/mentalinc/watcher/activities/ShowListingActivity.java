@@ -71,7 +71,6 @@ public class ShowListingActivity extends AppCompatActivity {
     private boolean reverseSort = false;
     private static EpisodeType episodesType;
     private static final String DIALOG_LOADING_TAG = "LOADING";
-    private Integer exceptionMessageResId = null;
     private EpisodesService service;
     private User user;
     private UserService userService;
@@ -395,23 +394,7 @@ public class ShowListingActivity extends AppCompatActivity {
                     startActivity(calendarIntent);
                     return true;
 
-               /* case R.id.barRandom:
-                    Log.w(LOG_TAG, "barRandom selected");
-
-                    List<Show> showList = EpisodesController.getInstance().getRandomWatchEpisodeShowList();
-                    Show show = showList.get(0);
-                    Episode randomEpisode = show.getFirstEpisode();
-
-                    Intent episodeDetailsSubActivity = new Intent(getApplicationContext(), EpisodeDetailsActivity.class);
-                    episodeDetailsSubActivity.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE, randomEpisode);
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, EpisodeType.EPISODES_TO_WATCH);
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, randomEpisode.getMyEpisodeID());
-                    episodeDetailsSubActivity.putExtra(ActivityConstants.EXTRA_TITLE, randomEpisode.getShowName());
-                    startActivity(episodeDetailsSubActivity);
-
-                    return true;*/
-            }
+                }
             return false;
         }
 
@@ -445,7 +428,7 @@ public class ShowListingActivity extends AppCompatActivity {
 
     private void returnEpisodes() {
         shows = new ArrayList<>();
-        if (episodes != null && episodes.size() > 0) {
+        if (episodes != null && !episodes.isEmpty()) {
             for (Episode ep : episodes) {
                 AddEpisodeToShow(ep);
             }
@@ -719,6 +702,7 @@ public class ShowListingActivity extends AppCompatActivity {
 
 
     private void getEpisodesMyEpisodes() {
+        Integer exceptionMessageResId = null;
         try {
             if (episodesType == EpisodeType.EPISODES_TO_ACQUIRE) {
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());

@@ -239,23 +239,23 @@ public class ShowService {
             StringBuilder urlParameters = new StringBuilder();
 
             if (MyEpisodeConstants.SHOW_LISTING_UNACQUIRED_ENABLED) {
-                if (urlParameters.length() > 0) urlParameters.append("&");
+                if (!urlParameters.isEmpty()) urlParameters.append("&");
                 urlParameters.append("eps_filters%5B%5D=1");
             }
             if (MyEpisodeConstants.SHOW_LISTING_UNWATCHED_ENABLED) {
-                if (urlParameters.length() > 0) urlParameters.append("&");
+                if (!urlParameters.isEmpty()) urlParameters.append("&");
                 urlParameters.append("eps_filters%5B%5D=2");
             }
             if (MyEpisodeConstants.SHOW_LISTING_IGNORED_ENABLED) {
-                if (urlParameters.length() > 0) urlParameters.append("&");
+                if (!urlParameters.isEmpty()) urlParameters.append("&");
                 urlParameters.append("eps_filters%5B%5D=4");
             }
             if (MyEpisodeConstants.SHOW_LISTING_PILOTS_ENABLED) {
-                if (urlParameters.length() > 0) urlParameters.append("&");
+                if (!urlParameters.isEmpty()) urlParameters.append("&");
                 urlParameters.append("eps_filters%5B%5D=2048");
             }
             if (MyEpisodeConstants.SHOW_LISTING_LOCALIZED_AIRDATES__ENABLED) {
-                if (urlParameters.length() > 0) urlParameters.append("&");
+                if (!urlParameters.isEmpty()) urlParameters.append("&");
                 urlParameters.append("eps_filters%5B%5D=4096");
             }
 

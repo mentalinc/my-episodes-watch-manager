@@ -3,7 +3,6 @@ package nz.mentalinc.watcher.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,7 +32,6 @@ public class LoginActivity extends AppCompatActivity {
     private UserService service;
     private int exceptionMessageResId = -1;
     private boolean enableLegacyOnSuccess = false;
-    private boolean forceLogin = false;
 
     private static final String DIALOG_LOADING_TAG = "LOADING";
     private static final String DIALOG_ERROR_TAG = "ERROR";
@@ -82,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
         init();
 
         enableLegacyOnSuccess = getIntent().getBooleanExtra("enableLegacyOnSuccess", false);
-        forceLogin = getIntent().getBooleanExtra("forceLogin", false);
+        boolean forceLogin = getIntent().getBooleanExtra("forceLogin", false);
 
         if (forceLogin || !checkLoginCredentials()) {
 
@@ -115,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                             finalizeLogin();
                         });
                     });
-                } else if (username.length() > 0 && password.length() > 0) {
+                } else if (!username.isEmpty() && !password.isEmpty()) {
                     final User user = new User(username, password);
 
                     showLoadingDialog();

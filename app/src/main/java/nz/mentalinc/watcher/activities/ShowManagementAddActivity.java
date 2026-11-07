@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -58,7 +56,6 @@ public class ShowManagementAddActivity extends AppCompatActivity {
     private List<Show> shows = new ArrayList<>(0);
 
     private Integer exceptionMessageResId = null;
-    private Integer showListPosition = null;
     private RecyclerView recyclerView;
 
     private boolean showsAdded = false;
@@ -94,7 +91,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
             EditText searchQuery = findViewById(R.id.searchQuery);
             if (searchQuery != null) {
                 CharSequence query = searchQuery.getText();
-                if (query != null && query.length() > 0) {
+                if (query != null && !query.isEmpty()) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     if (imm != null) {
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -157,7 +154,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         TextView numberOfResults = findViewById(R.id.showNameSearchNumberOfResults);
         TextView noResults = findViewById(R.id.text_view_id);
 
-        if (shows.size() > 0) {
+        if (!shows.isEmpty()) {
             String text = shows.size() + " ";
 
             if (shows.size() == 1) {
@@ -361,7 +358,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
             holder.itemView.setOnClickListener(v -> {
                 int pos = holder.getBindingAdapterPosition();
                 if (pos == RecyclerView.NO_POSITION) return;
-                showListPosition = pos;
+                Integer showListPosition = pos;
                 showAddShowDialog(shows.get(pos).getShowName(), pos);
             });
         }

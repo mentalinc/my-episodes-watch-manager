@@ -2,7 +2,6 @@ package nz.mentalinc.watcher.activities;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -69,7 +68,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String username = ((EditText) findViewById(R.id.registerUsername)).getText().toString();
                 String password = ((EditText) findViewById(R.id.registerPassword)).getText().toString();
                 email = ((EditText) findViewById(R.id.registerEmail)).getText().toString();
-                if (username.length() > 0 && password.length() > 0 && email != null && email.length() > 0) {
+                if (!username.isEmpty() && !password.isEmpty() && email != null && !email.isEmpty()) {
                     user = new User(
                             username, password
                     );

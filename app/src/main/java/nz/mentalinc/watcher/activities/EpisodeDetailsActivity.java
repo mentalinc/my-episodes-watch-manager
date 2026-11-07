@@ -71,7 +71,6 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
     List<Show> shows = new ArrayList<>();
     private GestureDetector gestureDetector;
     private int currentEpisodeIndex = 0;
-    private List<Episode> episodesRaw = new ArrayList<>();
 
 
     @Override
@@ -269,9 +268,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                     } else if (R.id.barEpisodeOverview == nextItem) {
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
 
-                        if (shows.size() > 0) {
-                            //   episodesType = EpisodeType.EPISODES_TO_WATCH;
-                            //   returnEpisodes();
+                        if (!shows.isEmpty()) {
                             openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
                         } else {
 
@@ -280,7 +277,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                         return true;
                     }else if( R.id.barWatch == nextItem){
                     Log.w(LOG_TAG, "barWatch selected");
-                    if (shows.size() > 0) {
+                    if (!shows.isEmpty()) {
                         openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
                     } else {
                         openEpisodeListing(episodesType);
@@ -293,14 +290,9 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
                         return true;
                     }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         } else {
-                           /* episodesType = EpisodeType.EPISODES_COMING;
-                            returnEpisodes();
-                            if (shows.size() > 0) {
-                                openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
-                            }*/
                             openEpisodeListing(episodesType);
                         }
                         return true;
@@ -475,38 +467,6 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
         });
     }
 
-    /*
-        @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.episode_details_menu, menu);
-            if (episodesType.equals(EpisodeType.EPISODES_TO_WATCH)) {
-                menu.removeItem(R.id.markAsAquired);
-            } else if (episodesType.equals(EpisodeType.EPISODES_COMING)) {
-                menu.removeItem(R.id.markAsAquired);
-            }
-            return true;
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.markAsSeen:
-                    closeAndMarkWatched(episode);
-                    return true;
-                case R.id.markAsAquired:
-                    closeAndAcquireEpisode(episode);
-                    return true;
-                case R.id.btn_title_share:
-                    tweetThis();
-                    return true;
-                case R.id.home:
-                    exit();
-                    return true;
-            }
-            return false;
-        }
-    */
     private void closeAndAcquireEpisode(Episode episode) {
         finish();
 
@@ -628,10 +588,10 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
 
     private void returnEpisodes() {
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
-        episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
+        List<Episode> episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
         //shows = new ArrayList<Show>();
 
-        if (episodesRaw != null && episodesRaw.size() > 0) {
+        if (episodesRaw != null && !episodesRaw.isEmpty()) {
             for (Episode ep : episodesRaw) {
                 if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
                     AddEpisodeToShow(ep);

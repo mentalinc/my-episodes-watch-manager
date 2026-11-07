@@ -74,11 +74,10 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
 
     private static final String DIALOG_LOADING_TAG = "LOADING";
     private static final String DIALOG_ONLINE_TAG = "ONLINE";
-    private final UserService userService;
 
     public UpdatedEpisodeListingActivity() {
         super();
-        userService = new UserService();
+        UserService userService = new UserService();
         this.service = new EpisodesService();
     }
 
@@ -194,10 +193,8 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
 
 
         ItemClickSupport.addTo(rvEpisode).setOnItemLongClickListener((recyclerView, position, v) -> {
-                    //Episode episodeSelected = episodes.get(position);
-                    //openEpisodeDetails(episodeSelected, episodesType);
 
-                    Log.w(LOG_TAG, "Long clicked on an episode - pop up the marked watch material box.");
+            Log.w(LOG_TAG, "Long clicked on an episode - pop up the marked watch material box.");
 
                     return true;
                 }
@@ -288,11 +285,11 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
                 //switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             //issue where is the epiosdetype doesn't have any episode then this will fail as show.size=0.
                             //need to figure out how to keep the show value current?
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
-                        } else if (episodes.size() > 0) {
+                        } else if (!episodes.isEmpty()) {
                             Log.w(LOG_TAG, "barShowDetail Executing openShowSummary");
                             openShowSummary(episodes.get(0), episodesType);
                         } else {
@@ -306,7 +303,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
                         episodesType = EpisodeType.EPISODES_TO_WATCH;
                         returnEpisodes();
                         //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
                             //   }
                         } else {
@@ -324,14 +321,14 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
                     }else if( R.id.barWatch == nextItem) {
                         Log.w(LOG_TAG, "barWatch selected");
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
                         } else {
                             episodesType = EpisodeType.EPISODES_TO_WATCH;
                             //changed to the new hash feature
                             returnEpisodes();
                             //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
-                            if (shows.size() > 0) {
+                            if (!shows.isEmpty()) {
                                 openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
 
                             } else {
@@ -342,7 +339,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
                     }else if( R.id.barAcquire == nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
                         } else {
                             episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
@@ -350,7 +347,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
                             returnEpisodes();
                             //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
 
-                            if (shows.size() > 0) {
+                            if (!shows.isEmpty()) {
                                 openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
                             }
                         }
@@ -358,14 +355,14 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
                     }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         } else {
                             episodesType = EpisodeType.EPISODES_COMING;
                             //changed to the new hash feature
                             returnEpisodes();
                             //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
-                            if (shows.size() > 0) {
+                            if (!shows.isEmpty()) {
                                 openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                             }
                         }
@@ -494,7 +491,7 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
         episodes = new ArrayList<>();
 
         String ShowTitle = "";
-        if (episodesRaw != null && episodesRaw.size() > 0) {
+        if (episodesRaw != null && !episodesRaw.isEmpty()) {
             for (Episode ep : episodesRaw) {
                 if (showMyEpisodeID != null && ep.getMyEpisodeID().equals(showMyEpisodeID)) {
                     //add to the episode List to show next

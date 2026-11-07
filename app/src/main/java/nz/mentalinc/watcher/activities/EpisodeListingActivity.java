@@ -86,19 +86,14 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private ListMode listMode;
     private boolean dateDescending = false;
     private String title;
-    //private Resources res; // Resource object to get Drawables
-    // private android.content.res.Configuration conf;
-    private Map<LocalDate, List<Episode>> listedAirDates = null;
     private List<Map.Entry<LocalDate, List<Episode>>> listedAirDatesList = null;
     private boolean collapsed = true;
     //private boolean isOnelineCheck;
     private ExpandableListView expandableListView;
 
-    private final UserService userService;
-
     public EpisodeListingActivity() {
         super();
-        userService = new UserService();
+        UserService userService = new UserService();
         this.service = new EpisodesService();
     }
 
@@ -495,7 +490,9 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
         switch (listMode) {
             case EPISODES_BY_DATE: {
-                listedAirDates = new LinkedHashMap<>();
+                //private Resources res; // Resource object to get Drawables
+                // private android.content.res.Configuration conf;
+                Map<LocalDate, List<Episode>> listedAirDates = new LinkedHashMap<>();
                 Map<LocalDate, Integer> workingMap = new TreeMap<>();
                 Map<LocalDate, List<Episode>> dateEpisodesMap = new HashMap<>();
                 List<Episode> unknownDateEpisodes = new ArrayList<>();
@@ -619,7 +616,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
     private void returnEpisodes() {
         shows = new ArrayList<>();
-        if (episodes != null && episodes.size() > 0) {
+        if (episodes != null && !episodes.isEmpty()) {
             for (Episode ep : episodes) {
                 AddEpisodeToShow(ep);
             }

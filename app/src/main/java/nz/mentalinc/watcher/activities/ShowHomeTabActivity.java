@@ -31,7 +31,6 @@ public class ShowHomeTabActivity extends AppCompatActivity {
     Bundle data;
 
     List<Show> shows = new ArrayList<>();
-    private List<Episode> episodesRaw = new ArrayList<>();
     private final List<Episode> episodes = new ArrayList<>();
 
     private static EpisodeType episodesType;
@@ -99,10 +98,10 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
     private void returnEpisodes() {
         //ideally this just grabs the data from the show somehow, loop is slow with lots of data
-        episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
+        List<Episode> episodesRaw = EpisodesController.getInstance().getEpisodes(episodesType);
         //  shows = new ArrayList<>();
 
-        if (episodesRaw != null && episodesRaw.size() > 0) {
+        if (episodesRaw != null && !episodesRaw.isEmpty()) {
             for (Episode ep : episodesRaw) {
                 if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
                     AddEpisodeToShow(ep);
@@ -136,37 +135,37 @@ public class ShowHomeTabActivity extends AppCompatActivity {
                 //switch (nextItem) {
                     if( R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
                         }
                         return true;
                     }else if  (R.id.barEpisodeOverview == nextItem) {
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             //make sure it opens the next WATCH episode details.
                             episodesType = EpisodeType.EPISODES_TO_WATCH;
                             returnEpisodes();
-                            if (shows.size() > 0) {
+                            if (!shows.isEmpty()) {
                                 openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
                             }
                         }
                         return true;
                     }else if (R.id.barWatch == nextItem) {
                         Log.w(LOG_TAG, "barWatch selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
                         }
                         return true;
                     }else if( R.id.barAcquire == nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
 
                         }
                         return true;
                     }else if( R.id.barComing == nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         }
                         return true;

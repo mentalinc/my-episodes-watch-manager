@@ -3,7 +3,6 @@ package nz.mentalinc.watcher.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -21,7 +19,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
@@ -36,7 +33,6 @@ import com.google.android.material.snackbar.Snackbar;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -68,7 +64,6 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
 
     private Integer exceptionMessageResId = null;
     private Integer showListPosition = null;
-    private String title;
     private ListView listView;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
@@ -122,7 +117,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
 
         Bundle data = this.getIntent().getExtras();
-        title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
+        String title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
         Toolbar toolbar = findViewById(R.id.topAppBarShowManagement);
         toolbar.setTitle(title);
 
@@ -243,7 +238,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         dialog.setPositiveButton(R.string.ok, (dialog2, which) -> {
             String newRuntimeValue = runTimeInput.getText().toString();
             //silent fail if user has entered a blank runtime
-            if (runTimeInput.getText().toString().trim().length() < 1) {
+            if (runTimeInput.getText().toString().trim().isEmpty()) {
                 // runTimeInput.setError("Error: Can't be blank");
                 String text = "Error: Runtime can't be blank!";
 

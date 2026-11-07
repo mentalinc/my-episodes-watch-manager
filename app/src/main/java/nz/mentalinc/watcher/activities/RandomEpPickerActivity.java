@@ -281,10 +281,6 @@ public class RandomEpPickerActivity extends Activity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-            //episodesType = (EpisodeType) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE);
-            //showMyEpisodeID = (String) data.getSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID);
-            //String Title = data.getString(ActivityConstants.EXTRA_TITLE);
-
             Bundle BundleInfoShowDetail = new Bundle();
             BundleInfoShowDetail.putSerializable(ActivityConstants.EXTRA_BUNDLE_VAR_EPISODE_TYPE, episodesType);
             BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
@@ -296,11 +292,11 @@ public class RandomEpPickerActivity extends Activity {
                // switch (nextItem) {
                     if(R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             //episodeType is basically watch when clicking on a random episode as only shows EPISODES_TO_WATCH
                             episodesType = EpisodeType.EPISODES_TO_WATCH;
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
-                        } else if (episodes.size() > 0) {
+                        } else if (!episodes.isEmpty()) {
                             Log.w(LOG_TAG, "barShowDetail Executing openShowSummary");
                             openShowSummary(episodes.get(0), episodesType);
                         } else {
@@ -314,7 +310,7 @@ public class RandomEpPickerActivity extends Activity {
                         episodesType = EpisodeType.EPISODES_TO_WATCH;
                         returnEpisodes();
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
                             //   }
                         } else {
@@ -330,14 +326,14 @@ public class RandomEpPickerActivity extends Activity {
                     }else if( R.id.barWatch== nextItem) {
                         Log.w(LOG_TAG, "barWatch selected");
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
                         } else {
                             episodesType = EpisodeType.EPISODES_TO_WATCH;
                             //changed to the new hash feature
                             returnEpisodes();
                             //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
-                            if (shows.size() > 0) {
+                            if (!shows.isEmpty()) {
                                 openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_WATCH);
 
                             } else {
@@ -348,7 +344,7 @@ public class RandomEpPickerActivity extends Activity {
                     }else if( R.id.barAcquire== nextItem) {
                         Log.w(LOG_TAG, "barAcquire selected");
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
                         } else {
                             episodesType = EpisodeType.EPISODES_TO_ACQUIRE;
@@ -356,7 +352,7 @@ public class RandomEpPickerActivity extends Activity {
                             returnEpisodes();
                             //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.ACQUIRE_BY_SHOW));
 
-                            if (shows.size() > 0) {
+                            if (!shows.isEmpty()) {
                                 openEpisodeListing(shows.get(0), EpisodeType.EPISODES_TO_ACQUIRE);
                             }
                         }
@@ -364,14 +360,14 @@ public class RandomEpPickerActivity extends Activity {
                     }else if( R.id.barComing== nextItem) {
                         Log.w(LOG_TAG, "barComing selected");
 
-                        if (shows.size() > 0) {
+                        if (!shows.isEmpty()) {
                             openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                         } else {
                             episodesType = EpisodeType.EPISODES_COMING;
                             //changed to the new hash feature
                             returnEpisodes();
                             //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
-                            if (shows.size() > 0) {
+                            if (!shows.isEmpty()) {
                                 openEpisodeListing(shows.get(0), EpisodeType.EPISODES_COMING);
                             }
                         }
@@ -393,7 +389,7 @@ public class RandomEpPickerActivity extends Activity {
         episodes = new ArrayList<>();
 
         String ShowTitle = "";
-        if (episodesRaw != null && episodesRaw.size() > 0) {
+        if (episodesRaw != null && !episodesRaw.isEmpty()) {
             for (Episode ep : episodesRaw) {
                 if (ep.getMyEpisodeID().equals(showMyEpisodeID)) {
                     //add to the episode List to show next

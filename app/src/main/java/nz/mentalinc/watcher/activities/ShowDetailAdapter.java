@@ -109,30 +109,10 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
                 displayName = displayName.substring("Error mins - ".length());
             }
             showName.setText(displayName);
-            /* nextEpisode = holder.TextViewShowListNextEpisode;
-            //need to build the show array up with episodes attached to the show before adding complex data.
-            String seasonNumber = show.getFirstEpisode().getSeasonString();
-            String episodeNumber = show.getFirstEpisode().getEpisodeString();
-            String episodeName = show.getFirstEpisode().getName();
-            String episodeFullNumbering = "S" + seasonNumber + "E" + episodeNumber + " " + episodeName;
-            nextEpisode.setText(episodeFullNumbering);*/
-
-            //TextView episodeAirTime = holder.episodeAirDateTime;
-            // episodeAirTime.setText(DateFormat.getDateInstance().format(show.getFirstEpisode().getAirDate()));
 
 
             TextView textViewShowsRemaining = holder.textViewShowsRemaining;
             String episodesRemaining;
-
-           /* Date today = Calendar.getInstance().getTime();
-            if(new Date(show.getFirstEpisode().getAirDate()).after(today)){
-                episodesRemaining = show.getNumberEpisodes() + " episodes coming";
-            }else{
-                episodesRemaining = show.getNumberEpisodes() + " episodes remaining";
-            }
-
-            textViewShowsRemaining.setText(episodesRemaining);
-            */
 
 
             Episode nextEpisodeToWatch = show.getFirstEpisode();

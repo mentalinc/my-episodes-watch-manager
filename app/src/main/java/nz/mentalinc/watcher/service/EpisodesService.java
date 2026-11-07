@@ -63,7 +63,6 @@ public class EpisodesService {
     private static final String DESCRIPTION = "description";
     private static final String CHANNEL = "channel";
     private final UserService userService;
-    private boolean fullUnwatchedDownloaded;
 
 
     public EpisodesService() {
@@ -215,10 +214,8 @@ public class EpisodesService {
 
                         episode.setAirDate(airDate != null ? airDate.getTime() : 0);
                         episode.setMyEpisodeID(myEpisodeID);
-                        //episode.setTVMazeWebSite(item.getLink());
 
 
-                        //episode.setShowName(episode.getShowName() +" - "+ showRuntime.showRuntime + " mins");
                         try {
 
                             //RunTimeEnable = true = show runtime
@@ -242,9 +239,6 @@ public class EpisodesService {
                         }
 
 
-                        //   Log.d(LOG_TAG,"Episode RunTime: " + episode.getShowName() + "  " + showRuntime.showRuntime);
-
-//                    Log.d(LOG_TAG, "Episode from feed: ID=" + episode.getMyEpisodeID() + " " + episode.getShowName() + " - S" + episode.getSeasonString() + "E" + episode.getEpisodeString());
                     } else if (episodeInfo.length == MyEpisodeConstants.FEED_TITLE_EPISODE_FIELDS - 1) {
                         //Solves problem mentioned in Issue 20
                         episode.setName(episodeInfo[2].trim() + "...");
@@ -257,9 +251,6 @@ public class EpisodesService {
                         if (showRuntime != null) {
                             episode.setTVMazeWebSite(TV_MAZE_SHOWS_URL + showRuntime.getShowTVMazeID());
                         }
-
-                        //episode.setTVMazeWebSite("Link to episode description coming soon");
-                        //episode.setTVMazeWebSite(ShowsEpisodeLink(seriesDAO.getTvmazeShowID(episode.getMyEpisodeID()).getShowTVMazeID(), episode.getSeason(), episode.getEpisode()));
 
                     } else {
                         String message = "Problem parsing a feed item. Feed details: " + item;
@@ -702,7 +693,7 @@ public class EpisodesService {
             throw new ShowUpdateFailedException(message, e);
         }
 
-        fullUnwatchedDownloaded = true;
+        boolean fullUnwatchedDownloaded = true;
         return sw;
     }
 

@@ -110,7 +110,6 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         // for any view that will be set as you render a row
         private TextView showName;
         private TextView episodetime;
-        private TextView episodeNumber;
         private TextView episodeName;
         private TextView episodeRuntime;
         private ImageView showposter;
@@ -127,7 +126,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
 
             showName = itemView.findViewById(R.id.textViewActivityShow);
             episodetime = itemView.findViewById(R.id.textViewActivityInfo);
-            episodeNumber = itemView.findViewById(R.id.textViewActivityEpisode);
+            TextView episodeNumber = itemView.findViewById(R.id.textViewActivityEpisode);
             episodeName = itemView.findViewById(R.id.textViewActivityEpisode);
             episodeRuntime = itemView.findViewById(R.id.textViewActivityRunTime);
 
