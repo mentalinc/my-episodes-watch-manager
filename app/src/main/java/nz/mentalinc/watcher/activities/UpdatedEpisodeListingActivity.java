@@ -39,8 +39,6 @@ import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.domain.Episode;
 import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
 import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
-import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
-import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.domain.User;
 import nz.mentalinc.watcher.enums.EpisodeType;
@@ -174,20 +172,14 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
         title = title + " (" + episodes.size() + ")";
         ShowNameTitle.setTitle(title);
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "Home button clicked.");
-            Intent home = new Intent(UpdatedEpisodeListingActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
+        
 
         com.google.android.material.appbar.MaterialToolbar appBar = findViewById(R.id.topAppBarEpisodesView);
         appBar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.home) {
                 Intent home = new Intent(UpdatedEpisodeListingActivity.this, HomeActivity.class);
-                home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(home);
                 return true;
             }
@@ -268,12 +260,12 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
     }
 
     private EpisodeType getByShowType(EpisodeType type) {
-        switch (type) {
-            case EPISODES_TO_WATCH: return EpisodeType.WATCH_BY_SHOW;
-            case EPISODES_TO_ACQUIRE: return EpisodeType.ACQUIRE_BY_SHOW;
-            case EPISODES_COMING: return EpisodeType.COMING_BY_SHOW;
-            default: return type;
-        }
+        return switch (type) {
+            case EPISODES_TO_WATCH -> EpisodeType.WATCH_BY_SHOW;
+            case EPISODES_TO_ACQUIRE -> EpisodeType.ACQUIRE_BY_SHOW;
+            case EPISODES_COMING -> EpisodeType.COMING_BY_SHOW;
+            default -> type;
+        };
     }
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener = new NavigationBarView.OnItemSelectedListener() {
@@ -310,7 +302,6 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
                         return true;
                     }else if( R.id.barEpisodeOverview == nextItem) {
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
-                        //   if (shows.size() > 0) {
                         //make sure it opens the next WATCH episode details.
                         episodesType = EpisodeType.EPISODES_TO_WATCH;
                         returnEpisodes();
@@ -789,5 +780,11 @@ public class UpdatedEpisodeListingActivity extends AppCompatActivity implements 
     private void dismissOnlineDialog() {
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_ONLINE_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

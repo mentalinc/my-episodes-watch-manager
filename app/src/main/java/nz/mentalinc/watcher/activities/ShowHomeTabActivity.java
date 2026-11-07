@@ -21,8 +21,6 @@ import nz.mentalinc.watcher.R;
 import nz.mentalinc.watcher.constants.ActivityConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.domain.Episode;
-import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
-import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
 
@@ -81,13 +79,7 @@ public class ShowHomeTabActivity extends AppCompatActivity {
         BundleInfoShowDetail.putString(ActivityConstants.EXTRA_BUNDLE_VAR_SHOW_MYEPISODE_ID, showMyEpisodeID);
         BundleInfoShowDetail.putString(ActivityConstants.EXTRA_TITLE, title);
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "Home button clicked.");
-            Intent home = new Intent(ShowHomeTabActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
+        
     }
 
     private void openEpisodeListing(Show show, EpisodeType episodeType) {
@@ -235,5 +227,11 @@ public class ShowHomeTabActivity extends AppCompatActivity {
 
     private void sortEpisodesOfShows(List<Show> showList) {
         EpisodesController.sortEpisodesOfShows(this, showList);
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

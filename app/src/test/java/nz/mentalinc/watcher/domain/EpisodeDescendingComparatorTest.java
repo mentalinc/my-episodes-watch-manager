@@ -28,7 +28,7 @@ public class EpisodeDescendingComparatorTest {
         eps.add(s1e1);
         eps.add(s2e1);
         eps.add(s1e2);
-        Collections.sort(eps, comparator);
+        eps.sort(comparator);
 
         assertEquals(2, eps.get(0).getSeason());
         assertEquals(2, eps.get(1).getEpisode());

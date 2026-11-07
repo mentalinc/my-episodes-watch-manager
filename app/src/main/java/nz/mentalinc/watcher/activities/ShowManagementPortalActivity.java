@@ -14,14 +14,8 @@ import androidx.preference.PreferenceManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
@@ -69,12 +63,7 @@ public class ShowManagementPortalActivity extends Activity {
         setContentView(R.layout.show_management_portal);
         findViewById(R.id.appBarLayoutPortal).setZ(100f);
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Intent home = new Intent(ShowManagementPortalActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
+        
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigationManage);
         bottomNav.setOnItemSelectedListener(navigationItemSelectedListener);
@@ -94,25 +83,22 @@ public class ShowManagementPortalActivity extends Activity {
     }
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
-            new NavigationBarView.OnItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    final int itemId = item.getItemId();
-                    if (itemId == R.id.barFavouriteShows) {
-                        openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barIgnoredShows) {
-                        openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barAddShows) {
-                        openSearchActivity();
-                        return true;
-                    } else if (itemId == R.id.barShowRuntime) {
-                        openRunTimeActivity();
-                        return true;
-                    }
-                    return false;
+            item -> {
+                final int itemId = item.getItemId();
+                if (itemId == R.id.barFavouriteShows) {
+                    openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barIgnoredShows) {
+                    openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barAddShows) {
+                    openSearchActivity();
+                    return true;
+                } else if (itemId == R.id.barShowRuntime) {
+                    openRunTimeActivity();
+                    return true;
                 }
+                return false;
             };
 
     private void openSearchActivity() {
@@ -187,5 +173,11 @@ public class ShowManagementPortalActivity extends Activity {
                 Log.e(LOG_TAG, "Error downloading show summary", e);
             }
         });
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

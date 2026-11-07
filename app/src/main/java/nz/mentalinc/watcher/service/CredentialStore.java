@@ -43,8 +43,8 @@ public class CredentialStore {
             keyGenerator.init(new KeyGenParameterSpec.Builder(
                     KEY_STORE_ALIAS,
                     KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT
-            ).setBlockModes("GCM")
-                    .setEncryptionPaddings("NoPadding")
+            ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .setKeySize(256)
                     .build());
             return keyGenerator.generateKey();

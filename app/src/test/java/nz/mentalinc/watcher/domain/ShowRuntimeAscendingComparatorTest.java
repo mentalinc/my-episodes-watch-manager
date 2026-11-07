@@ -47,7 +47,7 @@ public class ShowRuntimeAscendingComparatorTest {
         shows.add(high);
         shows.add(low);
         shows.add(mid);
-        Collections.sort(shows, comparator);
+        shows.sort(comparator);
 
         assertEquals("15", shows.get(0).getRunTime());
         assertEquals("30", shows.get(1).getRunTime());
@@ -79,7 +79,7 @@ public class ShowRuntimeAscendingComparatorTest {
         shows.add(ten);
         shows.add(nullShow);
         shows.add(thirtyA);
-        Collections.sort(shows, comparator);
+        shows.sort(comparator);
 
         assertEquals("Error mins", shows.get(0).getRunTime());
         assertEquals("null", shows.get(1).getRunTime());

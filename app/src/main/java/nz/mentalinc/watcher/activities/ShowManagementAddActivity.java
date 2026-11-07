@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -66,25 +65,22 @@ public class ShowManagementAddActivity extends AppCompatActivity {
     private boolean showAlreadyInFavorites = false;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
-            new NavigationBarView.OnItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    final int itemId = item.getItemId();
-                    if (itemId == R.id.barFavouriteShows) {
-                        openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barIgnoredShows) {
-                        openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barAddShows) {
-                        openSearchActivity();
-                        return true;
-                    } else if (itemId == R.id.barShowRuntime) {
-                        openRunTimeActivity();
-                        return true;
-                    }
-                    return false;
+            item -> {
+                final int itemId = item.getItemId();
+                if (itemId == R.id.barFavouriteShows) {
+                    openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barIgnoredShows) {
+                    openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barAddShows) {
+                    openSearchActivity();
+                    return true;
+                } else if (itemId == R.id.barShowRuntime) {
+                    openRunTimeActivity();
+                    return true;
                 }
+                return false;
             };
 
     @Override
@@ -109,12 +105,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         });
 
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Intent home = new Intent(ShowManagementAddActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
+        
     }
 
     private void init() {
@@ -307,9 +298,7 @@ public class ShowManagementAddActivity extends AppCompatActivity {
                             ((ShowManagementAddActivity) getActivity()).addShowByListPosition(showListPosition);
                         }
                     })
-                    .setNegativeButton(R.string.no, (dialog, id) -> {
-                        dismiss();
-                    })
+                    .setNegativeButton(R.string.no, (dialog, id) -> dismiss())
                     .create();
         }
     }
@@ -499,5 +488,11 @@ public class ShowManagementAddActivity extends AppCompatActivity {
         else if (showType.toString().equals("IGNORED_SHOWS"))
             intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ignoredShows));
         startActivity(intent);
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

@@ -12,7 +12,6 @@ import android.util.Xml;
 import androidx.preference.PreferenceManager;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -36,7 +35,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.TimeUnit;
 
@@ -315,7 +313,7 @@ public class EpisodesService {
 
                 String line;
 
-                // read every line of the file into the line-variable, on line at the time
+                // read every line of the file into the line-variable, one line at the time
                 while ((line = buffreader.readLine()) != null) {
                     EpisodeXML.append(line);
                     EpisodeXML.append('\n');
@@ -575,7 +573,7 @@ public class EpisodesService {
                 xsAcquire.startTag(null, CHANNEL);
 
                 for (String a : EpisodeTable) {
-                    //split each column into a array
+                    //split each column into an array
                     if (a.isEmpty()) {
                         Log.d(LOG_TAG, "No Episodes found.");
                     }
@@ -591,7 +589,7 @@ public class EpisodesService {
                         int indexNameEndTag = showPart.indexOf("</a>");
                         String show = showPart.substring(indexName, indexNameEndTag);
 
-                       // This row spams logcat when processing the html file to create the RSS files.
+                       // This row spams logcat when processing the HTML file to create the RSS files.
                         // Log.d("Serier EP", "|" + rowProcess[3]);
 
                         // get Series and Episode
@@ -1140,8 +1138,7 @@ public class EpisodesService {
                         try (Response response = HttpClientProvider.getInstance().get(url, headers)) {
                             if (response.code() == 429) {
                                 rateLimit429Count.incrementAndGet();
-                                if (pool instanceof java.util.concurrent.ThreadPoolExecutor) {
-                                    java.util.concurrent.ThreadPoolExecutor tpe = (java.util.concurrent.ThreadPoolExecutor) pool;
+                                if (pool instanceof java.util.concurrent.ThreadPoolExecutor tpe) {
                                     int max = tpe.getMaximumPoolSize();
                                     if (max > 1) {
                                         tpe.setMaximumPoolSize(max - 1);
@@ -1321,51 +1318,29 @@ public class EpisodesService {
     }
 
     private String buildFeedKeyEpisodesUrl(EpisodeType episodesType, String feedKey) {
-        String urlRep;
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_FEED_URL;
-                break;
-            case EPISODES_TO_ACQUIRE:
-                urlRep = MyEpisodeConstants.UNAQUIRED_EPISODES_FEED_URL;
-                break;
-            case EPISODES_TO_YESTERDAY1:
-                urlRep = MyEpisodeConstants.YESTERDAY_EPISODES_FEED_URL;
-                break;
-            case EPISODES_TO_YESTERDAY2:
-                urlRep = MyEpisodeConstants.YESTERDAY2_EPISODES_FEED_URL;
-                break;
-            case EPISODES_COMING:
-                urlRep = MyEpisodeConstants.COMING_EPISODES_FEED_URL;
-                break;
-            default: //added for code quality
-                urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_FEED_URL;
-        }
+        String urlRep = switch (episodesType) {
+            case EPISODES_TO_WATCH -> MyEpisodeConstants.UNWATCHED_EPISODES_FEED_URL;
+            case EPISODES_TO_ACQUIRE -> MyEpisodeConstants.UNAQUIRED_EPISODES_FEED_URL;
+            case EPISODES_TO_YESTERDAY1 -> MyEpisodeConstants.YESTERDAY_EPISODES_FEED_URL;
+            case EPISODES_TO_YESTERDAY2 -> MyEpisodeConstants.YESTERDAY2_EPISODES_FEED_URL;
+            case EPISODES_COMING -> MyEpisodeConstants.COMING_EPISODES_FEED_URL;
+            default -> //added for code quality
+                    MyEpisodeConstants.UNWATCHED_EPISODES_FEED_URL;
+        };
 
         return urlRep.replace(MyEpisodeConstants.FEED_KEY_REPLACEMENT_STRING, Uri.encode(feedKey));
     }
 
     private String buildLegacyEpisodesUrl(EpisodeType episodesType, String username, String encryptedPassword) {
-        String urlRep;
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_URL;
-                break;
-            case EPISODES_TO_ACQUIRE:
-                urlRep = MyEpisodeConstants.UNAQUIRED_EPISODES_URL;
-                break;
-            case EPISODES_TO_YESTERDAY1:
-                urlRep = MyEpisodeConstants.YESTERDAY_EPISODES_URL;
-                break;
-            case EPISODES_TO_YESTERDAY2:
-                urlRep = MyEpisodeConstants.YESTERDAY2_EPISODES_URL;
-                break;
-            case EPISODES_COMING:
-                urlRep = MyEpisodeConstants.COMING_EPISODES_URL;
-                break;
-            default: //added for code quality
-                urlRep = MyEpisodeConstants.UNWATCHED_EPISODES_URL;
-        }
+        String urlRep = switch (episodesType) {
+            case EPISODES_TO_WATCH -> MyEpisodeConstants.UNWATCHED_EPISODES_URL;
+            case EPISODES_TO_ACQUIRE -> MyEpisodeConstants.UNAQUIRED_EPISODES_URL;
+            case EPISODES_TO_YESTERDAY1 -> MyEpisodeConstants.YESTERDAY_EPISODES_URL;
+            case EPISODES_TO_YESTERDAY2 -> MyEpisodeConstants.YESTERDAY2_EPISODES_URL;
+            case EPISODES_COMING -> MyEpisodeConstants.COMING_EPISODES_URL;
+            default -> //added for code quality
+                    MyEpisodeConstants.UNWATCHED_EPISODES_URL;
+        };
 
         urlRep = urlRep.replace(MyEpisodeConstants.UID_REPLACEMENT_STRING, username);
         return urlRep.replace(MyEpisodeConstants.PWD_REPLACEMENT_STRING, encryptedPassword);

@@ -57,11 +57,7 @@ public class AboutActivity extends Activity {
         TextView aboutWebsite = findViewById(R.id.aboutWebsite);
         Linkify.addLinks(aboutWebsite, Linkify.WEB_URLS);
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "Home button clicked.");
-            exit();
-        });
+        
     }
 
 
@@ -71,7 +67,13 @@ public class AboutActivity extends Activity {
 
     private void exit() {
         Intent home = new Intent(this, HomeActivity.class);
-        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(home);
     }
 }

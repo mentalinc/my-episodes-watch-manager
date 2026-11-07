@@ -32,7 +32,7 @@ public class EpisodesControllerTest {
     public void testSetAndGetEpisodes_watch() {
         Episode ep = new Episode();
         ep.setMyEpisodeID("1");
-        List<Episode> list = Arrays.asList(ep);
+        List<Episode> list = List.of(ep);
         controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, list);
         assertSame(list, controller.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
     }
@@ -41,7 +41,7 @@ public class EpisodesControllerTest {
     public void testSetAndGetEpisodes_acquire() {
         Episode ep = new Episode();
         ep.setMyEpisodeID("2");
-        List<Episode> list = Arrays.asList(ep);
+        List<Episode> list = List.of(ep);
         controller.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, list);
         assertSame(list, controller.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
     }
@@ -50,14 +50,14 @@ public class EpisodesControllerTest {
     public void testSetAndGetEpisodes_coming() {
         Episode ep = new Episode();
         ep.setMyEpisodeID("3");
-        List<Episode> list = Arrays.asList(ep);
+        List<Episode> list = List.of(ep);
         controller.setEpisodes(EpisodeType.EPISODES_COMING, list);
         assertSame(list, controller.getEpisodes(EpisodeType.EPISODES_COMING));
     }
 
     @Test
     public void testAddEpisodes() {
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
         Episode ep1 = new Episode();
         ep1.setMyEpisodeID("1");
         Episode ep2 = new Episode();
@@ -68,7 +68,7 @@ public class EpisodesControllerTest {
 
     @Test
     public void testAddEpisode() {
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
         Episode ep = new Episode();
         ep.setMyEpisodeID("1");
         controller.addEpisode(EpisodeType.EPISODES_TO_WATCH, ep);
@@ -77,7 +77,7 @@ public class EpisodesControllerTest {
 
     @Test
     public void testGetEpisodesCount() {
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
         assertEquals(0, controller.getEpisodesCount(EpisodeType.EPISODES_TO_WATCH));
 
         Episode ep = new Episode();
@@ -88,7 +88,7 @@ public class EpisodesControllerTest {
 
     @Test
     public void testDeleteEpisode() {
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
         Episode ep = new Episode();
         ep.setShowName("Show");
         ep.setSeason(1);
@@ -104,17 +104,17 @@ public class EpisodesControllerTest {
 
     @Test
     public void testAreListsEmpty_allEmpty() {
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
-        controller.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, new ArrayList<Episode>());
-        controller.setEpisodes(EpisodeType.EPISODES_COMING, new ArrayList<Episode>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, new ArrayList<>());
+        controller.setEpisodes(EpisodeType.EPISODES_COMING, new ArrayList<>());
         assertTrue(controller.areListsEmpty());
     }
 
     @Test
     public void testAreListsEmpty_nonEmpty() {
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
-        controller.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, new ArrayList<Episode>());
-        controller.setEpisodes(EpisodeType.EPISODES_COMING, new ArrayList<Episode>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, new ArrayList<>());
+        controller.setEpisodes(EpisodeType.EPISODES_COMING, new ArrayList<>());
 
         Episode ep = new Episode();
         ep.setMyEpisodeID("1");
@@ -130,7 +130,7 @@ public class EpisodesControllerTest {
         ep.setSeason(1);
         ep.setEpisode(1);
         ep.setName("Pilot");
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, Arrays.asList(ep));
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, List.of(ep));
 
         List<Show> first = controller.getRandomWatchEpisodeShowList();
         List<Show> second = controller.getRandomWatchEpisodeShowList();
@@ -142,7 +142,7 @@ public class EpisodesControllerTest {
 
     @Test
     public void testGetRandomWatchEpisodeShowList_emptyWhenNothingToWatch() {
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<Episode>());
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, new ArrayList<>());
 
         assertTrue(controller.getRandomWatchEpisodeShowList().isEmpty());
     }
@@ -152,7 +152,7 @@ public class EpisodesControllerTest {
         Episode ep = new Episode();
         ep.setMyEpisodeID("sid1");
         ep.setShowName("Show1");
-        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, Arrays.asList(ep));
+        controller.setEpisodes(EpisodeType.EPISODES_TO_WATCH, List.of(ep));
         controller.AddToWatchShow(controller.getEpisodes(EpisodeType.EPISODES_TO_WATCH));
 
         HashMap<String, nz.mentalinc.watcher.domain.Show> shows =
@@ -166,7 +166,7 @@ public class EpisodesControllerTest {
         Episode ep = new Episode();
         ep.setMyEpisodeID("sid2");
         ep.setShowName("Show2");
-        controller.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, Arrays.asList(ep));
+        controller.setEpisodes(EpisodeType.EPISODES_TO_ACQUIRE, List.of(ep));
         controller.AddToAcquireShow(controller.getEpisodes(EpisodeType.EPISODES_TO_ACQUIRE));
 
         HashMap<String, nz.mentalinc.watcher.domain.Show> shows =
@@ -180,7 +180,7 @@ public class EpisodesControllerTest {
         Episode ep = new Episode();
         ep.setMyEpisodeID("sid3");
         ep.setShowName("Show3");
-        controller.setEpisodes(EpisodeType.EPISODES_COMING, Arrays.asList(ep));
+        controller.setEpisodes(EpisodeType.EPISODES_COMING, List.of(ep));
         controller.AddToComingShow(controller.getEpisodes(EpisodeType.EPISODES_COMING));
 
         HashMap<String, nz.mentalinc.watcher.domain.Show> shows =

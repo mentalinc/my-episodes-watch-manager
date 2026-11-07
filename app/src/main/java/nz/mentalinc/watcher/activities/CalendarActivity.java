@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -401,7 +400,7 @@ public class CalendarActivity extends AppCompatActivity {
             return true;
         } else if (item.getItemId() == R.id.home) {
             Intent home = new Intent(this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(home);
             return true;
         }
@@ -450,19 +449,14 @@ public class CalendarActivity extends AppCompatActivity {
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(CalendarActivity.this);
             String themeSetting = prefs.getString("ThemeSetting", "0");
-            boolean isDarkTheme;
-            switch (themeSetting) {
-                case "2":
-                    isDarkTheme = true;
-                    break;
-                case "1":
-                    isDarkTheme = false;
-                    break;
-                default:
+            boolean isDarkTheme = switch (themeSetting) {
+                case "2" -> true;
+                case "1" -> false;
+                default -> {
                     int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                    isDarkTheme = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
-                    break;
-            }
+                    yield nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+                }
+            };
 
             int primaryColor = ContextCompat.getColor(CalendarActivity.this, R.color.colorPrimary);
             int accentColor = ContextCompat.getColor(CalendarActivity.this, R.color.colorAccent);
@@ -564,14 +558,7 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 
-    private static class CalendarEpisode {
-        final Episode episode;
-        final EpisodeType type;
-
-        CalendarEpisode(Episode episode, EpisodeType type) {
-            this.episode = episode;
-            this.type = type;
-        }
+    private record CalendarEpisode(Episode episode, EpisodeType type) {
     }
 
     private static class CalendarEpisodeAdapter extends RecyclerView.Adapter<CalendarEpisodeAdapter.ViewHolder> {
@@ -600,22 +587,20 @@ public class CalendarActivity extends AppCompatActivity {
                     ep.getSeason(), ep.getEpisode(), ep.getName()));
 
             String typeLabel;
-            int colorRes;
-            switch (ce.type) {
-                case EPISODES_TO_WATCH:
+            int colorRes = switch (ce.type) {
+                case EPISODES_TO_WATCH -> {
                     typeLabel = holder.itemView.getContext().getString(R.string.watchLabel);
-                    colorRes = R.color.calendarWatchColor;
-                    break;
-                case EPISODES_TO_ACQUIRE:
+                    yield R.color.calendarWatchColor;
+                }
+                case EPISODES_TO_ACQUIRE -> {
                     typeLabel = holder.itemView.getContext().getString(R.string.acquireLabel);
-                    colorRes = R.color.calendarAcquireColor;
-                    break;
-                case EPISODES_COMING:
-                default:
+                    yield R.color.calendarAcquireColor;
+                }
+                default -> {
                     typeLabel = holder.itemView.getContext().getString(R.string.comingLabel);
-                    colorRes = R.color.calendarComingColor;
-                    break;
-            }
+                    yield R.color.calendarComingColor;
+                }
+            };
             holder.episodeType.setText(typeLabel);
             holder.typeIndicator.setBackgroundColor(
                     holder.itemView.getContext().getColor(colorRes));
@@ -651,5 +636,11 @@ public class CalendarActivity extends AppCompatActivity {
                 episodeType = itemView.findViewById(R.id.calendarEpisodeType);
             }
         }
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

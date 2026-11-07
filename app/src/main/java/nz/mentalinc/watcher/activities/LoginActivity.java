@@ -215,12 +215,7 @@ public class LoginActivity extends AppCompatActivity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.fillInAllFields);
-        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        dialog.setNeutralButton(R.string.dialogOK, (dialog1, which) -> dialog1.dismiss());
 
         dialog.setCancelable(false);
         dialog.create();
@@ -233,12 +228,7 @@ public class LoginActivity extends AppCompatActivity {
         MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(context);
         dialog.setTitle(R.string.exceptionDialogTitle);
         dialog.setMessage(R.string.fillInAllFields);
-        dialog.setNeutralButton(R.string.dialogOK, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        dialog.setNeutralButton(R.string.dialogOK, (dialog1, which) -> dialog1.dismiss());
 
         dialog.setCancelable(false);
         dialog.create();
@@ -306,4 +296,10 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(registerActivity);
     }
 
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
+    }
 }

@@ -45,8 +45,6 @@ import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.database.SeriesDAO;
 import nz.mentalinc.watcher.domain.Episode;
-import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
-import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.enums.ListMode;
@@ -144,25 +142,9 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
             return false;
         });
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "Home button clicked.");
-            Intent home = new Intent(EpisodeDetailsActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
+        
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsSeen = findViewById(R.id.markAsSeen);
-        appBarmarkAsSeen.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "markAsSeen button clicked.");
-            closeAndMarkWatched(episode);
-        });
-
-        androidx.appcompat.view.menu.ActionMenuItemView appBarmarkAsAquired = findViewById(R.id.markAsAquired);
-        appBarmarkAsAquired.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "markAsAquired button clicked.");
-            closeAndAcquireEpisode(episode);
-        });
+        
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -592,7 +574,7 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
 
     private void exit() {
         Intent home = new Intent(this, HomeActivity.class);
-        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(home);
     }
 
@@ -689,4 +671,10 @@ public class EpisodeDetailsActivity extends AppCompatActivity {
         EpisodesController.sortEpisodesOfShows(this, showList);
     }
 
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
+    }
 }

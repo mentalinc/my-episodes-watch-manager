@@ -42,8 +42,6 @@ import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.database.SeriesDAO;
 import nz.mentalinc.watcher.domain.Episode;
-import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
-import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.enums.EpisodeType;
 import nz.mentalinc.watcher.enums.ListMode;
@@ -103,11 +101,7 @@ public class RandomEpPickerActivity extends Activity {
                     .show();
         }
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Log.w(LOG_TAG, "Home button clicked.");
-            exit();
-        });
+        
     }
 
     private void displayShow(Show show) {
@@ -303,7 +297,7 @@ public class RandomEpPickerActivity extends Activity {
                     if(R.id.barShowDetail == nextItem) {
                         Log.w(LOG_TAG, "barShowDetail selected");
                         if (shows.size() > 0) {
-                            //episodeType is basically watch when clicking on a random episode a s onlt shows EPISODES_TO_WATCH
+                            //episodeType is basically watch when clicking on a random episode as only shows EPISODES_TO_WATCH
                             episodesType = EpisodeType.EPISODES_TO_WATCH;
                             openShowSummary(shows.get(0).getFirstEpisode(), episodesType);
                         } else if (episodes.size() > 0) {
@@ -316,11 +310,10 @@ public class RandomEpPickerActivity extends Activity {
                         return true;
                     }else if( R.id.barEpisodeOverview == nextItem) {
                         Log.w(LOG_TAG, "barEpisodeOverview selected");
-                        //   if (shows.size() > 0) {
                         //make sure it opens the next WATCH episode details.
                         episodesType = EpisodeType.EPISODES_TO_WATCH;
                         returnEpisodes();
-                        //returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.WATCH_BY_SHOW));
+
                         if (shows.size() > 0) {
                             openEpisodeDetails(shows.get(0).getFirstEpisode(), episodesType);
                             //   }
@@ -644,7 +637,13 @@ public class RandomEpPickerActivity extends Activity {
 
     private void exit() {
         Intent home = new Intent(this, HomeActivity.class);
-        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(home);
     }
 }

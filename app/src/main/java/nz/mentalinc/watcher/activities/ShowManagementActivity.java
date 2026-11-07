@@ -68,26 +68,23 @@ public class ShowManagementActivity extends AppCompatActivity {
     private static final int CONFIRMATION_DIALOG = 3;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
-            new NavigationBarView.OnItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    final int itemId = item.getItemId();
-                    if (itemId == R.id.barFavouriteShows) {
-                        openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barIgnoredShows) {
-                        openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barAddShows) {
-                        openSearchActivity();
-                        return true;
-                    } else if (itemId == R.id.barShowRuntime) {
-                        openRunTimeActivity();
-                        return true;
-                    }
-
-                    return false;
+            item -> {
+                final int itemId = item.getItemId();
+                if (itemId == R.id.barFavouriteShows) {
+                    openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barIgnoredShows) {
+                    openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barAddShows) {
+                    openSearchActivity();
+                    return true;
+                } else if (itemId == R.id.barShowRuntime) {
+                    openRunTimeActivity();
+                    return true;
                 }
+
+                return false;
             };
 
     @Override
@@ -111,12 +108,7 @@ public class ShowManagementActivity extends AppCompatActivity {
 
         reloadShows();
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Intent home = new Intent(ShowManagementActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
+        
     }
 
     private void init() {
@@ -427,5 +419,11 @@ public class ShowManagementActivity extends AppCompatActivity {
         else if (showType.toString().equals("IGNORED_SHOWS"))
             intent.putExtra(ActivityConstants.EXTRA_TITLE, getString(R.string.ignoredShows));
         startActivity(intent);
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

@@ -21,7 +21,7 @@ public class ShowAscendingComparatorTest {
         shows.add(b);
         shows.add(c);
         shows.add(a);
-        Collections.sort(shows, comparator);
+        shows.sort(comparator);
 
         assertEquals("Alpha", shows.get(0).getShowName());
         assertEquals("Bravo", shows.get(1).getShowName());

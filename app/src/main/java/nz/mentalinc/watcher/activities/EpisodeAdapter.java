@@ -86,7 +86,7 @@ public class EpisodeAdapter extends ListAdapter<Episode, EpisodeAdapter.ViewHold
         submitList(updatedEpisodes);
     }
 
-    public static final DiffUtil.ItemCallback<Episode> DIFF_CALLBACK = new DiffUtil.ItemCallback<Episode>() {
+    public static final DiffUtil.ItemCallback<Episode> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(Episode oldItem, Episode newItem) {
             return Objects.equals(oldItem.getShowName(), newItem.getShowName())

@@ -31,12 +31,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +43,6 @@ import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.domain.Episode;
-import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
-import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.domain.ShowAscendingComparator;
 import nz.mentalinc.watcher.domain.ShowDescendingComparator;
@@ -185,7 +178,7 @@ public class ShowListingActivity extends AppCompatActivity {
             //  returnEpisodesShowHash(EpisodesController.getInstance().getEpisodesShows(EpisodeType.COMING_BY_SHOW));
         }
 
-        //DISABLE TO TEST NEW HASHMAP which is in the returnEpisodesShowHash in the if else if else if above. Hashmap has lots of issues removing for now
+        //DISABLE TO TEST NEW HASHMAP which is in the returnEpisodesShowHash in the if /else if / else if above. Hashmap has lots of issues removing for now
         returnEpisodes();
         showsFull = new ArrayList<>(shows);
 
@@ -217,7 +210,7 @@ public class ShowListingActivity extends AppCompatActivity {
             if (id == R.id.home) {
                 Log.w(LOG_TAG, "Home button clicked.");
                 Intent home = new Intent(ShowListingActivity.this, HomeActivity.class);
-                home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(home);
                 return true;
             } else if (id == R.id.btn_title_sort_runtime) {
@@ -844,5 +837,11 @@ public class ShowListingActivity extends AppCompatActivity {
     private void dismissLoadingDialog() {
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

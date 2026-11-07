@@ -7,6 +7,7 @@
         android:contentDescription="@string/home"
         android:enabled="true"
         android:icon="@drawable/outline_home_white_36"
+        android:onClick="handleHomeMenu"
         android:textColor="@color/on_text_white"
         android:title="@string/home"
         android:titleTextColor="@color/on_text_white"

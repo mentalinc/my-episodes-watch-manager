@@ -45,7 +45,7 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
     private FeedItem item = null;
 
     public Feed parseFeed(final URL url) {
-        //replaced by parseFeed(EpisodeType episodesType, final URL url)
+        //replaced by parseFeed(EpisodeType episodesType, final URL)
         Log.e(LOG_TAG, "This will no longer be called. Replaced by parseFeed(EpisodeType episodesType, final URL url)");
         return feed;
     }
@@ -127,16 +127,14 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             } else {
                 //Cache is not enabled using standard RSS feeds
                 if (url.toString().substring(0, 16).equalsIgnoreCase("http://127.0.0.1")) {
-                    switch (episodesType) {
-                        case EPISODES_TO_WATCH:
-                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML));
-                            break;
-                        case EPISODES_TO_ACQUIRE:
-                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE));
-                            break;
-                        default:
-                            inputStream = new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML));
-                    }
+                    inputStream = switch (episodesType) {
+                        case EPISODES_TO_WATCH ->
+                                new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML));
+                        case EPISODES_TO_ACQUIRE ->
+                                new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML_ACQUIRE));
+                        default ->
+                                new ByteArrayInputStream(xmlBytes(MyEpisodeConstants.EXTENDED_EPISODES_XML));
+                    };
                 } else {
                     Log.d(LOG_TAG, "Cache is disabled, download from Internet RSS Feeds");
                     inputStream = openFeed(url);
@@ -302,14 +300,12 @@ public class SaxRssFeedParser extends DefaultHandler implements RssFeedParser {
             StringWriter writer = new StringWriter();
 
             char[] buffer = new char[1024];
-            try {
+            try (is) {
                 Reader reader = new BufferedReader(new InputStreamReader(is, encoding));
                 int n;
                 while ((n = reader.read(buffer)) != -1) {
                     writer.write(buffer, 0, n);
                 }
-            } finally {
-                is.close();
             }
             return writer.toString();
         } else {

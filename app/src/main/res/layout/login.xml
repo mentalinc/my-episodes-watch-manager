@@ -21,7 +21,6 @@
             app:title="@string/loginLoginBtn" />
     </com.google.android.material.appbar.AppBarLayout>
 
-SWteph
     <ScrollView
         android:id="@+id/ScrollView01"
         android:layout_width="match_parent"
@@ -71,7 +70,7 @@ SWteph
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="8dp"
-                android:text="OR" />
+                android:text="@string/loginOr" />
 
             <EditText
                 android:id="@+id/loginApiKey"

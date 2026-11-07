@@ -33,82 +33,60 @@ public class EpisodesController {
     private static final String LOG_TAG = EpisodesController.class.getSimpleName();
 
     public List<Episode> getEpisodes(EpisodeType episodesType) {
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                return watchEpisodes;
-            case EPISODES_TO_ACQUIRE:
-            case EPISODES_TO_YESTERDAY1:
-            case EPISODES_TO_YESTERDAY2:
-                return acquireEpisodes;
-            case EPISODES_COMING:
-                return comingEpisodes;
-
-            default:
-                return null;
-        }
+        return switch (episodesType) {
+            case EPISODES_TO_WATCH -> watchEpisodes;
+            case EPISODES_TO_ACQUIRE, EPISODES_TO_YESTERDAY1, EPISODES_TO_YESTERDAY2 ->
+                    acquireEpisodes;
+            case EPISODES_COMING -> comingEpisodes;
+            default -> null;
+        };
     }
 
 
     public HashMap<String, Show> getEpisodesShows(EpisodeType episodesType) {
-        switch (episodesType) {
-            case WATCH_BY_SHOW:
-                return watchShows;
-            case ACQUIRE_BY_SHOW:
-                return acquireShows;
-            case COMING_BY_SHOW:
-                return comingShows;
-
-            default:
-                return null;
-        }
+        return switch (episodesType) {
+            case WATCH_BY_SHOW -> watchShows;
+            case ACQUIRE_BY_SHOW -> acquireShows;
+            case COMING_BY_SHOW -> comingShows;
+            default -> null;
+        };
     }
 
     public List<Episode> getShowTypeEpisodes(EpisodeType episodesType, String myEpisodeID) {
-        switch (episodesType) {
-            case WATCH_BY_SHOW: {
+        return switch (episodesType) {
+            case WATCH_BY_SHOW -> {
                 Show show = watchShows.get(myEpisodeID);
-                return show != null ? show.getEpisodes() : null;
+                yield show != null ? show.getEpisodes() : null;
             }
-            case ACQUIRE_BY_SHOW: {
+            case ACQUIRE_BY_SHOW -> {
                 Show show = acquireShows.get(myEpisodeID);
-                return show != null ? show.getEpisodes() : null;
+                yield show != null ? show.getEpisodes() : null;
             }
-            case COMING_BY_SHOW: {
+            case COMING_BY_SHOW -> {
                 Show show = comingShows.get(myEpisodeID);
-                return show != null ? show.getEpisodes() : null;
+                yield show != null ? show.getEpisodes() : null;
             }
-            default:
-                return null;
-        }
+            default -> null;
+        };
     }
 
     public int getEpisodesCount(EpisodeType episodesType) {
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                return watchEpisodes.size();
-            case EPISODES_TO_ACQUIRE:
-            case EPISODES_TO_YESTERDAY1:
-            case EPISODES_TO_YESTERDAY2:
-                return acquireEpisodes.size();
-            case EPISODES_COMING:
-                return comingEpisodes.size();
-            default:
-                return 0;
-        }
+        return switch (episodesType) {
+            case EPISODES_TO_WATCH -> watchEpisodes.size();
+            case EPISODES_TO_ACQUIRE, EPISODES_TO_YESTERDAY1, EPISODES_TO_YESTERDAY2 ->
+                    acquireEpisodes.size();
+            case EPISODES_COMING -> comingEpisodes.size();
+            default -> 0;
+        };
     }
 
     public int getShowCountType(EpisodeType episodesType) {
-        switch (episodesType) {
-            case EPISODES_TO_WATCH:
-                return watchShows.size();
-            case EPISODES_TO_ACQUIRE:
-                return acquireShows.size();
-            case EPISODES_COMING:
-                return comingShows.size();
-
-            default:
-                return 0;
-        }
+        return switch (episodesType) {
+            case EPISODES_TO_WATCH -> watchShows.size();
+            case EPISODES_TO_ACQUIRE -> acquireShows.size();
+            case EPISODES_COMING -> comingShows.size();
+            default -> 0;
+        };
     }
 
 
@@ -262,7 +240,7 @@ public class EpisodesController {
 
     public List<Show> getRandomWatchEpisodeShowList() {
         // The show list is rebuilt on every call, so the lookup cache must be reset too.
-        // Otherwise AddEpisodeToShow reuses stale Show objects that are no longer in `shows`,
+        // Otherwise, AddEpisodeToShow reuses stale Show objects that are no longer in `shows`,
         // leaving `shows` empty and making nextInt(0) throw.
         shows = new ArrayList<>();
         showNameMap.clear();
@@ -346,7 +324,7 @@ public class EpisodesController {
 
     public void AddToWatchShow(List<Episode> episodeList) {
         //pass the full episode type list to then split into all the shows.
-        //need to get the array list and loop the episodes putting each episode in the array into its own show, then once have all the shows created, then add them finally to the ArrayMap using the myepisodeid as the key
+        //need to get the array list and loop the episodes putting each episode in the array into its own show. Then once have all the shows created,  add them finally to the ArrayMap using the myepisodeid as the key
 
         // Iterate a copy: callers may pass a show's own episode list, which this method appends to.
         for (Episode eps : new ArrayList<>(episodeList)) {
@@ -357,7 +335,7 @@ public class EpisodesController {
 
             Show showTemp = watchShows.get(myEpID); //may need to test for null to determine if in the arraymayp
             if (showTemp != null) { //use code below
-                //Add episode to the show then add back to the the array,/update
+                //Add episode to the show then add back to the array,/update
                 showTemp.addEpisode(eps);
                 watchShows.replace(myEpID, showTemp);
             } else {

@@ -23,7 +23,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -34,14 +33,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,25 +72,22 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
     private ListView listView;
 
     private final NavigationBarView.OnItemSelectedListener navigationItemSelectedListener =
-            new NavigationBarView.OnItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    final int itemId = item.getItemId();
-                    if (itemId == R.id.barFavouriteShows) {
-                        openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barIgnoredShows) {
-                        openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
-                        return true;
-                    } else if (itemId == R.id.barAddShows) {
-                        openSearchActivity();
-                        return true;
-                    } else if (itemId == R.id.barShowRuntime) {
-                        openRunTimeActivity();
-                        return true;
-                    }
-                    return false;
+            item -> {
+                final int itemId = item.getItemId();
+                if (itemId == R.id.barFavouriteShows) {
+                    openFavouriteOrIgnoredShows(ShowType.FAVOURITE_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barIgnoredShows) {
+                    openFavouriteOrIgnoredShows(ShowType.IGNORED_SHOWS);
+                    return true;
+                } else if (itemId == R.id.barAddShows) {
+                    openSearchActivity();
+                    return true;
+                } else if (itemId == R.id.barShowRuntime) {
+                    openRunTimeActivity();
+                    return true;
                 }
+                return false;
             };
 
     @Override
@@ -119,12 +109,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         init();
 
-        ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-            Intent home = new Intent(ShowManagementRunTimeActivity.this, HomeActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-        });
+        
 
     }
 
@@ -180,7 +165,7 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
                 shows.add(new Show(showRuntime.getShowName(), showRuntime.getShowRuntime(), showRuntime.getShowMyEpsID()));
             }
         }
-        Collections.sort(shows, new ShowRuntimeAscendingComparator());
+        shows.sort(new ShowRuntimeAscendingComparator());
     }
 
 
@@ -255,66 +240,60 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
         dialog.setTitle(shows.get(showListPosition).getShowName());
         dialog.setMessage((R.string.runTimeEditMessage));
         dialog.setCancelable(true);
-        dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newRuntimeValue = runTimeInput.getText().toString();
-                //silent fail if user has entered a blank runtime
-                if (runTimeInput.getText().toString().trim().length() < 1) {
-                    // runTimeInput.setError("Error: Can't be blank");
-                    String text = "Error: Runtime can't be blank!";
+        dialog.setPositiveButton(R.string.ok, (dialog2, which) -> {
+            String newRuntimeValue = runTimeInput.getText().toString();
+            //silent fail if user has entered a blank runtime
+            if (runTimeInput.getText().toString().trim().length() < 1) {
+                // runTimeInput.setError("Error: Can't be blank");
+                String text = "Error: Runtime can't be blank!";
 
-                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                    snackbar.show();
+                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                snackbar.show();
 
 
-                } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
-                    Context context = getApplicationContext();
-                    String text = "Runtime unchanged";
+            } else if (runTimeInput.getText().toString().trim().equals(shows.get(showListPosition).getRunTime())) {
+                Context context1 = getApplicationContext();
+                String text = "Runtime unchanged";
 
-                    Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                    snackbar.show();
+                Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                snackbar.show();
 
-                } else {
-                    runTimeInput.setError(null);
+            } else {
+                runTimeInput.setError(null);
 
-                    String newRuntime = newRuntimeValue;
-                    String showName = shows.get(showListPosition).getShowName();
-                    String showMyEpsID = shows.get(showListPosition).getMyEpisodeID();
-                    int pos = showListPosition;
+                String newRuntime = newRuntimeValue;
+                String showName = shows.get(showListPosition).getShowName();
+                String showMyEpsID = shows.get(showListPosition).getMyEpisodeID();
+                int pos = showListPosition;
 
-                    TaskRunner.getExecutor().execute(() -> {
-                        AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
-                        SeriesDAO seriesDAO = database.getSeriesDAO();
+                TaskRunner.getExecutor().execute(() -> {
+                    AppDatabase database = AppDatabase.getInstance(HomeActivity.getContext().getApplicationContext());
+                    SeriesDAO seriesDAO = database.getSeriesDAO();
 
-                        EpisodeRuntime epsRunTime = new EpisodeRuntime();
-                        epsRunTime.setshowMyepsID(showMyEpsID);
-                        epsRunTime.setShowName(showName);
-                        epsRunTime.setShowRuntime(newRuntime);
-                        Log.d("epsRunTime: ", epsRunTime.toString());
-                        seriesDAO.update(epsRunTime);
+                    EpisodeRuntime epsRunTime = new EpisodeRuntime();
+                    epsRunTime.setshowMyepsID(showMyEpsID);
+                    epsRunTime.setShowName(showName);
+                    epsRunTime.setShowRuntime(newRuntime);
+                    Log.d("epsRunTime: ", epsRunTime.toString());
+                    seriesDAO.update(epsRunTime);
 
-                        runOnUiThread(() -> {
-                            Context ctx = getApplicationContext();
-                            String text = "Runtime for updated " + showName + " updated to " + newRuntime + " mins";
-                            Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
-                            snackbar.show();
+                    runOnUiThread(() -> {
+                        Context ctx = getApplicationContext();
+                        String text = "Runtime for updated " + showName + " updated to " + newRuntime + " mins";
+                        Snackbar snackbar = Snackbar.make(findViewById(R.id.topAppBarShowManagement), text, Snackbar.LENGTH_LONG);
+                        snackbar.show();
 
-                            populateShowRuntimeList();
-                            showListPosition = null;
-                            showAdapter.notifyDataSetChanged();
-                        });
+                        populateShowRuntimeList();
+                        showListPosition = null;
+                        showAdapter.notifyDataSetChanged();
                     });
-                }
-                dialog.dismiss();
+                });
             }
+            dialog2.dismiss();
         });
-        dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                showListPosition = null;
-                dialog.dismiss();
-            }
+        dialog.setNegativeButton(R.string.cancel, (dialog1, which) -> {
+            showListPosition = null;
+            dialog1.dismiss();
         });
 
         dialog.setCancelable(false);
@@ -478,6 +457,12 @@ public class ShowManagementRunTimeActivity extends AppCompatActivity {
 
             return row;
         }
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }
 

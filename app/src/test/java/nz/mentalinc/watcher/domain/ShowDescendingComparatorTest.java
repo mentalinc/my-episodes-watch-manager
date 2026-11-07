@@ -21,7 +21,7 @@ public class ShowDescendingComparatorTest {
         shows.add(a);
         shows.add(b);
         shows.add(c);
-        Collections.sort(shows, comparator);
+        shows.sort(comparator);
 
         assertEquals("Charlie", shows.get(0).getShowName());
         assertEquals("Bravo", shows.get(1).getShowName());

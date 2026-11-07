@@ -28,12 +28,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,7 +48,6 @@ import nz.mentalinc.watcher.exception.InternetConnectivityException;
 import nz.mentalinc.watcher.exception.LoginFailedException;
 import nz.mentalinc.watcher.service.CredentialStore;
 import nz.mentalinc.watcher.service.EpisodesService;
-import nz.mentalinc.watcher.database.AppDatabase;
 import nz.mentalinc.watcher.service.ShowService;
 import nz.mentalinc.watcher.service.UserService;
 import nz.mentalinc.watcher.utils.TaskRunner;
@@ -212,7 +205,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         btnCalendar = findViewById(R.id.btn_calendar);
-        btnCalendar.setOnClickListener(v -> onCalendarClick(v));
+        btnCalendar.setOnClickListener(this::onCalendarClick);
 
         updateHomeButtonCounts();
 
@@ -699,5 +692,11 @@ runOnUiThread(this::updateHomeButtonCounts);
 
     public static Context getContext() {
         return sContext;
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

@@ -46,7 +46,7 @@ public class RowControllerTest {
 
     @Test
     public void testSetOpenAcquireRows() {
-        List<String> rows = Arrays.asList("show3");
+        List<String> rows = List.of("show3");
         controller.setOpenAcquireRows(rows);
         assertEquals(rows, controller.getOpenAcquireRows());
     }

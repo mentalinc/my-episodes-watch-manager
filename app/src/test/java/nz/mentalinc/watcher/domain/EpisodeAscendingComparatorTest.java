@@ -32,7 +32,7 @@ public class EpisodeAscendingComparatorTest {
         eps.add(s2e1);
         eps.add(s1e3);
         eps.add(s1e1);
-        Collections.sort(eps, comparator);
+        eps.sort(comparator);
 
         // Expected order: S1E1, S1E2, S1E3, S2E1, S2E3
         assertEquals(1, eps.get(0).getSeason());

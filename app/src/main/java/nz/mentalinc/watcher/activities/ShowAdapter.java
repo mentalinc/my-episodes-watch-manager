@@ -50,7 +50,7 @@ public class ShowAdapter extends ListAdapter<Show, ShowAdapter.ViewHolder> {
         submitList(updatedShows);
     }
 
-    public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<Show>() {
+    public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(Show oldItem, Show newItem) {
             return Objects.equals(oldItem.getShowName(), newItem.getShowName())

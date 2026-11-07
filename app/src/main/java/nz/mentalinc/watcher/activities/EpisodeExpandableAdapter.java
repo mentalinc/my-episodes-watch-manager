@@ -163,7 +163,7 @@ public class EpisodeExpandableAdapter extends BaseExpandableListAdapter {
             // Defensive copy: the source lists are mutable and reused between refreshes.
             this.episodes = episodes == null
                     ? Collections.emptyList()
-                    : Collections.unmodifiableList(new ArrayList<>(episodes));
+                    : List.copyOf(episodes);
         }
 
         public List<Episode> getEpisodes() {
@@ -175,10 +175,9 @@ public class EpisodeExpandableAdapter extends BaseExpandableListAdapter {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof Group)) {
+            if (!(o instanceof Group group)) {
                 return false;
             }
-            Group group = (Group) o;
             return Objects.equals(key, group.key)
                     && Objects.equals(title, group.title)
                     && episodesEqual(episodes, group.episodes);

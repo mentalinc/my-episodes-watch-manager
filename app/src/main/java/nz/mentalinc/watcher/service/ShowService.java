@@ -1,20 +1,13 @@
 package nz.mentalinc.watcher.service;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 import android.text.util.Linkify;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.util.Log;
-
-import androidx.preference.PreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;

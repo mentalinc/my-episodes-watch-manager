@@ -44,8 +44,6 @@ import nz.mentalinc.watcher.constants.MyEpisodeConstants;
 import nz.mentalinc.watcher.controllers.EpisodesController;
 import nz.mentalinc.watcher.controllers.RowController;
 import nz.mentalinc.watcher.domain.Episode;
-import nz.mentalinc.watcher.domain.EpisodeAscendingComparator;
-import nz.mentalinc.watcher.domain.EpisodeDescendingComparator;
 import nz.mentalinc.watcher.domain.Show;
 import nz.mentalinc.watcher.domain.ShowAscendingComparator;
 import nz.mentalinc.watcher.domain.ShowDescendingComparator;
@@ -291,27 +289,26 @@ public class EpisodeListingActivity extends AppCompatActivity {
         dateDescending = data.getBoolean(ActivityConstants.EXTRA_BUILD_VAR_DATE_DESCENDING, false);
         title = data.getSerializable(ActivityConstants.EXTRA_TITLE, String.class);
         init();
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v -> {
-
-            Log.w(LOG_TAG, "Home button clicked.");
-            exit();
-        });
+        
 
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_collapse = findViewById(R.id.btn_title_collapse);
-        appBarbtn_title_collapse.setOnClickListener(v -> {
+        View appBarbtn_title_collapse = findViewById(R.id.btn_title_collapse);
+        if (appBarbtn_title_collapse != null) {
+            appBarbtn_title_collapse.setOnClickListener(v -> {
 
-            Log.w(LOG_TAG, "Collapse button clicked.");
-            onCollapseClick();
-        });
+                Log.w(LOG_TAG, "Collapse button clicked.");
+                onCollapseClick();
+            });
+        }
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarbtn_title_refresh = findViewById(R.id.btn_title_refresh);
-        appBarbtn_title_refresh.setOnClickListener(v -> {
+        View appBarbtn_title_refresh = findViewById(R.id.btn_title_refresh);
+        if (appBarbtn_title_refresh != null) {
+            appBarbtn_title_refresh.setOnClickListener(v -> {
 
-            Log.w(LOG_TAG, "Refresh button clicked.");
-            onRefreshClick();
-        });
+                Log.w(LOG_TAG, "Refresh button clicked.");
+                onRefreshClick();
+            });
+        }
 
 
     }
@@ -873,7 +870,7 @@ public class EpisodeListingActivity extends AppCompatActivity {
 
     private void exit() {
         Intent home = new Intent(this, HomeActivity.class);
-        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(home);
     }
 
@@ -909,5 +906,11 @@ public class EpisodeListingActivity extends AppCompatActivity {
     private void dismissLoadingDialog() {
         Fragment prev = getSupportFragmentManager().findFragmentByTag(DIALOG_LOADING_TAG);
         if (prev != null) ((DialogFragment) prev).dismiss();
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
     }
 }

@@ -41,7 +41,7 @@ public class ShowDetailAdapter extends ListAdapter<Show, ShowDetailAdapter.ViewH
         submitList(shows != null ? new ArrayList<>(shows) : new ArrayList<>());
     }
 
-    public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<Show>() {
+    public static final DiffUtil.ItemCallback<Show> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(Show oldItem, Show newItem) {
             return Objects.equals(oldItem.getShowName(), newItem.getShowName())

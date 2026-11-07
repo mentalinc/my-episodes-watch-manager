@@ -8,7 +8,7 @@ android {
         minSdk = 36
         targetSdk = 37
         versionCode = 41
-        versionName = '1.9.13'
+        versionName = '1.9.14'
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -61,6 +61,10 @@ android {
         // Android framework classes (e.g. android.util.Log) are stubs in local unit tests.
         // Return default values instead of throwing "not mocked" runtime exceptions.
         unitTests.returnDefaultValues = true
+    }
+    lint {
+        disable 'MissingTranslation'
+        abortOnError true
     }
     namespace = 'nz.mentalinc.watcher'
 }

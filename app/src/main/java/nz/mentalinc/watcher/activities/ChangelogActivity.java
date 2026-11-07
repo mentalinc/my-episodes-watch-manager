@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -45,11 +44,7 @@ public class ChangelogActivity extends Activity {
         TextView version = findViewById(R.id.whatsNewVersion);
         version.setText(ApplicationUtil.getCurrentApplicationVersion(getApplicationContext()));
 
-        androidx.appcompat.view.menu.ActionMenuItemView appBarHome = findViewById(R.id.home);
-        appBarHome.setOnClickListener(v ->
-            Log.w(LOG_TAG, "Home button clicked.")
-            //exit();
-        );
+
     }
 
     private void init(Bundle savedInstanceState) {
@@ -74,7 +69,13 @@ public class ChangelogActivity extends Activity {
 
     public void onHomeClick(View v) {
         Intent home = new Intent(this, HomeActivity.class);
-        home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(home);
+    }
+
+    public void handleHomeMenu(android.view.MenuItem item) {
+        android.content.Intent home = new android.content.Intent(this, HomeActivity.class);
+        home.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(home);
     }
 }

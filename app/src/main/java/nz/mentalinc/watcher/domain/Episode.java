@@ -31,7 +31,7 @@ public class Episode implements Parcelable {
         type = EpisodeType.valueOf(in.readString());
     }
 
-    public static final Creator<Episode> CREATOR = new Creator<Episode>() {
+    public static final Creator<Episode> CREATOR = new Creator<>() {
         @Override
         public Episode createFromParcel(Parcel in) {
             return new Episode(in);
